@@ -80,6 +80,23 @@ export function loadConfig(env = process.env) {
       maxSentences: 12,
       maxSentenceBytes: 600,
     },
+    post: {
+      // public oEmbed: no key, no login
+      oembedUrl: (env.POST_OEMBED_URL || "https://publish.x.com/oembed").trim(),
+      userAgent: (env.POST_USER_AGENT || "Mozilla/5.0 (compatible; PricedIn/1.0)").trim(),
+      timeoutMs: num("POST_OEMBED_TIMEOUT_MS", 5000),
+      retries: num("POST_OEMBED_RETRIES", 2),
+      backoffMs: num("POST_OEMBED_BACKOFF_MS", 300),
+      // a cached post is re-checked this often, so deletions are honoured within the hour
+      recheckMs: num("POST_RECHECK_MS", 3_600_000),
+      // new posts read (cache misses) per IP and in all per UTC day; views of cached posts are free
+      perIpPerDay: num("POST_NEW_PER_IP_PER_DAY", 40),
+      perDay: num("POST_NEW_PER_DAY", 3000),
+      cacheMax: num("POST_CACHE_MAX", 5000),
+      planTtlMs: num("POST_PLAN_TTL_MS", 7 * 86_400_000),
+      // our own domains: a link with x.com changed to one of these reads as a post link
+      selfHosts: list(env.POST_SELF_HOSTS || "isitpriced.in,pricedin.app"),
+    },
     scan: {
       intervalMs: num("SCAN_INTERVAL_MS", 400),
       finality: env.SCAN_FINALITY || "optimistic",
@@ -108,6 +125,11 @@ export function loadConfig(env = process.env) {
     if (net === "testnet" && /mainnet|free\.rpc\.fastnear|^rpc\.fastnear/.test(h)) errors.push(`RPC ${u} looks like mainnet but NEAR_NETWORK=testnet`);
     if (net === "mainnet" && /testnet|test\.rpc/.test(h)) errors.push(`RPC ${u} looks like testnet but NEAR_NETWORK=mainnet`);
   }
+  try {
+    if (!/^https?:$/.test(new URL(config.post.oembedUrl).protocol)) errors.push(`POST_OEMBED_URL must be http(s): ${config.post.oembedUrl}`);
+  } catch { errors.push(`POST_OEMBED_URL is not a URL: ${config.post.oembedUrl}`); }
+  if (config.post.timeoutMs < 100 || config.post.retries < 0 || config.post.retries > 5) errors.push("POST_OEMBED_TIMEOUT_MS must be at least 100 and POST_OEMBED_RETRIES 0..5");
+  if (config.post.cacheMax < 1) errors.push("POST_CACHE_MAX must be at least 1");
   if (config.lane.allowanceYocto > NEAR) errors.push("LANE_ALLOWANCE_NEAR above 1 NEAR is refused");
   if (config.planner.bMicro < 100_000 || config.planner.bMicro > 100_000_000) errors.push("PLANNER_B_MICRO must be 100000..100000000 (the contract's $0.10..$100)");
   if (!config.marketId) warnings.push("MARKET_CONTRACT_ID is not set: claims, events and the lane are off, and /health reports 503");
