@@ -96,13 +96,181 @@
    "method": "register_model",
    "tx": "A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV",
    "link": "https://nearblocks.io/txns/A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV"
+  },
+  {
+   "tag": "register on wrap.near",
+   "method": "storage_deposit",
+   "tx": "9ZdzyodxG92XedLPKPikfTDE7cMJ4UN3c2biT54E9jcE",
+   "link": "https://nearblocks.io/txns/9ZdzyodxG92XedLPKPikfTDE7cMJ4UN3c2biT54E9jcE"
+  },
+  {
+   "tag": "wrap 12.9 NEAR",
+   "method": "near_deposit",
+   "tx": "38rjV4VF2gg52m5pfEBKMFtdCHDTSzcxHwtL4fqxxzUs",
+   "link": "https://nearblocks.io/txns/38rjV4VF2gg52m5pfEBKMFtdCHDTSzcxHwtL4fqxxzUs"
+  },
+  {
+   "tag": "swap 12.9 wNEAR -> USDC",
+   "method": "ft_transfer_call",
+   "tx": "3Mhp4TPA7nspUGityKhSxPDARKJPYZHo7kw7rc9ewUgU",
+   "link": "https://nearblocks.io/txns/3Mhp4TPA7nspUGityKhSxPDARKJPYZHo7kw7rc9ewUgU"
+  },
+  {
+   "tag": "bankroll house-archivist $2.50",
+   "method": "ft_transfer_call",
+   "tx": "3bhA7rApwfa879yeXtjM2H3vz9C3Ldx6hNdCHE1Q8Upw",
+   "link": "https://nearblocks.io/txns/3bhA7rApwfa879yeXtjM2H3vz9C3Ldx6hNdCHE1Q8Upw"
+  },
+  {
+   "tag": "bankroll house-skeptic $2.50",
+   "method": "ft_transfer_call",
+   "tx": "9jKiAgerZgbEvzZLB2iDTF7fdPtbucUyJ358n1cGuAJP",
+   "link": "https://nearblocks.io/txns/9jKiAgerZgbEvzZLB2iDTF7fdPtbucUyJ358n1cGuAJP"
+  },
+  {
+   "tag": "bankroll house-quant $2.50",
+   "method": "ft_transfer_call",
+   "tx": "GpFRAxsqBEC1dUx21QKYW9nrfk4zFo6BnGnKuZzTp2hC",
+   "link": "https://nearblocks.io/txns/GpFRAxsqBEC1dUx21QKYW9nrfk4zFo6BnGnKuZzTp2hC"
+  },
+  {
+   "tag": "treasury $39.68",
+   "method": "ft_transfer_call",
+   "tx": "DhHGE6PLsLgUbfFg9gjtaRG9TEQrNL4dygTP5TBDKmN",
+   "link": "https://nearblocks.io/txns/DhHGE6PLsLgUbfFg9gjtaRG9TEQrNL4dygTP5TBDKmN"
+  },
+  {
+   "tag": "set_limits cap $28.68 lane $10.00",
+   "method": "set_limits",
+   "tx": "2AJCyKfhoBrJjjFdr8SaFs6zNyWRraoEwTwdosiCE9tR",
+   "link": "https://nearblocks.io/txns/2AJCyKfhoBrJjjFdr8SaFs6zNyWRraoEwTwdosiCE9tR"
+  },
+  {
+   "tag": "open tether-0002",
+   "method": "open_claim",
+   "tx": "brCGtcJYbYUDRYGkGnxrrzJpJ8myXfRvVEKnv29ePvp",
+   "link": "https://nearblocks.io/txns/brCGtcJYbYUDRYGkGnxrrzJpJ8myXfRvVEKnv29ePvp"
+  },
+  {
+   "tag": "open tether-0003",
+   "method": "open_claim",
+   "tx": "BNRmu9Q3Ne3V2x43w8BdgHBFL3oegF7b8UarcAgYGcao",
+   "link": "https://nearblocks.io/txns/BNRmu9Q3Ne3V2x43w8BdgHBFL3oegF7b8UarcAgYGcao"
+  },
+  {
+   "tag": "open tether-0005",
+   "method": "open_claim",
+   "tx": "5u7XLKYUsrm5EckbkRrodNHJiGdDEqDWFRGFnhYWMfFw",
+   "link": "https://nearblocks.io/txns/5u7XLKYUsrm5EckbkRrodNHJiGdDEqDWFRGFnhYWMfFw"
+  },
+  {
+   "tag": "open tether-0007",
+   "method": "open_claim",
+   "tx": "3icdq9323gr4QqmyBVGuevizrCqeS7Yfa568MHowMVvY",
+   "link": "https://nearblocks.io/txns/3icdq9323gr4QqmyBVGuevizrCqeS7Yfa568MHowMVvY"
+  },
+  {
+   "tag": "open tether-0022",
+   "method": "open_claim",
+   "tx": "HPw8ptNVmSof2dac8qz4X3H8FcgQtPpiKq8eCoFmCeW4",
+   "link": "https://nearblocks.io/txns/HPw8ptNVmSof2dac8qz4X3H8FcgQtPpiKq8eCoFmCeW4"
+  },
+  {
+   "tag": "open tether-0027",
+   "method": "open_claim",
+   "tx": "EQqVrFVGK3LZi5kJdoCjUAknqpjpnVL5r98nGz6UD4XN",
+   "link": "https://nearblocks.io/txns/EQqVrFVGK3LZi5kJdoCjUAknqpjpnVL5r98nGz6UD4XN"
+  },
+  {
+   "tag": "open tether-0030",
+   "method": "open_claim",
+   "tx": "6kKGncJpcEcahrSJTXrXQZp7duFFAnQXGqrm6iUfsPbL",
+   "link": "https://nearblocks.io/txns/6kKGncJpcEcahrSJTXrXQZp7duFFAnQXGqrm6iUfsPbL"
+  },
+  {
+   "tag": "open tether-0031",
+   "method": "open_claim",
+   "tx": "B2m3dxNRi8CB251QdMEHfeJEfJPCFK6B1sRqtdYowD2s",
+   "link": "https://nearblocks.io/txns/B2m3dxNRi8CB251QdMEHfeJEfJPCFK6B1sRqtdYowD2s"
+  },
+  {
+   "tag": "open tether-0041",
+   "method": "open_claim",
+   "tx": "FXVWsXotYUDnY2T7kU8F4DYirNHFmGN7sBiSm1VbAAYj",
+   "link": "https://nearblocks.io/txns/FXVWsXotYUDnY2T7kU8F4DYirNHFmGN7sBiSm1VbAAYj"
+  },
+  {
+   "tag": "open tether-0069",
+   "method": "open_claim",
+   "tx": "Cvsr9yvYJkMeJ2WEBCnT5ad1HpidBMzJEHvTNbanQwQQ",
+   "link": "https://nearblocks.io/txns/Cvsr9yvYJkMeJ2WEBCnT5ad1HpidBMzJEHvTNbanQwQQ"
+  },
+  {
+   "tag": "open tether-0091",
+   "method": "open_claim",
+   "tx": "4iLQFvGYxgquTjsYzWfae6wZzoCu2ftv7iSCUvbGvJ3s",
+   "link": "https://nearblocks.io/txns/4iLQFvGYxgquTjsYzWfae6wZzoCu2ftv7iSCUvbGvJ3s"
+  },
+  {
+   "tag": "open tether-0095",
+   "method": "open_claim",
+   "tx": "F2NvCGqVMhW9TsW2Y1JPyHnxATjDogjEZ5cU1bwBX9ph",
+   "link": "https://nearblocks.io/txns/F2NvCGqVMhW9TsW2Y1JPyHnxATjDogjEZ5cU1bwBX9ph"
+  },
+  {
+   "tag": "open tether-0104",
+   "method": "open_claim",
+   "tx": "7cx9cAqroWEXqHMvGFHDvYDs2a9tBVfkzS8C4SJKVMii",
+   "link": "https://nearblocks.io/txns/7cx9cAqroWEXqHMvGFHDvYDs2a9tBVfkzS8C4SJKVMii"
+  },
+  {
+   "tag": "open tether-0114",
+   "method": "open_claim",
+   "tx": "3UuwB1F7ayBPSa1JCQVDznbxkyxKAnS2JyiYLvzusZc9",
+   "link": "https://nearblocks.io/txns/3UuwB1F7ayBPSa1JCQVDznbxkyxKAnS2JyiYLvzusZc9"
+  },
+  {
+   "tag": "open tether-0115",
+   "method": "open_claim",
+   "tx": "GCygCVjvFrhx73qY3W8ARpsZX1WcfJ6kAF9ZzEBdnrjm",
+   "link": "https://nearblocks.io/txns/GCygCVjvFrhx73qY3W8ARpsZX1WcfJ6kAF9ZzEBdnrjm"
+  },
+  {
+   "tag": "open tether-0132",
+   "method": "open_claim",
+   "tx": "HFUi9h2MoKHE7AKcGxLzGfPRgzn1WryGYeMPk3PFKmMB",
+   "link": "https://nearblocks.io/txns/HFUi9h2MoKHE7AKcGxLzGfPRgzn1WryGYeMPk3PFKmMB"
+  },
+  {
+   "tag": "open tether-0134",
+   "method": "open_claim",
+   "tx": "3LpzxyjVxBUAoUAV7mpfoUv1bDyXVfQgnfQZnD639qA1",
+   "link": "https://nearblocks.io/txns/3LpzxyjVxBUAoUAV7mpfoUv1bDyXVfQgnfQZnD639qA1"
+  },
+  {
+   "tag": "open tether-0154",
+   "method": "open_claim",
+   "tx": "CKMZLMsrtWuk7r25xfXXZ18hNwhZQBqnwAckqF8rNXfd",
+   "link": "https://nearblocks.io/txns/CKMZLMsrtWuk7r25xfXXZ18hNwhZQBqnwAckqF8rNXfd"
+  },
+  {
+   "tag": "open tether-0161",
+   "method": "open_claim",
+   "tx": "31ExzWrt15yVefQeFeqQbtycqHoiF6B6uRoQejqvApP3",
+   "link": "https://nearblocks.io/txns/31ExzWrt15yVefQeFeqQbtycqHoiF6B6uRoQejqvApP3"
+  },
+  {
+   "tag": "open tether-0163",
+   "method": "open_claim",
+   "tx": "CejDo4eomZ3XqDF6mjys34JtbX2967RDmKn4Vkwu4AQ1",
+   "link": "https://nearblocks.io/txns/CejDo4eomZ3XqDF6mjys34JtbX2967RDmKn4Vkwu4AQ1"
   }
  ],
  "keys_set_at": "2026-11-05T22:06:38.206Z",
  "seed": {
   "page": "tether",
   "source": "corpus/pages/tether.json, https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995 revision 1382852995",
-  "opening": "each line opened at the planner's own estimate (deepseek-ai/DeepSeek-V4.1-Flash-1017, reasoning off, the live paste prompt), clamped to 20-80%, with b = $1.50",
+  "opening": "each line opened at the planner's own estimate (deepseek-ai/DeepSeek-V4.1-Flash-1017, reasoning off, the live paste prompt), clamped to 20-80%, with b = $1.45",
   "planner": {
    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
    "at": "2026-11-05T22:21:31.185Z",
@@ -189,6 +357,204 @@
     }
    ]
   },
-  "claims": []
+  "claims": [
+   {
+    "claim_id": 0,
+    "corpus_id": "tether-0002",
+    "kind": "data",
+    "p0_ppm": 750000,
+    "b_micro": "1450000",
+    "tx": "brCGtcJYbYUDRYGkGnxrrzJpJ8myXfRvVEKnv29ePvp"
+   },
+   {
+    "claim_id": 1,
+    "corpus_id": "tether-0003",
+    "kind": "data",
+    "p0_ppm": 750000,
+    "b_micro": "1450000",
+    "tx": "BNRmu9Q3Ne3V2x43w8BdgHBFL3oegF7b8UarcAgYGcao"
+   },
+   {
+    "claim_id": 2,
+    "corpus_id": "tether-0005",
+    "kind": "data",
+    "p0_ppm": 500000,
+    "b_micro": "1450000",
+    "tx": "5u7XLKYUsrm5EckbkRrodNHJiGdDEqDWFRGFnhYWMfFw"
+   },
+   {
+    "claim_id": 3,
+    "corpus_id": "tether-0007",
+    "kind": "document",
+    "p0_ppm": 700000,
+    "b_micro": "1450000",
+    "tx": "3icdq9323gr4QqmyBVGuevizrCqeS7Yfa568MHowMVvY"
+   },
+   {
+    "claim_id": 4,
+    "corpus_id": "tether-0022",
+    "kind": "document",
+    "p0_ppm": 550000,
+    "b_micro": "1450000",
+    "tx": "HPw8ptNVmSof2dac8qz4X3H8FcgQtPpiKq8eCoFmCeW4"
+   },
+   {
+    "claim_id": 5,
+    "corpus_id": "tether-0027",
+    "kind": "document",
+    "p0_ppm": 650000,
+    "b_micro": "1450000",
+    "tx": "EQqVrFVGK3LZi5kJdoCjUAknqpjpnVL5r98nGz6UD4XN"
+   },
+   {
+    "claim_id": 6,
+    "corpus_id": "tether-0030",
+    "kind": "document",
+    "p0_ppm": 600000,
+    "b_micro": "1450000",
+    "tx": "6kKGncJpcEcahrSJTXrXQZp7duFFAnQXGqrm6iUfsPbL"
+   },
+   {
+    "claim_id": 7,
+    "corpus_id": "tether-0031",
+    "kind": "document",
+    "p0_ppm": 400000,
+    "b_micro": "1450000",
+    "tx": "B2m3dxNRi8CB251QdMEHfeJEfJPCFK6B1sRqtdYowD2s"
+   },
+   {
+    "claim_id": 8,
+    "corpus_id": "tether-0041",
+    "kind": "data",
+    "p0_ppm": 450000,
+    "b_micro": "1450000",
+    "tx": "FXVWsXotYUDnY2T7kU8F4DYirNHFmGN7sBiSm1VbAAYj"
+   },
+   {
+    "claim_id": 9,
+    "corpus_id": "tether-0069",
+    "kind": "document",
+    "p0_ppm": 500000,
+    "b_micro": "1450000",
+    "tx": "Cvsr9yvYJkMeJ2WEBCnT5ad1HpidBMzJEHvTNbanQwQQ"
+   },
+   {
+    "claim_id": 10,
+    "corpus_id": "tether-0091",
+    "kind": "document",
+    "p0_ppm": 600000,
+    "b_micro": "1450000",
+    "tx": "4iLQFvGYxgquTjsYzWfae6wZzoCu2ftv7iSCUvbGvJ3s"
+   },
+   {
+    "claim_id": 11,
+    "corpus_id": "tether-0095",
+    "kind": "document",
+    "p0_ppm": 500000,
+    "b_micro": "1450000",
+    "tx": "F2NvCGqVMhW9TsW2Y1JPyHnxATjDogjEZ5cU1bwBX9ph"
+   },
+   {
+    "claim_id": 12,
+    "corpus_id": "tether-0104",
+    "kind": "document",
+    "p0_ppm": 300000,
+    "b_micro": "1450000",
+    "tx": "7cx9cAqroWEXqHMvGFHDvYDs2a9tBVfkzS8C4SJKVMii"
+   },
+   {
+    "claim_id": 13,
+    "corpus_id": "tether-0114",
+    "kind": "document",
+    "p0_ppm": 600000,
+    "b_micro": "1450000",
+    "tx": "3UuwB1F7ayBPSa1JCQVDznbxkyxKAnS2JyiYLvzusZc9"
+   },
+   {
+    "claim_id": 14,
+    "corpus_id": "tether-0115",
+    "kind": "document",
+    "p0_ppm": 600000,
+    "b_micro": "1450000",
+    "tx": "GCygCVjvFrhx73qY3W8ARpsZX1WcfJ6kAF9ZzEBdnrjm"
+   },
+   {
+    "claim_id": 15,
+    "corpus_id": "tether-0132",
+    "kind": "document",
+    "p0_ppm": 600000,
+    "b_micro": "1450000",
+    "tx": "HFUi9h2MoKHE7AKcGxLzGfPRgzn1WryGYeMPk3PFKmMB"
+   },
+   {
+    "claim_id": 16,
+    "corpus_id": "tether-0134",
+    "kind": "judgment",
+    "p0_ppm": 700000,
+    "b_micro": "1450000",
+    "tx": "3LpzxyjVxBUAoUAV7mpfoUv1bDyXVfQgnfQZnD639qA1"
+   },
+   {
+    "claim_id": 17,
+    "corpus_id": "tether-0154",
+    "kind": "judgment",
+    "p0_ppm": 700000,
+    "b_micro": "1450000",
+    "tx": "CKMZLMsrtWuk7r25xfXXZ18hNwhZQBqnwAckqF8rNXfd"
+   },
+   {
+    "claim_id": 18,
+    "corpus_id": "tether-0161",
+    "kind": "document",
+    "p0_ppm": 500000,
+    "b_micro": "1450000",
+    "tx": "31ExzWrt15yVefQeFeqQbtycqHoiF6B6uRoQejqvApP3"
+   },
+   {
+    "claim_id": 19,
+    "corpus_id": "tether-0163",
+    "kind": "judgment",
+    "p0_ppm": 450000,
+    "b_micro": "1450000",
+    "tx": "CejDo4eomZ3XqDF6mjys34JtbX2967RDmKn4Vkwu4AQ1"
+   }
+  ],
+  "stats": {
+   "claims": 20,
+   "treasury_micro": "11685987",
+   "reserved_micro": "27991040",
+   "at": "2026-11-05T23:11:07.476Z"
+  }
+ },
+ "swaps": [
+  {
+   "at": "2026-11-05T23:06:15.501Z",
+   "near_in": 12.9,
+   "pool": 4512,
+   "quote_micro": "47177027",
+   "usdc_received_micro": "47177027"
+  }
+ ],
+ "funding": {
+  "at": "2026-11-05T23:09:38.716Z",
+  "house_agents": [
+   {
+    "account": "h-archivist.isitpriced.near",
+    "balance_micro": "2500000"
+   },
+   {
+    "account": "h-skeptic.isitpriced.near",
+    "balance_micro": "2500000"
+   },
+   {
+    "account": "h-quant.isitpriced.near",
+    "balance_micro": "2500000"
+   }
+  ],
+  "treasury_micro": "39677027",
+  "reserve_cap_micro": "28677027",
+  "lane_budget_micro": "10000000",
+  "lane_credit_micro": "1000000",
+  "challenge_bond_micro": "1000000"
  }
 }

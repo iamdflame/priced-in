@@ -51,7 +51,7 @@ async function call(contractId, methodName, args, { deposit = 0n, tgas = 60n, ta
   if (failed) throw new Error(`${tag} failed: ${JSON.stringify(r.status.Failure).slice(0, 300)}`);
   return r;
 }
-const exists = async (id) => { try { await provider.query({ request_type: "view_account", finality: "final", account_id: id }); return true; } catch (e) { if (/does not exist|UNKNOWN_ACCOUNT/i.test(String(e.message || e))) return false; throw e; } };
+const exists = async (id) => { try { await provider.query({ request_type: "view_account", finality: "final", account_id: id }); return true; } catch (e) { const all = [e, ...(e.errors || [])].map((x) => String(x?.message || x)).join(" "); if (/does not exist|UNKNOWN_ACCOUNT/i.test(all)) return false; throw e; } };
 
 // ---------- what is there ----------
 const have = BigInt(await view(U, "ft_balance_of", { account_id: dep.root }));
