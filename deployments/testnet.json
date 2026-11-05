@@ -16,10 +16,11 @@
  },
  "code": {
   "market": {
-   "code_hash": "CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2",
-   "sha256": "a8de8d70b87fe730d6e35bb2113e353363367ce9180e4f7de03b8c06f8f0e30b",
+   "code_hash": "GmDTFsi8eTBqnjphFUYSSXQtaYKrV76W8tvdvc1Z7P29",
+   "sha256": "ea32f0970739ebfe312d9f044471f229e80423c5c2c9ef78b2cb0c89d214418a",
    "source": "contracts/market",
-   "build": "node tools/judge/repro.mjs"
+   "build": "node tools/judge/repro.mjs",
+   "source_rev": "63d3da9"
   },
   "swarm": {
    "code_hash": "FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q",
@@ -490,5 +491,16 @@
   "lane": "https://testnet.nearblocks.io/address/lane.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
   "usdc": "https://testnet.nearblocks.io/address/tusdc.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
   "root": "https://testnet.nearblocks.io/address/pimw3dxfzp.basalt-lane-mw2skhdc.testnet"
- }
+ },
+ "upgrades": [
+  {
+   "account": "market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "from": "CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2",
+   "to": "GmDTFsi8eTBqnjphFUYSSXQtaYKrV76W8tvdvc1Z7P29",
+   "tx": "7PERhS12gCND1VRLDJHvbFyJvL2VoLiVtkGPuH5LRHYR",
+   "at": "2026-11-05T21:54:48.135Z",
+   "source_rev": "63d3da9",
+   "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-testnet.mjs)"
+  }
+ ]
 }
