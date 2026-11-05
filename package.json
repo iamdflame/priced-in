@@ -21,7 +21,12 @@
     "ai:e2e": "node services/ai/test/jury-e2e.mjs",
     "ai:smoke": "node --env-file-if-exists=services/ai/.env services/ai/test/live-smoke.mjs",
     "ai:test": "npm run ai:unit && npm run ai:e2e && npm run ai:smoke",
-    "corpus:check": "node corpus/scripts/check.mjs"
+    "corpus:check": "node corpus/scripts/check.mjs",
+    "web:install": "npm --prefix web ci",
+    "web:dev": "npm --prefix web run dev",
+    "web:build": "npm --prefix web run build",
+    "web:test": "npm --prefix web test",
+    "web:e2e": "npm --prefix web run e2e"
   },
   "devDependencies": {
     "@phala/dcap-qvl": "0.7.1",

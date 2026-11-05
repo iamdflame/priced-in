@@ -1,0 +1,16 @@
+# Generates web/test/vectors/lmsr.json from the real crate, so web/src/core/lmsr.ts is
+# proven equal to crates/lmsr. Standalone (its own [workspace]) so the repo workspace is untouched.
+[package]
+name = "lmsr-vectors"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+lmsr = { path = "../../../crates/lmsr" }
+
+[workspace]
+
+# the contract's release profile checks overflow, so the vectors do too
+[profile.release]
+overflow-checks = true
