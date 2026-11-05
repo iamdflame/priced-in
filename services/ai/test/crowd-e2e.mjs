@@ -38,8 +38,8 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../.
 const TGAS = 10n ** 12n;
 const NEAR = 10n ** 24n;
 const near = (x) => BigInt(Math.round(x * 1000)) * NEAR / 1000n;
-// rpc.testnet.near.org is deprecated and answers 429 to everything, and drpc has no broadcast_tx_async; override with E2E_RPC_URLS
-const RPC_URLS = (process.env.E2E_RPC_URLS || "https://test.rpc.fastnear.com,https://rpc.testnet.fastnear.com").split(",");
+// rpc.testnet.near.org is deprecated and answers 429 to everything, and the free plans of the others are rate-limited; override with E2E_RPC_URLS
+const RPC_URLS = (process.env.E2E_RPC_URLS || "https://test.rpc.fastnear.com,https://near-testnet.drpc.org,https://rpc.testnet.fastnear.com").split(",");
 const WASM = path.join(ROOT, "target/wasm32-unknown-unknown/release");
 const RATE = 400_000_000_000_000_000n; // yoctoNEAR per micro-USD: $1 = 0.4 NEAR
 const EXPENSIVE = "mock/expensive-1";
