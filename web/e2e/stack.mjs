@@ -49,6 +49,8 @@ export async function startStack({ claims, build = false, port = 5199, env: extr
     if (errors.length) throw new Error(errors.join("; "));
     const app = createApp(apiCfg, { log: () => {} });
     mountAi(app, ai, { quoteVerifier: nearai.quoteVerifier, gpuVerifier: nearai.gpuVerifier, log: () => {} });
+    // the hosted site's after-trade hook: the offline API scans its own chain, so it has nothing to do here
+    app.addRoute("POST", "/after-trade", async () => ({ status: 200, body: { status: "ignored", note: "the offline stack scans the chain itself" } }));
     const addr = await app.start();
     cleanup.push(() => app.stop());
     const api = `http://127.0.0.1:${addr.port}`;

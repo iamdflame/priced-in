@@ -3,8 +3,8 @@
 //   server:  services/api with the AI writer mounted on services/ai's offline NEAR AI stand-in
 //   site:    this web app on Vite's dev server (WEB_E2E_BUILD=1: the production bundle)
 //   browser: Playwright (from PLAYWRIGHT_DIR, default .apex/design/tools)
-// Load the front page, doubt its sentence with "Doubt it · $1", watch the ink move, the bet reach
-// final, the paragraph rewrite itself with a signed mark, and that mark verify in the browser.
+// Load the front page, bet $1 that its flagged sentence is wrong, and watch the four-step story:
+// the bet final on NEAR, the odds moved, the signed rewrite verified in the browser, an agent waited for.
 // Prints SKIP, with the reason, if any of that can't start. Testnet names only.
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -55,95 +55,87 @@ try {
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
   page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
-  const priceOf = (key) => page.locator(`.running [data-sentence="${key}"]`).getAttribute("data-price").then(Number);
-  const stage = () => page.locator("#doubt-state").getAttribute("data-stage");
+  page.on("response", (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.request().method()} ${r.url().replace(/^https?:\/\/[^/]+/, "")}`); });
+  const priceOf = (key) => page.locator(`.sheet [data-sentence="${key}"]`).first().getAttribute("data-price").then(Number);
   const stageIs = (...names) => page.waitForFunction((ns) => ns.includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), names, { timeout: 20000, polling: 20 });
 
-  // 1. the front page: the Point Source first screen on the live page, every sentence priced
+  // 1. the front page: what this is, and the flagged sentence with its odds and the two bets
   const t0 = Date.now();
   await page.goto(`${site}/`);
-  await page.locator('.ps[data-hero="c0"]').waitFor({ timeout: 15000 });
-  await page.locator('.running [data-sentence="c0"]').waitFor({ timeout: 15000 });
+  await page.locator('.sheet .s.flag[data-sentence="c0"]').waitFor({ timeout: 15000 });
   const before = await priceOf("c0");
-  const label = await page.locator(".ps .sr-text").textContent();
-  // the page shows each line's latest wording: the writer may already have rewritten it
-  // the first screen shows the line as written
-  const c0Text = await page.evaluate(() => window.__pricedin.store.state.page.sentences.find((x) => x.key === "c0").original);
-  check("the front page opens on the sentence, priced, with the page below", (await page.locator(".running [data-sentence]").count()) === 3 && before === 0.5 && /NEAR Intents has processed/i.test(label) && label.startsWith(c0Text),
-    `hero c0 "${label.slice(0, 60)}…", 3 sentences, the first at ${before * 100}% in ${Date.now() - t0} ms`);
+  const h1 = (await page.locator(".hero h1").textContent()).trim();
+  const headline = (await page.locator(".callout .headline").textContent()).trim();
+  check("the front page says what this is, flags a sentence and shows its odds", h1 === "Every sentence here has odds of being true." && before === 0.5 && headline === "A coin flip: 50% chance this is true.",
+    `"${h1}" · "${headline}" in ${Date.now() - t0} ms`);
+  const wins = (await page.locator(".callout .wins").first().textContent()).trim();
+  check("the button says what $1 wins, from the contract's own quote", /^If it’s ruled wrong, you win \$\d+\.\d\d\. If not, you lose the free dollar\.$/.test(wins), wins);
   await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 15000 });
   check("the $1 key is ready before the tap (prefetched at load)", true, `${Date.now() - t0} ms after load`);
-  check("the site is live, not recorded", (await page.evaluate(() => window.__pricedin.mode)) === "live" && !(await page.locator(".ps .label .rec").count()));
+  const pill = (await page.locator("#netpill").textContent()).trim();
+  check("the site is live, and the pill names the network", (await page.evaluate(() => window.__pricedin.mode)) === "live" && pill === "Test money · NEAR testnet", pill);
 
-  // 2. the action is reachable by keyboard and offers the doubt
-  const btn = page.locator('.ps [data-doubt="c0"]');
-  await page.waitForFunction(() => document.querySelector(".ps .doubt")?.style.opacity === "1", null, { timeout: 8000 });
+  // 2. the bet is reachable by keyboard
+  const btn = page.locator('.callout [data-bet="no"]');
   let tabs = 0;
-  while (tabs < 12 && !(await btn.evaluate((b) => b === document.activeElement))) { await page.keyboard.press("Tab"); tabs++; }
-  check("“Doubt it · $1” sits beside the price and is reachable by keyboard", (await btn.textContent()) === "Doubt it · $1" && (await btn.evaluate((b) => b === document.activeElement)), `${tabs} tabs`);
+  while (tabs < 30 && !(await btn.evaluate((b) => b === document.activeElement))) { await page.keyboard.press("Tab"); tabs++; }
+  check("“Bet $1 it’s wrong” is reachable by keyboard", (await btn.evaluate((b) => b === document.activeElement)) && /Bet \$1 it’s wrong/.test(await btn.textContent()), `${tabs} tabs`);
 
-  // 3. doubt it: the ink moves at once, then the chain's price
+  // 3. bet: the odds move at once, then the chain's price; the story says each step
   const tap = Date.now();
   await page.keyboard.press("Enter");
-  await page.waitForFunction(() => Number(document.querySelector('.running [data-sentence="c0"]')?.getAttribute("data-price")) < 0.5, null, { timeout: 5000, polling: 10 });
+  await page.waitForFunction(() => Number(document.querySelector('.sheet [data-sentence="c0"]')?.getAttribute("data-price")) < 0.5, null, { timeout: 5000, polling: 10 });
   const inkMs = Date.now() - tap;
-  check("the ink moves at once from the client quote", inkMs < 1500, `${inkMs} ms after the tap`);
+  check("the odds move at once from the client quote", inkMs < 1500, `${inkMs} ms after the tap`);
   await stageIs("optimistic", "final", "rewritten", "answered");
   const optMs = Date.now() - tap;
   await stageIs("final", "rewritten", "answered");
   const finalMs = Date.now() - tap;
   const after = await priceOf("c0");
   const chainPpm = Number((await (await fetch(`${api}/claims/0`)).json()).claim.price_yes_ppm);
-  const words = await page.locator("#doubt-state").textContent();
-  check("the doubt reaches final, the price moved, said in plain words", after < before && Math.round(after * 1e6) === chainPpm && /You moved this line from 50% to 36%/.test(words) && (await btn.textContent()) === "Priced.",
-    `${before * 100}% -> ${(after * 100).toFixed(4)}% (chain ${chainPpm / 1e4}%), optimistic ${optMs} ms, final ${finalMs} ms; "${words.trim().slice(0, 70)}"`);
+  const s1 = (await page.locator('[data-step-id="bet"]').textContent()).replace(/\s+/g, " ");
+  const s2 = (await page.locator('[data-step-id="odds"]').textContent()).replace(/\s+/g, " ");
+  check("step 1, the bet is in: settled on NEAR, with the explorer link", /Your \$1 bet is in/.test(s1) && /settled on NEAR in \d+\.\d seconds/.test(s1) && (await page.locator('[data-step-id="bet"] a[href*="nearblocks.io/txns/"]').count()) === 1, `optimistic ${optMs} ms, final ${finalMs} ms`);
+  check("step 2, the odds moved, with the shares in dollars, ending on the chip's number", after < before && Math.round(after * 1e6) === chainPpm && /50%→36%/.test(s2) && /you’d get \$\d+\.\d\d/.test(s2) && (await page.locator('[data-chip-for="c0"]').textContent()) === "36%",
+    `${before * 100}% -> ${(after * 100).toFixed(4)}% (chain ${chainPpm / 1e4}%)`);
   const shown = await page.evaluate(() => window.__pricedin.store.state.doubt);
   check("the client quote matched the chain's fill exactly", Math.floor(shown.ctx.quote.priceAfter * 1e6) === chainPpm, `quoted ${Math.floor(shown.ctx.quote.priceAfter * 1e6)} ppm, filled ${chainPpm} ppm`);
-  check("the numeral and the bowl follow the price", (await page.locator(".ps .price .pn").textContent()).trim() === "36");
 
-  // 4. the paragraph rewrites itself with a signed mark, on the first screen and in the page
-  const chip = page.locator('.ps [data-chip="signed"]');
-  await chip.waitFor({ timeout: 15000 });
-  await stageIs("rewritten", "answered");
-  await page.waitForTimeout(1600); // the strike, then the new words (the same words when the band didn't change)
-  const st = await stage();
-  const heroText = await page.locator(".ps .sr-text").textContent();
-  const rewritten = await page.evaluate(() => window.__pricedin.store.state.doubt.ctx.rewrite.sentences.find((x) => x.claim_id === 0)?.text);
-  check("the sentence rewrites with a signed provenance mark", ["rewritten", "answered"].includes(st) && heroText.startsWith(rewritten) && /^signed in a TEE · verify, by .+/.test(await chip.textContent()) && (await page.locator('.running [data-chip="signed"]').count()) === 1,
-    `stage ${st}, "${heroText.slice(0, 90)}" ${Date.now() - tap} ms after the tap`);
-
-  // 5. the mark opens the verify panel: every check runs in the browser
+  // 4. the rewrite, its diff, and its signature checked in this browser
+  await page.locator('[data-step-id="rewrite"][data-state="done"]').waitFor({ timeout: 15000 });
+  await page.waitForFunction(() => /Signature checks out ✓/.test(document.querySelector('[data-step-id="rewrite"]')?.textContent || ""), null, { timeout: 15000 });
+  const s3 = (await page.locator('[data-step-id="rewrite"]').textContent()).replace(/\s+/g, " ");
+  check("step 3, the page rewrote the sentence: a diff, a model, and its signature checks out", (await page.locator('[data-step-id="rewrite"] .diff ins, [data-step-id="rewrite"] .diff del').count()) > 0 && /an AI model running on a sealed chip/.test(s3), s3.slice(0, 120));
+  const chip = page.locator('[data-step-id="rewrite"] [data-chip="signed"]');
   await chip.click();
   await page.locator(".panel [data-verified]").waitFor({ timeout: 15000 });
   const verified = await page.locator(".panel [data-verified]").getAttribute("data-verified");
   const steps = await page.locator(".panel [data-step]").evaluateAll((els) => els.map((e) => `${e.getAttribute("data-step")}=${e.getAttribute("data-status")}`));
-  check("the rewrite verifies in the browser: bytes, hashes, signature, registered key, words", verified === "1", steps.join(" "));
+  check("“verify it yourself” runs every check in the browser: bytes, hashes, signature, registered key, words", verified === "1", steps.join(" "));
   await page.keyboard.press("Escape");
-  check("Escape closes the panel and focus returns to the mark", await page.locator(".panel").evaluate((p) => p.hidden) && await chip.evaluate((c) => c === document.activeElement));
+  check("Escape closes the panel and focus returns to the link", await page.locator(".panel").evaluate((p) => p.hidden) && await chip.evaluate((c) => c === document.activeElement));
+  const s4 = (await page.locator('[data-step-id="answer"]').textContent()).replace(/\s+/g, " ");
+  check("step 4 waits for an agent in plain words", /is reading the sources…|answered/.test(s4), s4.slice(0, 80));
 
-  // 6. a second doubt from the same browser, from the page's reading card: refused plainly, rolled back
+  // 5. a second $1 from the same browser, from the article: refused plainly, rolled back
   await page.goto(`${site}/p/${PAGE}`);
-  const c1 = page.locator('.running [data-sentence="c1"]');
-  await c1.waitFor();
+  const c1 = page.locator('.sheet [data-chip-for="c1"]');
+  await c1.waitFor({ timeout: 15000 });
   await c1.click();
-  const cardBtn = page.locator('.card [data-doubt="c1"]');
-  await cardBtn.waitFor();
-  const cardText = await page.locator(".card").textContent();
-  check("tapping a sentence opens its reading card: price, cost to move 10 points, the doubt", /80/.test(cardText) && /to move it 10 points/.test(cardText), cardText.replace(/\s+/g, " ").slice(0, 90));
-  await cardBtn.click();
-  await page.waitForFunction(() => ["failed", "final"].includes(document.querySelector(".card .status")?.getAttribute("data-stage")), null, { timeout: 20000 });
-  const failure = await page.locator(".card .status").getAttribute("data-failure");
+  await page.locator('.callout [data-bet="no"]').click();
+  await stageIs("failed", "final");
+  const failure = await page.locator("#doubt-state").getAttribute("data-failure");
   const p1 = await priceOf("c1");
-  check("a second $1 from the same browser is refused plainly and the ink moves back", failure === "credit_spent" && p1 === 0.8, `${failure}: "${(await page.locator(".card .status").textContent()).trim()}"`);
+  check("a second $1 from the same browser is refused plainly and the odds move back", failure === "credit_spent" && p1 === 0.8, `${failure}: "${(await page.locator('[data-step-id="bet"]').textContent()).replace(/\s+/g, " ").trim().slice(0, 90)}"`);
 
-  // 7. a designed not-found, the recorded mode, and no console errors
+  // 6. a designed not-found, the recorded mode, and no console errors
   await page.goto(`${site}/nope/really/not`);
   await page.locator('[data-page="not_found"]').waitFor({ timeout: 5000 });
   check("an unknown address is a designed not-found", (await page.locator('[data-page="not_found"] h1').textContent()) === "Nothing here to price.");
   await page.goto(`${site}/?recorded=1`);
-  await page.locator(".ps[data-hero]").waitFor({ timeout: 15000 });
-  const rec = await page.locator(".ps .label").textContent();
-  check("recorded mode says so plainly, and shows the recorded testnet page", /Recorded on NEAR testnet/.test(rec) && /Tether/.test(rec) && (await page.evaluate(() => window.__pricedin.mode)) === "recorded", rec.trim().slice(0, 90));
+  await page.locator(".sheet .s.flag").waitFor({ timeout: 15000 });
+  const rec = (await page.locator("#netpill").textContent()).trim();
+  check("recorded mode says so plainly, and shows the recorded testnet page", /^Recorded/.test(rec) && (await page.locator(".sheet-title h2").textContent()) === "Tether" && (await page.evaluate(() => window.__pricedin.mode)) === "recorded", rec);
   check("no errors in the browser console", errors.length === 0, errors.slice(0, 3).join(" | "));
 } catch (e) {
   check("the run completed", false, e?.message?.split("\n")[0] || String(e));
