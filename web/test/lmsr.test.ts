@@ -30,7 +30,7 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
   });
 
   test("markets: open, price, cost, max loss, every quote and fill, cost to move", () => {
-    let trades = 0, overflows = 0, worstFloat = 0;
+    let trades = 0, overflows = 0, worstFloat = 0, huge = 0;
     for (const v of vectors.markets) {
       const open = openMarket(B(v.b), B(v.p0));
       expect(open).toEqual(mk(v.open));
@@ -53,6 +53,7 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
             expect(quoteBuy(m, side, Number(st.amount_micro) / 1e6).overflow).toBe(true);
             continue;
           }
+          if (B(st.spend) >= 33n * m.b) huge++;
           const [sh, ch] = quoteBuyRaw(m, side, B(st.spend));
           expect(sh).toBe(B(st.shares));
           expect(ch).toBe(B(st.charged));
@@ -76,7 +77,10 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
       expect(m).toEqual(mk(v.final));
     }
     expect(trades).toBeGreaterThan(150);
-    expect(overflows).toBeGreaterThan(0);
+    // the crate checks the price cap before its closed form, so no order overflows any more,
+    // and the vectors hold orders far above 33 b, where the old order did
+    expect(overflows).toBe(0);
+    expect(huge).toBeGreaterThan(20);
     expect(worstFloat).toBeLessThan(1e-9);
   });
 
@@ -145,9 +149,16 @@ describe("lmsr: the numbers the views use", () => {
     expect(q.priceAfter).toBeCloseTo(0.5, 5);
   });
 
-  test("a spend over about 33 times the liquidity overflows, as it does in the contract", () => {
+  test("a spend far above the liquidity buys to the price cap and is charged only that", () => {
     const m = marketFromReceipt(500_000, 100_000);
-    expect(quoteBuy(m, "yes", 5).overflow).toBe(true);
+    const q = quoteBuy(m, "yes", 5); // 50 b: this overflowed before the crate checked the cap first
+    expect(q.overflow).toBe(false);
+    expect(q.chargedMicro).toBe(851_720n); // b ln(0.5 / 0.0001), as crates/lmsr's test says
+    expect(q.priceAfter).toBeGreaterThan(0.9998);
+    const huge = quoteBuy(m, "yes", 1e9);
+    expect(huge.overflow).toBe(false);
+    expect(huge.chargedMicro).toBe(q.chargedMicro);
+    expect(quoteBuy(q.after, "yes", 5).capped).toBe(true);
     expect(quoteBuy(m, "yes", 1).overflow).toBe(false);
     expect(quoteBuy(m, "yes", 0).shares).toBe(0);
   });

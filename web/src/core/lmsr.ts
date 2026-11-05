@@ -148,13 +148,20 @@ export function quoteBuyRaw(m: Market, side: Side, spend: bigint): [bigint, bigi
   const d = dOf(m);
   const room = side === "yes" ? mul(D_CAP - d, m.b) : mul(D_CAP + d, m.b);
   if (room <= 4n) return [0n, 0n];
-  const p = max(priceOf(m, side), P_FLOOR);
-  const inner = SCALE + div(expm1(div(spend, m.b)), p);
-  let shares = mul(m.b, ln(inner));
-  if (shares < 0n) shares = 0n;
-  if (shares > room) shares = room;
-  shares -= 4n;
+  // the cap first: a spend that reaches it buys to it and the rest is never charged, and the
+  // closed form below only ever sees a spend under the cost to the cap (no i128 overflow)
   const before = cost(m);
+  const toCap = cost(withShares(m, side, room)) - before + 1n;
+  let shares: bigint;
+  if (spend >= toCap) shares = room;
+  else {
+    const p = max(priceOf(m, side), P_FLOOR);
+    const inner = SCALE + div(expm1(div(spend, m.b)), p);
+    shares = mul(m.b, ln(inner));
+    if (shares < 0n) shares = 0n;
+    if (shares > room) shares = room;
+  }
+  shares -= 4n;
   for (;;) {
     if (shares <= 0n) return [0n, 0n];
     const after = withShares(m, side, shares);

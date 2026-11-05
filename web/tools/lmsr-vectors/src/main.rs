@@ -136,15 +136,23 @@ fn main() {
                 if side == Side::Yes { held_yes -= shares } else { held_no -= shares }
                 steps.push(format!("{{{},\"op\":\"sell\",\"side\":\"{}\",\"shares\":{},\"proceeds\":{},\"proceeds_micro\":\"{}\",\"price_yes_after\":{}}}", state, side_str(side), s(shares), s(proceeds), proceeds.max(0) / MICRO, s(m.price_yes())));
             } else {
-                // spends from one cent to $20, sometimes a big one that runs into the price cap
-                let amount_micro: i128 = if rng.below(10) == 0 { (50 + rng.below(500)) as i128 * MICRO } else { 10_000 + rng.below(20_000_000) as i128 };
+                // spends from one cent to $20, sometimes a big one that runs into the price cap,
+                // and now and then a huge one ($1,000 to $10^9): far above 33 b, where the old
+                // order of quote_buy overflowed i128
+                let amount_micro: i128 = match rng.below(20) {
+                    0 => 10i128.pow(9 + rng.below(7) as u32) + rng.below(1_000_000) as i128,
+                    1 | 2 => (50 + rng.below(500)) as i128 * MICRO,
+                    _ => 10_000 + rng.below(20_000_000) as i128,
+                };
                 let spend = amount_micro * MICRO;
                 let mm = m;
                 let r = std::panic::catch_unwind(move || (mm.quote_buy(side, spend), contract_buy(&mm, side, amount_micro)));
                 let ((shares, charged), (sh_micro, charged_micro)) = match r {
                     Ok(v) => v,
                     Err(_) => {
-                        // i128 overflow inside the fixed-point maths: the contract panics too
+                        // i128 overflow inside the fixed-point maths: the contract would panic too.
+                        // Since quote_buy checks the cap first no vector lands here; the web test
+                        // requires that there are none
                         steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"amount_micro\":\"{}\",\"overflow\":true,\"price_yes_after\":{}}}", state, side_str(side), s(spend), amount_micro, s(m.price_yes())));
                         continue;
                     }
