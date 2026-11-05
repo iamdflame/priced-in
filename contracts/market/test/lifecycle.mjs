@@ -7,7 +7,9 @@
 //   three disputes and the council; expire_challenge; reopen; fund_question;
 //   anchor_rewrite; a verdict hidden in reasoning_content; lane winnings above the credit;
 //   an agent betting with its function-call key, refused withdraw, charged, closed;
-//   a failed withdraw refunded; pause.
+//   house agents that must opt in before an operator can charge them, and can leave;
+//   a buy fifty times the liquidity that stops at the price cap and keeps the rest;
+//   a failed withdraw refunded; pause, which also holds the treasury, the council and deposits.
 // After each stage it checks the books: the USDC the market holds equals every bucket, and every
 // bucket equals the sum of the items in it. At the end it rebuilds every balance and position
 // from the events alone. It deletes its accounts back to the funder, sweeping the market's
@@ -25,8 +27,23 @@ const TGAS = 1_000_000_000_000n;
 const NEAR = 1_000_000_000_000_000_000_000_000n;
 const ONE_YOCTO = 1n;
 const near = (x) => BigInt(Math.round(x * 1000)) * NEAR / 1000n;
-const RPC = process.env.NEAR_TESTNET_RPC || "https://test.rpc.fastnear.com";
-const provider = new JsonRpcProvider({ url: RPC });
+// NEAR_TESTNET_RPC may list several endpoints, comma-separated. A request the endpoint refuses
+// with a rate limit (HTTP 429) goes to the next one: the refusal comes before the endpoint
+// takes the request, so nothing ran. Every other answer is returned as it is.
+const RPCS = (process.env.NEAR_TESTNET_RPC || "https://test.rpc.fastnear.com,https://testnet-rpc.intea.rs,https://rpc.testnet.near.org").split(",").map((s) => s.trim()).filter(Boolean);
+const isRateLimit = (e) => e?.cause === 429 || /-429|Rate limits exceeded|Too Many Requests|DEPRECATED/i.test(String(e?.message || e));
+class RotatingProvider extends JsonRpcProvider {
+  constructor(urls) { super({ url: urls[0] }); this.urls = urls; this.at = 0; }
+  next() { this.at = (this.at + 1) % this.urls.length; this.connection.url = this.urls[this.at]; return this.connection.url; }
+  async sendJsonRpc(method, params) {
+    for (let n = 0; ; n++) {
+      try { return await super.sendJsonRpc(method, params); }
+      catch (e) { if (n >= 4 * this.urls.length || !isRateLimit(e)) throw e; this.next(); await new Promise((r) => setTimeout(r, 800 * (1 + Math.floor(n / this.urls.length)))); }
+    }
+  }
+}
+const provider = new RotatingProvider(RPCS);
+const RPC_URL = () => provider.connection.url;
 const sha = (b) => createHash("sha256").update(b).digest("hex");
 const hex = (u8) => Buffer.from(u8).toString("hex");
 const results = [];
@@ -41,7 +58,12 @@ async function retry(fn) {
   }
 }
 const view = (contractId, method, args = {}) => retry(() => provider.callFunction({ contractId, method, args }));
-const rpc = (method, params) => retry(async () => { const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) }); if (!r.ok) throw new Error(`rpc ${r.status}`); return (await r.json()).result; });
+const rpc = (method, params) => retry(async () => {
+  const r = await fetch(RPC_URL(), { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
+  const j = r.ok ? await r.json() : null;
+  if (!r.ok || j?.error?.code === -429) { provider.next(); throw new Error(`rpc ${r.status} 429`); }
+  return j.result;
+});
 const WASM = "target/wasm32-unknown-unknown/release";
 const wasm = (n) => new Uint8Array(fs.readFileSync(`${WASM}/${n}.wasm`));
 
@@ -129,14 +151,30 @@ function value(tx) {
   const s = Buffer.from(v, "base64").toString("utf8");
   try { return JSON.parse(s); } catch { return s; }
 }
+// a write is retried only when the RPC refused it with a rate limit, before it took the
+// transaction; any other failure is the contract's answer and is returned as it is
+const rateLimited = (e) => /-429|Rate limits exceeded|Too Many Requests/i.test(String(e?.message || e));
 async function call(acct, contractId, methodName, args, { deposit = 0n, tgas = 40n, tag = methodName } = {}) {
-  const tx = await acct.callFunctionRaw({ contractId, methodName, args, gas: tgas * TGAS, deposit, waitUntil: "FINAL" });
+  let tx;
+  for (let i = 0; ; i++) {
+    try { tx = await acct.callFunctionRaw({ contractId, methodName, args, gas: tgas * TGAS, deposit, waitUntil: "FINAL" }); break; }
+    catch (e) { if (i >= 6 || !rateLimited(e)) throw e; await sleep(3000 * (i + 1)); }
+  }
   record(tag, tx);
   return value(tx);
 }
+// a refusal check that lost its connection (no answer at all) asks again: the call is meant to
+// be refused, so asking twice can't move money that asking once wouldn't
 async function refused(name, fn, pattern) {
-  try { await fn(); check(name, false, "it went through"); }
-  catch (e) { const s = String(e.message || e); check(name, pattern.test(s), pattern.test(s) ? "" : s.slice(0, 240)); }
+  for (let i = 0; ; i++) {
+    try { await fn(); check(name, false, "it went through"); return; }
+    catch (e) {
+      const s = String(e.message || e);
+      if (!pattern.test(s) && i < 3 && /fetch failed|ECONNRESET|ETIMEDOUT|socket hang up/i.test(s)) { await sleep(2000 * (i + 1)); continue; }
+      check(name, pattern.test(s), pattern.test(s) ? "" : s.slice(0, 240));
+      return;
+    }
+  }
 }
 const blockNs = async () => BigInt((await rpc("block", { finality: "final" })).header.timestamp_nanosec);
 async function waitPast(ns) { while ((await blockNs()) <= BigInt(ns)) await sleep(700); }
@@ -311,6 +349,20 @@ async function main() {
   const claimsNow = (await view(M, "stats")).claims;
   check("a receipt opens one market: replayed, it bets on that market", again.claim_id === opened.claim_id && claimsNow === opened.claim_id + 1, `claim ${again.claim_id}, ${claimsNow} claims`);
   await books("trades and lane");
+
+  // ---------- a buy far above the liquidity: to the price cap, the rest never charged ----------
+  // $5 on b = $0.10 is 50 b. Before crates/lmsr checked the cap first, this overflowed i128.
+  const cBig = await call(council, M, "open_claim", { text: "Huge: a claim for the large-buy test.", page: "lifecycle", kind: "data", p0_ppm: 500000, b_micro: "100000" });
+  claimIds.add(cBig);
+  const aliceBig = await bal(A);
+  const huge = await call(alice, M, "buy", { claim_id: cBig, side: "yes", amount_micro: "5000000", min_shares_micro: "0" }, { tgas: 30n, tag: "buy (50 b, to the cap)" });
+  check("a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing", huge.price_yes_ppm_after >= 999_800 && Number(huge.shares_micro) > 0, `${huge.price_yes_ppm_before / 1e4}% -> ${huge.price_yes_ppm_after / 1e4}%, ${Number(huge.shares_micro) / 1e6} shares`);
+  check("only the shares up to the cap are charged; the rest stays in the balance", huge.amount_micro === "851720" && (await bal(A)) === aliceBig - 851_720n, `$${Number(huge.amount_micro) / 1e6} of $5 charged, b ln(0.5 / 0.0001) = $0.851720`);
+  await refused("at the cap a further buy is refused, not charged", () => call(alice, M, "buy", { claim_id: cBig, side: "yes", amount_micro: "5000000", min_shares_micro: "0" }, { tgas: 30n }), /price is at its cap|amount too small/);
+  const noBack = await call(bob, M, "buy", { claim_id: cBig, side: "no", amount_micro: "100000", min_shares_micro: "0" }, { tgas: 30n });
+  check("the other side still trades at the cap", Number(noBack.shares_micro) > 0 && noBack.price_yes_ppm_after < huge.price_yes_ppm_after);
+  check("the refused buy charged nothing", (await bal(A)) === aliceBig - 851_720n);
+  await books("a buy to the cap");
 
   // ---------- the dispute path: models rule FALSE, a bonded person flips it, it stands ----------
   const aliceAt = await bal(A), bobAt = await bal(B);
@@ -515,6 +567,36 @@ async function main() {
   const tre = BigInt((await view(M, "stats")).treasury_micro), agB = await bal(AG);
   await call(council, M, "charge_inference", { agent: AG, amount_micro: "250000", usage_hash: usage });
   check("charge_inference moves the agent's balance to the treasury, on-chain", (await bal(AG)) === agB - 250_000n && BigInt((await view(M, "stats")).treasury_micro) === tre + 250_000n);
+  check("a swarm agent is chargeable without opting in: its owner consented by spawning it", (await view(M, "get_house_agent", { account: AG })).chargeable === true);
+
+  // ---------- house agents opt in, and can leave ----------
+  await refused("only the owner proposes a house agent", () => call(alice, M, "set_house_agent", { account: A, allowed: true }), /owner only/);
+  await refused("the owner can't propose the lane as a house agent", () => call(council, M, "set_house_agent", { account: L, allowed: true }), /lane can't be a house agent/);
+  await refused("the lane can't accept being a house agent", () => call(lane, M, "accept_house_agent", {}), /lane can't be a house agent/);
+  await refused("an account nobody proposed can't accept", () => call(bob, M, "accept_house_agent", {}), /has not proposed/);
+  await call(council, M, "set_house_agent", { account: B, allowed: true });
+  let ha = await view(M, "get_house_agent", { account: B });
+  check("the owner's proposal alone doesn't make an account chargeable", ha.proposed === true && ha.accepted === false && ha.chargeable === false);
+  await refused("a proposed house agent can't be charged before it accepts", () => call(council, M, "charge_inference", { agent: B, amount_micro: "100000", usage_hash: usage }), /not an agent/);
+  await call(bob, M, "accept_house_agent", {});
+  ha = await view(M, "get_house_agent", { account: B });
+  check("the account accepts with its own key and becomes chargeable", ha.proposed && ha.accepted && ha.chargeable);
+  const bobH = await bal(B), treH = BigInt((await view(M, "stats")).treasury_micro);
+  await call(council, M, "charge_inference", { agent: B, amount_micro: "100000", usage_hash: usage }, { tag: "charge_inference (house agent)" });
+  check("an operator charges a house agent that accepted", (await bal(B)) === bobH - 100_000n && BigInt((await view(M, "stats")).treasury_micro) === treH + 100_000n);
+  await call(bob, M, "leave_house_agent", {});
+  ha = await view(M, "get_house_agent", { account: B });
+  check("a house agent leaves at any time, its balance intact", !ha.proposed && !ha.accepted && !ha.chargeable && (await bal(B)) === bobH - 100_000n);
+  await refused("after leaving it can't be charged", () => call(council, M, "charge_inference", { agent: B, amount_micro: "100000", usage_hash: usage }), /not an agent/);
+  await refused("leaving twice is refused", () => call(bob, M, "leave_house_agent", {}), /not a house agent/);
+  await call(council, M, "set_house_agent", { account: B, allowed: true });
+  check("a fresh proposal needs fresh consent", (await view(M, "get_house_agent", { account: B })).chargeable === false);
+  await call(bob, M, "accept_house_agent", {});
+  await call(council, M, "set_house_agent", { account: B, allowed: false });
+  ha = await view(M, "get_house_agent", { account: B });
+  check("the owner withdrawing a proposal also ends the consent", !ha.proposed && !ha.accepted && !ha.chargeable);
+  await refused("so it can't be charged", () => call(council, M, "charge_inference", { agent: B, amount_micro: "100000", usage_hash: usage }), /not an agent/);
+  await books("house agents");
   await refused("nobody but the swarm can release an agent's balance", () => call(alice, M, "release_agent", { agent: AG, to: A, amount_micro: null }), /swarm only/);
   const ch5 = await call(alice, M, "challenge", { claim_id: c6, claimed_outcome: true, evidence: "It happened." });
   await quorum(ch5, "TRUE");
@@ -551,6 +633,9 @@ async function main() {
   await call(alice, M, "dispute", { challenge_id: ch7, evidence: "two" });
   const aliceV = await bal(A), bobV = await bal(B);
   await call(bob, M, "dispute", { challenge_id: ch7, evidence: "three" });
+  await call(council, M, "pause", { paused: true });
+  await refused("a pause holds the council's settlement too", () => call(council, M, "council_settle", { challenge_id: ch7, outcome: null }), /paused/);
+  await call(council, M, "pause", { paused: false });
   await call(council, M, "council_settle", { challenge_id: ch7, outcome: null });
   cl = await view(M, "get_claim", { claim_id: c8 });
   check("a council void returns every bond and reopens the claim", cl.status === "Open" && cl.provisional === null && (await bal(A)) === aliceV + 4_000_000n && (await bal(B)) === bobV + 2_000_000n);
@@ -564,6 +649,17 @@ async function main() {
   await refused("a pause stops settlement", () => call(carol, M, "finalize", { challenge_id: ch6 }), /paused/);
   await call(alice, M, "dispute", { challenge_id: ch6, evidence: "Disputes stay open in a pause." });
   check("a dispute still lands during a pause", (await view(M, "get_claim", { claim_id: c7 })).provisional === false);
+  await refused("a pause holds the owner's treasury withdrawal too", () => call(council, M, "withdraw_treasury", { amount_micro: "1000000" }, { tgas: 60n }), /paused/);
+  const sTok = BigInt(await view(T, "ft_balance_of", { account_id: stranger.accountId })), mTok = BigInt(await view(T, "ft_balance_of", { account_id: M }));
+  await call(stranger, T, "ft_transfer_call", { receiver_id: M, amount: "1000000", msg: "" }, { deposit: ONE_YOCTO, tgas: 60n, tag: "deposit (paused, returned)" });
+  check("a deposit during a pause is refused and returned by the token", BigInt(await view(T, "ft_balance_of", { account_id: stranger.accountId })) === sTok && BigInt(await view(T, "ft_balance_of", { account_id: M })) === mTok && sTok >= 1_000_000n);
+  await call(council, M, "set_house_agent", { account: C, allowed: true });
+  await call(carol, M, "accept_house_agent", {});
+  await refused("a pause stops inference charges", () => call(council, M, "charge_inference", { agent: C, amount_micro: "100000", usage_hash: usage }), /paused/);
+  const carolP = await bal(C);
+  await call(carol, M, "leave_house_agent", {});
+  check("a house agent can leave during a pause, balance intact", (await view(M, "get_house_agent", { account: C })).chargeable === false && (await bal(C)) === carolP);
+  await books("paused");
   await call(council, M, "pause", { paused: false });
   await waitPast(await view(M, "dispute_ends_ns", { challenge_id: ch6 }));
   await call(carol, M, "finalize", { challenge_id: ch6 });
