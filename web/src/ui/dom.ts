@@ -33,6 +33,16 @@ export function append(el: Element, children: Child[]) {
 /** Children with the empty ones dropped, numbers as text. */
 export const nodes = (cs: Child[]): (Node | string)[] => cs.filter((c) => c !== null && c !== undefined && c !== false).map((c) => (typeof c === "object" ? c : String(c))) as (Node | string)[];
 
+/** Subscribe to a store, but render at most once a frame: a burst of events (a replayed backlog) is one paint. */
+export function onFrame<S>(store: { subscribe(fn: (s: S) => void): () => void; state: S }, fn: (s: S) => void): () => void {
+  let raf = 0;
+  const off = store.subscribe(() => {
+    if (raf) return;
+    raf = requestAnimationFrame(() => { raf = 0; fn(store.state); });
+  });
+  return () => { off(); if (raf) cancelAnimationFrame(raf); };
+}
+
 /** Every duration is a multiple of one beat. */
 export const BEAT = 400;
 export const reducedMotion = () => typeof matchMedia === "function" && matchMedia("(prefers-reduced-motion: reduce)").matches;

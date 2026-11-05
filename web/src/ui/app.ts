@@ -1,6 +1,6 @@
 // The site: the header (the wordmark and one line), the view for the route, and the verify panel.
 import type { AppState } from "../core/store";
-import { h } from "./dom";
+import { h, onFrame } from "./dom";
 import { markSvg, type Ctx } from "./context";
 import { VerifyPanel } from "./verify";
 import { AgentsView, AuditView, ClaimView, HomeView, NotFoundView, PageView, PostView, VerifyView, type View } from "./views";
@@ -44,7 +44,7 @@ export function mountApp(root: HTMLElement, ctx: Omit<Ctx, "openVerify">) {
     }
     view!.update(st);
   };
-  ctx.store.subscribe(render);
+  onFrame(ctx.store, render);
   render(ctx.store.state);
 }
 

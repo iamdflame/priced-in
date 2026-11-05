@@ -4,7 +4,7 @@
 // beside the bowl. When money moves, the new ink spreads out of the bowl as a ring.
 import type { AppState, Sentence } from "../core/store";
 import { priceable } from "../core/store";
-import { BEAT, countTo, ease, h, nodes, reducedMotion, s, wait, withoutStop, wordDiff, type Child } from "./dom";
+import { BEAT, countTo, ease, h, nodes, onFrame, reducedMotion, s, wait, withoutStop, wordDiff, type Child } from "./dom";
 import { display, displayInk, fitFat, FAT, greyInk, baseline, type Display, type Fit } from "./type/display";
 import { dishName, doubtButton, doubtWords, todayLine, tradeWords, type Ctx } from "./context";
 import { loadField, palette, safeField, type Field } from "./field-port";
@@ -51,6 +51,8 @@ export class Hero {
     this.poster.append(this.marks);
     this.priceEl.append(this.pnum, h("span", { class: "pc" }, "%"));
     this.readout.append(h("div", { class: "row" }, this.priceEl, this.btn), this.statusEl, this.chipWrap);
+    // nothing shows until it has its place: no shift on first paint
+    for (const el of [this.labelEl, this.readout, this.bowl]) el.style.visibility = "hidden";
     this.btn.addEventListener("click", () => this.onDoubt());
     this.priceEl.addEventListener("click", (e) => { e.preventDefault(); document.getElementById("the-page")?.scrollIntoView({ behavior: reducedMotion() ? "auto" : "smooth" }); });
   }
@@ -62,7 +64,7 @@ export class Hero {
       if (k !== this.lastSize && this.key) { this.lastSize = k; this.relayout(); }
     });
     this.ro.observe(this.el);
-    this.unsub = this.ctx.store.subscribe((st) => this.update(st));
+    this.unsub = onFrame(this.ctx.store, (st) => this.update(st));
   }
 
   destroy() {
@@ -76,21 +78,23 @@ export class Hero {
 
   /** Set the sentence this screen is about. */
   async show(key: string, ready: Promise<unknown> = Promise.resolve()) {
-    const st = this.ctx.store.state;
-    const sen = st.page.sentences.find((x) => x.key === key);
-    if (!sen) return;
+    if (!this.ctx.store.state.page.sentences.some((x) => x.key === key)) return;
     this.key = key;
     this.btn.setAttribute("data-doubt", key);
     this.el.setAttribute("data-hero", key);
     this.labelEl.replaceChildren(...nodes(this.o.label()));
     await Promise.all([fontsReady(), Promise.race([ready, new Promise((r) => setTimeout(r, 1500))])]);
     if (this.dead) return;
+    // read it now: a rewrite may have landed while the face loaded
+    const sen = this.cur();
+    if (!sen) return;
     this.lastSize = `${this.el.clientWidth}x${this.el.clientHeight}`;
     const p = this.ctx.store.derived.price(sen);
     this.grey = !priceable(sen) || p === null;
     this.shownText = sen.text;
     this.render(sen.text);
-    this.mountField();
+    this.deferField();
+    if (!document.fonts.check('1000 64px "Amstelvar"')) void document.fonts.load('1000 64px "Amstelvar"').then(() => { if (!this.dead) this.relayout(); });
     const quiet = reducedMotion() || this.ctx.card;
     if (quiet || this.grey) { this.settle(sen); return; }
     // the orchestrated moment, on one clock: black as written, then the ink falls to its price
@@ -99,6 +103,7 @@ export class Hero {
     // the words of the latest trade are there from the first paint; the numeral and the action come in sequence
     this.updateReadout(this.ctx.store.state);
     for (const el of [this.priceEl, this.btn]) { el.style.transition = "none"; el.style.opacity = "0"; }
+    this.pnum.textContent = "99"; // holds the numeral's height, so nothing below it moves when it appears
     const tok = ++this.tok;
     await wait(2);
     if (tok !== this.tok) return;
@@ -172,7 +177,7 @@ export class Hero {
     }
     const groundTop = Math.round(H * (card ? 0.86 : 0.8));
     // keep the sentence clear of the foreground dishes that rise at the edges; the readout's words sit lower, in the clear middle
-    const clear = card ? Math.round(H * 0.64) : groundTop - Math.max(118, H * 0.15, W * 0.17);
+    const clear = card ? Math.round(H * 0.64) : groundTop - Math.max(118, H * 0.15, W * 0.19);
     // the card's foreground dishes stand at its edges: the sentence keeps to the middle
     const bx = card ? 210 : pad, bw = card ? W - 420 : W - pad * 2;
     const hFull = clear - top;
@@ -180,8 +185,8 @@ export class Hero {
     const max = card ? 112 : Math.min(150, Math.round(W / 9.6));
     const reserve = (size: number) => size * 0.17 * 2 + size * 0.32 + 40 + readW;
     const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: LEAD, reserve });
-    const b = card ? a : fitFat(shown, { w: bw, h: hFull - 200 }, { max, min: 40, leading: LEAD });
-    const beside = card || (a.room && a.size >= b.size * 0.86);
+    const b = fitFat(shown, { w: bw, h: hFull - (card ? 110 : 200) }, { max, min: card ? 30 : 40, leading: LEAD });
+    const beside = !card && a.room && a.size >= b.size * 0.86;
     const fit = beside ? a : b;
     return { W, H, phone, pad, groundTop, fit, box: { x: bx, y: top, w: bw }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
   }
@@ -201,7 +206,7 @@ export class Hero {
     this.marks.setAttribute("height", String(this.d.height() + fit.size));
     this.srText.textContent = `${text} ${this.priceWords()}`;
     // beside the last line the numeral stays inside that line's height; below the sentence it can be larger
-    const priceSize = L.phone ? 76 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.12))) : 128;
+    const priceSize = L.phone ? 76 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.12))) : this.ctx.card ? 96 : 128;
     this.el.style.setProperty("--price", priceSize + "px");
     // the bowl takes the full stop's place, on the last line's baseline
     if (!L.phone) {
@@ -216,6 +221,7 @@ export class Hero {
       }
     }
     this.placeBowl();
+    for (const el of [this.labelEl, this.readout, this.bowl]) el.style.visibility = "";
     this.readout.style.left = L.readout.x + "px";
     this.readout.style.top = L.readout.y + "px";
     this.readout.style.width = L.beside ? Math.max(300, Math.min(620, L.W - L.pad - L.readout.x)) + "px" : L.readout.w + "px";
@@ -251,13 +257,14 @@ export class Hero {
 
   private placeBowl() {
     const { cx, cy, r, u } = this.L!.bowl;
-    const pad = r * 9;
+    // a tight box: the bowl and its hook, nothing more
+    const x0 = -Math.max(r, 2.4 * u) - 4, x1 = Math.max(r, 2.1 * u) + 4, y0 = -7 * u - 4, y1 = r + 4;
     const b = this.bowl;
-    b.setAttribute("width", String(pad * 2));
-    b.setAttribute("height", String(pad * 2));
-    b.setAttribute("viewBox", `${-pad} ${-pad} ${pad * 2} ${pad * 2}`);
-    b.style.left = cx - pad + "px";
-    b.style.top = cy - pad + "px";
+    b.setAttribute("width", String(x1 - x0));
+    b.setAttribute("height", String(y1 - y0));
+    b.setAttribute("viewBox", `${x0} ${y0} ${x1 - x0} ${y1 - y0}`);
+    b.style.left = cx + x0 + "px";
+    b.style.top = cy + y0 + "px";
     const sw = Math.max(1.5, r * 0.075);
     const id = "bowlclip";
     b.innerHTML = "";
@@ -344,6 +351,16 @@ export class Hero {
   }
 
   // ---------- the field ----------
+
+  /** The field is the heaviest thing on the page: it starts once the sentence has painted and the page is idle. */
+  private deferField() {
+    if (this.ctx.card) { void this.mountField(); return; }
+    const go = () => {
+      const ric = (window as any).requestIdleCallback as ((cb: () => void, o?: { timeout: number }) => number) | undefined;
+      if (ric) ric(() => void this.mountField(), { timeout: 2 * BEAT }); else setTimeout(() => void this.mountField(), BEAT);
+    };
+    if (document.readyState === "complete") go(); else addEventListener("load", go, { once: true });
+  }
 
   private async mountField() {
     if (this.field) { this.layoutField(); return; }
@@ -435,7 +452,7 @@ export class Hero {
     const old = withoutStop(this.shownText).text;
     const neu = withoutStop(text).text;
     const parts = wordDiff(old, neu);
-    if (!reducedMotion()) {
+    if (!reducedMotion() && !this.ctx.card) {
       // strike the words that go, one beat
       let ci = 0;
       const struck: number[] = [];
@@ -465,7 +482,7 @@ export class Hero {
     const sen = this.cur();
     if (sen) this.settle(sen);
     // the words that came in, underlined in red pen for a moment
-    if (!reducedMotion()) {
+    if (!reducedMotion() && !this.ctx.card) {
       const ins: number[] = [];
       let ci = 0;
       for (const prt of parts) {
@@ -501,7 +518,7 @@ export class Hero {
     this.statusEl.setAttribute("data-stage", st.doubt.ctx?.key === sen.key ? st.doubt.stage : "idle");
     if (st.doubt.failure && st.doubt.ctx?.key === sen.key) this.statusEl.setAttribute("data-failure", st.doubt.failure.reason); else this.statusEl.removeAttribute("data-failure");
     if (words) {
-      this.statusEl.replaceChildren(...nodes(words));
+      swap(this.statusEl, nodes(words));
     } else if (!can) {
       this.statusEl.replaceChildren(sen.reason || "Nothing here to price. Unfalsifiable from start to finish.");
     } else {
@@ -509,7 +526,7 @@ export class Hero {
       const key = last ? `${last.txHash}:${last.priceAfter}` : "none";
       if (key !== this.lastTradeKey || !this.statusEl.childNodes.length || this.statusEl.dataset.mode !== "idle") {
         this.lastTradeKey = key;
-        this.statusEl.replaceChildren(...nodes([last ? tradeWords(last, this.ctx.agents) : "No one has bet on this line yet.", " ", todayLine(sen)]));
+        swap(this.statusEl, nodes([last ? tradeWords(last, this.ctx.agents) : "No one has bet on this line yet.", " ", todayLine(sen)]));
       }
     }
     this.statusEl.dataset.mode = words ? "doubt" : "idle";
@@ -543,6 +560,14 @@ function shield() {
   return svg;
 }
 
+/** Replace an element's children only when what they say changed: no repaint, no new paint candidate. */
+function swap(el: HTMLElement, kids: (Node | string)[]) {
+  const probe = document.createElement("div");
+  probe.append(...kids);
+  if (probe.innerHTML === el.innerHTML) return;
+  el.replaceChildren(...probe.childNodes);
+}
+
 let fontsOk: Promise<void> | null = null;
 export function fontsReady(): Promise<void> {
   if (!fontsOk) {
@@ -550,7 +575,7 @@ export function fontsReady(): Promise<void> {
       try {
         await Promise.race([
           Promise.all([document.fonts.load('1000 64px "Amstelvar"'), document.fonts.load('100 64px "Amstelvar"')]),
-          new Promise((r) => setTimeout(r, 3000)),
+          new Promise((r) => setTimeout(r, 6000)),
         ]);
       } catch { /* the fallback face still measures */ }
     })();

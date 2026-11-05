@@ -3,7 +3,7 @@
 // it costs to move it 10 points, who moved it last, what the source says, and the doubt.
 import type { AppState, Sentence } from "../core/store";
 import { priceable } from "../core/store";
-import { BEAT, countTo, h, host, pct, reducedMotion, usd, wordDiff, type Child } from "./dom";
+import { BEAT, countTo, h, host, onFrame, pct, reducedMotion, usd, wordDiff, type Child } from "./dom";
 import { runningInk } from "./type/ink";
 import { doubtButton, doubtWords, markSvg, todayLine, tradeWords, type Ctx } from "./context";
 import { sectionOf } from "./data";
@@ -35,7 +35,7 @@ export class Running {
 
   mount(parent: HTMLElement) {
     parent.append(this.el);
-    this.unsub = this.ctx.store.subscribe((st) => this.update(st));
+    this.unsub = onFrame(this.ctx.store, (st) => this.update(st));
     this.update(this.ctx.store.state);
   }
 

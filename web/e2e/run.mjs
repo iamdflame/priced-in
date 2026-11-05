@@ -66,7 +66,9 @@ try {
   await page.locator('.running [data-sentence="c0"]').waitFor({ timeout: 15000 });
   const before = await priceOf("c0");
   const label = await page.locator(".ps .sr-text").textContent();
-  check("the front page opens on the sentence, priced, with the page below", (await page.locator(".running [data-sentence]").count()) === 3 && before === 0.5 && /NEAR Intents has processed/.test(label),
+  // the page shows each line's latest wording: the writer may already have rewritten it
+  const c0Text = await page.evaluate(() => window.__pricedin.store.state.page.sentences.find((x) => x.key === "c0").text);
+  check("the front page opens on the sentence, priced, with the page below", (await page.locator(".running [data-sentence]").count()) === 3 && before === 0.5 && /NEAR Intents has processed/i.test(label) && label.startsWith(c0Text),
     `hero c0 "${label.slice(0, 60)}…", 3 sentences, the first at ${before * 100}% in ${Date.now() - t0} ms`);
   await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 15000 });
   check("the $1 key is ready before the tap (prefetched at load)", true, `${Date.now() - t0} ms after load`);
@@ -101,10 +103,12 @@ try {
   // 4. the paragraph rewrites itself with a signed mark, on the first screen and in the page
   const chip = page.locator('.ps [data-chip="signed"]');
   await chip.waitFor({ timeout: 15000 });
-  await page.waitForFunction(() => !/^NEAR Intents has processed/.test(document.querySelector(".ps .sr-text")?.textContent || ""), null, { timeout: 8000 });
+  await stageIs("rewritten", "answered");
+  await page.waitForTimeout(1600); // the strike, then the new words (the same words when the band didn't change)
   const st = await stage();
   const heroText = await page.locator(".ps .sr-text").textContent();
-  check("the sentence rewrites with a signed provenance mark", ["rewritten", "answered"].includes(st) && /^signed in a TEE · verify, by .+/.test(await chip.textContent()) && (await page.locator('.running [data-chip="signed"]').count()) === 1,
+  const rewritten = await page.evaluate(() => window.__pricedin.store.state.doubt.ctx.rewrite.sentences.find((x) => x.claim_id === 0)?.text);
+  check("the sentence rewrites with a signed provenance mark", ["rewritten", "answered"].includes(st) && heroText.startsWith(rewritten) && /^signed in a TEE · verify, by .+/.test(await chip.textContent()) && (await page.locator('.running [data-chip="signed"]').count()) === 1,
     `stage ${st}, "${heroText.slice(0, 90)}" ${Date.now() - tap} ms after the tap`);
 
   // 5. the mark opens the verify panel: every check runs in the browser
