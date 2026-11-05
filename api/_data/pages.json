@@ -1,0 +1,51 @@
+{
+ "note": "Paragraphs by corpus section, for the writer (PAGES_FILE). Made by scripts/vercel/pages.mjs from the market's get_claims.",
+ "market": "market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+ "pages": {
+  "tether": {
+   "source": "corpus/pages/tether.json",
+   "paragraphs": [
+    [
+     0,
+     1,
+     2,
+     3
+    ],
+    [
+     4
+    ],
+    [
+     5,
+     6,
+     7
+    ],
+    [
+     8
+    ],
+    [
+     9
+    ],
+    [
+     10,
+     11,
+     12
+    ],
+    [
+     13,
+     14
+    ],
+    [
+     15
+    ],
+    [
+     16
+    ],
+    [
+     17,
+     18,
+     19
+    ]
+   ]
+  }
+ }
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci --no-audit --no-fund && npm --prefix web ci --no-audit --no-fund",
+  "buildCommand": "npm --prefix web run build",
+  "outputDirectory": "web/dist",
+  "regions": ["iad1"],
+  "functions": {
+    "api/index.mjs": {
+      "maxDuration": 30,
+      "memory": 1024,
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+    },
+    "api/after-trade.mjs": {
+      "maxDuration": 180,
+      "memory": 1024,
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+    },
+    "api/after-challenge.mjs": {
+      "maxDuration": 240,
+      "memory": 1024,
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+    },
+    "api/cron.mjs": {
+      "maxDuration": 300,
+      "memory": 1024,
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+    }
+  },
+  "crons": [{ "path": "/api/cron", "schedule": "*/10 * * * *" }],
+  "rewrites": [
+    { "source": "/api/:path*", "destination": "/api/index?__p=/:path*" },
+    { "source": "/health", "destination": "/api/index?__p=/health" },
+    { "source": "/claims", "destination": "/api/index?__p=/claims" },
+    { "source": "/claims/:path*", "destination": "/api/index?__p=/claims/:path*" },
+    { "source": "/events", "destination": "/api/index?__p=/events" },
+    { "source": "/events/:path*", "destination": "/api/index?__p=/events/:path*" },
+    { "source": "/v1", "destination": "/api/index?__p=/v1" },
+    { "source": "/v1/:path*", "destination": "/api/index?__p=/v1/:path*" },
+    { "source": "/x402/:path*", "destination": "/api/index?__p=/x402/:path*" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ],
+  "headers": [
+    { "source": "/assets/(.*)", "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }] },
+    { "source": "/(.*)", "headers": [
+      { "key": "x-content-type-options", "value": "nosniff" },
+      { "key": "referrer-policy", "value": "strict-origin-when-cross-origin" }
+    ] }
+  ]
+}

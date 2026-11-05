@@ -38,6 +38,8 @@
   "devDependencies": {
     "@fastnear/x402": "2.5.0",
     "@phala/dcap-qvl": "0.7.1",
+    "@vercel/blob": "^2.8.2",
+    "@vercel/functions": "^3.10.6",
     "near-api-js": "^7.4.0",
     "tweetnacl": "^1.0.3"
   }

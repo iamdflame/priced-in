@@ -1,0 +1,30 @@
+# Uploaded to Vercel by `vercel deploy`: the web build, api/ and the services it imports.
+# Never secrets, keys, local state or build output.
+.env
+.env.*
+.apex/
+.apex-test/
+.claude/
+.vercel/
+**/node_modules/
+target/
+*.log
+services/ai/data/
+services/*/test/
+services/*/.env
+web/dist/
+web/ui-shots/
+web/field-shots/
+web/tools/
+web/e2e/
+corpus/raw/
+corpus/work/
+corpus/receipts/
+contracts/
+crates/
+Cargo.toml
+Cargo.lock
+/tools/*
+!/tools/judge
+/tools/judge/*
+!/tools/judge/evidence
