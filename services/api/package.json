@@ -1,0 +1,19 @@
+{
+  "name": "@pricedin/api",
+  "private": true,
+  "type": "module",
+  "description": "Priced In API: the no-wallet lane, claim reads, the market's live event stream, health and the paste planner.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=.env src/server.mjs",
+    "test": "node --test --test-concurrency=1 \"test/*.test.mjs\"",
+    "e2e": "node test/lane-e2e.mjs"
+  },
+  "dependencies": {
+    "near-api-js": "^7.4.0",
+    "tweetnacl": "^1.0.3"
+  }
+}
