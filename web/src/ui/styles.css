@@ -81,6 +81,7 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .readout{position:absolute;z-index:6}
 .readout .row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
 .price{display:inline-flex;align-items:flex-start;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
+.price .pn{display:inline-block;min-width:2ch;text-align:right}
 .price .pc{font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
 .price.none{visibility:hidden}
 .status{margin:18px 0 0;max-width:30em;font-size:19px;line-height:1.42;color:var(--ink-7);font-variation-settings:"opsz" 20;min-height:2.84em}
@@ -94,13 +95,13 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .chip.unsigned{color:var(--ink-6);text-decoration:none;cursor:default}
 
 /* the action: red-pen ink on paper. Never a glossy pill. */
-.doubt{position:relative;display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 28px;white-space:nowrap;background:var(--red);color:oklch(0.99 0.005 32);font-size:23px;line-height:1;font-variation-settings:"opsz" 36,"GRAD" 120;transition:background var(--beat) var(--ease),transform calc(var(--beat)/2) var(--heavy)}
+.doubt{position:relative;display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 28px;white-space:nowrap;background:var(--red);color:oklch(0.99 0.005 32);font-size:24px;line-height:1;font-variation-settings:"opsz" 36,"GRAD" 120;transition:background var(--beat) var(--ease),transform calc(var(--beat)/2) var(--heavy)}
 .doubt:hover{background:var(--red-deep)}
 .doubt:active,.doubt.stamp{transform:scale(.965)}
 .doubt[aria-disabled=true]{background:var(--ink-1);color:var(--ink-6);cursor:default}
-.doubt.busy{background:var(--red-deep);cursor:progress}
+.doubt.busy{background:var(--red-deep);color:oklch(0.99 0.005 32);cursor:progress}
 .doubt.done{background:var(--ink-9);color:var(--paper)}
-.doubt.sm{height:52px;font-size:21px;padding:0 22px}
+.doubt.sm{height:52px;font-size:24px;padding:0 22px}
 .link-btn{min-height:44px;font-size:18px;color:var(--ink-9);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}
 
 .plainline{position:absolute;z-index:6;left:var(--pad);right:var(--pad);bottom:26px;margin:0;font-size:20px;line-height:1.35;color:var(--night-text);font-variation-settings:"opsz" 20;max-width:46em}
@@ -192,6 +193,7 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .panel .x{position:absolute;right:14px;top:14px;width:44px;height:44px;font-size:28px;color:var(--ink-6)}
 .panel .lede{margin:0 0 20px;font-size:17px;color:var(--ink-7)}
 .checks{margin:0;padding:0;list-style:none}
+.checks li > span{min-width:0;overflow-wrap:anywhere}
 .checks li{display:grid;grid-template-columns:52px 1fr;gap:4px 12px;padding:14px 0;border-top:1px solid var(--ink-1);font-size:17px;line-height:1.4}
 .checks .st{font-size:16px;font-variation-settings:"opsz" 18,"GRAD" 250;color:var(--ink-9)}
 .checks .st.fail{color:var(--red-text)}
@@ -226,10 +228,10 @@ main:focus,.panel:focus,.card:focus{outline:none}
   .nav{gap:18px;font-size:16px}
   .ps{min-height:700px}
   .ps .label{font-size:15px}
-  .ps .status .today{display:none}
+  .ps .status .today,.ps .status .rw-note{display:none}
   .head .tagline{display:none}
   .status{font-size:17px;margin-top:12px;min-height:0}
-  .doubt{height:52px;font-size:21px;padding:0 22px}
+  .doubt{height:52px;font-size:24px;padding:0 22px}
   .readout .row{display:block}
   .readout .row .doubt{display:flex;width:100%;margin-top:22px}
   .plainline{font-size:16px;bottom:16px}
@@ -255,7 +257,7 @@ main:focus,.panel:focus,.card:focus{outline:none}
 body.card-mode{width:1200px;height:630px;overflow:hidden}
 body.card-mode .ps{width:1200px;height:630px;min-height:0}
 body.card-mode .nav,body.card-mode .below,body.card-mode .foot,body.card-mode .readout .doubt,body.card-mode .readout .chip,body.card-mode .skip{display:none}
-body.card-mode .plainline{font-size:22px}
+body.card-mode .ps .status,body.card-mode .ps .chipwrap{display:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition-duration:1ms!important;scroll-behavior:auto!important}

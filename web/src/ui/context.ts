@@ -131,8 +131,8 @@ export function doubtWords(d: DoubtState, s: Sentence, ctx: Ctx, onRetry: () => 
       const moved = before !== null && now !== null ? `from ${pct(before)} to ${pct(now)}` : `to ${pct(now)}`;
       const out: Child[] = rec
         ? [h("b", {}, "Rehearsed."), ` Your $1 would move this line ${moved}. Nothing was sent: this is recorded data.`]
-        : [h("b", {}, "Priced."), ` You moved this line ${moved}. `, tx, tx ? "." : null];
-      if (d.stage === "rewritten" || d.stage === "answered") out.push(h("span", { class: "note" }, "The page rewrote the line to match its new price."));
+        : [`You moved this line ${moved}. `, tx, tx ? "." : null];
+      if (d.stage === "rewritten" || d.stage === "answered") out.push(h("span", { class: "note rw-note" }, "The page rewrote the line to match its new price."));
       if (c.answer) {
         const a = c.answer;
         const src = a.source_url ? h("a", { href: a.source_url, target: "_blank", rel: "noopener nofollow" }, a.source_title || host(a.source_url) || "source") : null;

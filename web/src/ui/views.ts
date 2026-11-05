@@ -64,12 +64,12 @@ abstract class SentenceView implements View {
     this.built = true;
     this.el.replaceChildren();
     if (p.error || this.empty(st)) { this.el.append(this.failed(st)); return; }
-    void this.ctx.history.load(this.ctx.api, () => this.ctx.store.state.lane.state === "ready" ? (this.ctx.store.state.lane as any).session.trader : "");
+    const history = this.ctx.history.load(this.ctx.api, () => this.ctx.store.state.lane.state === "ready" ? (this.ctx.store.state.lane as any).session.trader : "");
     const key = this.heroKey(st);
     if (key) {
       this.hero = new Hero(this.ctx, { short: this.short, label: () => this.label(this.ctx.store.state) });
       this.hero.mount(this.el);
-      void this.hero.show(key);
+      void this.hero.show(key, history);
     }
     if (this.ctx.card) return;
     this.el.append(this.below);
@@ -167,7 +167,7 @@ export class PostView extends SentenceView {
       const p = st.page.post;
       this.el.replaceChildren(h("section", { class: "plain" },
         h("p", { class: "lede" }, `${p.authorName} (@${p.handle}) on X. `, h("a", { href: p.url, target: "_blank", rel: "noopener" }, "The original post"), "."),
-        h("h1", { class: "thin" }, "Nothing here to price."),
+        h("h1", { class: "thin" }, st.page.sentences.some((x) => x.status === "pricing_soon") ? "Not priced yet." : "Nothing here to price."),
         h("p", { class: "lede" }, st.page.message ?? "Unfalsifiable from start to finish: every line is opinion."),
         ...st.page.notices.map((n) => h("p", { class: "msg" }, n.message))));
       const sec = h("section", { class: "sec" });

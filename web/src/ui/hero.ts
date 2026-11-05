@@ -43,6 +43,7 @@ export class Hero {
   private lastTradeKey = "";
   private unsub: (() => void) | null = null;
   private dead = false;
+  private failedShown = false;
 
   constructor(private ctx: Ctx, private o: { short?: boolean; label: () => Child[] }) {
     this.el = h("section", { class: `ps${o.short ? " short" : ""}`, "aria-label": "The sentence, its price and the doubt" },
@@ -74,7 +75,7 @@ export class Hero {
   }
 
   /** Set the sentence this screen is about. */
-  async show(key: string) {
+  async show(key: string, ready: Promise<unknown> = Promise.resolve()) {
     const st = this.ctx.store.state;
     const sen = st.page.sentences.find((x) => x.key === key);
     if (!sen) return;
@@ -82,7 +83,7 @@ export class Hero {
     this.btn.setAttribute("data-doubt", key);
     this.el.setAttribute("data-hero", key);
     this.labelEl.replaceChildren(...nodes(this.o.label()));
-    await fontsReady();
+    await Promise.all([fontsReady(), Promise.race([ready, new Promise((r) => setTimeout(r, 1500))])]);
     if (this.dead) return;
     this.lastSize = `${this.el.clientWidth}x${this.el.clientHeight}`;
     const p = this.ctx.store.derived.price(sen);
@@ -95,15 +96,17 @@ export class Hero {
     // the orchestrated moment, on one clock: black as written, then the ink falls to its price
     this.paint(FAT);
     this.setBowl(1, false);
-    this.readout.style.opacity = "0";
+    // the words of the latest trade are there from the first paint; the numeral and the action come in sequence
+    this.updateReadout(this.ctx.store.state);
+    for (const el of [this.priceEl, this.btn]) { el.style.transition = "none"; el.style.opacity = "0"; }
     const tok = ++this.tok;
     await wait(2);
     if (tok !== this.tok) return;
-    this.readout.style.transition = `opacity ${2 * BEAT}ms var(--ease)`;
-    this.readout.style.opacity = "1";
     const target = this.ctx.store.derived.price(this.cur()!) ?? 0.5;
     this.priceEl.classList.remove("none");
-    countTo(this.pnum, 100, target * 100, 2);
+    this.priceEl.style.transition = `opacity ${BEAT}ms var(--ease)`;
+    this.priceEl.style.opacity = "1";
+    countTo(this.pnum, 99, target * 100, 2);
     this.setBowl(target, true);
     await this.reprice(target, false);
     if (tok !== this.tok) return;
@@ -113,6 +116,8 @@ export class Hero {
     await wait(2);
     if (tok !== this.tok) return;
     this.hook(target < 0.5);
+    this.btn.style.transition = `opacity ${2 * BEAT}ms var(--ease)`;
+    this.btn.style.opacity = "1";
     this.aim();
     await wait(6);
     if (tok !== this.tok) return;
@@ -126,6 +131,7 @@ export class Hero {
   }
 
   private settle(sen: Sentence) {
+    for (const el of [this.btn, this.priceEl]) el.style.opacity = "1";
     const p = this.ctx.store.derived.price(sen);
     this.shownP = p;
     this.settled = true;
@@ -155,7 +161,7 @@ export class Hero {
     if (phone) {
       const r = 22, u = r * 0.46;
       const rowH = r * 2 + u * 6.7;
-      const below = 20 + rowH + 18 + 52 + 12 + 50;
+      const below = 20 + rowH + 18 + 52 + 12 + 50 + 44;
       const ground = H - 104;
       const clear = ground - 64; // the foreground dishes rise above the ground line
       const fit = fitFat(shown, { w: W - pad * 2, h: Math.max(120, clear - top - below) }, { max: 56, min: 24, leading: LEAD });
@@ -164,9 +170,9 @@ export class Hero {
       const bowl = { cx: pad + r, cy: rowTop + rowH - r, r, u };
       return { W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 18 + 52 + 12 + 50 + 64), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
     }
-    const groundTop = Math.round(H * (card ? 0.8 : 0.78));
+    const groundTop = Math.round(H * (card ? 0.86 : 0.78));
     // keep the sentence clear of the foreground dishes that rise at the edges; the readout's words sit lower, in the clear middle
-    const clear = groundTop - (card ? 40 : Math.max(118, H * 0.15, W * 0.15));
+    const clear = card ? Math.round(H * 0.6) : groundTop - Math.max(118, H * 0.15, W * 0.15);
     const hFull = clear - top;
     const readW = card ? 260 : 470;
     const max = card ? 112 : Math.min(150, Math.round(W / 9.6));
@@ -402,6 +408,9 @@ export class Hero {
       this.rewriteSeen = rkey;
       void this.rewrite(nextText);
     }
+    // a doubt that failed hands the red dish back
+    if (mine && d.stage === "failed" && !this.failedShown) { this.failedShown = true; this.field?.yours("construction"); }
+    if (d.stage !== "failed") this.failedShown = false;
     // the price moved: the ring, the bowl and the numeral follow
     const p = this.ctx.store.derived.price(sen);
     if (p !== null && this.shownP !== null && Math.abs(p - this.shownP) > 0.0005) {
@@ -520,7 +529,8 @@ export function chip(rw: NonNullable<Sentence["rewrite"]>, page: string, ctx: Ct
     return h("span", { class: "chip unsigned", "data-chip": rw.status }, rw.status === "template" ? "Rewritten from a template, unsigned. The signed version follows." : rw.status === "unverified" ? "Rewritten; the signature didn't verify." : "Rewritten, not signed yet.");
   }
   const a = h("a", { class: "chip", "data-chip": "signed", href: `/verify/${encodeURIComponent(rw.id)}?page=${encodeURIComponent(page)}` },
-    shield(), `signed by ${rw.model ?? "the writer"} in a TEE · verify`);
+    shield(), "signed in a TEE · verify", h("span", { class: "vh" }, `, by ${rw.model ?? "the writer"}`));
+  a.title = `Signed by ${rw.model ?? "the writer"}`;
   a.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); ctx.openVerify(page, rw.id, a); });
   return a;
 }

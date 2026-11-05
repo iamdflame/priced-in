@@ -36,23 +36,42 @@ const shots = [
     await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
     await p.waitForTimeout(1300);
   } },
+  // the answered state: an agent's reply, injected by hand as a test event (the offline stack runs no agents)
+  { name: "answered", path: "/", wait: 5000, act: async (p) => {
+    await p.locator(".ps .doubt").click();
+    await p.waitForFunction(() => ["final", "rewritten"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
+    await p.evaluate(() => {
+      const st = window.__pricedin.store.state;
+      const c = st.doubt.ctx;
+      window.__pricedin.store.ingest({ seq: 99999, uid: "test-answer", event: "agent_rationale", source: "ai", data: { agent: "archivist", label: "archivist", house: true, account_id: "archivist.test", model: "test", claim_id: c.claimId, page: st.page.slug, side: "agree", size_usd: 0, text: "test", price_before: 0.2, price_after: null, credence: 0.2, rationale: "Test event for the screenshot: the attestation report lists a larger T-Bill figure.", source_url: "https://example.org/test", source_title: "example.org (test)", at: Date.now() } });
+    });
+    await p.waitForTimeout(1500);
+  } },
   { name: "card-open", path: "/", wait: 4000, act: async (p) => {
     await p.evaluate(() => document.getElementById("the-page")?.scrollIntoView());
     const s = p.locator(".running .s[role=button]").nth(1);
     await s.click();
     await p.waitForTimeout(600);
   } },
-  { name: "verify-panel", path: "/p/tether", wait: 4000, act: async (p) => {
-    const c = p.locator('.running [data-chip="signed"]').first();
-    await c.scrollIntoViewIfNeeded();
+  { name: "verify-panel", path: "/", wait: 5000, act: async (p) => {
+    // live: doubt, then open the new rewrite's mark; recorded: the recorded rewrite's mark in the page
+    let c = p.locator('.ps [data-chip="signed"]');
+    if (!(await p.evaluate(() => window.__pricedin.mode === "recorded"))) {
+      await p.locator(".ps .doubt").click();
+      await c.waitFor({ timeout: 20000 });
+    } else {
+      c = p.locator('.running [data-chip="signed"]').first();
+      await c.scrollIntoViewIfNeeded();
+    }
     await c.click();
-    await p.locator("[data-verified]").waitFor({ timeout: 20000 }).catch(() => {});
+    await p.locator(".panel [data-verified]").waitFor({ timeout: 20000 }).catch(() => {});
     await p.waitForTimeout(400);
   } },
   { name: "page", path: "/p/tether", wait: 6000 },
   { name: "page-text", path: "/p/tether", wait: 4000, act: async (p) => { await p.evaluate(() => document.getElementById("the-page")?.scrollIntoView()); await p.waitForTimeout(600); } },
   { name: "claim", path: "/c/6", wait: 6000 },
-  { name: "post", path: "/jack/status/20", wait: 6000 },
+  { name: "post", path: "/sample/status/1851", wait: 6000 },
+  { name: "post-gone", path: "/jack/status/20", wait: 3000 },
   { name: "agents", path: "/agents", wait: 2500 },
   { name: "audit", path: "/audit", wait: 2500 },
   { name: "verify", path: "/verify/tether%3A2%3Av1?page=tether", wait: 8000 },
@@ -83,7 +102,7 @@ for (const vp of vps) {
   }
 }
 // the share cards, at 1200x630
-for (const [name, p] of [["og-home", "/?card=1"], ["og-page", "/p/tether?card=1"], ["og-claim", "/c/18?card=1"], ["og-post", "/jack/status/20?card=1"]]) {
+for (const [name, p] of [["og-home", "/?card=1"], ["og-page", "/p/tether?card=1"], ["og-claim", "/c/18?card=1"], ["og-post", "/sample/status/1851?card=1"]]) {
   if (only && !only.includes(name)) continue;
   const ctx = await browser.newContext({ viewport: { width: 1200, height: 630 } });
   const page = await ctx.newPage();

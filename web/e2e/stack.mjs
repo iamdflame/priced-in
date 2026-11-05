@@ -13,7 +13,7 @@ const web = path.join(here, "..");
 export const MARKET = "market.e2e.testnet";
 export const LANE = "lane.e2e.testnet";
 
-export async function startStack({ claims, build = false, port = 5199 }) {
+export async function startStack({ claims, build = false, port = 5199, env: extra = {} }) {
   if ((process.env.NEAR_NETWORK || "testnet") !== "testnet" || (process.env.VITE_NEAR_NETWORK || "testnet") !== "testnet") throw new Error("the web e2e runs on testnet names only");
   const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "pricedin-web-e2e-"));
   const cleanup = [];
@@ -43,6 +43,7 @@ export async function startStack({ claims, build = false, port = 5199 }) {
       RPC_URLS: shim.urls[0], PUBLIC_RPC_URLS: shim.urls.join(","),
       NEARAI_API_KEY: nearai.apiKey, NEARAI_BASE_URL: nearai.url, WRITER_MODEL: writerModel, WRITER_SIGNATURE_DEADLINE_MS: "4000",
       LEDGER_FILE: path.join(tmp, "ledger.json"), ATTESTATIONS_DIR: path.join(tmp, "attestations"), JURY_AUTO: "0",
+      ...(typeof extra === "function" ? extra({ nearai, MOCK_MODELS }) : extra),
     };
     const { api: apiCfg, ai, errors } = loadAiConfig(env);
     if (errors.length) throw new Error(errors.join("; "));

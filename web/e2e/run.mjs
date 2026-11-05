@@ -74,7 +74,7 @@ try {
 
   // 2. the action is reachable by keyboard and offers the doubt
   const btn = page.locator('.ps [data-doubt="c0"]');
-  await page.waitForFunction(() => document.querySelector(".ps .readout")?.style.opacity !== "0", null, { timeout: 8000 });
+  await page.waitForFunction(() => document.querySelector(".ps .doubt")?.style.opacity === "1", null, { timeout: 8000 });
   let tabs = 0;
   while (tabs < 12 && !(await btn.evaluate((b) => b === document.activeElement))) { await page.keyboard.press("Tab"); tabs++; }
   check("“Doubt it · $1” sits beside the price and is reachable by keyboard", (await btn.textContent()) === "Doubt it · $1" && (await btn.evaluate((b) => b === document.activeElement)), `${tabs} tabs`);
@@ -92,7 +92,7 @@ try {
   const after = await priceOf("c0");
   const chainPpm = Number((await (await fetch(`${api}/claims/0`)).json()).claim.price_yes_ppm);
   const words = await page.locator("#doubt-state").textContent();
-  check("the doubt reaches final, the price moved, said in plain words", after < before && Math.round(after * 1e6) === chainPpm && /Priced\. You moved this line from 50% to 36%/.test(words),
+  check("the doubt reaches final, the price moved, said in plain words", after < before && Math.round(after * 1e6) === chainPpm && /You moved this line from 50% to 36%/.test(words) && (await btn.textContent()) === "Priced.",
     `${before * 100}% -> ${(after * 100).toFixed(4)}% (chain ${chainPpm / 1e4}%), optimistic ${optMs} ms, final ${finalMs} ms; "${words.trim().slice(0, 70)}"`);
   const shown = await page.evaluate(() => window.__pricedin.store.state.doubt);
   check("the client quote matched the chain's fill exactly", Math.floor(shown.ctx.quote.priceAfter * 1e6) === chainPpm, `quoted ${Math.floor(shown.ctx.quote.priceAfter * 1e6)} ppm, filled ${chainPpm} ppm`);
@@ -104,7 +104,7 @@ try {
   await page.waitForFunction(() => !/^NEAR Intents has processed/.test(document.querySelector(".ps .sr-text")?.textContent || ""), null, { timeout: 8000 });
   const st = await stage();
   const heroText = await page.locator(".ps .sr-text").textContent();
-  check("the sentence rewrites with a signed provenance mark", ["rewritten", "answered"].includes(st) && /signed by .* in a TEE · verify/.test(await chip.textContent()) && (await page.locator('.running [data-chip="signed"]').count()) === 1,
+  check("the sentence rewrites with a signed provenance mark", ["rewritten", "answered"].includes(st) && /^signed in a TEE · verify, by .+/.test(await chip.textContent()) && (await page.locator('.running [data-chip="signed"]').count()) === 1,
     `stage ${st}, "${heroText.slice(0, 90)}" ${Date.now() - tap} ms after the tap`);
 
   // 5. the mark opens the verify panel: every check runs in the browser
