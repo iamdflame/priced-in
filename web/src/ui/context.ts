@@ -130,7 +130,7 @@ export function doubtWords(d: DoubtState, s: Sentence, ctx: Ctx, onRetry: () => 
     case "answered": {
       const moved = before !== null && now !== null ? `from ${pct(before)} to ${pct(now)}` : `to ${pct(now)}`;
       const out: Child[] = rec
-        ? [h("b", {}, "Rehearsed."), ` Your $1 would move this line ${moved}. Nothing was sent: this is recorded data.`]
+        ? [`Your $1 would move this line ${moved}. Nothing was sent: this is recorded data.`]
         : [`You moved this line ${moved}. `, tx, tx ? "." : null];
       if (d.stage === "rewritten" || d.stage === "answered") out.push(h("span", { class: "note rw-note" }, "The page rewrote the line to match its new price."));
       if (c.answer) {

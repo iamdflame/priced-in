@@ -185,8 +185,11 @@ export class Hero {
     const max = card ? 112 : Math.min(150, Math.round(W / 9.6));
     const reserve = (size: number) => size * 0.17 * 2 + size * 0.32 + 40 + readW;
     const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: LEAD, reserve });
-    const b = fitFat(shown, { w: bw, h: hFull - (card ? 110 : 200) }, { max, min: card ? 30 : 40, leading: LEAD });
-    const beside = !card && a.room && a.size >= b.size * 0.86;
+    // below the sentence: the numeral, the action, two lines of words and the mark must stand clear of the ground
+    const belowH = card ? 110 : (W < 1200 ? 96 : 128) * 0.82 + 22 + 18 + 92 + 56;
+    const b = fitFat(shown, { w: bw, h: Math.min(hFull, groundTop - 8 - top - belowH) }, { max, min: card ? 30 : 36, leading: LEAD });
+    // beside the last line only when the numeral (72 px at least) fits inside that line's height
+    const beside = !card && a.room && a.size >= 68 && a.size >= b.size * 0.86;
     const fit = beside ? a : b;
     return { W, H, phone, pad, groundTop, fit, box: { x: bx, y: top, w: bw }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
   }
@@ -206,18 +209,22 @@ export class Hero {
     this.marks.setAttribute("height", String(this.d.height() + fit.size));
     this.srText.textContent = `${text} ${this.priceWords()}`;
     // beside the last line the numeral stays inside that line's height; below the sentence it can be larger
-    const priceSize = L.phone ? 76 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.12))) : this.ctx.card ? 96 : 128;
+    const priceSize = L.phone ? 76 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.05))) : this.ctx.card || L.W < 1200 ? 96 : 128;
     this.el.style.setProperty("--price", priceSize + "px");
     // the bowl takes the full stop's place, on the last line's baseline
     if (!L.phone) {
       const last = this.d.slots[this.d.slots.length - 1];
       const r = Math.max(9, fit.size * 0.17);
       const base = baseline(fit.size, LEAD);
-      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + r * 1.15, cy: box.y + (last ? last.y : 0) + base - r, r, u: r * 0.78 };
+      // the hook stays inside its own line, clear of the line above
+      const u = Math.min(r * 0.78, (base - r - fit.size * 0.06) / 6.7);
+      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + r * 1.15, cy: box.y + (last ? last.y : 0) + base - r, r, u };
       if (L.beside) {
         L.readout = { x: L.bowl.cx + r + Math.max(28, fit.size * 0.3), y: L.bowl.cy + r - priceSize * 0.82, w: L.readout.w };
       } else {
-        L.readout = { x: box.x, y: box.y + this.d.height() + 22, w: Math.min(box.w, 760) };
+        // below the sentence, kept right of the foreground dish that rises at the left edge
+        const x = this.ctx.card ? box.x : Math.max(box.x, Math.round(L.W * 0.22));
+        L.readout = { x, y: box.y + this.d.height() + 22, w: Math.min(L.W - L.pad - x, 760) };
       }
     }
     this.placeBowl();
