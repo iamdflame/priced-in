@@ -195,6 +195,7 @@ export class Crowd {
    */
   constructor(o) {
     Object.assign(this, { client: o.client, attestor: o.attestor, claims: o.claims, hub: o.hub, signer: o.signer, ledger: o.ledger, research: o.research, personas: o.personas, balanceOf: o.balanceOf, biller: o.biller || null });
+    this.reconcile = o.reconcile || null; // resolves open money intents through the signer
     this.positionOf = o.positionOf || (async () => ({ yes: 0, no: 0 }));
     this.staticAgents = o.staticAgents || [];
     this.houseOwners = new Set(o.houseOwners || []);
@@ -277,6 +278,7 @@ export class Crowd {
   async cycle() {
     this.stats.cycles++;
     try {
+      if (this.reconcile) await this.reconcile().catch((e) => this.log(`agents reconcile: ${e.message}`));
       await this.refresh();
       if (this.biller) {
         const done = await this.biller.cycle(this.roster);
@@ -417,8 +419,9 @@ export class Crowd {
     const credence = parseCredence(r.completion.content, research.sources);
     const [signed, bankrollUsd, holding, all] = await Promise.all([
       r.signed,
-      this.balanceOf(agent.accountId).catch(() => 0),
-      this.positionOf(claim.id, agent.accountId).catch(() => ({ yes: 0, no: 0 })),
+      // a bankroll or position we could not read is an error, never a zero: no "no bankroll", no wrong-side bet
+      this.balanceOf(agent.accountId),
+      this.positionOf(claim.id, agent.accountId),
       this.claims.all().catch(() => []),
     ]);
     const loss = dailyLoss(this.ledger.betsToday(agent.accountId), new Map(all.map((c) => [c.id, c])));

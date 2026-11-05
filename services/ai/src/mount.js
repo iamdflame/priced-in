@@ -50,7 +50,7 @@ export function mountAi(app, ai, deps = {}) {
   else signer = new SignerClient({
     marketId: api.marketId, swarmId: ai.swarmId, rpcUrls: api.rpcUrls, network: api.network, keystoreDir, keysFile: ai.agents.keysFile,
     journalFile: dir ? path.join(dir, "signer.jsonl") : null, dailySpendMicro: ai.agents.dailySpendMicro, dailyBillMicro: ai.agents.billing.dailyBillMicro,
-    yoctoPerMicro: ai.agents.billing.yoctoPerMicro, log,
+    yoctoPerMicro: ai.agents.billing.yoctoPerMicro, supersededAfterMs: ai.agents.supersededAfterMs, log,
   });
   const anchorOn = () => Boolean(signer?.operator?.market?.ok);
   const anchor = async (intent, args) => (anchorOn() ? signer.anchor(intent, args) : { ok: false, final: true, error: "no operator market key: rewrites are not anchored" });
@@ -70,7 +70,7 @@ export function mountAi(app, ai, deps = {}) {
     const { route, overrides } = ai.agents.billing;
     crowd = new Crowd({
       client, attestor, claims: app.claims, hub: app.hub, signer, ledger, research, personas, pagesDoc, log, balanceOf, positionOf, biller,
-      staticAgents: ai.agents.list, houseOwners: ai.houseOwners, rationales: journalIn(dir, "rationales.jsonl"),
+      staticAgents: ai.agents.list, houseOwners: ai.houseOwners, reconcile: () => reconcile(), rationales: journalIn(dir, "rationales.jsonl"),
       billingRoute: (p) => overrides[p.name] || (p.source === "static" ? (overrides[p.name] || "none") : route),
       policy: ai.agents.policy, sweepMs: ai.agents.sweepMs, cycleMs: ai.agents.cycleMs, freshCooldownMs: ai.agents.freshCooldownMs,
       ...o.swarm, ...o.crowd,
@@ -88,9 +88,10 @@ export function mountAi(app, ai, deps = {}) {
   }
 
   /** Resolve every money intent the ledger has no final outcome for, through the signer's journal. */
-  async function reconcile() {
+  async function reconcile({ minAgeMs = 30_000 } = {}) {
     let n = 0;
-    for (const it of ledger.pending()) {
+    // in a running process, leave intents still in flight alone (at start, nothing is in flight)
+    for (const it of ledger.pending().filter((x) => Date.now() - Date.parse(x.at) >= minAgeMs)) {
       const r = await signer.outcome(it.id);
       if (r.final === false || r.pending) continue;
       ledger.recordOutcome(it.id, r.unknownIntent ? { ok: false, final: true, error: "never sent: the signer has no record of it" } : r);
@@ -164,7 +165,7 @@ export function mountAi(app, ai, deps = {}) {
         await signer.start();
         await signer.listAgents({ force: true });
         state.signer = { status: "on", reason: null };
-        const fixed = await reconcile();
+        const fixed = await reconcile({ minAgeMs: 0 });
         if (fixed) log(`ledger: ${fixed} open intent(s) resolved from the signer's journal`);
       } catch (e) { state.signer = { status: "off", reason: e.message }; log(`signer off: ${e.message}`); }
     }

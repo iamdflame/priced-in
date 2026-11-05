@@ -45,6 +45,7 @@ const SELF = fileURLToPath(import.meta.url);
 const ACCOUNT_RE = /^(?=.{2,64}$)(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
 const HEX64 = /^[0-9a-f]{64}$/;
 const INTENT_RE = /^[A-Za-z0-9:._-]{8,160}$/;
+const SUPERSEDED_AFTER_MS = Number(process.env.SIGNER_SUPERSEDED_AFTER_MS || 120_000);
 const NEVER_LANDED_MS = 26 * 3600_000; // past NEAR's transaction validity window (~1 day of blocks)
 const digits = (s, n) => typeof s === "string" && new RegExp(`^\\d{1,${n}}$`).test(s);
 
@@ -146,6 +147,7 @@ export class SignerClient {
       SIGNER_DAILY_BILL_MICRO: String(o.dailyBillMicro ?? 2_000_000),
       SIGNER_YOCTO_PER_MICRO: String(o.yoctoPerMicro ?? 0),
       SIGNER_MAX_ISSUED: String(o.maxIssued ?? 50),
+      SIGNER_SUPERSEDED_AFTER_MS: String(o.supersededAfterMs ?? 120_000),
     };
     this.child = fork(SELF, ["--signer-child"], { env, stdio: ["ignore", "pipe", "pipe", "ipc"], execArgv: [] });
     this.child.stdout.on("data", (d) => String(d).split("\n").filter(Boolean).forEach((l) => this.log(`signer: ${l}`)));
@@ -246,10 +248,10 @@ async function runChild() {
   };
   for (const r of journal.read()) {
     if (r.t === "intent") {
-      intents.set(r.id, { intent: r, hashes: [], outcome: null });
+      intents.set(r.id, { intent: r, hashes: [], attempts: [], outcome: null });
       if (r.spend_micro) bump(spend, `${r.agent}|${r.day}`, BigInt(r.spend_micro));
       if (r.bill_micro) bump(billed, `${r.agent}|${r.day}`, BigInt(r.bill_micro));
-    } else if (r.t === "attempt") intents.get(r.id)?.hashes.push(r.hash);
+    } else if (r.t === "attempt") { const x = intents.get(r.id); if (x) { x.hashes.push(r.hash); x.attempts.push(r); } }
     else if (r.t === "outcome") {
       const rec = intents.get(r.id);
       if (!rec) continue;
@@ -371,9 +373,11 @@ async function runChild() {
     return o;
   }
   async function reconcile(rec) {
+    let unknown = 0;
     for (const h of rec.hashes) {
       let tx;
-      try { tx = await rpc.txStatus(h, rec.intent.signer, "EXECUTED_OPTIMISTIC", { timeoutMs: 8000 }); } catch { continue; }
+      try { tx = await rpc.txStatus(h, rec.intent.signer, "EXECUTED_OPTIMISTIC", { timeoutMs: 8000 }); }
+      catch (e) { if (e.rpcCause?.name === "UNKNOWN_TRANSACTION") unknown++; continue; }
       const failure = tx?.status?.Failure;
       if (failure) return finish(rec, { ok: false, final: true, txHash: h, error: failure?.ActionError?.kind?.FunctionCallError?.ExecutionError || JSON.stringify(failure).slice(0, 300), reconciled: true });
       if (tx?.status && "SuccessValue" in tx.status) {
@@ -381,6 +385,16 @@ async function runChild() {
         try { value = tx.status.SuccessValue ? JSON.parse(Buffer.from(tx.status.SuccessValue, "base64").toString("utf8")) : null; } catch { value = null; }
         return finish(rec, { ok: true, final: true, txHash: h, value, reconciled: true });
       }
+    }
+    // No node knows any of its transactions, and the key has since used their nonces for later
+    // transactions: they can never be included. (A landed transaction would have been found;
+    // the two-minute wait covers indexing lag.)
+    const nonces = rec.attempts.map((a) => a.nonce).filter((n) => n !== undefined && n !== null).map(BigInt);
+    const last = rec.attempts.at(-1);
+    if (rec.intent.key && unknown === rec.hashes.length && nonces.length === rec.hashes.length && nonces.length && last && Date.now() - Date.parse(last.at) > SUPERSEDED_AFTER_MS) {
+      const ak = await rpc.viewAccessKey(rec.intent.signer, rec.intent.key).catch(() => null);
+      const max = nonces.reduce((a, b) => (a > b ? a : b));
+      if (ak && BigInt(ak.nonce) >= max) return finish(rec, { ok: false, final: true, txHash: last.hash, error: `never landed: no node knows it and the key's nonce (${ak.nonce}) has passed it`, reconciled: true });
     }
     if (Date.now() - Date.parse(rec.intent.at) > NEVER_LANDED_MS) return finish(rec, { ok: false, final: true, txHash: rec.hashes.at(-1) ?? null, error: "never landed: past the transaction validity window", reconciled: true });
     return null;
@@ -396,14 +410,14 @@ async function runChild() {
       if (r) return { ...r, replayed: true };
       return { ok: false, final: false, pending: true, txHash: known.hashes.at(-1) ?? null, error: "this intent's outcome is not known yet; it is not re-sent" };
     }
-    const it = { t: "intent", id, kind, agent, signer, method, args, day: day(), at: new Date().toISOString(), ...reserve };
-    const rec = { intent: it, hashes: [], outcome: null };
+    const it = { t: "intent", id, kind, agent, signer, key: sender.publicKey, method, args, day: day(), at: new Date().toISOString(), ...reserve };
+    const rec = { intent: it, hashes: [], attempts: [], outcome: null };
     intents.set(id, rec);
     if (reserve.spend_micro) bump(spend, `${agent}|${it.day}`, BigInt(reserve.spend_micro));
     if (reserve.bill_micro) bump(billed, `${agent}|${it.day}`, BigInt(reserve.bill_micro));
     journal.append(it);
     try {
-      const r = await sender.call(method, args, { gasTgas, onSigned: (hash) => { rec.hashes.push(hash); journal.append({ t: "attempt", id, hash, at: new Date().toISOString() }); } });
+      const r = await sender.call(method, args, { gasTgas, onSigned: (hash, nonce) => { const a = { t: "attempt", id, hash, nonce: String(nonce), at: new Date().toISOString() }; rec.hashes.push(hash); rec.attempts.push(a); journal.append(a); } });
       return finish(rec, { ok: true, final: true, txHash: r.txHash, value: r.value });
     } catch (e) {
       if (e.maybeSent) return finish(rec, { ok: false, final: false, unknown: true, txHash: e.txHash, error: `sent, outcome unknown: ${e.message}` });

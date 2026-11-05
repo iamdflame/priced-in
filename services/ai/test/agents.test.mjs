@@ -304,7 +304,7 @@ test("the signer's journal: daily spend survives a restart, and an intent is nev
 
 test("an outcome the signer cannot see is never re-sent: it waits for the chain", async () => {
   const c = await swarmChain();
-  const signer = c.client();
+  const signer = c.client({ supersededAfterMs: 0 });
   try {
     await signer.start();
     const d = { agent: "a0.swarm.testnet", claim_id: 1, action: "buy", side: "yes", amount_micro: "100000", min_shares_micro: "0" };
@@ -321,6 +321,13 @@ test("an outcome the signer cannot see is never re-sent: it waits for the chain"
     assert.equal(again.pending, true);
     assert.equal(c.sent.length, n, "not re-sent under a new nonce");
     assert.equal((await signer.spent()).agents["a0.swarm.testnet"].spend_micro, "200000", "an unknown outcome still counts against the cap");
+    // a later transaction from the same key uses a higher nonce: the lost one can never land now
+    assert.equal((await signer.trade("trade:lost:0002", d)).ok, true);
+    const settled = await signer.outcome("trade:lost:0001");
+    assert.equal(settled.final, true);
+    assert.equal(settled.ok, false);
+    assert.match(settled.error, /never landed: no node knows it and the key's nonce/);
+    assert.equal((await signer.spent()).agents["a0.swarm.testnet"].spend_micro, "200000", "its reserved spend is released: 0000 and 0002 remain");
   } finally { await signer.stop(); await c.rpc.close(); }
 });
 

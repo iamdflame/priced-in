@@ -35,6 +35,7 @@ export class FunctionCallSender {
     this.receiverId = receiverId;
     this.deadlineMs = deadlineMs;
     this.nonce = null;
+    this.highest = 0n; // the highest nonce this sender ever signed: never reused, even after a refetch
     this.hash = null;
     this.hashAt = 0;
     this.chain = Promise.resolve();
@@ -66,12 +67,13 @@ export class FunctionCallSender {
 
   async send(methodName, args, gasTgas, onSigned) {
     for (let attempt = 0; attempt < 3; attempt++) {
-      if (this.nonce === null) this.nonce = BigInt((await this.accessKey()).nonce);
+      if (this.nonce === null) { const n = BigInt((await this.accessKey()).nonce); this.nonce = n > this.highest ? n : this.highest; }
       const nonce = ++this.nonce;
+      this.highest = nonce;
       const tx = createTransaction(this.accountId, this.keyPair.getPublicKey(), this.receiverId, nonce, [actions.functionCall(methodName, args, BigInt(gasTgas) * TGAS, 0n)], baseDecode(await this.blockHash()));
       const { txHash, signedTransaction } = await this.signer.signTransaction(tx);
       const hash = baseEncode(txHash);
-      if (onSigned) await onSigned(hash);
+      if (onSigned) await onSigned(hash, nonce);
       let outcome;
       try {
         outcome = await this.rpc.sendTxRace(Buffer.from(signedTransaction.encode()).toString("base64"), hash, this.accountId, { deadlineMs: this.deadlineMs });
@@ -79,7 +81,8 @@ export class FunctionCallSender {
         const msg = `${e.message} ${JSON.stringify(e.data || "")}`;
         if (/InvalidNonce|nonce/i.test(msg)) { this.nonce = null; continue; }
         if (/Expired|InvalidChain|block hash/i.test(msg)) { this.hash = null; continue; }
-        this.nonce = null;
+        // keep counting up: the next transaction must not reuse a nonce that may still be in flight
+        if (!e.message) e.message = e.errors?.map((x) => x?.message).filter(Boolean).join("; ") || e.constructor?.name || "the RPC gave no reason";
         e.txHash = hash;
         e.maybeSent = true;
         throw e;

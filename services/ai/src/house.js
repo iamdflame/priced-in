@@ -16,14 +16,15 @@ import { OPERATOR_METHODS } from "./signer.js";
 const TGAS = 10n ** 12n;
 
 export async function keyOnChain(provider, accountId, publicKey) {
-  try { await provider.query({ request_type: "view_access_key", finality: "final", account_id: accountId, public_key: publicKey }); return true; }
-  catch (e) { if (/UNKNOWN_ACCESS_KEY|does not exist|access key/i.test(String(e.message || e) + (e.type || ""))) return false; throw e; }
+  // list the keys rather than ask for one: a missing key is an error some providers retry and fail over on
+  const r = await provider.query({ request_type: "view_access_key_list", finality: "optimistic", account_id: accountId });
+  return (r.keys || []).some((k) => k.public_key === publicKey);
 }
 
 export async function listAgents(provider, swarmId) {
   const out = [];
   for (let from = 0; ; from += 100) {
-    const page = await provider.callFunction({ contractId: swarmId, method: "get_agents", args: { from, limit: 100 }, blockQuery: { finality: "final" } });
+    const page = await provider.callFunction({ contractId: swarmId, method: "get_agents", args: { from, limit: 100 }, blockQuery: { finality: "optimistic" } });
     out.push(...page);
     if (page.length < 100) return out;
   }
@@ -66,7 +67,7 @@ export async function setupOperator({ owner, provider, marketId, swarmId, keysto
  *   depositYocto?: bigint|null, bankrollMicro?: bigint|null, faucet?: boolean, models?: Record<string,string>, log?: (m: string) => void }} o
  */
 export async function ensureHouseAgents({ owner, provider, swarmId, marketId, usdcId = null, keystoreDir, depositYocto = null, bankrollMicro = null, faucet = false, models = {}, log = () => {} }) {
-  const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args, blockQuery: { finality: "final" } });
+  const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args, blockQuery: { finality: "optimistic" } });
   const stats = await view(swarmId, "stats");
   const min = BigInt(stats.min_spawn_yocto);
   const deposit = depositYocto && BigInt(depositYocto) > min ? BigInt(depositYocto) : min;

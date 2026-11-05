@@ -78,6 +78,7 @@ export function loadAiConfig(env = process.env) {
       keysFile: env.SIGNER_KEYS_FILE || null,
       keystoreDir: env.KEYSTORE_DIR || path.join(dataDir, "keystore"),
       cycleMs: num(env.AGENT_CYCLE_MS, 60_000),
+      supersededAfterMs: num(env.SIGNER_SUPERSEDED_AFTER_MS, 120_000),
       freshCooldownMs: num(env.AGENT_FRESH_COOLDOWN_MS, 20_000),
       billing: { route, overrides, yoctoPerMicro, dailyBillMicro: num(env.SIGNER_DAILY_BILL_MICRO, 2_000_000) },
       useWebSearch: env.AGENT_WEB_SEARCH !== "0",
