@@ -16,7 +16,7 @@
 //
 // The swarm runs first, on purpose: a real 5 NEAR spawn and the market's storage don't both fit
 // in the test funder, and sweeping the escrow to the treasury (the funder) pays for the market.
-import { Account, JsonRpcProvider, KeyPair, KeyPairSigner } from "near-api-js";
+import { Account, JsonRpcProvider, KeyPair, KeyPairSigner, baseEncode } from "near-api-js";
 import nacl from "tweetnacl";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
@@ -184,6 +184,9 @@ async function main() {
   const keys = (await rpc("query", { request_type: "view_access_key_list", finality: "final", account_id: AG })).keys;
   const fc = keys[0]?.access_key?.permission?.FunctionCall;
   check("the agent's only key is the runner's, limited to the market's buy, sell and redeem, 0.25 NEAR", keys.length === 1 && fc?.receiver_id === M && [...fc.method_names].sort().join() === "buy,redeem,sell" && BigInt(fc.allowance) === NEAR / 4n, JSON.stringify(fc));
+  const agentCode = (await rpc("query", { request_type: "view_account", finality: "final", account_id: AG })).code_hash;
+  const walletHash = baseEncode(createHash("sha256").update(fs.readFileSync("contracts/swarm/res/agent.wasm")).digest());
+  check("the agent's only code is the agent wallet", agentCode === walletHash, agentCode);
   check("get_agents lists it", (await view(S, "get_agents", { from: 0, limit: 10 })).length === 1);
 
   const usage = sha("usage window 1");
@@ -510,11 +513,20 @@ async function main() {
   const ar = await call(agentAcct, M, "redeem", { claim_id: c6 }, { tgas: 30n, tag: "redeem (agent)" });
   check("an agent redeems with its function-call key", BigInt(ar) === BigInt(ab.shares_micro) - 100_000n, `$${Number(ar) / 1e6}`);
   await refused("a stranger can't close someone's agent", () => call(alice, S, "close_agent", { agent_id: AG }), /agent owner only/);
+  await refused("an open agent can't be deleted", () => call(stranger, S, "delete_agent", { agent_id: AG }), /close the agent first/);
+  await refused("nobody but the swarm can delete an agent account", () => call(alice, AG, "close", {}), /swarm only/);
   const agentHad = await bal(AG);
   const nearBefore = BigInt((await stranger.getState()).balance.total);
   await call(stranger, S, "close_agent", { agent_id: AG });
   const closed = await view(S, "get_agent", { agent_id: AG });
   check("close_agent returns the escrow and releases the bankroll to the owner", closed.closed && closed.escrow_yocto === "0" && (await bal(AG)) === 0n && (await bal(stranger.accountId)) === agentHad && BigInt((await stranger.getState()).balance.total) > nearBefore + near(0.01), `$${Number(agentHad) / 1e6} and 0.02 NEAR back`);
+  await refused("a stranger can't delete someone's agent", () => call(alice, S, "delete_agent", { agent_id: AG }), /agent owner only/);
+  const nearBeforeDelete = BigInt((await stranger.getState()).balance.total);
+  await call(stranger, S, "delete_agent", { agent_id: AG });
+  const gone = !(await rpc("query", { request_type: "view_account", finality: "final", account_id: AG }));
+  const back = BigInt((await stranger.getState()).balance.total) - nearBeforeDelete;
+  check("delete_agent deletes the agent account and returns its NEAR to the owner", gone && (await view(S, "get_agent", { agent_id: AG })).deleted === true && back > near(0.2), `${(Number(back) / 1e24).toFixed(4)} NEAR back`);
+  await refused("an agent is deleted once", () => call(stranger, S, "delete_agent", { agent_id: AG }), /already deleted/);
   await call(stranger, M, "withdraw", { amount_micro: String(agentHad) }, { tgas: 60n });
   check("the agent's owner withdraws its USDC", (await bal(stranger.accountId)) === 0n);
   await books("agent");
