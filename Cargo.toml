@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/lmsr", "crates/rules", "contracts/market", "contracts/tusdc"]
+members = ["crates/lmsr", "crates/rules", "contracts/market", "contracts/swarm", "contracts/tusdc"]
 
 [profile.release]
 codegen-units = 1

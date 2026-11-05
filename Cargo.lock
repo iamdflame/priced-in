@@ -1745,6 +1745,14 @@ version = "0.1.0"
 dependencies = [
  "lmsr",
  "near-sdk",
+ "rules",
+]
+
+[[package]]
+name = "pricedin-swarm"
+version = "0.1.0"
+dependencies = [
+ "near-sdk",
 ]
 
 [[package]]
@@ -1912,6 +1920,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd124222d17ad93a644ed9d011a40f4fb64aa54275c08cc216524a9ea82fb09f"
 dependencies = [
  "digest 0.10.7",
+]
+
+[[package]]
+name = "rules"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_json",
 ]
 
 [[package]]
