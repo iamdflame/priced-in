@@ -52,20 +52,26 @@ export class FunctionCallSender {
     return this.hash;
   }
 
-  /** Call a method; resolves with { txHash, value } (value: the JSON return, or null). */
-  call(methodName, args, { gasTgas = 30 } = {}) {
-    const run = this.chain.then(() => this.send(methodName, args, gasTgas));
+  /**
+   * Call a method; resolves with { txHash, value } (value: the JSON return, or null).
+   * onSigned(hash) runs after signing and before broadcast, so a caller can journal the hash
+   * first. A failure after broadcast that is not a clear rejection carries maybeSent: true and
+   * the hash: the transaction may still land, and is never re-sent under a new nonce.
+   */
+  call(methodName, args, { gasTgas = 30, onSigned = null } = {}) {
+    const run = this.chain.then(() => this.send(methodName, args, gasTgas, onSigned));
     this.chain = run.catch(() => {});
     return run;
   }
 
-  async send(methodName, args, gasTgas) {
+  async send(methodName, args, gasTgas, onSigned) {
     for (let attempt = 0; attempt < 3; attempt++) {
       if (this.nonce === null) this.nonce = BigInt((await this.accessKey()).nonce);
       const nonce = ++this.nonce;
       const tx = createTransaction(this.accountId, this.keyPair.getPublicKey(), this.receiverId, nonce, [actions.functionCall(methodName, args, BigInt(gasTgas) * TGAS, 0n)], baseDecode(await this.blockHash()));
       const { txHash, signedTransaction } = await this.signer.signTransaction(tx);
       const hash = baseEncode(txHash);
+      if (onSigned) await onSigned(hash);
       let outcome;
       try {
         outcome = await this.rpc.sendTxRace(Buffer.from(signedTransaction.encode()).toString("base64"), hash, this.accountId, { deadlineMs: this.deadlineMs });
@@ -74,6 +80,8 @@ export class FunctionCallSender {
         if (/InvalidNonce|nonce/i.test(msg)) { this.nonce = null; continue; }
         if (/Expired|InvalidChain|block hash/i.test(msg)) { this.hash = null; continue; }
         this.nonce = null;
+        e.txHash = hash;
+        e.maybeSent = true;
         throw e;
       }
       const failure = outcome.status?.Failure;
