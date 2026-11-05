@@ -95,7 +95,7 @@ export function createApp(config, deps = {}) {
       checks: {
         scanner: { lastBlockHeight: st.lastHeight, lastScanAgeS: scanAgeS, maxAgeS: config.health.maxScanAgeS, chainLagS, blocksScanned: st.blocksScanned, txsTracked: st.txsTracked, skippedBlocks: st.skippedBlocks, lostTxs: st.lostTxs, lastError: st.lastError },
         rpc: { reachable: reachable.length, urls: probes },
-        events: { lastEventAgeS: eventAgeS, maxAgeS: config.health.maxEventAgeS || null, buffered: hub.buf.length, subscribers: hub.subs.size },
+        events: { lastEventAgeS: eventAgeS, maxAgeS: config.health.maxEventAgeS || null, buffered: hub.buf.length, streams: sse.size },
         lane: laneInfo,
         planner: { status: plannerKey ? "ok" : "unavailable", reason: plannerReason, plannerPublicKeyHex },
       },
