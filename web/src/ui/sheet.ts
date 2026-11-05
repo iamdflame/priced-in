@@ -41,11 +41,18 @@ export function oddsHeadline(p: number): string {
   return `${n}% chance this is true.`;
 }
 
+/** A house agent's name for a reader: its persona ("Archivist"), else its id without the "house-" prefix. */
+export function houseTitle(persona: string | null | undefined, id: string): string {
+  const p = typeof persona === "string" ? persona.trim() : "";
+  if (p && p.length <= 24 && !/s{2,}/.test(p)) return cap(p);
+  return cap(String(id || "agent").replace(/^house[-_]/i, "").replace(/[-_]+/g, " "));
+}
+
 /** An agent or trader, named for a reader. */
 export function who(trader: string, ctx: Ctx, mine = false): string {
   if (mine) return "You";
   const a = ctx.agents.of(trader);
-  if (a) return a.house ? `The ${cap(a.name)}, an AI agent,` : `${cap(a.name)}, an AI agent,`;
+  if (a) return a.house ? `The ${houseTitle(null, a.name)}, an AI agent,` : `${cap(a.name)}, an AI agent,`;
   if (trader.startsWith("lane:")) return "A visitor";
   return "A trader";
 }
@@ -56,9 +63,9 @@ export function agentRoster(ctx: Ctx) {
   if (!roster) {
     roster = ctx.api.aiStatus().then((r) => {
       const list: any[] = r.ok ? r.value.agents?.roster ?? [] : [];
-      for (const a of list) ctx.agents.learn(a.account_id, a.name, !!a.house, a.model);
+      for (const a of list) ctx.agents.learn(a.account_id, a.house ? houseTitle(a.persona, a.name) : a.name, !!a.house, a.model);
       const house = list.find((a) => a.house && /archivist/i.test(a.name)) ?? list.find((a) => a.house);
-      return { n: list.length, house: house ? cap(house.name) : null };
+      return { n: list.length, house: house ? houseTitle(house.persona, house.name) : null };
     });
   }
   return roster;
@@ -440,7 +447,7 @@ export class Sheet {
     if (!failed && a) {
       t4 = "done";
       h4 = "An AI agent answered";
-      const name = a.house ? `The ${cap(a.agent)}` : cap(a.agent);
+      const name = a.house ? `The ${houseTitle((a as { persona?: string }).persona, a.agent)}` : cap(a.agent);
       const src = a.source_url ? h("a", { href: a.source_url, target: "_blank", rel: "noopener nofollow" }, ident(a.source_title || host(a.source_url) || "its source")) : null;
       const act = a.side === "agree" ? `agrees with the odds at ${pct(a.price_before)}`
         : a.side === "no_bet" ? `thinks ${pct(a.credence)} and held off`

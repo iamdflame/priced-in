@@ -4,6 +4,8 @@
 // returns was fetched just now and answered HTTP 200, so every rationale can cite a URL that
 // works. Fetched text is untrusted: it is passed to the model as data, with a warning.
 
+import { corpusEvidence } from "./evidence.js";
+
 const UA = "PricedInHouseAgent/0.1 (NEAR hackathon research agent; https://github.com/pricedin)";
 const STOP = new Set("a an the of in on at to for from by with and or but is are was were be been being has have had do does did it its this that these those as than then there their more most less least over under about into per not no yes will would can could should may might must".split(" "));
 
@@ -134,6 +136,13 @@ export class Research {
     const query = keywords(claim);
     const errors = [];
     let candidates = [];
+    // our own measurement first: a line the corpus found stale or wrong comes with the primary
+    // source that says so and the words found in it (corpus/ERRORS.json, see evidence.js)
+    const ev = corpusEvidence(claim);
+    if (ev) {
+      const quote = ev.receipt_match ? ` The source reads: "…${ev.receipt_match}…"` : "";
+      candidates.push({ url: ev.source_url, title: `${ev.source_name}${ev.checked_on ? ` (checked ${ev.checked_on})` : ""}`, excerpt: `${ev.source_name} gives ${ev.value_today}; the encyclopedia line says ${ev.value_on_page}.${quote}`, via: "measured" });
+    }
     if (this.useWebSearch && this.client?.hasKey) {
       try { candidates.push(...await this.webSearch(claim, agent)); } catch (e) { errors.push(`web_context_search: ${e.message}`); }
     }

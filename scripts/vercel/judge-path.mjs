@@ -1,100 +1,104 @@
-// The judge's path on the hosted site, in a fresh browser profile, with a time for each step:
-// the page loads with prices, a no-wallet $1 doubt goes final, the signed rewrite appears and
-// verifies in the browser, a house agent answers, and a post link opens priced.
-//   SITE_URL=https://isitpriced.com node scripts/vercel/judge-path.mjs [--phone]
-// Each run spends one free $1 lane credit on testnet (a fresh key). Playwright comes from
-// PLAYWRIGHT_DIR (default .apex/design/tools), as in web/e2e.
+// The judge's path on the hosted site, in a fresh browser profile, with a time for each step and a
+// screenshot of each stage of the story:
+//   the page says what it is and shows a flagged sentence with its odds; a no-wallet $1 bet goes
+//   final on NEAR; the odds move; the page rewrites the sentence and the signature checks out in
+//   the browser; an AI agent answers; the demo post link opens priced.
+//   SITE_URL=https://isitpriced.com node scripts/vercel/judge-path.mjs [--phone] [--shots <dir>] [--no-bet]
+// Each run without --no-bet spends one free $1 lane credit (a fresh key) on the network the site
+// runs on: real USDC on mainnet, so run it sparingly there. Playwright comes from PLAYWRIGHT_DIR
+// (default .apex/design/tools), as in web/e2e.
+import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
 import { ROOT } from "./env.mjs";
 
 const site = (process.env.SITE_URL || "https://isitpriced.com").replace(/\/+$/, "");
 const phone = process.argv.includes("--phone");
+const NO_BET = process.argv.includes("--no-bet");
+const si = process.argv.indexOf("--shots");
+const shots = si > 0 ? path.resolve(process.argv[si + 1]) : null;
+if (shots) fs.mkdirSync(shots, { recursive: true });
 const pwDir = path.resolve(process.env.PLAYWRIGHT_DIR || path.join(ROOT, ".apex/design/tools"));
 const { chromium, devices } = createRequire(path.join(pwDir, "package.json"))("playwright");
-const out = [];
+const DEMO_POST = "/ilblackdragon/status/2118027843980366222";
 let failed = 0;
-const step = (name, ok, ms, detail = "") => { out.push({ name, ok, ms, detail }); if (!ok) failed++; console.log(`${ok ? "PASS" : "FAIL"} ${name} · ${ms === null ? "-" : `${(ms / 1000).toFixed(1)} s`}${detail ? ` · ${detail}` : ""}`); };
+const step = (name, ok, ms, detail = "") => { if (!ok) failed++; console.log(`${ok ? "PASS" : "FAIL"} ${name} · ${ms === null ? "-" : `${(ms / 1000).toFixed(1)} s`}${detail ? ` · ${detail}` : ""}`); };
 
 const browser = await chromium.launch();
 const ctx = await browser.newContext(phone ? { ...devices["iPhone 13"] } : { viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
-const net = [];
-const started = Date.now();
-page.on("response", (r) => { if (/\/api\/(lane|after-trade|health)/.test(r.url())) net.push(`${r.request().method()} ${new URL(r.url()).pathname} ${r.status()} at ${((Date.now() - started) / 1000).toFixed(1)} s`); });
-page.on("requestfailed", (r) => { if (/\/api\//.test(r.url())) net.push(`FAILED ${new URL(r.url()).pathname} ${r.failure()?.errorText}`); });
-const stageOf = () => page.evaluate(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage ?? null);
-const waitStage = (names, timeout) => page.waitForFunction((ns) => ns.includes(document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage), names, { timeout, polling: 100 });
-console.log(`${site} · ${phone ? "phone (iPhone 13)" : "desktop 1440x900"} · fresh profile`);
+page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
+const tag = phone ? "phone" : "desktop";
+const shot = async (name, selector = null) => {
+  if (!shots) return;
+  const file = path.join(shots, `${name}-${tag}.png`);
+  if (selector) await page.locator(selector).first().screenshot({ path: file }).catch(() => page.screenshot({ path: file }));
+  else await page.screenshot({ path: file });
+};
+const stage = () => page.evaluate(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage ?? null);
+const stepState = (id) => page.evaluate((i) => document.querySelector(`[data-step-id="${i}"]`)?.getAttribute("data-state") ?? null, id);
+const stepText = (id) => page.evaluate((i) => (document.querySelector(`[data-step-id="${i}"]`)?.textContent || "").replace(/\s+/g, " ").trim(), id);
+
 try {
-  // 1. the page loads with prices
-  const t0 = Date.now();
-  await page.goto(`${site}/`, { waitUntil: "commit", timeout: 90000 });
-  const hero = page.locator(".ps[data-hero]");
-  await hero.waitFor({ timeout: 90000 });
-  const key = await hero.getAttribute("data-hero");
-  await page.locator(`.running [data-sentence="${key}"][data-price]`).waitFor({ timeout: 30000 });
-  const before = Number(await page.locator(`.running [data-sentence="${key}"]`).getAttribute("data-price"));
+  // 1. the page says what it is, with a flagged sentence and its odds
+  let t0 = Date.now();
+  await page.goto(`${site}/`, { waitUntil: "domcontentloaded" });
+  const flag = page.locator(".sheet .s.flag[data-sentence]");
+  await flag.waitFor({ timeout: 30000 });
+  const key = await flag.getAttribute("data-sentence");
+  await page.waitForFunction(() => window.__pricedin?.mode === "live", null, { timeout: 20000 }).catch(() => {});
   const mode = await page.evaluate(() => window.__pricedin?.mode);
-  const priced = await page.locator(".running [data-sentence][data-price]").count();
-  step("the page loads with prices, live", mode === "live" && before > 0 && before < 1, Date.now() - t0, `${priced} priced sentences, the first screen's at ${(before * 100).toFixed(1)}%, mode ${mode}`);
-  await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 30000 });
-  step("the free $1 key is ready (no wallet)", true, Date.now() - t0);
+  const pill = (await page.locator("#netpill").textContent().catch(() => "")).trim();
+  const h1 = (await page.locator(".hero h1").textContent()).trim();
+  const headline = (await page.locator(".callout .headline").first().textContent()).trim();
+  const before = Number(await page.locator(`.sheet [data-sentence="${key}"]`).first().getAttribute("data-price"));
+  step("the page says what it is and flags a sentence with its odds", mode === "live" && /odds of being true/.test(h1) && before > 0, Date.now() - t0, `${mode}; "${pill}"; "${headline}"`);
+  await shot("1-home");
 
-  // 2. a no-wallet $1 doubt goes final
-  const btn = page.locator(`.ps [data-doubt="${key}"]`);
-  await page.waitForFunction(() => document.querySelector(".ps .doubt")?.style.opacity === "1", null, { timeout: 15000 }).catch(() => {});
-  const tap = Date.now();
-  if (phone) await btn.tap(); else await btn.click();
-  await waitStage(["optimistic", "final", "rewritten", "answered"], 30000);
-  const opt = Date.now() - tap;
-  await waitStage(["final", "rewritten", "answered"], 45000);
-  const fin = Date.now() - tap;
-  const doubt = await page.evaluate(() => window.__pricedin.store.state.doubt);
-  const after = Number(await page.locator(`.running [data-sentence="${key}"]`).getAttribute("data-price"));
-  step("the $1 doubt goes final", after < before, fin, `optimistic ${(opt / 1000).toFixed(1)} s; ${(before * 100).toFixed(1)}% -> ${(after * 100).toFixed(1)}%; tx ${doubt?.ctx?.txHash ?? doubt?.txHash ?? "?"}`);
+  if (!NO_BET) {
+    // 2. the free $1 key, asked for on the first sign of a person
+    t0 = Date.now();
+    await page.mouse.wheel(0, 30);
+    await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 30000 });
+    step("the free $1 key is ready, no wallet", true, Date.now() - t0);
 
-  // 3. the signed rewrite appears and verifies
-  // this doubt's own rewrite (the paragraph may already show an older signed one)
-  await page.waitForFunction(() => window.__pricedin.store.state.doubt?.ctx?.rewrite?.status === "signed", null, { timeout: 150000, polling: 200 });
-  const signedMs = Date.now() - tap;
-  const rw = await page.evaluate(() => { const r = window.__pricedin.store.state.doubt.ctx.rewrite; return `${r.id} (${r.provenance?.model}): "${(r.sentences?.find((x) => x.claim_id === window.__pricedin.store.state.doubt.ctx.claimId)?.text ?? r.text).slice(0, 90)}"`; });
-  step("this doubt's rewrite appears, signed in a TEE", true, signedMs, rw);
-  // the verify panel from the visible "signed in a TEE · verify" mark; else the same check the panel runs (store.verify)
-  const chip = page.locator('[data-chip="signed"]:visible').first();
-  let verified = null, steps = [];
-  if (await chip.waitFor({ timeout: 8000 }).then(() => true, () => false)) {
-    if (phone) await chip.tap(); else await chip.click();
-    if (await page.locator(".panel [data-verified]").waitFor({ timeout: 60000 }).then(() => true, () => false)) {
-      verified = await page.locator(".panel [data-verified]").getAttribute("data-verified");
-      steps = await page.locator(".panel [data-step]").evaluateAll((els) => els.map((e) => `${e.getAttribute("data-step")}=${e.getAttribute("data-status")}`));
-    }
+    // 3. the bet goes final, and the odds move
+    t0 = Date.now();
+    await page.locator('.callout [data-bet="no"]').first().click();
+    await page.waitForFunction(() => ["optimistic", "final"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000, polling: 50 }).catch(() => {});
+    const opt = Date.now() - t0;
+    await page.waitForFunction(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") === "final", null, { timeout: 60000, polling: 100 });
+    const fin = Date.now() - t0;
+    const after = Number(await page.locator(`.sheet [data-sentence="${key}"]`).first().getAttribute("data-price"));
+    const tx = await page.evaluate(() => window.__pricedin.store.state.doubt?.ctx?.txHash ?? null);
+    step("the $1 bet goes final on NEAR and the odds move", after < before, fin, `optimistic ${(opt / 1000).toFixed(1)} s; ${(before * 100).toFixed(1)}% -> ${(after * 100).toFixed(1)}%; tx ${tx}`);
+    step("story step 1 and 2 read in plain words", /bet is in/i.test(await stepText("bet")) && /odds moved/i.test(await stepText("odds")), null, (await stepText("odds")).slice(0, 140));
+    await shot("2-after-bet", ".sheet");
+
+    // 4. the page rewrites the sentence; the signature checks out in the browser
+    await page.waitForFunction(() => /Signature checks out/.test(document.querySelector('[data-step-id="rewrite"]')?.textContent || ""), null, { timeout: 150000, polling: 250 });
+    step("the page rewrites the sentence, and the signature checks out", true, Date.now() - t0, (await stepText("rewrite")).slice(0, 220));
+    await shot("3-after-rewrite", ".sheet");
+
+    // 5. an AI agent answers
+    const answered = await page.waitForFunction(() => { const s = document.querySelector('[data-step-id="answer"]'); return s && s.getAttribute("data-state") === "done"; }, null, { timeout: 120000, polling: 500 }).then(() => true, () => false);
+    step("an AI agent answers", answered, answered ? Date.now() - t0 : null, (await stepText("answer")).slice(0, 220));
+    await shot("4-after-answer", ".sheet");
   }
-  if (verified === null) {
-    const r = await page.evaluate(async () => { const s = window.__pricedin.store; const rw = s.state.doubt.ctx.rewrite; const v = await s.verify(rw.page, rw.id); return v ? { ok: v.ok, steps: v.steps.map((x) => `${x.name ?? x.step ?? x.id}=${x.status}`) } : null; });
-    verified = r?.ok ? "1" : "0"; steps = ["(store.verify)", ...(r?.steps || [])];
-  }
-  step("the rewrite verifies in the browser", verified === "1", Date.now() - tap, steps.join(" "));
-  await page.keyboard.press("Escape").catch(() => {});
 
-  // 4. a house agent answers
-  await page.waitForFunction(() => window.__pricedin.store.state.doubt?.answer || window.__pricedin.store.state.doubt?.ctx?.answer || document.querySelector("#doubt-state")?.getAttribute("data-stage") === "answered", null, { timeout: 150000, polling: 250 });
-  const ans = await page.evaluate(() => { const d = window.__pricedin.store.state.doubt; const r = d?.ctx?.answer ?? d?.answer; return r ? `${r.agent} (${r.model}): ${r.text}; source ${r.source_url}` : null; });
-  step("a house agent answers", Boolean(ans), Date.now() - tap, ans ?? "");
-
-  // 5. a post link opens priced
-  const tp = Date.now();
-  await page.goto(`${site}/jack/status/20`, { waitUntil: "commit", timeout: 90000 });
-  await page.waitForFunction(() => { const s = window.__pricedin?.store.state.page; return s?.kind === "post" && !s.loading && s.sentences?.length > 0; }, null, { timeout: 45000, polling: 200 });
-  const post = await page.evaluate(() => { const s = window.__pricedin.store.state.page; return s.sentences.map((x) => `${x.status}${x.chainPpm ? ` ${(x.chainPpm / 1e4).toFixed(1)}%` : x.receipt ? ` opens at ${(x.receipt.args.p0_ppm / 1e4).toFixed(0)}%` : ""}: ${x.original ?? x.text}`).join(" | "); });
-  step("a post link (/jack/status/20) opens, each line priced or plainly not", post.length > 0, Date.now() - tp, post.slice(0, 200));
-  step("no errors in the browser console", errors.length === 0, null, errors.slice(0, 2).join(" | "));
+  // 6. the demo post opens priced
+  t0 = Date.now();
+  await page.goto(`${site}${DEMO_POST}`, { waitUntil: "domcontentloaded" });
+  const pricedPost = await page.waitForFunction(() => document.querySelectorAll(".sheet [data-sentence][data-price]").length > 0, null, { timeout: 45000 }).then(() => true, () => false);
+  step("the demo post opens priced", pricedPost, Date.now() - t0, `${await page.locator(".sheet [data-sentence][data-price]").count()} priced line(s)`);
+  await shot("5-post");
 } catch (e) {
-  step("the run completed", false, null, `${String(e.message).split("\n")[0]} (stage ${await stageOf().catch(() => "?")})`);
+  step("the path completed", false, null, String(e.message || e).split("\n")[0]);
+  await shot("x-failure");
 }
-console.log(`\n${out.length - failed}/${out.length} steps passed`);
-await page.screenshot({ path: path.join(ROOT, `.apex-test/judge-path-${phone ? "phone" : "desktop"}.png`) }).catch(() => {});
+step("no errors in the browser console", errors.length === 0, null, errors.slice(0, 3).join(" | "));
 await browser.close();
+console.log(failed ? `${failed} step(s) failed` : "every step passed");
 process.exit(failed ? 1 : 0);

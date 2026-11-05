@@ -38,6 +38,7 @@ for (const e of errors.items || []) {
     value_today: e.valueToday,
     source_name: owner?.name || null,
     source_url: receipt.url,
+    receipt_match: typeof receipt.match === "string" ? receipt.match.replace(/\s+/g, " ").trim().slice(0, 400) : null,
     checked_on: e.checkedOn || errors.checkedOn || null,
   });
 }

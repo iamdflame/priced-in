@@ -7,7 +7,7 @@ import { priceable } from "../core/store";
 import { explorerAccount, h, hashText, host, ident, pct, typeset, usd, type Child } from "./dom";
 import { CORPUS, DEMO_POST, PROOF, pageInfo, pageTitle } from "./data";
 import { markSvg, type Ctx } from "./context";
-import { Sheet, loadCorpusPage } from "./sheet";
+import { Sheet, houseTitle, loadCorpusPage } from "./sheet";
 import { verifyBody } from "./verify";
 import testnetDep from "../../../deployments/testnet.json";
 import mainnetDep from "../../../deployments/mainnet.json";
@@ -134,9 +134,9 @@ interface AgentRow { name: string; house: boolean; model: string | null; persona
 async function loadAgents(ctx: Ctx): Promise<AgentRow[]> {
   const st = await ctx.api.aiStatus();
   const roster: any[] = st.ok ? st.value.agents?.roster ?? [] : [];
-  for (const a of roster) ctx.agents.learn(a.account_id, a.name, !!a.house, a.model);
+  for (const a of roster) ctx.agents.learn(a.account_id, a.house ? houseTitle(a.persona, a.name) : a.name, !!a.house, a.model);
   return roster.map((a) => ({
-    name: a.name, house: !!a.house, model: a.model ?? null, persona: typeof a.persona === "string" ? personaLine(a.persona) : null,
+    name: a.house ? `The ${houseTitle(a.persona, a.name)}` : a.name, house: !!a.house, model: a.model ?? null, persona: typeof a.persona === "string" ? personaLine(a.persona) : null,
     maxBet: a.limits?.max_bet_usd ?? null, account: a.account_id ?? null, recorded: !!a.recorded, last: lastAction(a.last_action),
   }));
 }
