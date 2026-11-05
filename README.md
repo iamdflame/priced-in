@@ -191,4 +191,4 @@ npm run mcp:test       # offline: the four tools, stdio and HTTP, against a loca
 
 ## Licence
 
-MIT (see `package.json`). Corpus text is from Wikipedia under CC BY-SA 4.0, with attribution on every page file.
+MIT (see `LICENSE`). Corpus text is from Wikipedia under CC BY-SA 4.0, with attribution on every page file.
