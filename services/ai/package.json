@@ -1,0 +1,21 @@
+{
+  "name": "@pricedin/ai",
+  "private": true,
+  "type": "module",
+  "description": "Priced In AI layer: the NEAR AI Cloud client with TEE verification, the signed rewrite writer, the house research agents with a separate key-holding signer, and the jury runner.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "start": "node --env-file-if-exists=../api/.env --env-file-if-exists=.env src/server.js",
+    "test": "node --test --test-concurrency=1 \"test/*.test.mjs\"",
+    "e2e": "node test/jury-e2e.mjs",
+    "smoke": "node test/live-smoke.mjs"
+  },
+  "dependencies": {
+    "@phala/dcap-qvl": "0.7.1",
+    "near-api-js": "^7.4.0",
+    "tweetnacl": "^1.0.3"
+  }
+}
