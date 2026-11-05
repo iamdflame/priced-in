@@ -87,7 +87,7 @@ export class Sheet {
     this.head = h("header", { class: "sheet-head" },
       h("div", { class: "sheet-title" }, h(H, {}, o.title), h("span", {}, ...nodes(o.subtitle))),
       this.statsEl);
-    this.el = h("article", { class: `sheet ${o.mode}`, id: "sheet", "aria-label": o.title }, this.head, ...(o.notices ?? []).map((n) => h("p", { class: "msg", style: "margin:14px 34px 0" }, n)), this.body);
+    this.el = h("article", { class: `sheet ${o.mode}`, id: "sheet", "aria-label": o.title }, this.head, ...(o.notices ?? []).map((n) => h("p", { class: "notice" }, n)), this.body);
     if (o.more) this.el.append(h("div", {}, o.more));
     void agentRoster(ctx).then((r) => { this.houseName = r.house; this.agentsN = r.n; this.renderStats(this.ctx.store.state); this.slotKey = ""; this.renderSlot(this.ctx.store.state); });
   }
@@ -133,9 +133,10 @@ export class Sheet {
     const entries: Entry[] = list.map((s) => (priceable(s) || s.status === "settled"
       ? { kind: "priced", key: s.key }
       : { kind: "plain", text: s.text, grey: true, reason: greyWhy(s), priceable: false }));
-    // runs of four sentences read as paragraphs
+    // a post or a paste reads line by line; other lists in runs of four sentences
+    const per = this.o.mode === "post" || this.o.mode === "paste" ? 1 : 4;
     const paras: Para[] = [];
-    for (let i = 0; i < entries.length; i += 4) paras.push({ heading: null, entries: entries.slice(i, i + 4) });
+    for (let i = 0; i < entries.length; i += per) paras.push({ heading: null, entries: entries.slice(i, i + per) });
     return paras;
   }
 

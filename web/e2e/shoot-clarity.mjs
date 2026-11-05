@@ -14,6 +14,7 @@ const opt = (f) => { const i = process.argv.indexOf(`--${f}`); return i > 0 ? pr
 const query = opt("query");
 const only = opt("only")?.split(",") ?? null;
 const full = process.argv.includes("--full");
+const post = opt("post") ?? "/sample/status/1851";
 fs.mkdirSync(out, { recursive: true });
 const url = (p) => `${site}${p}${query ? (p.includes("?") ? "&" : "?") + query : ""}`;
 
@@ -29,8 +30,8 @@ const shots = [
   { name: "article", path: "/p/tether", wait: 3000 },
   { name: "article-open", path: "/p/tether", wait: 3000, act: async (p) => { const s = p.locator(".sheet [data-chip-for]").nth(2); await s.scrollIntoViewIfNeeded(); await s.click(); await p.waitForTimeout(800); } },
   { name: "article-after", path: "/p/tether", wait: 3000, act: async (p) => { const s = p.locator(".sheet [data-chip-for]").nth(2); await s.scrollIntoViewIfNeeded(); await s.click(); await p.locator("[data-bet='no']").first().click(); await settledStory(p); await p.waitForTimeout(2500); } },
-  { name: "post", path: "/sample/status/1851", wait: 6000 },
-  { name: "post-after", path: "/sample/status/1851", wait: 6000, act: async (p) => { const b = p.locator("[data-bet='no']").first(); if (await b.count()) { await b.click(); await settledStory(p); await p.waitForTimeout(2500); } } },
+  { name: "post", path: post, wait: 6000 },
+  { name: "post-after", path: post, wait: 6000, act: async (p) => { const b = p.locator("[data-bet='no']").first(); if (await b.count()) { await b.click(); await settledStory(p); await p.waitForTimeout(2500); } } },
   { name: "agents", path: "/agents", wait: 2500 },
   { name: "audit", path: "/audit", wait: 1500 },
   { name: "notfound", path: "/nope/really/not", wait: 1500 },

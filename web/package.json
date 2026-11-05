@@ -2,7 +2,7 @@
   "name": "pricedin-web",
   "private": true,
   "type": "module",
-  "description": "Priced In web: the engine (src/core) and the site (src/ui, the Point Source design).",
+  "description": "Priced In web: the engine (src/core) and the site (src/ui, the clarity design).",
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build && node scripts/bundle-size.mjs",
@@ -12,7 +12,7 @@
     "fixture": "node scripts/make-fixture.mjs",
     "ui-data": "node scripts/make-ui-data.mjs",
     "serve:offline": "node e2e/serve.mjs",
-    "shots": "node e2e/shoot.mjs"
+    "shots": "node e2e/shoot-clarity.mjs"
   },
   "dependencies": {
     "@noble/curves": "^2.2.0",
