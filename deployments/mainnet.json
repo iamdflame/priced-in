@@ -98,5 +98,97 @@
    "link": "https://nearblocks.io/txns/A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV"
   }
  ],
- "keys_set_at": "2026-11-05T22:06:38.206Z"
+ "keys_set_at": "2026-11-05T22:06:38.206Z",
+ "seed": {
+  "page": "tether",
+  "source": "corpus/pages/tether.json, https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995 revision 1382852995",
+  "opening": "each line opened at the planner's own estimate (deepseek-ai/DeepSeek-V4.1-Flash-1017, reasoning off, the live paste prompt), clamped to 20-80%, with b = $1.50",
+  "planner": {
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-05T22:21:31.185Z",
+   "labels": [
+    {
+     "label": "data",
+     "p0_ppm": 750000
+    },
+    {
+     "label": "data",
+     "p0_ppm": 750000
+    },
+    {
+     "label": "data",
+     "p0_ppm": 500000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 700000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 550000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 650000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 600000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 400000
+    },
+    {
+     "label": "data",
+     "p0_ppm": 450000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 500000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 600000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 500000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 300000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 600000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 600000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 600000
+    },
+    {
+     "label": "judgment",
+     "p0_ppm": 700000
+    },
+    {
+     "label": "judgment",
+     "p0_ppm": 700000
+    },
+    {
+     "label": "document",
+     "p0_ppm": 500000
+    },
+    {
+     "label": "judgment",
+     "p0_ppm": 450000
+    }
+   ]
+  },
+  "claims": []
+ }
 }
