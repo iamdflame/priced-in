@@ -132,6 +132,8 @@ export function loadConfig(env = process.env) {
       facilitatorUrl: (env.X402_FACILITATOR_URL || "").trim().replace(/\/+$/, "") || null,
       relayerId: (env.X402_RELAYER_ACCOUNT_ID || "").trim() || null,
       relayerKey: (env.X402_RELAYER_PRIVATE_KEY || "").trim() || null,
+      // the RPC our facilitator reads and settles through (default: the first of RPC_URLS)
+      rpcUrl: (env.X402_RPC_URL || "").trim() || null,
       // with a relayer held here, also serve the facilitator's own HTTP interface at /x402/*
       facilitatorRoutes: env.X402_FACILITATOR_ROUTES !== "0",
     },
@@ -143,7 +145,7 @@ export function loadConfig(env = process.env) {
     if (id && id.endsWith(wrongSuffix)) errors.push(`${name}=${id} looks like a ${net === "testnet" ? "mainnet" : "testnet"} account but NEAR_NETWORK=${net}`);
     if (id && !/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/.test(id)) errors.push(`${name}=${id} is not a valid NEAR account ID`);
   }
-  for (const u of [...config.rpcUrls, ...config.publicRpcUrls]) {
+  for (const u of [...config.rpcUrls, ...config.publicRpcUrls, ...(config.x402.rpcUrl ? [config.x402.rpcUrl] : [])]) {
     let parsed;
     try { parsed = new URL(u); } catch { errors.push(`RPC URL is not a URL: ${u}`); continue; }
     if (!/^https?:$/.test(parsed.protocol)) errors.push(`RPC URL must be http(s): ${u}`);

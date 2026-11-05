@@ -25,6 +25,11 @@ export function unb64json(s) {
 }
 
 export const caip2 = (network) => `near:${network}`;
+
+// Reasons the NEAR facilitator gives when an RPC read failed (it fails closed): nothing was
+// submitted and the delegate's nonce is unspent, so asking again is safe.
+export const TRANSIENT = /_(lookup_failed|unavailable|check_failed)$/;
+const pause = (ms) => new Promise((r) => setTimeout(r, ms));
 export const explorerTx = (network, tx) => `https://${network === "mainnet" ? "" : "testnet."}nearblocks.io/txns/${tx}`;
 
 /** The one way we accept to be paid, as x402 PaymentRequirements. */
@@ -82,10 +87,11 @@ export function paymentHeader(req) {
  * @param {{ verify: Function, settle: Function }|null} facilitator
  */
 export class Paywall {
-  constructor(x, facilitator, { log = () => {} } = {}) {
+  constructor(x, facilitator, { log = () => {}, retryDelaysMs = [700, 2000] } = {}) {
     this.x = x;
     this.f = facilitator;
     this.log = log;
+    this.retryDelaysMs = retryDelaysMs;
     this.stats = { challenges: 0, verified: 0, settled: 0, refused: 0, settleFailures: 0, lastTx: null };
   }
 
@@ -110,13 +116,24 @@ export class Paywall {
     if (payload?.x402Version !== X402_VERSION) { this.stats.refused++; return this.challenge(url, `Only x402 version ${X402_VERSION} is accepted.`, description); }
     if (!sameRequirements(payload.accepted, req)) { this.stats.refused++; return this.challenge(url, "The payment does not accept these requirements (scheme, network, asset, amount or payTo differ).", description); }
     let v;
-    try { v = await this.f.verify(payload, req); } catch (e) { this.log(`x402 verify failed: ${e.message}`); return { status: 502, body: { error: { code: "facilitator_unavailable", message: "The payment facilitator did not answer. Nothing was charged; try again." } } }; }
+    for (let i = 0; ; i++) {
+      try { v = await this.f.verify(payload, req); } catch (e) { this.log(`x402 verify failed: ${e.message}`); return { status: 502, body: { error: { code: "facilitator_unavailable", message: "The payment facilitator did not answer. Nothing was charged; try again." } } }; }
+      if (v?.isValid || !TRANSIENT.test(v?.invalidReason || "") || i >= this.retryDelaysMs.length) break;
+      this.log(`x402 verify: ${v.invalidReason}, asking again`);
+      await pause(this.retryDelaysMs[i]);
+    }
     if (!v?.isValid) { this.stats.refused++; return this.challenge(url, `Payment refused: ${v?.invalidReason || "invalid"}${v?.invalidMessage ? ` (${v.invalidMessage})` : ""}.`, description); }
     this.stats.verified++;
     const out = await work();
     if (out.status >= 400) return { ...out, body: { ...out.body, payment: { settled: false, note: "The request failed, so the payment was not settled. Nothing was charged." } } };
     let s;
-    try { s = await this.f.settle(payload, req); } catch (e) { s = { success: false, errorReason: "settlement_failed", errorMessage: e.message }; }
+    for (let i = 0; ; i++) {
+      try { s = await this.f.settle(payload, req); } catch (e) { s = { success: false, errorReason: "settlement_failed", errorMessage: e.message }; }
+      // settle re-verifies first: a failed read there submitted nothing, so it can be retried
+      if (s?.success || !TRANSIENT.test(s?.errorReason || "") || i >= this.retryDelaysMs.length) break;
+      this.log(`x402 settle: ${s.errorReason} before submitting, asking again`);
+      await pause(this.retryDelaysMs[i]);
+    }
     if (!s?.success) {
       this.stats.settleFailures++;
       this.log(`x402 settle failed: ${s?.errorReason} ${s?.errorMessage || ""}`);

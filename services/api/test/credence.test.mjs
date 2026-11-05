@@ -271,6 +271,27 @@ test("x402: an invalid payment or a failed settlement gets a fresh 402 and no an
   assert.equal(r2.headers.get("payment-response"), null);
 });
 
+test("x402: a facilitator read that failed (fail-closed RPC) is asked again; a real refusal is not", async () => {
+  const { Paywall, requirements } = await import("../src/x402.mjs");
+  const x = { network: "testnet", priceMicro: 10000, asset: USDC, payTo: PAY_TO, maxTimeoutS: 60 };
+  let n = 0;
+  const flaky = {
+    async verify() { n++; return n < 2 ? { isValid: false, invalidReason: "invalid_exact_near_token_account_lookup_failed" } : { isValid: true, payer: "p.testnet" }; },
+    async settle(p, r) { n++; return n < 4 ? { success: false, errorReason: "invalid_exact_near_balance_check_failed", transaction: "", network: r.network } : { success: true, transaction: "T", network: r.network, payer: "p.testnet" }; },
+  };
+  const pw = new Paywall(x, flaky, { retryDelaysMs: [1, 1] });
+  const header = b64json({ x402Version: 2, accepted: requirements(x), payload: {} });
+  const ok = await pw.charge(header, "http://x/v1/credence", "d", async () => ({ status: 200, body: { a: 1 } }));
+  assert.equal(ok.status, 200);
+  assert.equal(ok.body.payment.transaction, "T");
+  assert.equal(n, 4);
+  let m = 0;
+  const refusing = { async verify() { m++; return { isValid: false, invalidReason: "insufficient_funds" }; }, async settle() { throw new Error("never"); } };
+  const no = await new Paywall(x, refusing, { retryDelaysMs: [1, 1] }).charge(header, "http://x", "d", async () => ({ status: 200, body: {} }));
+  assert.equal(no.status, 402);
+  assert.equal(m, 1);
+});
+
 test("x402: a remote facilitator over the protocol's HTTP interface", async (t) => {
   const seen = [];
   const fac = http.createServer((req, res) => {

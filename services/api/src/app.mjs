@@ -71,7 +71,7 @@ export function createApp(config, deps = {}) {
     if (!paywallP) {
       paywallP = (async () => {
         let f = deps.facilitator || null;
-        if (!f && x402.relayerId && x402.relayerKey) f = await nearFacilitator(x402, config.rpcUrls[0]);
+        if (!f && x402.relayerId && x402.relayerKey) f = await nearFacilitator(x402, x402.rpcUrl || config.rpcUrls[0]);
         else if (!f && x402.facilitatorUrl) f = new HttpFacilitator(x402.facilitatorUrl, { fetchImpl: deps.fetchImpl });
         return new Paywall(x402, f, { log });
       })().catch((e) => { log(`x402: facilitator unavailable: ${e.message}`); paywallP = null; return new Paywall(x402, null, { log }); });
