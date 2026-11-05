@@ -126,11 +126,13 @@ export default async function handler(req, res) {
 function finiteStream(req, res, url, ctx) {
   const from = Number(req.headers["last-event-id"] ?? url.searchParams.get("since") ?? 0) || 0;
   const backlog = ctx.app.hub.since(from);
-  res.writeHead(200, { "content-type": "text/event-stream; charset=utf-8", "cache-control": "no-cache, no-transform", "access-control-allow-origin": "*", "x-accel-buffering": "no" });
   let out = "retry: 2000\n\n";
   for (const e of backlog) out += `id: ${e.seq}\ndata: ${JSON.stringify(e)}\n\n`;
-  out += `event: hello\ndata: ${JSON.stringify({ replayed: backlog.length, marketId: ctx.config.marketId, mode: "finite: reconnect after retry, or poll /events/recent" })}\n\n`;
-  res.end(out);
+  out += `event: hello\ndata: ${JSON.stringify({ replayed: backlog.length, marketId: ctx.app.config.marketId, mode: "finite: reconnect after retry, or poll /events/recent" })}\n\n`;
+  // the whole body with its length: delivered as one response, never a connection held open
+  const body = Buffer.from(out, "utf8");
+  res.writeHead(200, { "content-type": "text/event-stream; charset=utf-8", "content-length": String(body.length), "cache-control": "no-cache, no-transform", "access-control-allow-origin": "*" });
+  res.end(body);
 }
 
 // ---------- GET /health: outcomes, for this runtime ----------
