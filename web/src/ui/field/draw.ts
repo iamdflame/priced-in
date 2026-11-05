@@ -123,8 +123,8 @@ export interface DishStyle {
 export function styleFor(cam: Camera, d: DishSpec, inks: Inks, mode: DishStyle["mode"] = "full"): DishStyle {
   const rpx = (d.R * cam.f) / d.z;
   const fog = clamp(1 - Math.exp(-d.z / (cam.zNear * 26)), 0, 0.92);
-  const lineRGB = mode === "red" ? inks.red : mix(inks.ink, inks.haze, fog * 0.9);
-  const face = mode === "red" ? inks.paper : mix(inks.paper, inks.haze, fog * 0.55);
+  const lineRGB = mode === "red" ? inks.red : mix(inks.ink, inks.haze, fog * 0.62);
+  const face = mode === "red" ? inks.paper : mix(inks.paper, inks.haze, fog * 0.4);
   return {
     fog,
     line: css(lineRGB), lineRGB,
@@ -272,7 +272,7 @@ function frustum(g: Ctx2, B: V3, A: V3, L: number, r0: number, r1: number, cap =
     ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(b[0], b[1]); ctx.stroke();
     return;
   }
-  const m = clamp(Math.round(rpx * 0.9), 8, 56);
+  const m = clamp(Math.round((rpx * 4.4) / st.spacing), 8, 72);
   const pts: number[] = [];
   const slope = (r0 - r1) / Math.max(0.01, L);
   const gens: { x0: number; y0: number; x1: number; y1: number; w: number }[] = [];
@@ -287,7 +287,7 @@ function frustum(g: Ctx2, B: V3, A: V3, L: number, r0: number, r1: number, cap =
     const mid: V3 = [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2, (P0[2] + P1[2]) / 2];
     const vis = n[0] * (g.eye[0] - mid[0]) + n[1] * (g.eye[1] - mid[1]) + n[2] * (g.eye[2] - mid[2]);
     if (vis > 0) {
-      const dark = 1 - (AMBIENT + (1 - AMBIENT) * lambert(n));
+      const dark = 1 - (0.06 + 0.94 * lambert(n));
       const w = hatchW(dark, st.spacing);
       if (w > 0.1) gens.push({ x0: a[0], y0: a[1], x1: b[0], y1: b[1], w });
     }
@@ -447,7 +447,7 @@ export function drawDish(ctx: CanvasRenderingContext2D, cam: Camera, d: DishSpec
     ctx.strokeStyle = st.line; ctx.lineWidth = Math.max(0.6, rpx * 0.3);
     ctx.beginPath(); ctx.moveTo(ft[0], ft[1]); ctx.lineTo(tp[0], tp[1]); ctx.stroke();
     ctx.fillStyle = st.face; ctx.beginPath(); polyPath(ctx, hull(pts)); ctx.fill();
-    ctx.lineWidth = 0.55; ctx.stroke();
+    ctx.lineWidth = 0.7; ctx.stroke();
     return;
   }
 
@@ -503,12 +503,15 @@ function mount(g: Ctx2, d: DishSpec, fr: Frame) {
     const T: V3 = [c[0] + fr.u[0] * d.yokeW * s, c[1], c[2] + fr.u[2] * d.yokeW * s];
     beam(g, B, T, fwd, d.R * 0.12, d.R * 0.07);
   }
-  // the elevation bearing housing, a short drum along u
-  if ((d.R * g.cam.f) / d.z > 12) {
-    for (const s of [-1, 1]) {
-      const T: V3 = [c[0] + fr.u[0] * d.yokeW * s, c[1], c[2] + fr.u[2] * d.yokeW * s];
-      frustum(g, [T[0] - fr.u[0] * 0.3, T[1], T[2] - fr.u[2] * 0.3], fr.u, 0.6, d.R * 0.06, d.R * 0.06);
-    }
+  // the cradle: from each elevation bearing a strut into the bowl's back structure, and the
+  // bearing housing itself, a short drum along u
+  const big = (d.R * g.cam.f) / d.z > 12;
+  for (const s of [-1, 1]) {
+    const T: V3 = [c[0] + fr.u[0] * d.yokeW * s, c[1], c[2] + fr.u[2] * d.yokeW * s];
+    const S = bowlPoint(d, c, fr, d.R * 0.6, s > 0 ? 0 : Math.PI);
+    const back: V3 = [S[0] - fr.a[0] * 0.25, S[1] - fr.a[1] * 0.25, S[2] - fr.a[2] * 0.25];
+    beam(g, T, back, fr.v, d.R * 0.1, d.R * 0.06);
+    if (big) frustum(g, [T[0] - fr.u[0] * 0.25 * s, T[1], T[2] - fr.u[2] * 0.25 * s], [fr.u[0] * s, fr.u[1] * s, fr.u[2] * s], 0.4, d.R * 0.055, d.R * 0.055, true);
   }
 }
 
@@ -815,7 +818,7 @@ export function drawGround(ctx: CanvasRenderingContext2D, cam: Camera, dishes: D
     for (let i = 0; i <= steps; i++) {
       const sx = (i / steps) * w;
       const X = ((sx - cam.cx) * Z) / cam.f;
-      let y = (nz(X / 300, 3.3) - 0.5) * 6 + 4;
+      let y = 0;
       for (const m of hs) {
         const dx = Math.abs(X - m.c) - m.half;
         const v = dx <= 0 ? m.hgt * (1 + (nz(X / 60, 9) - 0.5) * 0.06) : m.hgt * Math.max(0, 1 - dx / m.sl) ** 1.6;
@@ -824,13 +827,13 @@ export function drawGround(ctx: CanvasRenderingContext2D, cam: Camera, dishes: D
       const p = projectXY(cam, [X, Math.max(0, y), Z]);
       top.push(p[0], Math.min(horizon, p[1]));
     }
-    ctx.fillStyle = css(mix(inks.haze, inks.paper, 0.72));
-    ctx.beginPath(); ctx.moveTo(0, horizon + 1);
+    ctx.fillStyle = css(mix(inks.haze, inks.paper, 0.45));
+    ctx.beginPath(); ctx.moveTo(0, horizon);
     for (let i = 0; i < top.length; i += 2) ctx.lineTo(top[i], top[i + 1]);
-    ctx.lineTo(w, horizon + 1); ctx.closePath(); ctx.fill();
+    ctx.lineTo(w, horizon); ctx.closePath(); ctx.fill();
     ctx.strokeStyle = css(mix(inks.haze, inks.ink, 0.4)); ctx.lineWidth = 0.7;
     ctx.beginPath();
-    for (let i = 0; i < top.length; i += 2) { if (i === 0) ctx.moveTo(top[i], top[i + 1]); else ctx.lineTo(top[i], top[i + 1]); }
+    for (let i = 0; i < top.length; i += 2) { if (horizon - top[i + 1] < 0.5) { ctx.moveTo(top[i], top[i + 1]); continue; } ctx.lineTo(top[i], top[i + 1]); }
     ctx.stroke();
   }
   // the horizon itself: a firm ruled line, the land's edge

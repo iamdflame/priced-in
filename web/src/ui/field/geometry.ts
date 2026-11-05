@@ -42,7 +42,7 @@ export function makeCamera(w: number, h: number, groundTop: number): Camera {
   // Phones get a longer lens so the field stays a field and not a row of specks.
   const f = phone ? w * 1.1 : Math.max(w * 0.86, 900);
   // Eye height chosen so the nearest visible ground (the bottom edge) is a set distance away.
-  const zNear = phone ? 48 : 54;
+  const zNear = phone ? 60 : 54;
   const camH = (zNear * band) / f;
   return { w, h, f, cx: w / 2, horizon: groundTop, camH, pos: [0, camH, 0], zNear };
 }
@@ -82,6 +82,7 @@ export interface DishSpec {
   pedR0: number; pedR1: number;    // pedestal radius at foot and top (m)
   pedTop: number;                  // height of the pedestal top (m)
   breath: Breath;
+  tilt: number;                    // this dish's own lean, degrees above the array's
   yours?: boolean;
 }
 
@@ -120,14 +121,19 @@ export function aimPose(d: DishSpec, target: V3): Pose {
  * angle above the line of sight: from any lens or eye height the array reads as looking up.
  * Pass k to fix the depth instead, as a fraction of the dish's own depth.
  */
-export function screenTarget(cam: Camera, d: DishSpec, sx: number, sy: number, k?: number, tilt = 46): V3 {
+export function screenTarget(cam: Camera, d: DishSpec, sx: number, sy: number, k?: number, tilt = 46 + (d.tilt || 0)): V3 {
   if (k !== undefined) return unproject(cam, sx, sy, Math.max(0.5, d.z * k));
   const want = Math.min(1.35, (tilt * Math.PI) / 180 + Math.atan2(cam.camH - d.H, d.z));
   let lo = 0.02, hi = 0.985;
+  // ...but never so far round that the face turns edge-on to the eye (62 degrees at most)
+  const C = pivotOf(d);
+  const e = norm([cam.pos[0] - C[0], cam.pos[1] - C[1], cam.pos[2] - C[2]]);
+  const cosMax = Math.cos((62 * Math.PI) / 180);
   for (let i = 0; i < 22; i++) {
     const mid = (lo + hi) / 2;
-    const el = aimPose(d, unproject(cam, sx, sy, d.z * mid)).el;
-    if (el < want) lo = mid; else hi = mid;
+    const p = aimPose(d, unproject(cam, sx, sy, d.z * mid));
+    const a = axisOf(p);
+    if (p.el < want && dot(a, e) > cosMax) lo = mid; else hi = mid;
   }
   return unproject(cam, sx, sy, Math.max(0.5, d.z * (lo + hi) / 2));
 }
@@ -217,6 +223,7 @@ export function placeDishes(cam: Camera, count: number, seed: number): DishSpec[
       pedR0: R * (tower ? 0.36 : 0.17 + r() * 0.05),
       pedR1: R * (0.12 + r() * 0.03),
       pedTop: H - R * (0.5 + r() * 0.06),
+      tilt: (r() - 0.5) * 9,
       breath: {
         pa: r() * Math.PI * 2, pe: r() * Math.PI * 2,
         // periods in whole beats, so breathing runs on the same clock
@@ -232,9 +239,9 @@ export function placeDishes(cam: Camera, count: number, seed: number): DishSpec[
     for (const d of out) {
       const dsr = (d.R * cam.f) / d.z;
       const dist = Math.hypot(sxOf(d.x, d.z) - sx, syOf(d.z) - sy);
-      // a small dish may peek past a big one's edge, never sit behind its face
+      // dishes of a size keep apart on screen; a much smaller one may stand behind a big one
       const ratio = Math.max(sr, dsr) / Math.min(sr, dsr);
-      const need = ratio > 2.5 ? Math.max(sr, dsr) * 1.05 : (sr + dsr) * 0.92;
+      const need = ratio > 2.5 ? 0 : (sr + dsr) * 0.92;
       if (dist < need) return false;
       if (Math.hypot(d.x - x, d.z - z) < (d.R + R) * 1.2) return false;
     }
@@ -248,28 +255,40 @@ export function placeDishes(cam: Camera, count: number, seed: number): DishSpec[
   yours.yours = true; yours.legs = 4; yours.feed = "sub"; yours.mount = "column";
   out.push(yours);
 
-  let tries = 0;
-  const nEdge = 2;
-  while (out.length < count + 1 && tries < 40000) {
-    tries++;
-    const k = out.length - 1;
-    let z: number, sxN: number;
-    if (k < nEdge && tries < 400 * (k + 1)) {
-      // foreground bowls, cropped at the frame edges
-      z = zNear * (0.72 + r() * 0.1);
-      sxN = (k % 2 === 0 ? -1 : 1) * (0.9 + r() * 0.1);
-    } else {
-      // depth: feet spread down the band, denser towards the horizon
-      const band = cam.h - cam.horizon;
-      const t = Math.pow(r(), 1.3);
-      const footY = cam.horizon + 1.2 + t * (band + 30);
-      z = Math.min(zFar, (cam.f * cam.camH) / (footY - cam.horizon));
-      if (z < zNear * 0.75) continue;
-      sxN = (r() * 2 - 1) * 1.04;
+  // strata by apparent size, so every seed gets the same composition: two cropped foreground
+  // bowls at the edges, a few large ones, a mid field, a far field, and specks to the horizon
+  const band = cam.h - cam.horizon;
+  const strata: [number, number, number][] = [ // [share of the count, rpx from, rpx to] (band units)
+    [phone ? 0.04 : 0.09, 0.15, 0.27],
+    [phone ? 0.2 : 0.24, 0.06, 0.15],
+    [0.3, 0.022, 0.06],
+    [1, 0.004, 0.022],
+  ];
+  const rOf = (z: number) => (6.6 * cam.f) / z;
+  let k = 0;
+  const push = (x: number, z: number) => { out.push(make(k, x, z)); k++; };
+  // foreground, cropped at the frame edges
+  for (const side of [-1, 1]) {
+    for (let tries = 0; tries < 400; tries++) {
+      const z = zNear * (0.72 + r() * 0.1);
+      const x = (side * (0.9 + r() * 0.1) * (cam.w / 2) * z) / cam.f;
+      if (fits(x, z, 6.8)) { push(x, z); break; }
     }
-    const x = (sxN * (cam.w / 2) * z) / cam.f;
-    if (!fits(x, z, 6.8)) continue;
-    out.push(make(k, x, z));
+  }
+  for (const [share, lo, hi] of strata) {
+    const want = Math.min(count - k, Math.max(1, Math.round(share * count)));
+    let got = 0;
+    for (let tries = 0; tries < 6000 && got < want && k < count; tries++) {
+      // sample the size, then the depth that gives it; specks bunch towards the horizon
+      const u = r();
+      const rpx = band * (lo + (hi - lo) * (share === 1 ? u * u : u));
+      const z = Math.min(zFar, rOf(rpx));
+      if (z < zNear * 0.75) continue;
+      const x = ((r() * 2 - 1) * 1.04 * (cam.w / 2) * z) / cam.f;
+      if (rpx > band * 0.26 && Math.abs(x * cam.f / z) < cam.w * 0.3) continue; // keep the middle of the sky clear
+      if (!fits(x, z, 6.8)) continue;
+      push(x, z); got++;
+    }
   }
   return out.sort((p, q) => q.z - p.z);
 }

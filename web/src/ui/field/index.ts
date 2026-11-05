@@ -176,7 +176,7 @@ export function createField(canvas: HTMLCanvasElement, opts: FieldOptions): Fiel
   function build() {
     if (!cam) return;
     const specs = placeDishes(cam, count, opts.seed);
-    const prev = new Map(byIndex.map((s) => [s.spec.i, s]));
+    const prev = new Map(byIndex.filter(Boolean).map((s) => [s.spec.i, s] as const));
     dishes = specs.map((spec) => {
       const old = prev.get(spec.i);
       const s: DishState = { spec, from: { az: 0, el: 0 }, to: { az: 0, el: 0 }, t0: 0, dur: 0, flinch: -1, flinchAmp: 0, nod: -1 };
