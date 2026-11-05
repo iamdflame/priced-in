@@ -10,8 +10,12 @@ import { Claims, TtlCache } from "./claims.mjs";
 import { LaneIssuer, ApiError, parsePublicKey } from "./lane.mjs";
 import { DailyLimiter, clientIp } from "./ratelimit.mjs";
 import { splitSentences } from "./sentences.mjs";
-import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE } from "./planner.mjs";
+import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
 import { RewriteStore } from "./rewrites.mjs";
+import { PostStore, parsePostLink, postSlug, pricedText, postNotices } from "./posts.mjs";
+
+/** The page's voice line when nothing in a post can be checked. */
+export const ALL_OPINION = "Nothing here to price. Unfalsifiable from start to finish.";
 
 const MAX_BODY = { "/lane/key": 2048, "/paste": 64 * 1024 };
 
@@ -35,6 +39,10 @@ export function createApp(config, deps = {}) {
   const laneGlobal = new DailyLimiter(config.lane.perDay, { now });
   const pasteIp = new DailyLimiter(config.paste.perIpPerDay, { now });
   const plannerCache = new TtlCache(6 * 3600_000, { max: 500, now });
+  const posts = new PostStore({ config: config.post, fetchImpl: deps.fetchImpl, now, log });
+  const postPlans = new TtlCache(config.post.planTtlMs, { max: config.post.cacheMax, now });
+  const postIp = new DailyLimiter(config.post.perIpPerDay, { now });
+  const postGlobal = new DailyLimiter(config.post.perDay, { now });
   hub.subscribe((e) => { if (e.event === "trade") lane.noteTrade(e.data?.trader); });
   const rewrites = new RewriteStore();
   /** Routes and health checks attached by other layers: "GET /path" -> handler(ctx). */
@@ -114,12 +122,18 @@ export function createApp(config, deps = {}) {
         events: { lastEventAgeS: eventAgeS, maxAgeS: config.health.maxEventAgeS || null, buffered: hub.buf.length, streams: sse.size },
         lane: laneInfo,
         planner: { status: plannerKey ? "ok" : "unavailable", reason: plannerReason, plannerPublicKeyHex },
+        posts: { cached: posts.size, fetches: posts.fetches, lastFetchMs: posts.lastFetchMs, lastError: posts.lastError, newToday: postGlobal.used("global"), newPerDay: config.post.perDay },
       },
     };
   }
 
   // ---------- paste ----------
-  async function paste(body, ip) {
+  /**
+   * @param {{ text: string, page?: string }} body
+   * @param {string} ip
+   * @param {{ planCache?: TtlCache, limit?: boolean }} [opts] the post route brings its own cache and limits
+   */
+  async function paste(body, ip, { planCache = plannerCache, limit = true } = {}) {
     if (!body || typeof body.text !== "string") throw new ApiError(400, "bad_request", 'Send JSON {"text": "..."}');
     if (!body.text.trim()) throw new ApiError(400, "empty_text", "Paste some text first.");
     if (body.text.length > config.paste.maxInputChars) throw new ApiError(413, "text_too_long", `Paste at most ${config.paste.maxInputChars} characters.`);
@@ -137,15 +151,17 @@ export function createApp(config, deps = {}) {
       };
     }
 
-    const lim = pasteIp.take(ip);
-    if (!lim.ok) throw new ApiError(429, "rate_limited", "Too many pastes from your address today.", { retryAfterS: lim.retryAfterS });
+    if (limit) {
+      const lim = pasteIp.take(ip);
+      if (!lim.ok) throw new ApiError(429, "rate_limited", "Too many pastes from your address today.", { retryAfterS: lim.retryAfterS });
+    }
 
     const texts = split.sentences.map((s) => s.text);
     let labels;
     try {
-      labels = await plannerCache.get(`${page}\n${texts.join("\n")}`, () => labelSentences(pc, texts, deps.fetchImpl));
+      labels = await planCache.get(`${page}\n${texts.join("\n")}`, () => labelSentences(pc, texts, deps.fetchImpl));
     } catch (e) {
-      pasteIp.release(ip);
+      if (limit) pasteIp.release(ip);
       log(`planner unavailable: ${e.message}`);
       return {
         ...base, planner: "unavailable", plannerReason: e.message,
@@ -168,7 +184,8 @@ export function createApp(config, deps = {}) {
       const out = { index: s.index, text: s.text, label: l?.label ?? null };
       if (s.tooLong) return { ...out, status: "too_long", reason: `Over ${config.paste.maxSentenceBytes} bytes: too long to price as one claim.` };
       if (!l) return { ...out, status: "unlabelled", reason: "The planner gave no label for this sentence." };
-      if (l.label === "person") return { ...out, status: "person", reason: "About a private person: never priced." };
+      if (looksLikeInstruction(s.text)) return { ...out, status: "unfalsifiable", guard: "instruction", reason: "Written to a model, not about the world: not priced." };
+      if (ABOUT_PEOPLE.has(l.label)) return { ...out, status: l.label, greyed: true, reason: PEOPLE_REASON };
       if (!PRICEABLE.has(l.label)) return { ...out, status: "unfalsifiable", reason: "Opinion or uncheckable: not priced." };
       const kind = l.label;
       const c = existing.get(s.text);
@@ -182,6 +199,46 @@ export function createApp(config, deps = {}) {
       message: priced ? undefined : "Nothing here can be priced: every line is opinion, personal or uncheckable.",
       sentences,
     };
+  }
+
+  // ---------- posts: change x.com to our domain and the post opens priced ----------
+  async function post(link, ip) {
+    const { id, user } = parsePostLink(link, { selfHosts: config.post.selfHosts });
+    const page = postSlug(id);
+    const entry = await posts.read(id, user, {
+      // only a request that makes us read a post nobody has opened yet pays: views of a viral post are free
+      take() {
+        const a = postIp.take(ip);
+        if (!a.ok) throw new ApiError(429, "rate_limited", `This address has opened ${config.post.perIpPerDay} new posts today. Posts anyone has opened already still load.`, { retryAfterS: a.retryAfterS });
+        const g = postGlobal.take("global");
+        if (!g.ok) { postIp.release(ip); throw new ApiError(429, "post_daily_cap", "We've read today's share of new posts. Posts already opened still load; new ones open tomorrow.", { retryAfterS: g.retryAfterS }); }
+      },
+      release() { postIp.release(ip); postGlobal.release("global"); },
+    });
+    if (entry.gone) {
+      // we honour deletions: no text, no author, nothing of the post but its number
+      const message = entry.gone === "private"
+        ? "This post is private or its account is protected, so we show nothing from it."
+        : "This post was deleted, so we show nothing from it.";
+      return { status: 410, body: { source: "x", page, id, gone: true, reason: entry.gone, link: `https://x.com/i/status/${id}`, message, error: { code: entry.gone === "private" ? "post_private" : "post_deleted", message } } };
+    }
+    const p = entry.post;
+    const notices = postNotices(p);
+    if (entry.stale) notices.push({ code: "stale", message: `X didn't answer just now, so this is the copy we read at ${new Date(entry.checkedAt).toISOString()}.` });
+    const base = { source: "x", page, gone: false, post: { ...p, fetchedAt: entry.fetchedAt, checkedAt: entry.checkedAt }, notices };
+    const text = pricedText(p).slice(0, config.paste.maxInputChars);
+    const noText = { ...base, noText: true, planner: plannerKey ? "ok" : "unavailable", sentences: [], bMicro: String(pc.bMicro), message: "This post has no words to price: only a picture, a video or a link." };
+    if (!text) return { status: 200, body: noText };
+    let r;
+    try {
+      r = await paste({ text, page }, ip, { planCache: postPlans, limit: false });
+    } catch (e) {
+      if (e instanceof ApiError && e.code === "no_sentences") return { status: 200, body: noText };
+      throw e;
+    }
+    if (r.truncated) notices.push({ code: "truncated", message: `Priced the first ${r.sentences.length} of ${r.totalSentences} sentences.` });
+    const allOpinion = r.planner === "ok" && r.sentences.length > 0 && r.sentences.every((s) => s.status === "unfalsifiable");
+    return { status: 200, body: { ...base, ...r, allOpinion, ...(allOpinion ? { voice: ALL_OPINION, message: ALL_OPINION } : {}) } };
   }
 
   // ---------- lane ----------
@@ -292,7 +349,7 @@ export function createApp(config, deps = {}) {
     if (path === "/" && req.method === "GET") {
       return send(res, 200, {
         name: "Priced In API", network: config.network, marketId: config.marketId,
-        endpoints: ["POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste", "GET /rewrites?page=<slug>", ...[...extraRoutes.keys()]],
+        endpoints: ["POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste", "GET /rewrites?page=<slug>", "GET /post/:id", "GET /post?url=<link>", ...[...extraRoutes.keys()]],
       });
     }
     if (path === "/rewrites" && req.method === "GET") {
@@ -341,6 +398,14 @@ export function createApp(config, deps = {}) {
       log(`lane key ${r.reused ? "reused" : "issued"} in ${now() - t0} ms`);
       return send(res, 200, r);
     }
+    if (path === "/post" || path.startsWith("/post/")) {
+      if (req.method !== "GET") throw new ApiError(405, "method_not_allowed", "Use GET.");
+      // /post/<id>, /post/x-<id>, /post/<user>/status/<id>, /post/https://x.com/..., or /post?url=<any post link>
+      let link = path === "/post" ? url.searchParams.get("url") ?? url.searchParams.get("id") : url.pathname.slice("/post/".length);
+      try { link = decodeURIComponent(link ?? ""); } catch { /* keep as is: the parser rejects it */ }
+      const r = await post(link, ip);
+      return send(res, r.status, r.body);
+    }
     if (path === "/paste") {
       if (req.method !== "POST") throw new ApiError(405, "method_not_allowed", "Use POST.");
       return send(res, 200, await paste(await readJson(req, MAX_BODY["/paste"]), ip));
@@ -356,7 +421,7 @@ export function createApp(config, deps = {}) {
   server.headersTimeout = 15000;
 
   return {
-    server, rpc, hub, scanner, lane, claims, health, config, rewrites, ApiError,
+    server, rpc, hub, scanner, lane, claims, health, config, rewrites, posts, ApiError,
     /** Attach a route: addRoute("GET", "/rationales", handler); a path ending in /* matches a prefix. */
     addRoute(method, p, handler) { extraRoutes.set(`${method.toUpperCase()} ${p}`, handler); },
     /** Attach a health check: fn() -> { check, failures? }. */

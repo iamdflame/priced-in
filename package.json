@@ -13,6 +13,7 @@
     "api": "node --env-file-if-exists=services/api/.env services/api/src/server.mjs",
     "api:unit": "node --test --test-concurrency=1 \"services/api/test/*.test.mjs\"",
     "api:e2e": "node services/api/test/lane-e2e.mjs",
+    "api:post-smoke": "node services/api/test/post-smoke.mjs",
     "api:test": "npm run api:unit && npm run api:e2e",
     "ai": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/server.js",
     "ai:attest": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/jury.js --attest",
