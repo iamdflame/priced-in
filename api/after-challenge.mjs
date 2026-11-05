@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const txHash = String(body.txHash || "");
   const signerId = String(body.signerId || p.laneAccountId || "");
   if (!TX.test(txHash) || !ACCOUNT.test(signerId)) return sendJson(res, 400, { error: { code: "invalid_tx", message: "Send {txHash, signerId}: the challenge transaction and the account that signed it." } });
-  const ip = clientIp(req, true);
+  const ip = clientIp({ headers: { "x-forwarded-for": req.headers["x-real-ip"] || req.headers["x-forwarded-for"] }, socket: req.socket }, true);
   const lim = await p.state.take("after-challenge", ip, 10).catch(() => ({ ok: true }));
   if (!lim.ok) return sendJson(res, 429, { error: { code: "rate_limited", message: "Too many challenges reported from this address today.", retryAfterS: lim.retryAfterS } });
   const rpc = new Rpc(p.api.rpcUrls, { timeoutMs: 8000 });

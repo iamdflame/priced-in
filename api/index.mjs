@@ -28,6 +28,10 @@ const since = (url) => Number(url.searchParams.get("since") || 0) || 0;
 const withTimeout = (p, ms, fallback) => Promise.race([p, new Promise((r) => setTimeout(() => r(fallback), ms))]);
 
 export default async function handler(req, res) {
+  // Vercel's edge sets x-real-ip to the visitor's address; the services' limiter reads the last
+  // x-forwarded-for hop, so hand it exactly that one address
+  const realIp = req.headers["x-real-ip"];
+  if (typeof realIp === "string" && realIp.trim()) req.headers["x-forwarded-for"] = realIp.trim();
   const url = new URL(req.url, "http://x");
   const route = (url.searchParams.get("__p") ?? url.pathname.replace(/^\/api(?=\/|$)/, "")).replace(/\/+$/, "") || "/";
   url.searchParams.delete("__p");

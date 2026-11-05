@@ -23,7 +23,7 @@ export default async function handler(req, res) {
   const signerId = String(body.signerId || p.laneAccountId || "");
   if (!TX.test(txHash)) return sendJson(res, 400, { error: { code: "invalid_tx", message: "txHash must be a NEAR transaction hash." } });
   if (!ACCOUNT.test(signerId)) return sendJson(res, 400, { error: { code: "invalid_signer", message: "signerId must be a NEAR account id." } });
-  const ip = clientIp(req, true);
+  const ip = clientIp({ headers: { "x-forwarded-for": req.headers["x-real-ip"] || req.headers["x-forwarded-for"] }, socket: req.socket }, true);
   const lim = await p.state.take("after-trade", ip, Number(process.env.AFTER_TRADE_PER_IP_PER_DAY || 60)).catch(() => ({ ok: true }));
   if (!lim.ok) return sendJson(res, 429, { error: { code: "rate_limited", message: "Too many trades reported from this address today.", retryAfterS: lim.retryAfterS } });
 
