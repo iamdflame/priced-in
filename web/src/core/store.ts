@@ -308,6 +308,13 @@ export interface StoreDeps {
   loadAudit?: () => Promise<any>;
   /** set false in tests that drive events by hand */
   stream?: boolean;
+  /**
+   * Where to listen for the first sign of a person (a touch, a click, a key, a scroll) before
+   * asking for the free $1 key. Each key counts against the visitor address's daily allowance and
+   * costs the lane gas, so page loads by previews, crawlers and screenshot runs must not spend one.
+   * The browser passes window; tests leave it out and keep the old prefetch on open.
+   */
+  warmOn?: Pick<EventTarget, "addEventListener" | "removeEventListener"> | null;
 }
 
 export type Store = ReturnType<typeof createStore>;
@@ -315,6 +322,17 @@ export type Store = ReturnType<typeof createStore>;
 export function createStore(deps: StoreDeps) {
   const now = deps.now ?? Date.now;
   const { api, lane, config } = deps;
+  // the free key: on the first sign of a person when the browser gives us a place to listen,
+  // otherwise (tests) on open as before. A bet always waits for the key either way.
+  let warmed = !deps.warmOn;
+  const WARM_EVENTS = ["pointerdown", "touchstart", "keydown", "wheel", "scroll"];
+  const warm = () => {
+    if (deps.warmOn) for (const ev of WARM_EVENTS) deps.warmOn.removeEventListener(ev, warm, true);
+    warmed = true;
+    void lane.prepare();
+  };
+  if (deps.warmOn) for (const ev of WARM_EVENTS) deps.warmOn.addEventListener(ev, warm, { capture: true, passive: true } as any);
+  const prefetchLane = () => { if (warmed) void lane.prepare(); };
   let state: AppState = {
     route: { name: "home" }, page: emptyPage("home"), selected: null, doubt: IDLE, lane: lane.st, live: "connecting", marketId: null, ticker: [],
   };
@@ -434,7 +452,7 @@ export function createStore(deps: StoreDeps) {
     const stale = () => seq !== loadSeq;
     const kind: PageKind = route.name === "not_found" ? "not_found" : route.name === "page" ? "page" : route.name;
     set({ route, selected: null, doubt: doubtBusy(state.doubt) ? state.doubt : IDLE, page: emptyPage(kind, route.name === "page" ? route.slug : null) });
-    void lane.prepare(); // prefetched, so the first tap is instant
+    prefetchLane(); // after the first sign of a person, so the tap that follows is instant
     startStream();
     switch (route.name) {
       case "home": {
@@ -635,7 +653,7 @@ export function createStore(deps: StoreDeps) {
   async function paste(text: string) {
     const seq = ++loadSeq;
     set({ selected: null, page: { ...emptyPage("paste"), loading: true } });
-    void lane.prepare();
+    prefetchLane();
     startStream();
     const r = await api.paste(text);
     if (seq !== loadSeq) return;

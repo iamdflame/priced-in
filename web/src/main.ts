@@ -35,6 +35,12 @@ function settled(): Promise<void> {
 
 interface Running { store: Store; mode: Mode; ui: { setStatus(s: LinkStatus): void } }
 
+// The first sign of a person (a touch, a click, a key, a scroll), remembered across the switch from
+// the recorded page to the live one. The free $1 key is asked for only after it: each key counts
+// against the visitor address's daily allowance, so previews and crawlers must not spend one.
+let personSeen = false;
+for (const ev of ["pointerdown", "touchstart", "keydown", "wheel", "scroll"]) window.addEventListener(ev, () => { personSeen = true; }, { capture: true, passive: true, once: true });
+
 async function startRecorded(config: Config, router: Router, card: boolean, status: LinkStatus): Promise<Running> {
   const rec = await import("./ui/recorded");
   const api = new Api({ baseUrl: "http://recorded", fetch: rec.recordedFetch });
@@ -69,7 +75,8 @@ function startLive(config: Config, api: Api, router: Router, card: boolean): Run
   // the live stream connects once the page has painted and gone idle
   const stream = api.stream.bind(api);
   api.stream = (path: string, signal: AbortSignal) => settled().then(() => stream(path, signal));
-  const store = createStore({ api, lane, config });
+  const store = createStore({ api, lane, config, warmOn: window });
+  if (personSeen) void lane.prepare(); // someone already touched the recorded page
   const ui = mountApp(root, { store, api, config, router, mode: "live", card, recordedDate: null, history: new TradeHistory(), agents: new AgentBook() }, "live");
   void store.open(router.route);
   (window as any).__pricedin = { store, router, lane, config, mode: "live" };

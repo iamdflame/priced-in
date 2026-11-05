@@ -70,8 +70,12 @@ try {
     `"${h1}" · "${headline}" in ${Date.now() - t0} ms`);
   const wins = (await page.locator(".callout .wins").first().textContent()).trim();
   check("the button says what $1 wins, from the contract's own quote", /^If it’s ruled wrong, you win \$\d+\.\d\d\. If not, you lose the free dollar\.$/.test(wins), wins);
+  await page.waitForTimeout(1500);
+  const idle = await page.evaluate(() => window.__pricedin?.store.state.lane.state);
+  check("a page load alone spends no free key (it is asked for on the first sign of a person)", idle === "idle", `lane ${idle} 1.5 s after load, nothing touched`);
+  await page.mouse.wheel(0, 40);
   await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 15000 });
-  check("the $1 key is ready before the tap (prefetched at load)", true, `${Date.now() - t0} ms after load`);
+  check("the $1 key is ready before the tap (asked for on the first scroll)", true, `${Date.now() - t0} ms after load`);
   const pill = (await page.locator("#netpill").textContent()).trim();
   check("the site is live, and the pill names the network", (await page.evaluate(() => window.__pricedin.mode)) === "live" && pill === "Test money · NEAR testnet", pill);
 
