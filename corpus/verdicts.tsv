@@ -55,7 +55,7 @@ ethereum-0161¦undecidable¦1¦DefiLlama Oct 2020 TVL peak $10.29B; contemporary
 ethereum-0163¦current¦0¦Aave V3 docs and Ethereum market¦aave_docs~Aave V3¦¦Page says "microlending"; the docs call it lending.
 ethereum-0170¦current¦1¦block 24,000,000 on 13 Dec 2025 had a 59,999,886 gas limit; 60M/21k/12 = 238¦eth_block_dec2025~"gasLimit":"0x3938¦¦
 ethereum-0171¦current¦0¦24.97 TPS measured against a 238 TPS theoretical maximum¦file:receipts/eth-tps-nov2026.json~"meanTps": 24\.972¦¦
-ethereum-0172¦wrong¦1¦Jan 2016 averaged 0.15 TPS (Etherscan daily counts); RPC sample 0.133 TPS; Sept 2022 13.02 TPS; 4 Nov 2026 23 TPS¦etherscan_txcsv~"1/1/2016","1451606400","8233";;file:receipts/eth-tps-jan2016.json~"meanTps": 0\.133¦¦Second check: Etherscan's chart and a direct RPC sample, two routes. The 25 TPS figure is close to today's rate, not January 2016's.
+ethereum-0172¦wrong¦1¦Jan 2016 averaged 0.15 TPS (Etherscan daily counts); RPC sample 0.133 TPS; Sept 2022 13.02 TPS; 4 Nov 2026 23 TPS¦file:receipts/eth-tps-etherscan.json~"tps": 0.151;;etherscan_txcsv~"1/1/2016","1451606400","8233";;file:receipts/eth-tps-jan2016.json~"meanTps": 0\.133¦¦Second check: Etherscan's chart and a direct RPC sample, two routes. The 25 TPS figure is close to today's rate, not January 2016's.
 ethereum-0173¦undecidable¦0¦Visa reports 329B transactions a year, about 10,400 per second on average¦visa_fy~329 B total transactions¦¦CONTRADICTED as an average; capacity figures differ, and "processes" does not say which is meant.
 ethereum-0175¦current¦0¦Merkle Patricia Trie¦ethorg_trie~Merkle Patricia Trie¦¦
 ethereum-0180¦current¦0¦optimistic and zero-knowledge rollups¦ethorg_scaling~Optimistic rollups Zero-knowledge rollups¦¦
@@ -196,7 +196,7 @@ proof-of-stake-0042¦stale¦0¦Lisk moved to an Ethereum layer 2 and its chain h
 proof-of-stake-0046¦current¦0¦Tezos docs: bakers and delegates¦tezos_docs~delegat¦¦
 proof-of-stake-0051¦undecidable¦1¦no primary series for 2017 saved¦¦¦
 dai-0001¦current¦0¦totalSupply call answers; $4.73B on DefiLlama, crypto-backed¦dai_sym~"result":"0x0;;llama_stables~"symbol":"DAI".{0,120}"pegMechanism":"crypto-backed"¦¦
-dai-0002¦stale¦0¦SKY is now the sole governance token of the protocol¦sky_upgrade~SKY has been voted in as the sole governance token¦maker_arch2~facilitate MKR voting¦Wording from Dec 2020 (rev 994092139).
+dai-0002¦stale¦0¦SKY is now the sole governance token of the protocol¦sky_upgrade~SKY has been voted in as the sole governance token¦maker_arch2~facilitate MKR voting¦Wording from Dec 2020 (rev 994092139). The same page records the rename to Sky in another sentence.
 dai-0008¦undecidable¦0¦no primary collateral breakdown saved¦¦¦
 dai-0009¦undecidable¦0¦no primary test of "controlled by one entity"¦¦¦
 dai-0024¦undecidable¦0¦current mint flow page not saved¦¦¦
@@ -251,7 +251,7 @@ avalanche-0069¦current¦0¦minValidatorStake 2,000,000,000,000 nAVAX, live P-Ch
 avalanche-0070¦current¦0¦min delegation fee 2%¦avax_go_genesis~MinDelegationFee: 20000¦¦
 avalanche-0071¦undecidable¦0¦no clean quote in saved docs¦¦¦
 avalanche-0072¦current¦0¦MaxStakeDuration 365 days¦avax_go_genesis~MaxStakeDuration: 365 \* 24¦¦
-avalanche-0073¦undecidable¦0¦count of ACPs not stated in saved files¦¦¦
+avalanche-0073¦current¦0¦v1.15.0 release notes list six ACPs: 194, 236, 267, 273, 283, 285¦a_avax_rel~Helicon activates the following Avalanche Community Proposals¦¦Was undecidable; changed after the audit found this source.
 avalanche-0076¦current¦0¦ACP-236 exists¦acps_list~236-auto-renewed-staking¦¦
 avalanche-0078¦undecidable¦0¦ACP text not fetched¦¦¦
 avalanche-0080¦undecidable¦0¦ACP text read in summary only¦avax_acp267~Increase Validator Uptime Requirement from 80% to 90%¦¦
@@ -265,7 +265,7 @@ defi-0056¦current¦0¦Uniswap docs¦uni_docs_fees~Uniswap v2¦¦
 defi-0057¦current¦0¦fees go to LPs¦uni_docs_fees~compensates liquidity providers¦¦
 defi-0058¦undecidable¦0¦no primary test; Uniswap Labs runs an interface¦¦¦
 defi-0067¦undecidable¦1¦no primary series for 2018 saved¦¦¦
-defi-0069¦wrong¦1¦June 2025 DEX volume about $78.4B a week (DefiLlama); Q2 2025 spot DEX volume $877B, about $67B a week (CoinGecko via Cointelegraph)¦llama_dexs_chart~totalDataChart;;cointele_q2~\$877 billion for DEXs¦¦Second check: two aggregators. Page's figure traces to an SSRN paper. Wallet clause not checked.
+defi-0069¦wrong¦1¦June 2025 DEX volume about $78.4B a week (DefiLlama); Q2 2025 spot DEX volume $877B, about $67B a week (CoinGecko via Cointelegraph)¦file:receipts/dex-volume-2025.json~"weeklyUsdBillions": 78.4;;llama_dexs_chart~totalDataChart;;cointele_q2~\$877 billion for DEXs¦¦Second check: two aggregators. Page's figure traces to an SSRN paper. Wallet clause not checked.
 defi-0079¦undecidable¦0¦no primary page saved¦¦¦
 tether-0002¦current¦0¦CoinGecko symbol usdt¦cg_markets~"id":"tether","symbol":"usdt"¦¦
 tether-0003¦current¦0¦CoinGecko rank 3; $178B; issuer says largest¦cg_markets~"id":"tether".{0,300}"market_cap_rank":3;;tether_home~world's largest stablecoin¦¦
@@ -278,7 +278,7 @@ tether-0030¦stale¦0¦no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS 
 tether-0031¦stale¦0¦EUR₮ wound down; Omni discontinued; many more chains now¦tether_protocols~wound down and is no longer obligated to redeem EUR₮¦tether_arch_prot~ceased minting USD₮-Omni¦Wording from Jan 2021 (rev 1002798994).
 tether-0041¦undecidable¦1¦no primary source¦¦¦
 tether-0069¦undecidable¦1¦Tether news URL returned 404¦¦¦
-tether-0091¦undecidable¦0¦USAT site names the issuer, not the custodian¦¦¦
+tether-0091¦current¦0¦Tether's USAT launch release: Cantor Fitzgerald is designated reserve custodian and preferred primary dealer¦a_usat_launch~Cantor Fitzgerald serves as the designated reserve custodian and preferred primary dealer¦¦Was undecidable; changed after the audit found this source. Company statement.
 tether-0095¦current¦0¦issuer is Anchorage Digital Bank, N.A.¦usat_home~The issuer of USA₮ is Anchorage Digital Bank¦¦
 tether-0104¦current¦1¦BDO report: assets 187,751; liabilities 183,642; equity 4,110 ($M)¦tether_q2_pdf~6,338 187,751 \(183,642\) 4,110¦¦
 tether-0114¦undecidable¦0¦gold.tether.io unreachable¦¦¦

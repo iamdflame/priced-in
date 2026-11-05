@@ -1,0 +1,55 @@
+# Blind re-check of the seeded 15%, from packet.json, with fresh fetches (a_ keys) where the source could be fetched again. Same columns as ../verdicts.tsv. Audited 2026-11-05.
+aave-0001¦current¦0¦Aave home: onchain savings, lending and borrowing¦a_aave_home~Onchain Savings, Lending and Borrowing¦¦
+aave-0011¦undecidable¦0¦asset list did not render in the saved page¦¦¦
+aave-0016¦current¦0¦repaid before the end of the same transaction¦a_aave_flash~before the end of the same transaction¦¦
+avalanche-0002¦current¦0¦CoinGecko id avalanche-2 returned a price series¦a_cg~prices¦¦
+avalanche-0018¦current¦1¦Jan 2026 median price $13.61, median cap $5.86B, median volume $308M, with the page's band inside the month's range¦a_cg~market_caps¦¦
+avalanche-0031¦undecidable¦0¦X-Chain docs URL returned 404¦¦¦
+avalanche-0039¦current¦0¦chain ID 0xa86a¦a_avax_chain~0xa86a¦¦
+avalanche-0073¦current¦0¦v1.15.0 release notes list six ACPs: 194, 236, 267, 273, 283, 285¦a_avax_rel~Helicon activates the following Avalanche Community Proposals¦¦
+bitcoin-0009¦current¦0¦proof of work¦a_btc_dev~Proof Of Work¦¦
+bitcoin-0157¦current¦0¦majority honest assumption¦btc_wp~majority of CPU power¦¦
+bitcoin-0186¦undecidable¦1¦abstract saved without a figure¦¦¦
+chainlink-0024¦current¦0¦Chainlink Staking page¦a_link_stake~Chainlink Staking¦¦
+defi-0020¦reclassified¦1¦¦¦¦"Prominent" is evaluative.
+defi-0058¦undecidable¦0¦no primary test¦¦¦
+ethereum-0001¦current¦0¦smart contracts¦a_ethorg_what~Smart contracts¦¦
+ethereum-0086¦current¦0¦slots of 12 seconds¦a_ethorg_pos~slots \(12 seconds\)¦¦
+ethereum-0097¦current¦0¦penalties page¦a_ethorg_rewards~penalties¦¦
+ethereum-0104¦current¦0¦rewards page¦a_ethorg_rewards~rewards¦¦
+ethereum-0118¦current¦0¦64 hex characters¦a_ethorg_acct~64 hex characters¦¦
+ethereum-0131¦stale¦0¦docs example has gasLimit, maxFeePerGas and maxPriorityFeePerGas, no gas price¦a_ethorg_tx~maxFeePerGas¦a_eip1559~legacy¦
+ethereum-0134¦current¦0¦priority fee (tip)¦a_ethorg_gas~priority fee \(tip\)¦¦
+ethereum-0153¦current¦0¦both standards exist¦a_ethorg_nft~ERC-721;;a_eip1155~Multi Token Standard¦¦
+ethereum-0187¦undecidable¦0¦no primary text saved¦¦¦
+monero-0004¦current¦0¦hidden by default; view key¦a_xmr~anonymous by default;;a_xmr_view~View Key¦¦
+monero-0022¦current¦0¦sender, receiver and amount hidden¦a_xmr~sender, receiver, and amount¦¦
+monero-0025¦current¦0¦ring signature¦a_xmr_ring~Ring Signature¦¦
+monero-0041¦current¦0¦RandomX¦a_xmr_mine~RandomX¦¦
+polkadot-0007¦current¦0¦Parity is the driving force¦a_parity~driving force behind¦¦
+polkadot-0030¦current¦0¦XCM¦a_dot_xcm~Cross-Consensus Message Format¦¦
+polymarket-0005¦undecidable¦0¦no primary sports share¦¦¦
+polymarket-0006¦undecidable¦0¦no primary sports share¦¦¦
+polymarket-0087¦undecidable¦1¦no primary source for Sept 2024¦¦¦
+polymarket-0121¦current¦0¦18 or older¦a_poly_tos~18 years of age or older¦¦
+prediction-market-0028¦undecidable¦0¦venue tick rules not in the saved pages¦¦¦
+prediction-market-0070¦undecidable¦0¦99.8% not in saved UMA pages¦¦¦
+prediction-market-0166¦undecidable¦0¦BE, FR, IT, PL blocked by Polymarket; Romania absent¦a_poly_geo~PL Poland¦¦
+prediction-market-0191¦undecidable¦0¦no primary source¦¦¦
+prediction-market-0215¦stale¦0¦pUSD is the collateral¦a_poly_pusd~collateral token used for all trading¦poly_arch_usdc~USDC¦
+proof-of-stake-0035¦current¦0¦wiki Phragmen and NPoS page¦a_dot_phrag~NPoS Election Algorithms¦¦
+stablecoin-0017¦current¦0¦USDT $177.7B, USDC $71.1B¦a_llama_st~"symbol":"USDT"¦¦
+stablecoin-0128¦undecidable¦0¦INFO 225 is a question-based guide; clause not isolated¦¦¦
+stablecoin-0152¦undecidable¦0¦Japan FSA page unavailable¦¦¦
+stablecoin-0156¦undecidable¦0¦project ceasing; issuer not re-read¦a_usdkg~the USDKG project is ceasing its operations¦¦
+stablecoin-0172¦undecidable¦0¦UAE rulebook unavailable¦¦¦
+tether-0005¦undecidable¦1¦no 2024 primary found¦¦¦
+tether-0007¦undecidable¦0¦current terms do not state the ownership¦¦¦
+tether-0091¦current¦0¦Tether's USAT launch release: Cantor Fitzgerald is designated reserve custodian and preferred primary dealer¦a_usat_launch~Cantor Fitzgerald serves as the designated reserve custodian and preferred primary dealer¦¦
+tether-0154¦current¦0¦audit not published¦a_kpmg_def~Without Publishing the Statements¦¦
+tether-0161¦stale¦0¦$122.84B at 30 Sep 2026¦a_tether_q3~\| 114\.96 \| 122\.84¦a_tether_bb~accounting for \$72\.6 billion¦
+tether-0163¦undecidable¦0¦rank depends on counting territories¦a_tic~Korea, South 134\.2¦¦
+uniswap-0002¦current¦0¦Uniswap fees and swap docs¦a_uni_how~Fees \| Uniswap Developers¦¦
+uniswap-0012¦current¦0¦governance docs¦a_uni_gov~Governance Overview¦¦
+uniswap-0021¦undecidable¦0¦search cannot prove nothing newer¦¦¦
+zcash-0008¦current¦0¦shielded and transparent docs¦a_zec_what~shielded and transparent¦¦

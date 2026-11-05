@@ -1,0 +1,16 @@
+{
+ "source": "https://etherscan.io/chart/tx?output=csv",
+ "method": "sum of daily transaction counts / seconds in the days counted",
+ "jan2016": {
+  "days": 31,
+  "tps": 0.151
+ },
+ "sep2022": {
+  "days": 30,
+  "tps": 13.017
+ },
+ "latestDay": {
+  "date": "11/4/2026",
+  "tps": 23.032
+ }
+}

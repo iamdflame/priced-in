@@ -1,0 +1,17 @@
+{
+ "source": "https://api.llama.fi/overview/dexs?excludeTotalDataChart=false&excludeTotalDataChartBreakdown=true",
+ "method": "mean daily volume x 7",
+ "june2025": {
+  "days": 30,
+  "weeklyUsdBillions": 78.4
+ },
+ "q2_2025": {
+  "days": 91,
+  "weeklyUsdBillions": 75
+ },
+ "coingeckoViaCointelegraph": {
+  "q2_2025SpotDexUsdBillions": 877,
+  "weeklyUsdBillions": 67.5,
+  "url": "https://cointelegraph.com/news/dex-volumes-hit-record-q2-2025-pancakeswap-hyperliquid-lead"
+ }
+}

@@ -3,6 +3,8 @@
 // unless named on the command line. Usage: node corpus/scripts/ev.mjs [key ...]
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { UA } from './articles.mjs';
 const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 mkdirSync(root + 'raw/ev', { recursive: true });
@@ -27,9 +29,12 @@ async function one(line) {
     const ctl = AbortSignal.timeout(40000);
     const r = await fetch(url, { method: body ? 'POST' : 'GET', body: body || undefined, signal: ctl, redirect: 'follow',
       headers: { 'User-Agent': UA, ...(body ? { 'content-type': 'application/json' } : {}), accept: '*/*' } });
-    const raw = await r.text();
     const ct = r.headers.get('content-type') || '';
-    const t = /html/.test(ct) ? text(raw) : raw;
+    const isPdf = /pdf/.test(ct) || /\.pdf($|\?)/i.test(url);
+    const buf = Buffer.from(await r.arrayBuffer());
+    let raw = buf.toString('utf8');
+    let t = /html/.test(ct) ? text(raw) : raw;
+    if (isPdf && r.ok) { const f = `${tmpdir()}/${key}.pdf`; writeFileSync(f, buf); t = execFileSync('pdftotext', ['-layout', f, '-'], { encoding: 'utf8', maxBuffer: 1 << 28 }); raw = buf; }
     writeFileSync(`${root}raw/ev/${key}.txt`, t);
     idx[key] = { url, ...(body ? { post: body } : {}), fetchedAt: new Date().toISOString(), status: r.status, bytes: raw.length, sha256: createHash('sha256').update(raw).digest('hex') };
     console.log(r.status, key, t.length);

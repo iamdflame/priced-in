@@ -1,0 +1,331 @@
+{
+ "seed": "pricedin-audit-2026-11-05",
+ "population": 359,
+ "sampled": 54,
+ "rows": [
+  {
+   "id": "aave-0001",
+   "text": "Aave is a decentralized finance protocol (DeFi) that enables the lending and borrowing of cryptocurrencies without the involvement of intermediary financial institutions.",
+   "claim": "Aave is a DeFi lending and borrowing protocol",
+   "asOf": null
+  },
+  {
+   "id": "aave-0011",
+   "text": "Users can deposit various cryptocurrencies—such as Ether, USDC, or DAI—into pools.",
+   "claim": "users can deposit ether, USDC or DAI",
+   "asOf": null
+  },
+  {
+   "id": "aave-0016",
+   "text": "The protocol also supports flash loans—loans that must be taken out and repaid within a single block and are therefore suitable only for experienced developers.",
+   "claim": "protocol supports flash loans repaid within one block",
+   "asOf": null
+  },
+  {
+   "id": "avalanche-0002",
+   "text": "The platform's native cryptocurrency is AVAX.",
+   "claim": "native coin is AVAX",
+   "asOf": null
+  },
+  {
+   "id": "avalanche-0018",
+   "text": "As of January 2026, AVAX trades near $13.8, placing its market cap around $5.9 billion, with daily trading volume often between $400 million and $500 million.",
+   "claim": "as of January 2026, AVAX near $13.8, cap about $5.9B, daily volume $400-500M",
+   "asOf": "2026-01"
+  },
+  {
+   "id": "avalanche-0031",
+   "text": "The X-Chain uses an unspent transaction output (UTXO) model.",
+   "claim": "X-Chain uses UTXO",
+   "asOf": null
+  },
+  {
+   "id": "avalanche-0039",
+   "text": "It supports smart contracts written in Solidity, is compatible with the Geth API, and has the mainnet chain ID 43114.",
+   "claim": "C-Chain supports Solidity, Geth API, chain ID 43114",
+   "asOf": null
+  },
+  {
+   "id": "avalanche-0073",
+   "text": "Helicon is a Primary Network upgrade that bundles six Avalanche Community Proposals (ACPs).",
+   "claim": "Helicon bundles six ACPs",
+   "asOf": null
+  },
+  {
+   "id": "bitcoin-0009",
+   "text": "Consensus between nodes about the content of the blockchain is achieved using a computationally intensive process based on proof of work, called mining, which is performed by purpose-built computers.",
+   "claim": "consensus by proof of work",
+   "asOf": null
+  },
+  {
+   "id": "bitcoin-0157",
+   "text": "If a single miner or pool controls more than 50% of the hashing power, it would allow them to censor transactions and double-spend coins.",
+   "claim": "control of over 50% of hash power allows censoring and double-spending",
+   "asOf": null
+  },
+  {
+   "id": "bitcoin-0186",
+   "text": "As of 2022, the use of Bitcoin in El Salvador remained low: 80% of businesses refused to accept it.",
+   "claim": "as of 2022, 80% of Salvadoran businesses refused bitcoin",
+   "asOf": "2022"
+  },
+  {
+   "id": "chainlink-0024",
+   "text": "Community participants can stake LINK to support the network's cryptoeconomic security.",
+   "claim": "LINK can be staked",
+   "asOf": null
+  },
+  {
+   "id": "defi-0020",
+   "text": "As of 2021, MakerDAO was a prominent lending DeFi platform based on a stablecoin that was established in 2017.",
+   "claim": "as of 2021 MakerDAO was a prominent lending platform",
+   "asOf": "2021"
+  },
+  {
+   "id": "defi-0058",
+   "text": "Because no centralized party runs Uniswap and any development team can use the open-source software, there is no entity to check the identities of the people using the platform and meet KYC/AML regulations.",
+   "claim": "no centralized party runs Uniswap; no entity to check identities",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0001",
+   "text": "Ethereum is a decentralized blockchain with smart contract functionality.",
+   "claim": "Ethereum has smart contract functionality",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0086",
+   "text": "Approximately every 12 seconds, a batch of new transactions, known as a \"block\", is processed by the network.",
+   "claim": "a block about every 12 seconds",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0097",
+   "text": "If a validator makes self-contradicting proposals or attestations, or if it is inactive, it loses a portion of its stake.",
+   "claim": "self-contradiction or inactivity loses part of a validator's stake",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0104",
+   "text": "Ether (ETH) is the cryptocurrency generated in accordance with the Ethereum protocol as a reward to validators in a proof-of-stake system for adding blocks to the blockchain.",
+   "claim": "ETH is generated as a reward to validators",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0118",
+   "text": "Each EOA is controlled using its associated 64-character hexadecimal string known as its \"private key\", from which the account's address is derived.",
+   "claim": "EOA private key is a 64-character hex string",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0131",
+   "text": "When a sender is creating a transaction, the sender must specify a gas limit and gas price.",
+   "claim": "sender must specify a gas limit and gas price",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0134",
+   "text": "The portion of the gas price that is in excess of the base gas price, known as a \"priority fee\" (or \"tip\"), goes to the block proposer; the higher the priority fee, the more incentive a block proposer has to include the transaction in their block, and thus the quicker the transaction will be included in the blockchain.",
+   "claim": "excess over base fee is a priority fee that goes to the proposer",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0153",
+   "text": "ERC-721 is the first official NFT standard for Ethereum and was followed up by ERC-1155 which introduced semi-fungibility; both are widely used, though some fully fungible tokens using ERC-20 have been used for NFTs such as CryptoPunks.",
+   "claim": "ERC-721 first official NFT standard, followed by ERC-1155",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0187",
+   "text": "Under UCC Article 12, ETH is classified as a CER, which provides a comprehensive framework for its commercial circulation.",
+   "claim": "under UCC Article 12, ETH is a controllable electronic record",
+   "asOf": null
+  },
+  {
+   "id": "monero-0004",
+   "text": "The Monero protocol includes various methods to obfuscate transaction details, though users can optionally share view keys for third-party auditing.",
+   "claim": "protocol obfuscates transactions and supports view keys",
+   "asOf": null
+  },
+  {
+   "id": "monero-0022",
+   "text": "Even though it is a public and decentralized ledger, all transaction details are obfuscated.",
+   "claim": "all transaction details are obfuscated",
+   "asOf": null
+  },
+  {
+   "id": "monero-0025",
+   "text": "The transaction outputs, or notes, of users sending Monero are obfuscated through ring signatures, which groups a sender's outputs with other decoy outputs.",
+   "claim": "outputs are obfuscated through ring signatures with decoys",
+   "asOf": null
+  },
+  {
+   "id": "monero-0041",
+   "text": "Monero uses a proof-of-work algorithm, RandomX, to validate transactions.",
+   "claim": "Monero uses RandomX proof of work",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0007",
+   "text": "The Polkadot SDK and other core technology components are being developed by Parity Technologies.",
+   "claim": "Polkadot SDK is being developed by Parity Technologies",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0030",
+   "text": "Interoperability is created through a common standard of data exchange, called XCM.",
+   "claim": "interoperability uses the XCM standard",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0005",
+   "text": "The majority of trades on the platform are related to sports.",
+   "claim": "the majority of trades are sports-related",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0006",
+   "text": "While it is not labelled a sports betting platform, 63% of trades on the platform are for sports bets.",
+   "claim": "63% of trades are sports bets",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0087",
+   "text": "As of September 2024, Polymarket operates its election prediction operations offshore, as domestic operations would be regulated in the U.S. by the CFTC.",
+   "claim": "as of September 2024 election markets operate offshore",
+   "asOf": "2024-09"
+  },
+  {
+   "id": "polymarket-0121",
+   "text": "The minimum age for joining Polymarket is 18 years old, despite state-level policy in the United States that permits gambling from the age of 21.",
+   "claim": "minimum age for joining is 18",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0028",
+   "text": "The price of such contracts are set between $0.01 and $1 and represent the odds of an event occurring.",
+   "claim": "contracts priced between $0.01 and $1",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0070",
+   "text": "UMA also reports that its optimistic oracle currently resolves 99.8% of requests without escalating them to the DVM.",
+   "claim": "UMA reports 99.8% of requests resolve without the DVM",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0166",
+   "text": "Belgium, France, Italy, Poland, and Romania have banned Polymarket as an unlicensed gambling platform.",
+   "claim": "Belgium, France, Italy, Poland and Romania have banned Polymarket",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0191",
+   "text": "In Brazil, regulators have not established whether prediction markets fall under the purview of the country's Securities Commission or the Ministry of Finance's Secretariat of Prizes and Betting.",
+   "claim": "Brazil has not settled which regulator covers prediction markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0215",
+   "text": "Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.",
+   "claim": "Polymarket is built on Polygon and uses USDC",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0035",
+   "text": "In addition, Polkadot uses a deterministic variant of NPoS, where the validators are elected using a variant of Phragmen's voting rule.",
+   "claim": "Polkadot uses a Phragmen-based NPoS variant",
+   "asOf": null
+  },
+  {
+   "id": "stablecoin-0017",
+   "text": "Major examples of US-dollar-pegged stablecoins are Tether's USDT and Circle's USDC.",
+   "claim": "USDT and USDC are major USD-pegged stablecoins",
+   "asOf": null
+  },
+  {
+   "id": "stablecoin-0128",
+   "text": "Under the definition, issuers of stablecoin are treated as operating non-cash payment facilities; algorithmic stablecoins are treated as derivatives; while yield-bearing stablecoins are treated as managed investment schemes.",
+   "claim": "ASIC INFO 225 treatment of issuers and algorithmic and yield stablecoins",
+   "asOf": null
+  },
+  {
+   "id": "stablecoin-0152",
+   "text": "The agency views algorithmic stablecoin as crypto assets and does not require issuer to register.",
+   "claim": "Japan treats algorithmic stablecoins as crypto assets, no registration",
+   "asOf": null
+  },
+  {
+   "id": "stablecoin-0156",
+   "text": "The issuer is state-owned company Virtual Asset Issuer OJSC.",
+   "claim": "USDKG issuer is state-owned Virtual Asset Issuer OJSC",
+   "asOf": null
+  },
+  {
+   "id": "stablecoin-0172",
+   "text": "The regulations prohibit persons within the UAE from accepting stablecoins for the sale of goods and services except licensed payment token.In April 2025, the sovereign wealth fund of Abu Dhabi, ADQ, and the First Abu Dhabi Bank, are set to launch a stablecoin backed by dirhams.",
+   "claim": "UAE prohibits accepting stablecoins except licensed payment tokens",
+   "asOf": null
+  },
+  {
+   "id": "tether-0005",
+   "text": "As of July 2024, Tether has more than 350 million users worldwide.",
+   "claim": "as of July 2024 Tether has more than 350M users",
+   "asOf": "2024-07"
+  },
+  {
+   "id": "tether-0007",
+   "text": "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange.",
+   "claim": "Tether Limited is owned by iFinex, BVI-based, which operates Bitfinex",
+   "asOf": null
+  },
+  {
+   "id": "tether-0091",
+   "text": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
+   "claim": "Cantor Fitzgerald serves as USAT reserve custodian",
+   "asOf": null
+  },
+  {
+   "id": "tether-0154",
+   "text": "Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets.",
+   "claim": "Tether has not publicly presented audits showing one-to-one backing",
+   "asOf": null
+  },
+  {
+   "id": "tether-0161",
+   "text": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
+   "claim": "majority of cash and equivalents are T-Bills at $72.6 billion",
+   "asOf": null
+  },
+  {
+   "id": "tether-0163",
+   "text": "If Tether were a country, it would be the 18th largest holder of U.S. debt among nations.",
+   "claim": "if a country, Tether would be the 18th-largest holder of US debt",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0002",
+   "text": "It enables the automated trading of digital assets through smart contracts, eliminating the need for intermediaries or centralized order books.",
+   "claim": "trades through smart contracts without order books",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0012",
+   "text": "While UNI is used to vote on protocol upgrades and changes, it is not required to use the platform.",
+   "claim": "UNI is used for voting and not required to use the platform",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0021",
+   "text": "Uniswap Foundation's most recent funding proposal, Uniswap Unleashed, outlined a plan to make the Uniswap Protocol the world’s infrastructure for digital value transfer with significant support for Uniswap v4 and Unichain.",
+   "claim": "Uniswap Unleashed is the Foundation's most recent funding proposal",
+   "asOf": null
+  },
+  {
+   "id": "zcash-0008",
+   "text": "Users can transact between the two types, allowing funds to move between the transparent and shielded pools.",
+   "claim": "funds can move between transparent and shielded pools",
+   "asOf": null
+  }
+ ]
+}

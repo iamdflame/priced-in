@@ -1,0 +1,321 @@
+{
+ "seed": "pricedin-audit-2026-11-05",
+ "population": 359,
+ "sampled": 54,
+ "agree": 52,
+ "agreementRate": 0.963,
+ "bothDecided": 31,
+ "bothDecidedAgree": 31,
+ "disagreements": [
+  {
+   "id": "avalanche-0073",
+   "first": "undecidable",
+   "audit": "current",
+   "checked": "v1.15.0 release notes list six ACPs: 194, 236, 267, 273, 283, 285"
+  },
+  {
+   "id": "tether-0091",
+   "first": "undecidable",
+   "audit": "current",
+   "checked": "Tether's USAT launch release: Cantor Fitzgerald is designated reserve custodian and preferred primary dealer"
+  }
+ ],
+ "limit": "Same agent in the same session; first verdicts were not displayed during the audit but cannot be unlearned. Treat the rate as an upper bound.",
+ "extracts": {
+  "aave-0001": [
+   {
+    "url": "https://aave.com/",
+    "fetchedAt": "2026-11-05T06:43:19.460Z",
+    "match": "Aave — Onchain Savings, Lending and Borrowing Skip to content Products Solutions Resources About Use Aave Aave App The World'"
+   }
+  ],
+  "aave-0011": [],
+  "aave-0016": [
+   {
+    "url": "https://aave.com/docs/aave-v3/guides/flash-loans",
+    "fetchedAt": "2026-11-05T06:43:18.883Z",
+    "match": "asset without collateral, as long as the borrowed amount and a fee are returned before the end of the same transaction. They have no real-world equivalent, so using them requires a basic understandi"
+   }
+  ],
+  "avalanche-0002": [
+   {
+    "url": "https://api.coingecko.com/api/v3/coins/avalanche-2/market_chart/range?vs_currency=usd&from=1767225600&to=1769904000",
+    "fetchedAt": "2026-11-05T06:43:19.892Z",
+    "match": "{\"prices\":[[1767225600000,12.309496315780976],[1767229200000,12.324512132919276],[176723"
+   }
+  ],
+  "avalanche-0018": [
+   {
+    "url": "https://api.coingecko.com/api/v3/coins/avalanche-2/market_chart/range?vs_currency=usd&from=1767225600&to=1769904000",
+    "fetchedAt": "2026-11-05T06:43:19.892Z",
+    "match": "2435733],[1769900400000,9.990608877837802],[1769904000000,10.157669548026377]],\"market_caps\":[[1767225600000,5289228437.606301],[1767229200000,5295684934.958224],[17672328"
+   }
+  ],
+  "avalanche-0031": [],
+  "avalanche-0039": [
+   {
+    "url": "https://api.avax.network/ext/bc/C/rpc",
+    "fetchedAt": "2026-11-05T06:43:19.761Z",
+    "match": "{\"result\":\"0xa86a\",\"id\":2,\"jsonrpc\":\"2.0\"}"
+   }
+  ],
+  "avalanche-0073": [
+   {
+    "url": "https://api.github.com/repos/ava-labs/avalanchego/releases/tags/v1.15.0",
+    "fetchedAt": "2026-11-05T06:43:19.684Z",
+    "match": "o `46`. All plugins must update to remain compatible.\\r\\n\\r\\n## Features\\r\\n\\r\\nHelicon activates the following Avalanche Community Proposals (ACPs):\\r\\n\\r\\n- [ACP-194](https://github.com/avalanche-foundation/ACPs/blob/ma"
+   }
+  ],
+  "bitcoin-0009": [
+   {
+    "url": "https://developer.bitcoin.org/devguide/block_chain.html",
+    "fetchedAt": "2026-11-05T06:43:20.652Z",
+    "match": " from its combined inputs, effectively paying a 10,000 satoshi transaction fee. Proof Of Work ¶ The block chain is collaboratively maintained by anonymous peers on the netwo"
+   }
+  ],
+  "bitcoin-0157": [
+   {
+    "url": "https://bitcoin.org/bitcoin.pdf",
+    "fetchedAt": "2026-11-05T04:38:01.457Z",
+    "match": "nessed, but proof that it came from the largest pool of CPU power. As long as a majority of CPU power is controlled by nodes that are not cooperating to attack the network, they'll "
+   }
+  ],
+  "bitcoin-0186": [],
+  "chainlink-0024": [
+   {
+    "url": "https://chain.link/economics/staking",
+    "fetchedAt": "2026-11-05T06:43:20.526Z",
+    "match": "Chainlink Staking | Chainlink Economics , before first paint --> Copy as PNG Copy as SVG Download"
+   }
+  ],
+  "defi-0020": [],
+  "defi-0058": [],
+  "ethereum-0001": [
+   {
+    "url": "https://ethereum.org/en/what-is-ethereum/",
+    "fetchedAt": "2026-11-05T06:43:21.531Z",
+    "match": "hereum.org⁩ Skip to main content Overview What is Ethereum? Why Ethereum exists Smart contracts Test your knowledge Start here Choose your wallet Get ETH Explore apps See all "
+   }
+  ],
+  "ethereum-0086": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/",
+    "fetchedAt": "2026-11-05T06:43:21.874Z",
+    "match": "f-of-stake, the tempo is fixed. Time in proof-of-stake Ethereum is divided into slots (12 seconds) and epochs (32 slots). One validator is randomly selected to be a block propose"
+   }
+  ],
+  "ethereum-0097": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/rewards-and-penalties/",
+    "fetchedAt": "2026-11-05T06:43:22.068Z",
+    "match": "Proof-of-stake rewards and penalties | ethereum.org Skip to main content Overview What is Ethereum? Why Ethereum exi"
+   }
+  ],
+  "ethereum-0104": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/rewards-and-penalties/",
+    "fetchedAt": "2026-11-05T06:43:22.068Z",
+    "match": "Proof-of-stake rewards and penalties | ethereum.org Skip to main content Overview What is Ethereum? Wh"
+   }
+  ],
+  "ethereum-0118": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/accounts/",
+    "fetchedAt": "2026-11-05T06:43:22.247Z",
+    "match": "t libraries will generate you a random private key. A private key is made up of 64 hex characters and can be encrypted with a password. Example: fffffffffffffffffffffffffffffffe"
+   }
+  ],
+  "ethereum-0131": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/transactions/",
+    "fetchedAt": "2026-11-05T06:43:22.133Z",
+    "match": " the maximum price of the consumed gas to be included as a tip to the validator maxFeePerGas - the maximum fee per unit of gas willing to be paid for the transaction (inclu"
+   },
+   {
+    "url": "https://eips.ethereum.org/EIPS/eip-1559",
+    "fetchedAt": "2026-11-05T06:43:23.021Z",
+    "match": "class , field from abc import ABC , abstractmethod @ dataclass class TransactionLegacy : signer_nonce : int = 0 gas_price : int = 0 gas_limit : int = 0 destination : "
+   }
+  ],
+  "ethereum-0134": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/gas/",
+    "fetchedAt": "2026-11-05T06:43:22.238Z",
+    "match": "pay? The total gas you pay is divided into two components: the base fee and the priority fee (tip). The base fee is set by the protocol—you have to pay at least this amount for y"
+   }
+  ],
+  "ethereum-0153": [
+   {
+    "url": "https://ethereum.org/en/developers/docs/standards/tokens/erc-721/",
+    "fetchedAt": "2026-11-05T06:43:22.834Z",
+    "match": "ERC-721 Non-Fungible Token Standard | ethereum.org Skip to main content Overview What i"
+   },
+   {
+    "url": "https://eips.ethereum.org/EIPS/eip-1155",
+    "fetchedAt": "2026-11-05T06:43:22.949Z",
+    "match": "ERC-1155: Multi Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta Informati"
+   }
+  ],
+  "ethereum-0187": [],
+  "monero-0004": [
+   {
+    "url": "https://www.getmonero.org/get-started/what-is-monero/",
+    "fetchedAt": "2026-11-05T06:43:23.598Z",
+    "match": "tives (e.g. Zcash), Monero is the only major cryptocurrency where every user is anonymous by default. The sender, receiver, and amount of every single transaction are hidden throug"
+   },
+   {
+    "url": "https://www.getmonero.org/resources/moneropedia/viewkey.html",
+    "fetchedAt": "2026-11-05T06:43:24.163Z",
+    "match": "View Key | Moneropedia | Monero - secure, private, untraceable Get Started What is Moner"
+   }
+  ],
+  "monero-0022": [
+   {
+    "url": "https://www.getmonero.org/get-started/what-is-monero/",
+    "fetchedAt": "2026-11-05T06:43:23.598Z",
+    "match": " is the only major cryptocurrency where every user is anonymous by default. The sender, receiver, and amount of every single transaction are hidden through the use of three important techn"
+   }
+  ],
+  "monero-0025": [
+   {
+    "url": "https://www.getmonero.org/resources/moneropedia/ringsignatures.html",
+    "fetchedAt": "2026-11-05T06:43:23.939Z",
+    "match": "Ring Signature | Moneropedia | Monero - secure, private, untraceable Get Started What is Moner"
+   }
+  ],
+  "monero-0041": [
+   {
+    "url": "https://www.getmonero.org/get-started/mining/",
+    "fetchedAt": "2026-11-05T06:43:23.518Z",
+    "match": " particular algorithm ideated and developed by members of the Monero community: RandomX . This PoW algorithm is ASIC resistant, which means it's impossible to build sp"
+   }
+  ],
+  "polkadot-0007": [
+   {
+    "url": "https://www.parity.io/about",
+    "fetchedAt": "2026-11-05T06:43:25.268Z",
+    "match": "the Web3 Foundation, we completed the launch of Polkadot in 2020 and remain the driving force behind the blockchain network’s technical progress. Discover Polkadot Explore our Open"
+   }
+  ],
+  "polkadot-0030": [
+   {
+    "url": "https://wiki.polkadot.network/learn/learn-xcm/",
+    "fetchedAt": "2026-11-05T06:43:26.089Z",
+    "match": "Introduction to Cross-Consensus Message Format (XCM) - Polkadot Wiki Skip to content Explore Fundamentals Architecture Analyti"
+   }
+  ],
+  "polymarket-0005": [],
+  "polymarket-0006": [],
+  "polymarket-0087": [],
+  "polymarket-0121": [
+   {
+    "url": "https://polymarket.com/tos",
+    "fetchedAt": "2026-11-05T06:43:25.347Z",
+    "match": "The Site, any other Interface, and Features are intended only for users who are 18 years of age or older. If you are entering into the Terms on behalf of an entity, such as the company"
+   }
+  ],
+  "prediction-market-0028": [],
+  "prediction-market-0070": [],
+  "prediction-market-0166": [
+   {
+    "url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+    "fetchedAt": "2026-11-05T06:43:26.531Z",
+    "match": "Lebanon LY Libya MM Myanmar MT Malta NI Nicaragua NL Netherlands NZ New Zealand PL Poland RU Russia SG Singapore SK Slovakia SO Somalia SS South Sudan SD Sudan SY Syria "
+   }
+  ],
+  "prediction-market-0191": [],
+  "prediction-market-0215": [
+   {
+    "url": "https://docs.polymarket.com/concepts/pusd.md",
+    "fetchedAt": "2026-11-05T06:43:25.671Z",
+    "match": "ver all available pages before exploring further. # Polymarket USD > pUSD — the collateral token used for all trading on Polymarket **pUSD** (Polymarket USD) is the collateral token used for all tr"
+   },
+   {
+    "url": "https://web.archive.org/web/2024/https://docs.polymarket.com/",
+    "fetchedAt": "2026-11-05T06:22:39.403Z",
+    "match": "t to change Volume Level Maker Fee Base Rate (bps) Taker Fee Base Rate (bps) >0 USDC 0 0 Overview Fees are levied in the output asset (proceeds). Fees for binary op"
+   }
+  ],
+  "proof-of-stake-0035": [
+   {
+    "url": "https://wiki.polkadot.network/learn/learn-phragmen/",
+    "fetchedAt": "2026-11-05T06:43:26.644Z",
+    "match": "NPoS Election Algorithms - Polkadot Wiki Skip to content Explore Fundamentals Architecture Analytics Gui"
+   }
+  ],
+  "stablecoin-0017": [
+   {
+    "url": "https://stablecoins.llama.fi/stablecoins?includePrices=false",
+    "fetchedAt": "2026-11-05T06:43:27.469Z",
+    "match": "{\"peggedAssets\":[{\"id\":\"1\",\"name\":\"Tether\",\"symbol\":\"USDT\",\"gecko_id\":\"tether\",\"pegType\":\"peggedUSD\",\"priceSource\":\"defillama\",\"pegMechani"
+   }
+  ],
+  "stablecoin-0128": [],
+  "stablecoin-0152": [],
+  "stablecoin-0156": [
+   {
+    "url": "https://usdkg.com/",
+    "fetchedAt": "2026-11-05T06:43:28.343Z",
+    "match": "639-t of the Cabinet of Ministers of the Kyrgyz Republic dated August 20, 2026, the USDKG project is ceasing its operations, including its activities on blockchain networks. Holders of USDKG tokens may c"
+   }
+  ],
+  "stablecoin-0172": [],
+  "tether-0005": [],
+  "tether-0007": [],
+  "tether-0091": [
+   {
+    "url": "https://tether.io/news/tether-announces-the-launch-of-usat-the-federally-regulated-dollar-backed-stablecoin-made-in-america/",
+    "fetchedAt": "2026-11-05T06:44:27.414Z",
+    "match": "ned up to support broad access to USA₮ across the American financial ecosystem. Cantor Fitzgerald serves as the designated reserve custodian and preferred primary dealer, ensuring secure asset management and clear visibility into reserves from day o"
+   }
+  ],
+  "tether-0154": [
+   {
+    "url": "https://thedefiant.io/news/cefi/tether-clears-first-full-audit-from-kpmg-without-publishing-the-statements",
+    "fetchedAt": "2026-11-05T06:43:30.997Z",
+    "match": "Tether Clears First Full Audit From KPMG Without Publishing the Statements | The Defiant Toggle navigation menu Toggle theme The Defiant News Newsletter P"
+   }
+  ],
+  "tether-0161": [
+   {
+    "url": "https://stablecoininsider.org/tether-q3-2026-attestation.md",
+    "fetchedAt": "2026-11-05T06:43:28.486Z",
+    "match": "---------------- | ----------- | ----------- | ---------- | | US Treasury bills | 114.96 | 122.84 | +7.88 | | Overnight reverse repo | 18.63 | 9.52 | \\-9.11 | | Term reverse rep"
+   },
+   {
+    "url": "https://web.archive.org/web/20231214184921/https://www.bloomberg.com/news/articles/2023-10-31/tether-says-reserves-held-in-cash-equivalents-are-highest-ever",
+    "fetchedAt": "2026-11-05T06:43:30.310Z",
+    "match": "majority of Tether’s reserves held in cash and cash equivalents are US T-Bills, accounting for $72.6 billion. Photographer: Lam Yik/Bloomberg Gift this article Have a confidential tip for "
+   }
+  ],
+  "tether-0163": [
+   {
+    "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table5.html",
+    "fetchedAt": "2026-11-05T06:43:38.598Z",
+    "match": "a 141.2 142.4 142.5 140.3 140.1 152.0 160.4 134.8 149.5 148.8 134.3 134.2 133.0 Korea, South 134.2 131.5 134.7 132.3 135.2 136.8 140.9 141.3 140.6 145.1 145.0 142.7 135.8 United "
+   }
+  ],
+  "uniswap-0002": [
+   {
+    "url": "https://docs.uniswap.org/concepts/protocol/fees",
+    "fetchedAt": "2026-11-05T06:43:33.577Z",
+    "match": "Fees | Uniswap Developers LLMs.txt: agent-readable Markdown index of this site at /llms.txt Developers Do"
+   }
+  ],
+  "uniswap-0012": [
+   {
+    "url": "https://docs.uniswap.org/concepts/governance/overview",
+    "fetchedAt": "2026-11-05T06:43:33.831Z",
+    "match": "Governance Overview | Uniswap Developers LLMs.txt: agent-readable Markdown index of this site at /l"
+   }
+  ],
+  "uniswap-0021": [],
+  "zcash-0008": [
+   {
+    "url": "https://z.cash/learn/what-is-the-difference-between-shielded-and-transparent-zcash/",
+    "fetchedAt": "2026-11-05T06:43:33.069Z",
+    "match": "What is the difference between shielded and transparent Zcash? - Z.Cash Skip to content Search Learn Zcash 101 What is Zcash? How is Zc"
+   }
+  ]
+ }
+}
