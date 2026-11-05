@@ -86,7 +86,7 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .readout .row .doubt{margin-bottom:calc(var(--price,128px) * .085)}
 .price{display:inline-flex;align-items:baseline;position:relative;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
 .price .pn{display:inline-block}
-@media (min-width:721px){.price .pn{min-width:2ch;text-align:right}}
+@media (min-width:721px){.price{min-width:calc(var(--price,128px) * 1.72 + 96px)}}
 .price .pa{margin-right:14px;font-size:18px;font-style:italic;line-height:1;letter-spacing:0;color:var(--ink-6);font-variation-settings:"opsz" 18;align-self:baseline}
 .price .pc{align-self:flex-start;font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
 .price.none{visibility:hidden}
@@ -282,7 +282,8 @@ main:focus,.panel:focus,.card:focus{outline:none}
 body.card-mode{width:1200px;height:630px;overflow:hidden}
 body.card-mode .ps{width:1200px;height:630px;min-height:0}
 body.card-mode .nav,body.card-mode .below,body.card-mode .foot,body.card-mode .readout .doubt,body.card-mode .readout .chip,body.card-mode .skip{display:none}
-body.card-mode .ps .status,body.card-mode .ps .chipwrap{display:none}
+body.card-mode .ps .status,body.card-mode .ps .chipwrap,body.card-mode .ps .trick{display:none}
+.ps .rw-note{display:none}
 
 @media (prefers-reduced-motion:reduce){
   *,*::before,*::after{animation:none!important;transition:none!important;scroll-behavior:auto!important}

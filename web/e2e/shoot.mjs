@@ -66,10 +66,14 @@ const shots = [
   } },
   { name: "verify-panel", path: "/", wait: 5000, act: async (p) => {
     // live: doubt, then open the new rewrite's mark; recorded: the recorded rewrite's mark in the page
-    let c = p.locator('.ps [data-chip="signed"]');
+    // phones carry the mark at the end of the paragraph, below the first screen
+    const phone = (p.viewportSize()?.width ?? 1440) < 720;
+    let c = p.locator(phone ? '.running [data-chip="signed"]' : '.ps [data-chip="signed"]').first();
     if (!(await p.evaluate(() => window.__pricedin.mode === "recorded"))) {
       await p.locator(".ps .doubt").click();
+      await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
       await c.waitFor({ timeout: 20000 });
+      await c.scrollIntoViewIfNeeded();
     } else {
       c = p.locator('.running [data-chip="signed"]').first();
       await c.scrollIntoViewIfNeeded();
