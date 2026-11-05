@@ -278,12 +278,13 @@ export class Crowd {
   async cycle() {
     this.stats.cycles++;
     try {
-      if (this.reconcile) await this.reconcile().catch((e) => this.log(`agents reconcile: ${e.message}`));
+      // the roster first: sleeping and waking must not wait behind slow lookups
       await this.refresh();
       if (this.biller) {
         const done = await this.biller.cycle(this.roster);
         if (done.some((d) => d.short)) await this.refresh();
       }
+      if (this.reconcile) await this.reconcile().catch((e) => this.log(`agents reconcile: ${e.message}`));
       await this.redeemSettled();
       this.stats.lastCycleError = null;
     } catch (e) { this.stats.lastCycleError = e.message; this.log(`agents cycle: ${e.message}`); }

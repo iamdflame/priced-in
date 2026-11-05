@@ -40,7 +40,7 @@ const TGAS = 10n ** 12n;
 const NEAR = 10n ** 24n;
 const near = (x) => BigInt(Math.round(x * 1000)) * NEAR / 1000n;
 // rpc.testnet.near.org is deprecated and answers 429 to everything, and the free plans of the others are rate-limited; override with E2E_RPC_URLS
-const RPC_URLS = (process.env.E2E_RPC_URLS || "https://test.rpc.fastnear.com,https://near-testnet.drpc.org,https://rpc.testnet.fastnear.com").split(",");
+const RPC_URLS = (process.env.E2E_RPC_URLS || "https://test.rpc.fastnear.com,https://near-testnet.drpc.org,https://rpc.testnet.fastnear.com,https://archival-rpc.testnet.fastnear.com").split(",");
 const WASM = path.join(ROOT, "target/wasm32-unknown-unknown/release");
 const RATE = 400_000_000_000_000_000n; // yoctoNEAR per micro-USD: $1 = 0.4 NEAR
 const EXPENSIVE = "mock/expensive-1";
@@ -62,6 +62,11 @@ async function retry(fn) {
 // reads go through the API's Rpc: it fails over, and backs off when every node rate-limits
 const reader = new Rpc(RPC_URLS, { timeoutMs: 12000 });
 const view = (contractId, method, args = {}) => retry(() => reader.viewFunction(contractId, method, args));
+// the same reads, shaped like a near-api-js provider for house.js
+const reads = {
+  callFunction: ({ contractId, method, args }) => view(contractId, method, args),
+  query: (params) => retry(() => reader.call("query", params)),
+};
 const until = async (what, fn, ms = 30000, every = 500) => { const t0 = Date.now(); for (;;) { const v = await fn().catch(() => null); if (v) return v; if (Date.now() - t0 > ms) throw new Error(`timed out waiting for ${what}`); await sleep(every); } };
 
 // ---------- the funder and throwaway accounts ----------
@@ -150,7 +155,7 @@ const DATA = path.join(tmp, "data");
 const latencies = [];
 let pnlOut = "";
 try {
-  const fromHeight = (await provider.viewBlock({ finality: "final" })).header.height;
+  const fromHeight = (await reader.block("final")).header.height;
   const token = await sub("ct", NEED.tusdc);
   const market = await sub("cm", NEED.market);
   const swarm = await sub("cs", NEED.swarm);
@@ -178,12 +183,12 @@ try {
   // ---------- 2. the house ----------
   const keystoreDir = path.join(DATA, "keystore");
   fs.mkdirSync(DATA, { recursive: true });
-  const op = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
-  const rows = await ensureHouseAgents({ owner: house.account, provider, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
+  const op = await setupOperator({ owner: house.account, provider: reads, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
+  const rows = await ensureHouseAgents({ owner: house.account, provider: reads, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
   for (const r of rows) agentsToDelete.push([house.account, r.account]);
   check("house-agents spawns the archivist, the skeptic and the quant through the swarm", rows.length === 3 && rows.every((r) => r.created && !r.error && r.bankroll_micro === "4000000"), rows.map((r) => `${r.key}=${r.account} (${r.model})`).join(", "));
-  const again = await ensureHouseAgents({ owner: house.account, provider, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
-  const op2 = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
+  const again = await ensureHouseAgents({ owner: house.account, provider: reads, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
+  const op2 = await setupOperator({ owner: house.account, provider: reads, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
   check("running it again changes nothing", again.every((r) => !r.created) && again.map((r) => r.account).join() === rows.map((r) => r.account).join() && !op2.market.created && !op2.swarm.created && !op2.jury.created && (await view(SW, "stats")).agents === 3);
   const keys = (await rpcQuery({ request_type: "view_access_key_list", finality: "optimistic", account_id: rows[0].account })).keys;
   check("a house agent's only key is our runner key, limited to buy, sell and redeem", keys.length === 1 && [...keys[0].access_key.permission.FunctionCall.method_names].sort().join() === "buy,redeem,sell");
@@ -267,7 +272,7 @@ try {
   const SQ = rows.find((r) => r.key === "house-quant").account;
   const bills = await until("bills for every agent that thought", async () => {
     const b = [...new Set([...rows.map((r) => r.account), SA])].map((a) => layer.ledger.bills(a).filter((x) => x.tx_hash && !x.failed && !x.pending)).flat();
-    return b.some((x) => x.route === "escrow") && b.some((x) => x.route === "balance") && b.some((x) => x.agent === SA) && b;
+    return b.some((x) => x.route === "escrow" && x.agent !== SA) && b.some((x) => x.route === "balance") && b.some((x) => x.agent === SA) && b;
   }, 180000);
   const quantBill = bills.find((b) => b.route === "balance");
   const sweep = bills.find((b) => b.route === "escrow" && b.agent !== SA);
@@ -320,7 +325,7 @@ try {
   check("the broke agent stays quiet", !afterWhale.some((r) => r.account_id === SA), afterWhale.map((r) => `${r.agent}: ${r.text}`).join(" | "));
   await call(stranger.account, SW, "top_up_escrow", { agent_id: SA }, near(0.03));
   const tTop = Date.now();
-  await until("the stranger's agent awake", async () => (await fetch(`${base}/agents`).then((r) => r.json())).agents.find((a) => a.account_id === SA)?.awake, 15000);
+  await until("the stranger's agent awake", async () => (await fetch(`${base}/agents`).then((r) => r.json())).agents.find((a) => a.account_id === SA)?.awake, 30000);
   check("a top-up wakes it within one cycle", Date.now() - tTop <= 4000 + 4000, `${Date.now() - tTop} ms (cycle 4000 ms, plus the chain read)`);
   await until("its debt collected", async () => layer.ledger.debt(SA) === 0n && layer.ledger.pending().length === 0, 180000).catch(() => null);
 
