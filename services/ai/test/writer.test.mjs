@@ -174,6 +174,21 @@ test("a reply that breaks the sentence map falls back to the template and says w
   } finally { writer.stop(); await mock.close(); }
 });
 
+test("a reply that merges sentences gets one corrective retry, and the retry's exact bytes are what is signed", async () => {
+  const { mock, writer } = await setup();
+  try {
+    // like the real GLM once on testnet: one sentence for a paragraph of two
+    mock.behave(M, { content: (body) => (body.messages.length > 2 ? null : '{"sentences":[{"claim_id":0,"text":"both claims in one"}]}') });
+    const rec = await writer.onTrade(trade(0, 300000));
+    assert.equal(rec.status, "signed");
+    assert.equal(rec.sentences.length, 2);
+    const req = JSON.parse(Buffer.from(rec.provenance.request_b64, "base64").toString("utf8"));
+    assert.equal(req.messages.length, 4, "the retry carries the bad reply and the correction");
+    assert.match(req.messages[3].content, /exactly 2 sentences/);
+    assert.ok(verifyProvenance(rec.provenance).ok);
+  } finally { writer.stop(); await mock.close(); }
+});
+
 test("trades that arrive during a rewrite coalesce: the newest prices win", async () => {
   const { mock, writer, store } = await setup();
   try {

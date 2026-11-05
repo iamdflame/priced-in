@@ -26,7 +26,7 @@
 // reuses a version number.
 
 import { createHash } from "node:crypto";
-import { attestedCompletion, judgeSignature, provenanceOf } from "./nearai.js";
+import { attestedCompletion, judgeSignature, provenanceOf, NearAiError } from "./nearai.js";
 
 export const BANDS = ["assert", "hedge", "disputed", "negate"];
 
@@ -331,13 +331,28 @@ export class Writer {
       return rec;
     }
     this.meter(r.completion);
+    const ids = sentences.map((s) => s.claim_id);
     let texts;
     try {
-      texts = parseRewriteReply(r.completion.content, sentences.map((s) => s.claim_id));
+      texts = parseRewriteReply(r.completion.content, ids);
     } catch (e) {
-      this.stats.modelErrors++;
-      rec = this.publish(st, { ...rec, provenance: { ...rec.provenance, reason: `the model's reply was not used (${e.message}); this is the template`, model: this.model, chat_id: r.completion.chatId } });
-      return rec;
+      // one corrective retry in the same conversation (at temperature 0 a plain retry repeats the
+      // mistake); real models sometimes merge sentences. Its exact bytes are what gets signed.
+      let why = e.message;
+      try {
+        this.log(`writer: ${page}#${index}: reply not usable (${e.message}); one corrective retry`);
+        const body = rewriteRequest(this.model, page, sentences);
+        body.messages.push({ role: "assistant", content: r.completion.content }, { role: "user", content: `That reply is not usable: ${e.message}. Reply again with JSON only: exactly ${ids.length} sentences, one for each claim_id in the order given (${ids.join(", ")}).` });
+        r = await attestedCompletion({ client: this.client, attestor: this.attestor, body, signatureDeadlineMs: this.signatureDeadlineMs, timeoutMs: this.modelTimeoutMs });
+        this.meter(r.completion);
+        texts = parseRewriteReply(r.completion.content, ids);
+      } catch (e2) {
+        if (e2 instanceof NearAiError) why = `${why}; the retry did not answer (${e2.message})`;
+        else why = e2.message;
+        this.stats.modelErrors++;
+        rec = this.publish(st, { ...rec, provenance: { ...rec.provenance, reason: `the model's reply was not used (${why}); this is the template`, model: this.model, chat_id: r.completion.chatId } });
+        return rec;
+      }
     }
     const bytes = { request_b64: r.completion.requestBytes.toString("base64"), response_b64: r.completion.responseBytes.toString("base64") };
     rec = this.publish(st, {
