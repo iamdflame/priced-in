@@ -16,8 +16,8 @@ const dep = JSON.parse(fs.readFileSync(path.join(ROOT, "deployments/testnet.json
 if (dep.network !== "testnet") throw new Error("this stream configures testnet only");
 const V = path.join(ROOT, ".apex-test/vercel");
 const read = (f) => JSON.parse(fs.readFileSync(f, "utf8"));
-const RPCS = "https://test.rpc.fastnear.com,https://rpc.testnet.fastnear.com,https://testnet-rpc.intea.rs";
-const BROWSER_RPCS = "https://test.rpc.fastnear.com,https://rpc.testnet.fastnear.com,https://testnet-rpc.intea.rs";
+const RPCS = "https://near-testnet.drpc.org,https://test.rpc.fastnear.com,https://rpc.testnet.fastnear.com,https://testnet-rpc.intea.rs";
+const BROWSER_RPCS = "https://near-testnet.drpc.org,https://test.rpc.fastnear.com,https://rpc.testnet.fastnear.com";
 
 const keystore = {};
 for (const f of fs.readdirSync(path.join(V, "keystore"))) if (f.endsWith(".json")) keystore[f] = read(path.join(V, "keystore", f));

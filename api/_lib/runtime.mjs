@@ -24,6 +24,7 @@ import { mountAi } from "../../services/ai/src/mount.js";
 import { Writer } from "../../services/ai/src/writer.js";
 import { BlobState, JournalDir } from "./store.mjs";
 import { installSpendMeter } from "./spend.mjs";
+import { ClaimsSnapshot } from "./snapshot.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, "../..");
@@ -82,7 +83,8 @@ export function prepare() {
   const state = new BlobState({ prefix: `state/${api.network}/${api.marketId || "no-market"}`, log });
   const journals = new JournalDir(state, env.DATA_DIR, { log });
   const spend = installSpendMeter({ baseUrl: ai.nearai.baseUrl, capUsd: Number(env.NEARAI_DAILY_CAP_USD || 1), dir: env.DATA_DIR, log });
-  prepared = { env, api, ai, state, journals, spend, operatorAccountId, laneAccountId: api.lane.accountId };
+  const claims = new ClaimsSnapshot({ urls: api.rpcUrls, marketId: api.marketId, state, log });
+  prepared = { env, api, ai, state, journals, spend, claims, operatorAccountId, laneAccountId: api.lane.accountId };
   return prepared;
 }
 
@@ -97,6 +99,12 @@ function build({ agents = true } = {}) {
   const app = createApp(api, { log });
   const evidence = new Map();
   for (const list of app.rewrites.byKey.values()) for (const r of list) evidence.set(r.id, r);
+  // every claims read in this app comes from the snapshot (one get_claims, raced across the RPCs)
+  if (app.claims) {
+    const one = app.claims.one.bind(app.claims);
+    app.claims.all = async () => (await p.claims.decorated()).claims;
+    app.claims.one = async (id) => (await app.claims.all()).find((c) => c.id === id) ?? one(id);
+  }
   const layer = mountAi(app, ai, { log, overrides: agents ? {} : { crowd: { signer: NO_AGENTS, reconcile: null } } });
   for (const r of evidence.values()) if (!app.rewrites.get(r.id) || app.rewrites.get(r.id).anchor?.status !== "anchored") app.rewrites.put(r);
   for (const e of p.journals.read("events.jsonl")) app.hub.publish(e);
@@ -177,7 +185,7 @@ export async function recordEvents(events) {
   const seen = new Set(p.journals.read("events.jsonl").map((e) => e.uid));
   const fresh = events.filter((e) => e.uid && !seen.has(e.uid));
   for (const e of fresh) p.journals.append("events.jsonl", e);
-  if (fresh.length) await p.journals.flush();
+  if (fresh.length) await Promise.all([p.journals.flush(), p.claims.refresh().catch(() => {})]);
   return fresh;
 }
 

@@ -11,8 +11,8 @@ import { Rpc } from "../services/api/src/rpc.mjs";
 
 /** CDN caching per route: many browsers polling share one function call. */
 const CACHE = [
-  [/^\/claims(\/|$)/, "public, max-age=0, s-maxage=1, stale-while-revalidate=2"],
-  [/^\/(rewrites|rationales|events\/recent|jury)$/, "public, max-age=0, s-maxage=2, stale-while-revalidate=2"],
+  [/^\/claims(\/|$)/, "public, max-age=0, s-maxage=1, stale-while-revalidate=30"],
+  [/^\/(rewrites|rationales|events\/recent|jury)$/, "public, max-age=0, s-maxage=1, stale-while-revalidate=30"],
   [/^\/post(\/|$)/, "public, max-age=0, s-maxage=60, stale-while-revalidate=300"],
   [/^\/attestations/, "public, max-age=60, s-maxage=300"],
   [/^\/v1$/, "public, max-age=0, s-maxage=30"],
@@ -35,6 +35,8 @@ export default async function handler(req, res) {
     res.writeHead(204, { "access-control-allow-origin": "*", "access-control-allow-methods": "GET, POST, OPTIONS", "access-control-allow-headers": "content-type, last-event-id, payment-signature, x-payment", "access-control-max-age": "600" });
     return res.end();
   }
+  // claims: from the snapshot, before anything else is read (a cold instance answers in one store read)
+  if (req.method === "GET" && /^\/claims(\/[^/]+)?$/.test(route)) return claimsRoute(res, route, url);
   // the site decides at load whether the API is live from /health (3.5 s): it never waits on the store
   if (req.method === "GET" && route === "/health") {
     return health(res, withTimeout(readContext().catch(() => null), 1200, null));
@@ -118,6 +120,29 @@ export default async function handler(req, res) {
     return res;
   };
   app.server.emit("request", req, res);
+}
+
+// ---------- GET /claims, /claims?page=, /claims/:id: the snapshot ----------
+async function claimsRoute(res, route, url) {
+  let p;
+  try { p = prepare(); } catch (e) { return sendJson(res, 503, { error: { code: "unavailable", message: e.message } }); }
+  const t0 = Date.now();
+  let snap;
+  try { snap = await p.claims.decorated(); } catch (e) {
+    return sendJson(res, 502, { error: { code: "upstream_error", message: "The NEAR RPC did not answer. Try again in a moment." } });
+  }
+  const headers = { "cache-control": CACHE[0][1], "server-timing": `total;dur=${Date.now() - t0}`, "x-snapshot-age-ms": String(Date.now() - snap.at) };
+  const m = route.match(/^\/claims\/([^/]+)$/);
+  if (m) {
+    if (!/^\d{1,15}$/.test(m[1])) return sendJson(res, 400, { error: { code: "invalid_claim_id", message: "Claim ids are whole numbers." } });
+    const c = snap.claims.find((x) => x.id === Number(m[1]));
+    if (!c) return sendJson(res, 404, { error: { code: "no_such_claim", message: `No claim ${m[1]}.` } });
+    return sendJson(res, 200, { claim: c, asOf: snap.at }, headers);
+  }
+  const page = url.searchParams.get("page");
+  if (page !== null && !/^[a-z0-9-]{1,64}$/.test(page)) return sendJson(res, 400, { error: { code: "invalid_page", message: "page must be a slug: lowercase letters, digits and dashes." } });
+  const list = page ? snap.claims.filter((c) => c.page === page) : snap.claims;
+  return sendJson(res, 200, { page, claims: list, count: list.length, asOf: snap.at, blockHeight: snap.blockHeight }, headers);
 }
 
 // ---------- GET /events: a finite stream ----------
