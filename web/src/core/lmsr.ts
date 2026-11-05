@@ -228,9 +228,13 @@ export const marketFromReceipt = (p0Ppm: number, bMicro: bigint | number | strin
  * (the contract's ClaimView has no b). Buying YES from p to p + 0.1 costs b ln((1 - p) / (0.9 - p)).
  */
 export function impliedBMicro(priceYes: number, upMicro: number, downMicro: number): number | null {
-  if (upMicro > 0 && priceYes + 0.1 < 0.999) return Math.round(upMicro / Math.log((1 - priceYes) / (1 - priceYes - 0.1)));
-  if (downMicro > 0 && priceYes - 0.1 > 0.001) return Math.round(downMicro / Math.log(priceYes / (priceYes - 0.1)));
-  return null;
+  let est: number | null = null;
+  if (upMicro > 0 && priceYes + 0.1 < 0.999) est = upMicro / Math.log((1 - priceYes) / (1 - priceYes - 0.1));
+  else if (downMicro > 0 && priceYes - 0.1 > 0.001) est = downMicro / Math.log(priceYes / (priceYes - 0.1));
+  if (est === null || !Number.isFinite(est) || est <= 0) return null;
+  // the view's figures are rounded to whole micro-USDC; liquidity is set in round amounts
+  const round = Math.round(est / 1000) * 1000;
+  return Math.abs(round - est) / est < 1e-4 ? round : Math.round(est);
 }
 
 export interface BuyQuote {
