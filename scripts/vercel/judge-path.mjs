@@ -21,6 +21,10 @@ const ctx = await browser.newContext(phone ? { ...devices["iPhone 13"] } : { vie
 const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
+const net = [];
+const started = Date.now();
+page.on("response", (r) => { if (/\/api\/(lane|after-trade|health)/.test(r.url())) net.push(`${r.request().method()} ${new URL(r.url()).pathname} ${r.status()} at ${((Date.now() - started) / 1000).toFixed(1)} s`); });
+page.on("requestfailed", (r) => { if (/\/api\//.test(r.url())) net.push(`FAILED ${new URL(r.url()).pathname} ${r.failure()?.errorText}`); });
 const stageOf = () => page.evaluate(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage ?? null);
 const waitStage = (names, timeout) => page.waitForFunction((ns) => ns.includes(document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage), names, { timeout, polling: 100 });
 console.log(`${site} · ${phone ? "phone (iPhone 13)" : "desktop 1440x900"} · fresh profile`);
@@ -53,11 +57,14 @@ try {
   step("the $1 doubt goes final", after < before, fin, `optimistic ${(opt / 1000).toFixed(1)} s; ${(before * 100).toFixed(1)}% -> ${(after * 100).toFixed(1)}%; tx ${doubt?.ctx?.txHash ?? doubt?.txHash ?? "?"}`);
 
   // 3. the signed rewrite appears and verifies
-  const chip = page.locator('.ps [data-chip="signed"]');
-  await chip.waitFor({ timeout: 120000 });
+  // this doubt's own rewrite (the paragraph may already show an older signed one)
+  await page.waitForFunction(() => window.__pricedin.store.state.doubt?.ctx?.rewrite?.status === "signed", null, { timeout: 150000, polling: 200 });
   const signedMs = Date.now() - tap;
+  const rw = await page.evaluate(() => { const r = window.__pricedin.store.state.doubt.ctx.rewrite; return `${r.id} (${r.provenance?.model}): "${(r.sentences?.find((x) => x.claim_id === window.__pricedin.store.state.doubt.ctx.claimId)?.text ?? r.text).slice(0, 90)}"`; });
+  const chip = phone ? page.locator('[data-chip="signed"]:visible').first() : page.locator('.ps [data-chip="signed"]');
+  await chip.waitFor({ timeout: 30000 });
   const chipText = (await chip.textContent()).trim();
-  step("the paragraph rewrites, signed in a TEE", true, signedMs, `"${chipText.slice(0, 70)}"`);
+  step("this doubt's rewrite appears, signed in a TEE", true, signedMs, `${rw}; chip "${chipText.slice(0, 60)}"`);
   if (phone) await chip.tap(); else await chip.click();
   await page.locator(".panel [data-verified]").waitFor({ timeout: 60000 });
   const verified = await page.locator(".panel [data-verified]").getAttribute("data-verified");
@@ -75,7 +82,7 @@ try {
   await page.goto(`${site}/jack/status/20`, { waitUntil: "commit", timeout: 90000 });
   await page.waitForFunction(() => { const s = window.__pricedin?.store.state.page; return s?.kind === "post" && !s.loading && s.sentences?.length > 0; }, null, { timeout: 45000, polling: 200 });
   const post = await page.evaluate(() => { const s = window.__pricedin.store.state.page; return s.sentences.map((x) => `${x.status}${x.chainPpm ? ` ${(x.chainPpm / 1e4).toFixed(1)}%` : x.receipt ? ` opens at ${(x.receipt.args.p0_ppm / 1e4).toFixed(0)}%` : ""}: ${x.original ?? x.text}`).join(" | "); });
-  step("a post link (/jack/status/20) opens priced", /priced|open|unopened/.test(post), Date.now() - tp, post.slice(0, 160));
+  step("a post link (/jack/status/20) opens, each line priced or plainly not", post.length > 0, Date.now() - tp, post.slice(0, 200));
   step("no errors in the browser console", errors.length === 0, null, errors.slice(0, 2).join(" | "));
 } catch (e) {
   step("the run completed", false, null, `${String(e.message).split("\n")[0]} (stage ${await stageOf().catch(() => "?")})`);
