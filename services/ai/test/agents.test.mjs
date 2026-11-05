@@ -4,24 +4,24 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { KeyPair } from "near-api-js";
-import { NearAI, Attestor } from "../src/nearai.js";
-import { Swarm, decide, impliedB, buyQuote, dailyLoss, parseCredence, DEFAULT_POLICY } from "../src/agents.js";
+import { NearAI } from "../src/nearai.js";
+import { decide, impliedB, buyQuote, sellQuote, sharesToTarget, dailyLoss, parseCredence, DEFAULT_POLICY } from "../src/agents.js";
 import { Research, keywords, excerpt } from "../src/research.js";
-import { SignerClient, validateDecision, checkPermission, DECISION_FIELDS } from "../src/signer.js";
-import { Ledger } from "../src/ledger.js";
+import { SignerClient, validateDecision, validateBill, validateAnchor, checkPermission, DECISION_FIELDS, OPERATOR_METHODS } from "../src/signer.js";
+import { newRunnerKey, operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
-import { EventHub } from "../../api/src/events.mjs";
 import { startMockRpc } from "../../api/test/mock-rpc.mjs";
 import { startMockNearAI, MOCK_MODELS } from "./mock-nearai.mjs";
 
 const near = (a, b, e = 1e-6) => assert.ok(Math.abs(a - b) < e, `${a} !~ ${b}`);
+const tmpdir = () => fs.mkdtempSync(path.join(os.tmpdir(), "signer-"));
 
-test("policy: bets only when the edge beats fees plus 2 points", () => {
+test("policy: buys only when the edge beats fees plus 2 points", () => {
   const base = { priceYes: 0.5, b: 3, bankrollUsd: 10 };
   assert.equal(decide({ ...base, credence: 0.515 }).action, "none");
   assert.equal(decide({ ...base, credence: 0.515 }).noEdge, true);
   assert.equal(decide({ ...base, credence: 0.52 }).action, "none", "exactly 2 points is not more than 2 points");
-  assert.equal(decide({ ...base, credence: 0.6 }).action, "bet");
+  assert.equal(decide({ ...base, credence: 0.6 }).action, "buy");
   assert.equal(decide({ ...base, credence: 0.6 }).side, "yes");
   assert.equal(decide({ ...base, credence: 0.3 }).side, "no");
   assert.equal(decide({ ...base, credence: 0.6, policy: { feePoints: 0.09 } }).action, "none", "fees raise the bar");
@@ -33,9 +33,9 @@ test("policy: fractional Kelly, a $2 cap, price impact, and determinism", () => 
   near(Number(d.amount_micro), 500000, 2);
   const big = decide({ credence: 0.95, priceYes: 0.5, b: 100, bankrollUsd: 1000 });
   assert.equal(big.amountUsd, 2, "the $2 cap");
-  // in a thin market the size shrinks until the average price still leaves the required edge
+  assert.equal(decide({ credence: 0.95, priceYes: 0.5, b: 100, bankrollUsd: 1000, policy: { maxBetUsd: 1 } }).amountUsd, 1, "a persona's lower cap");
   const thin = decide({ credence: 0.6, priceYes: 0.5, b: 0.5, bankrollUsd: 100 });
-  assert.equal(thin.action, "bet");
+  assert.equal(thin.action, "buy");
   assert.ok(thin.amountUsd < 2 && 0.6 - thin.avgPrice > 0.019, JSON.stringify(thin));
   assert.equal(decide({ credence: 0.53, priceYes: 0.5, b: 0.1, bankrollUsd: 100 }).action, "none");
   assert.ok(Number(d.min_shares_micro) > 0 && Number(d.min_shares_micro) < buyQuote(0.5, 100, d.amountUsd).shares * 1e6);
@@ -43,7 +43,39 @@ test("policy: fractional Kelly, a $2 cap, price impact, and determinism", () => 
   assert.equal(decide({ credence: 0.9, priceYes: 0.5, b: 3, bankrollUsd: 0 }).action, "none");
 });
 
-test("policy: stops on the daily loss limit, marked to market", () => {
+test("policy: sells when the credence crosses the price the other way, down toward the credence", () => {
+  // holds 3 YES; the market moved to 90% but the agent thinks 60%
+  const s = decide({ credence: 0.6, priceYes: 0.9, b: 3, bankrollUsd: 10, holding: { yes: 3, no: 0 } });
+  assert.equal(s.action, "sell");
+  assert.equal(s.side, "yes");
+  const shares = Number(s.shares_micro) / 1e6;
+  assert.ok(shares > 0 && shares <= 3, `sells at most what it holds: ${shares}`);
+  near(s.priceAfterYes, Math.max(0.62, sellQuote(0.9, 3, 3).priceAfter), 1e-4); // stops at credence + margin, or when it runs out
+  assert.ok(Number(s.min_proceeds_micro) < s.proceedsUsd * 1e6 && Number(s.min_proceeds_micro) > 0.97 * s.proceedsUsd * 1e6);
+  // with plenty of shares it sells exactly down to credence + margin
+  const all = decide({ credence: 0.6, priceYes: 0.9, b: 3, bankrollUsd: 10, holding: { yes: 50, no: 0 } });
+  near(all.priceAfterYes, 0.62, 1e-4);
+  near(Number(all.shares_micro) / 1e6, sharesToTarget(0.9, 0.62, 3), 1e-5);
+  // holds NO, credence moved above the price: sells NO
+  const n = decide({ credence: 0.7, priceYes: 0.3, b: 3, bankrollUsd: 10, holding: { yes: 0, no: 2 } });
+  assert.equal(n.action, "sell");
+  assert.equal(n.side, "no");
+  // within the margin of the price: no sale, and it agrees
+  const at = decide({ credence: 0.89, priceYes: 0.9, b: 3, bankrollUsd: 10, holding: { yes: 3, no: 0 } });
+  assert.equal(at.action, "none");
+  assert.equal(at.noEdge, true);
+  // a sale too small to matter is skipped and says so (it is not an agreement)
+  const dust = decide({ credence: 0.6, priceYes: 0.9, b: 3, bankrollUsd: 10, holding: { yes: 0.01, no: 0 } });
+  assert.equal(dust.action, "none");
+  assert.notEqual(dust.noEdge, true);
+  assert.match(dust.reason, /sale this small/);
+  // holding the side it still believes in: no sale, it may buy more
+  assert.equal(decide({ credence: 0.95, priceYes: 0.6, b: 3, bankrollUsd: 10, holding: { yes: 3, no: 0 } }).action, "buy");
+  // the daily loss limit stops buying, never selling
+  assert.equal(decide({ credence: 0.6, priceYes: 0.9, b: 3, bankrollUsd: 10, dailyLossUsd: 99, holding: { yes: 3, no: 0 } }).action, "sell");
+});
+
+test("policy: stops on the daily loss limit, marked to market, sales included", () => {
   const stopped = decide({ credence: 0.9, priceYes: 0.5, b: 3, bankrollUsd: 10, dailyLossUsd: 5 });
   assert.equal(stopped.action, "none");
   assert.equal(stopped.stopped, true);
@@ -52,14 +84,22 @@ test("policy: stops on the daily loss limit, marked to market", () => {
   near(dailyLoss([{ claim_id: 2, side: "yes", amount_micro: "1000000", shares_micro: "2000000" }], claims), 1, 1e-9);
   near(dailyLoss([{ claim_id: 2, side: "no", amount_micro: "1000000", shares_micro: "2000000" }], claims), 0, 1e-9);
   near(dailyLoss([{ claim_id: 9, side: "no", amount_micro: "1000000", shares_micro: "2000000" }], claims), 1, 1e-9);
+  // bought 2 YES for $1, sold 1 back for $0.60: cost 1 - 0.6 - 1 share x 0.25 = 0.15
+  near(dailyLoss([{ claim_id: 1, action: "buy", side: "yes", amount_micro: "1000000", shares_micro: "2000000" }, { claim_id: 1, action: "sell", side: "yes", amount_micro: "600000", shares_micro: "1000000" }], claims), 0.15);
 });
 
-test("LMSR math matches the contract's figures", () => {
+test("LMSR math matches the contract's figures, buying and selling", () => {
   near(impliedB(0.5, 3 * Math.log(0.5 / 0.4), 0), 3);
   near(impliedB(0.95, 0, 3 * Math.log(0.95 / 0.85)), 3);
   assert.equal(impliedB(0.5, 0, 0), null);
   // the API e2e measured a $1 NO bet on b=$3 moving 50% to 35.83%
   near(1 - buyQuote(0.5, 3, 1).priceAfter, 0.358265, 2e-4);
+  // selling what you bought returns what you paid
+  const q = buyQuote(0.4, 3, 1.5);
+  near(sellQuote(q.priceAfter, 3, q.shares).proceeds, 1.5, 1e-9);
+  near(sellQuote(q.priceAfter, 3, q.shares).priceAfter, 0.4, 1e-9);
+  near(sellQuote(0.9, 3, sharesToTarget(0.9, 0.7, 3)).priceAfter, 0.7, 1e-9);
+  assert.equal(sharesToTarget(0.5, 0.6, 3), 0);
 });
 
 test("credence replies: bad numbers refused, unknown URLs replaced and labelled", () => {
@@ -77,7 +117,7 @@ test("credence replies: bad numbers refused, unknown URLs replaced and labelled"
   assert.throws(() => parseCredence("nope", sources), /no JSON/);
 });
 
-function fakeWeb(pages) {
+export function fakeWeb(pages) {
   return async (url) => {
     const u = String(url);
     const hit = Object.keys(pages).find((k) => u.startsWith(k));
@@ -87,7 +127,7 @@ function fakeWeb(pages) {
   };
 }
 
-const WIKI = {
+export const WIKI = {
   "https://en.wikipedia.org/w/api.php": { body: { query: { search: [{ title: "Banana" }, { title: "Dead" }] } } },
   "https://en.wikipedia.org/api/rest_v1/page/summary/Banana": { body: { title: "Banana", extract: "A banana is botanically a berry.", content_urls: { desktop: { page: "https://en.wikipedia.org/wiki/Banana" } } } },
   "https://en.wikipedia.org/api/rest_v1/page/summary/Dead": { body: { title: "Dead", extract: "Gone.", content_urls: { desktop: { page: "https://en.wikipedia.org/wiki/Dead" } } } },
@@ -117,198 +157,209 @@ test("research: every source answered 200 just now; dead links are dropped; web 
   assert.equal(none.sources.length, 0);
 });
 
-test("signer checks: strict decisions and function-call keys only", () => {
-  const ok = { agent: "house-ledger", claim_id: 3, side: "yes", amount_micro: "2000000", min_shares_micro: "1" };
-  assert.deepEqual(validateDecision(ok), ok);
-  assert.throws(() => validateDecision({ ...ok, amount_micro: "2000001" }), /per-bet cap/);
-  assert.throws(() => validateDecision({ ...ok, amount_micro: "0" }), /positive/);
-  assert.throws(() => validateDecision({ ...ok, side: "maybe" }), /side/);
-  assert.throws(() => validateDecision({ ...ok, method: "withdraw" }), /unexpected fields/);
-  assert.throws(() => validateDecision(ok, { maxBetMicro: 100n }), /per-bet cap/);
+test("signer checks: strict trade decisions, bills, anchors and function-call keys only", () => {
+  const buy = { agent: "a0.swarm.testnet", claim_id: 3, action: "buy", side: "yes", amount_micro: "2000000", min_shares_micro: "1" };
+  assert.deepEqual(validateDecision(buy), buy);
+  assert.throws(() => validateDecision({ ...buy, amount_micro: "2000001" }), /per-bet cap/);
+  assert.throws(() => validateDecision({ ...buy, amount_micro: "0" }), /positive/);
+  assert.throws(() => validateDecision({ ...buy, side: "maybe" }), /side/);
+  assert.throws(() => validateDecision({ ...buy, method: "withdraw" }), /unexpected fields/);
+  assert.throws(() => validateDecision({ ...buy, action: "withdraw" }), /buy or sell/);
+  assert.throws(() => validateDecision({ ...buy, agent: "Not An Account" }), /NEAR account/);
+  assert.throws(() => validateDecision(buy, { maxBetMicro: 100n }), /per-bet cap/);
+  assert.throws(() => validateDecision({ ...buy, shares_micro: "5" }), /amount_micro and min_shares_micro only/);
+  const sell = { agent: "a0.swarm.testnet", claim_id: 3, action: "sell", side: "no", shares_micro: "1500000", min_proceeds_micro: "100" };
+  assert.deepEqual(validateDecision(sell), sell);
+  assert.throws(() => validateDecision({ ...sell, shares_micro: "0" }), /positive/);
+  assert.throws(() => validateDecision({ ...sell, amount_micro: "1" }), /shares_micro and min_proceeds_micro only/);
+  const bill = { agent: "a0.swarm.testnet", route: "escrow", amount_micro: "1500", usage_hash: "ab".repeat(32) };
+  assert.deepEqual(validateBill(bill), bill);
+  assert.throws(() => validateBill({ ...bill, route: "withdraw" }), /route/);
+  assert.throws(() => validateBill({ ...bill, amount_micro: "5000001" }), /per-bill cap/);
+  assert.throws(() => validateBill({ ...bill, usage_hash: "xyz" }), /usage_hash/);
+  const anchor = { claim_id: 0, version: 1, prices_hash: "a".repeat(64), request_hash: "b".repeat(64), response_hash: "c".repeat(64), signature_hex: "d".repeat(128), model: "z-ai/glm-5.3-flash" };
+  assert.deepEqual(validateAnchor(anchor), anchor);
+  assert.throws(() => validateAnchor({ ...anchor, signature_hex: "00" }), /signature_hex/);
   const fc = (receiver_id, method_names) => ({ permission: { FunctionCall: { receiver_id, method_names, allowance: "1" } } });
   assert.equal(checkPermission(fc("m.testnet", ["buy", "sell"]), "m.testnet"), null);
   assert.equal(checkPermission(fc("m.testnet", ["buy", "sell", "redeem"]), "m.testnet"), null, "a swarm agent's key");
   assert.match(checkPermission({ permission: "FullAccess" }, "m.testnet"), /full-access/);
-  assert.match(checkPermission(fc("other.testnet", ["buy"]), "m.testnet"), /not the market/);
+  assert.match(checkPermission(fc("other.testnet", ["buy"]), "m.testnet"), /not m.testnet/);
   assert.match(checkPermission(fc("m.testnet", []), "m.testnet"), /every method/);
   assert.match(checkPermission(fc("m.testnet", ["buy", "withdraw"]), "m.testnet"), /withdraw/);
+  assert.equal(checkPermission(fc("m.testnet", ["anchor_rewrite", "charge_inference"]), "m.testnet", OPERATOR_METHODS.market), null);
+  assert.match(checkPermission(fc("m.testnet", ["anchor_rewrite", "withdraw_treasury"]), "m.testnet", OPERATOR_METHODS.market), /withdraw_treasury/);
+  assert.match(checkPermission(fc("s.testnet", ["sweep_escrow", "close_agent"]), "s.testnet", OPERATOR_METHODS.swarm), /close_agent/);
 });
 
-test("the signer is a separate process: it holds the keys, refuses full-access keys, and signs from decisions alone", async () => {
+/** A mock chain with a swarm: three agents, the keystore holds two of their runner keys. */
+async function swarmChain() {
   const rpc = await startMockRpc();
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "signer-"));
-  const market = "market.testnet";
-  const good = KeyPair.fromRandom("ed25519"), full = KeyPair.fromRandom("ed25519");
-  rpc.st.keys.set(`ledger.testnet|${good.getPublicKey()}`, { nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id: market, method_names: ["buy", "sell"] } } });
-  rpc.addAdminKey("archive.testnet", full.getPublicKey().toString());
-  const keysFile = path.join(dir, "keys.json");
-  fs.writeFileSync(keysFile, JSON.stringify({ agents: { "house-ledger": { accountId: "ledger.testnet", privateKey: good.toString() }, "house-archive": { accountId: "archive.testnet", privateKey: full.toString() } } }));
+  const dir = tmpdir();
+  const ks = path.join(dir, "keystore");
+  const market = "market.testnet", swarm = "swarm.testnet", ops = "house.testnet";
+  const k0 = newRunnerKey(ks, { label: "house-archivist" });
+  const k1 = newRunnerKey(ks, { label: "issued" });
+  const stranger = KeyPair.fromRandom("ed25519").getPublicKey().toString(); // a runner key we don't hold
+  const agents = [
+    { id: 0, account: `a0.${swarm}`, owner: ops, model: MOCK_MODELS[1], persona_hash: "0".repeat(64), runner_public_key: k0.publicKey, escrow_yocto: "100", charged_yocto: "0", sleeping: false, closed: false, deleted: false },
+    { id: 1, account: `a1.${swarm}`, owner: "someone.testnet", model: MOCK_MODELS[0], persona_hash: "1".repeat(64), runner_public_key: k1.publicKey, escrow_yocto: "100", charged_yocto: "0", sleeping: false, closed: false, deleted: false },
+    { id: 2, account: `a2.${swarm}`, owner: "other.testnet", model: MOCK_MODELS[2], persona_hash: "2".repeat(64), runner_public_key: stranger, escrow_yocto: "100", charged_yocto: "0", sleeping: false, closed: false, deleted: false },
+  ];
+  rpc.st.views.set("get_agents", (args) => agents.slice(args.from, args.from + args.limit));
+  const fc = (receiver_id, method_names) => ({ nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id, method_names } } });
+  rpc.st.keys.set(`a0.${swarm}|${k0.publicKey}`, fc(market, ["buy", "sell", "redeem"]));
+  rpc.st.keys.set(`a1.${swarm}|${k1.publicKey}`, fc(market, ["buy", "sell", "redeem"]));
+  const om = operatorKey(ks, "market", { accountId: ops, receiverId: market, methods: OPERATOR_METHODS.market }).rec;
+  const os_ = operatorKey(ks, "swarm", { accountId: ops, receiverId: swarm, methods: OPERATOR_METHODS.swarm }).rec;
+  rpc.st.keys.set(`${ops}|${om.publicKey}`, fc(market, OPERATOR_METHODS.market));
+  rpc.st.keys.set(`${ops}|${os_.publicKey}`, fc(swarm, OPERATOR_METHODS.swarm));
+  const sent = [];
+  rpc.st.onCall = (c) => {
+    sent.push(c);
+    if (c.method === "buy") return { value: { claim_id: c.args.claim_id, trader: c.signer, side: c.args.side, shares_micro: "2000000", amount_micro: c.args.amount_micro, price_yes_ppm_before: 500000, price_yes_ppm_after: 600000, balance_micro: "1" } };
+    if (c.method === "sell") return { value: { claim_id: c.args.claim_id, trader: c.signer, side: `sell_${c.args.side}`, shares_micro: c.args.shares_micro, amount_micro: "700000", price_yes_ppm_before: 600000, price_yes_ppm_after: 550000, balance_micro: "1" } };
+    if (c.method === "sweep_escrow") return { value: "40" };
+    return { value: null };
+  };
+  const secrets = [k0, k1].map((k) => JSON.parse(fs.readFileSync(path.join(ks, `runner-${k.publicKey.replace("ed25519:", "")}.json`), "utf8")).privateKey).concat([om.privateKey, os_.privateKey]);
+  const client = (o = {}) => new SignerClient({ marketId: market, swarmId: swarm, rpcUrls: [rpc.url], keystoreDir: ks, journalFile: path.join(dir, "signer.jsonl"), yoctoPerMicro: 10n, ...o });
+  return { rpc, dir, ks, market, swarm, ops, agents, sent, secrets, client, k0, k1 };
+}
+
+test("the signer drives the swarm agents whose runner key it holds, and only those", async () => {
+  const c = await swarmChain();
   const logs = [];
-  const signer = new SignerClient({ keysFile, marketId: market, rpcUrls: [rpc.url], log: (m) => logs.push(m) });
+  const signer = c.client({ log: (m) => logs.push(m) });
   try {
-    const accepted = await signer.start();
+    const ready = await signer.start();
     assert.notEqual(signer.child.pid, process.pid);
-    assert.equal(accepted.find((a) => a.agent === "house-ledger").ok, true);
-    const refused = accepted.find((a) => a.agent === "house-archive");
-    assert.equal(refused.ok, false);
-    assert.match(refused.error, /full-access/);
-    assert.equal(signer.accountOf("house-archive"), null);
-    const r = await signer.bet({ agent: "house-ledger", claim_id: 7, side: "no", amount_micro: "1500000", min_shares_micro: "100", privateKey: "ignored", note: "ignored" });
-    assert.equal(r.ok, true, r.error);
-    assert.equal(rpc.st.outcomes.get(r.txHash).transaction.signer_id, "ledger.testnet");
-    assert.equal(r.publicKey, good.getPublicKey().toString());
-    assert.equal((await signer.bet({ agent: "house-ledger", claim_id: 7, side: "no", amount_micro: "2000001", min_shares_micro: "0" })).ok, false);
-    assert.match((await signer.bet({ agent: "house-archive", claim_id: 7, side: "no", amount_micro: "100", min_shares_micro: "0" })).error, /no usable key/);
-    const everything = JSON.stringify([logs, accepted, r]);
-    for (const secret of [good.toString(), full.toString()]) assert.ok(!everything.includes(secret), "no key material comes back or is logged");
-    assert.ok(!JSON.stringify(process.env).includes(good.toString()), "the keys never enter this process's environment");
-  } finally { await signer.stop(); await rpc.close(); }
+    assert.deepEqual(ready.filter((a) => a.ok).map((a) => a.accountId).sort(), ["a0.swarm.testnet", "a1.swarm.testnet"]);
+    assert.ok(!ready.some((a) => a.accountId === "a2.swarm.testnet"), "an agent whose key we don't hold is not even listed");
+    const l = await signer.listAgents();
+    assert.equal(l.unheld, 1);
+    assert.equal(l.operator.market.ok, true);
+    assert.deepEqual(l.operator.swarm.methods, ["sweep_escrow"]);
+    const buy = await signer.trade("trade:test:0001", { agent: "a0.swarm.testnet", claim_id: 7, action: "buy", side: "no", amount_micro: "1500000", min_shares_micro: "100", privateKey: "ignored" });
+    assert.equal(buy.ok, true, buy.error);
+    assert.equal(rpc_(c).outcomes.get(buy.txHash).transaction.signer_id, "a0.swarm.testnet");
+    assert.equal(buy.value.amount_micro, "1500000");
+    const sell = await signer.trade("trade:test:0002", { agent: "a1.swarm.testnet", claim_id: 7, action: "sell", side: "yes", shares_micro: "1000000", min_proceeds_micro: "1" });
+    assert.equal(sell.ok, true, sell.error);
+    assert.equal(c.sent.at(-1).method, "sell");
+    assert.deepEqual(c.sent.at(-1).args, { claim_id: 7, side: "yes", shares_micro: "1000000", min_proceeds_micro: "1" });
+    assert.match((await signer.trade("trade:test:0003", { agent: "a2.swarm.testnet", claim_id: 7, action: "buy", side: "no", amount_micro: "100", min_shares_micro: "0" })).error, /no usable key/);
+    // operator: an escrow bill sweeps micro x rate yoctoNEAR; a balance bill charges micro-USDC; an anchor anchors
+    const bill = await signer.bill("bill:test:0001", { agent: "a0.swarm.testnet", route: "escrow", amount_micro: "1234", usage_hash: "ab".repeat(32) });
+    assert.equal(bill.ok, true, bill.error);
+    assert.deepEqual(c.sent.at(-1), { method: "sweep_escrow", args: { agent_id: "a0.swarm.testnet", amount_yocto: "12340", usage_hash: "ab".repeat(32) }, signer: "house.testnet", receiver: "swarm.testnet", publicKey: c.sent.at(-1).publicKey });
+    assert.equal(bill.value, "40");
+    const charge = await signer.bill("bill:test:0002", { agent: "a1.swarm.testnet", route: "balance", amount_micro: "999", usage_hash: "cd".repeat(32) });
+    assert.equal(charge.ok, true);
+    assert.equal(c.sent.at(-1).method, "charge_inference");
+    assert.match((await signer.bill("bill:test:0003", { agent: "a2.swarm.testnet", route: "balance", amount_micro: "1", usage_hash: "cd".repeat(32) })).error, /not an agent this signer runs/);
+    const an = await signer.anchor("anchor:test:p:0:v1", { claim_id: 0, version: 1, prices_hash: "a".repeat(64), request_hash: "b".repeat(64), response_hash: "c".repeat(64), signature_hex: "d".repeat(128), model: "m" });
+    assert.equal(an.ok, true);
+    assert.equal(c.sent.at(-1).method, "anchor_rewrite");
+    // a runner key for a stranger: the signer writes it; only the public key comes back
+    const k = await signer.issueKey("e".repeat(64));
+    assert.match(k.publicKey, /^ed25519:/);
+    assert.ok(fs.existsSync(path.join(c.ks, `runner-${k.publicKey.replace("ed25519:", "")}.json`)));
+    const everything = JSON.stringify([logs, ready, buy, sell, bill, charge, an, k, l]);
+    for (const s of c.secrets) assert.ok(!everything.includes(s), "no key material comes back or is logged");
+  } finally { await signer.stop(); await c.rpc.close(); }
 });
+const rpc_ = (c) => c.rpc.st;
 
-test("the daily spend cap holds inside the signer", async () => {
-  const rpc = await startMockRpc();
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "signer-"));
-  const k = KeyPair.fromRandom("ed25519");
-  rpc.st.keys.set(`ledger.testnet|${k.getPublicKey()}`, { nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id: "market.testnet", method_names: ["buy"] } } });
-  const keysFile = path.join(dir, "keys.json");
-  fs.writeFileSync(keysFile, JSON.stringify({ agents: { a: { accountId: "ledger.testnet", privateKey: k.toString() } } }));
-  const signer = new SignerClient({ keysFile, marketId: "market.testnet", rpcUrls: [rpc.url], dailySpendMicro: 3_000_000 });
+test("the signer's journal: daily spend survives a restart, and an intent is never sent twice", async () => {
+  const c = await swarmChain();
+  let signer = c.client({ dailySpendMicro: 3_000_000 });
   try {
     await signer.start();
-    const bet = () => signer.bet({ agent: "a", claim_id: 1, side: "yes", amount_micro: "2000000", min_shares_micro: "0" });
-    assert.equal((await bet()).ok, true);
-    assert.match((await bet()).error, /daily spend cap/);
-  } finally { await signer.stop(); await rpc.close(); }
+    const d = { agent: "a0.swarm.testnet", claim_id: 1, action: "buy", side: "yes", amount_micro: "2000000", min_shares_micro: "0" };
+    const first = await signer.trade("trade:spend:0001", d);
+    assert.equal(first.ok, true);
+    const n = c.sent.length;
+    const again = await signer.trade("trade:spend:0001", d);
+    assert.equal(again.replayed, true, "the same intent returns its recorded outcome");
+    assert.equal(again.txHash, first.txHash);
+    assert.equal(c.sent.length, n, "and sends nothing");
+    await signer.stop();
+    signer = c.client({ dailySpendMicro: 3_000_000 });
+    await signer.start();
+    assert.equal(signer.ready.spent.agents["a0.swarm.testnet"].spend_micro, "2000000", "today's spend is rebuilt from the journal");
+    assert.match((await signer.trade("trade:spend:0002", d)).error, /daily spend cap/);
+    assert.equal((await signer.outcome("trade:spend:0001")).txHash, first.txHash, "outcomes survive the restart");
+    assert.equal((await signer.outcome("trade:never")).unknownIntent, true);
+    // sells spend nothing, so the cap does not stop them
+    assert.equal((await signer.trade("trade:spend:0003", { agent: "a0.swarm.testnet", claim_id: 1, action: "sell", side: "yes", shares_micro: "1", min_proceeds_micro: "0" })).ok, true);
+    // a refused transaction spends nothing either
+    c.rpc.st.onCall = () => ({ failure: "not enough balance" });
+    const failed = await signer.trade("trade:spend:0004", { ...d, amount_micro: "1000000" });
+    assert.equal(failed.ok, false);
+    assert.equal(failed.final, true);
+    assert.equal((await signer.spent()).agents["a0.swarm.testnet"].spend_micro, "2000000");
+  } finally { await signer.stop(); await c.rpc.close(); }
 });
 
-test("config refuses agent keys in the model process's environment", () => {
+test("an outcome the signer cannot see is never re-sent: it waits for the chain", async () => {
+  const c = await swarmChain();
+  const signer = c.client();
+  try {
+    await signer.start();
+    const d = { agent: "a0.swarm.testnet", claim_id: 1, action: "buy", side: "yes", amount_micro: "100000", min_shares_micro: "0" };
+    assert.equal((await signer.trade("trade:lost:0000", d)).ok, true); // the nonce and block hash are cached now
+    c.rpc.st.down = true; // the next broadcast goes nowhere we can confirm
+    const r = await signer.trade("trade:lost:0001", d);
+    c.rpc.st.down = false;
+    assert.equal(r.ok, false);
+    assert.equal(r.final, false, "signed and broadcast, outcome unknown");
+    assert.match(r.error, /outcome unknown/);
+    assert.ok(r.txHash, "the hash was journaled before the broadcast");
+    const n = c.sent.length;
+    const again = await signer.trade("trade:lost:0001", d);
+    assert.equal(again.pending, true);
+    assert.equal(c.sent.length, n, "not re-sent under a new nonce");
+    assert.equal((await signer.spent()).agents["a0.swarm.testnet"].spend_micro, "200000", "an unknown outcome still counts against the cap");
+  } finally { await signer.stop(); await c.rpc.close(); }
+});
+
+test("the signer refuses operator keys that allow more, and legacy agents keep working", async () => {
+  const c = await swarmChain();
+  const om = JSON.parse(fs.readFileSync(path.join(c.ks, "operator-market.json"), "utf8"));
+  c.rpc.st.keys.set(`${c.ops}|${om.publicKey}`, { nonce: "5", permission: { FunctionCall: { allowance: "1", receiver_id: c.market, method_names: ["anchor_rewrite", "withdraw_treasury"] } } });
+  const full = KeyPair.fromRandom("ed25519");
+  c.rpc.addAdminKey("old.testnet", full.getPublicKey().toString());
+  const good = KeyPair.fromRandom("ed25519");
+  c.rpc.st.keys.set(`ledger.testnet|${good.getPublicKey()}`, { nonce: "5", permission: { FunctionCall: { allowance: "1", receiver_id: c.market, method_names: ["buy", "sell"] } } });
+  const keysFile = path.join(c.dir, "keys.json");
+  fs.writeFileSync(keysFile, JSON.stringify({ agents: { "house-ledger": { accountId: "ledger.testnet", privateKey: good.toString() }, "house-old": { accountId: "old.testnet", privateKey: full.toString() } } }));
+  const signer = c.client({ keysFile });
+  try {
+    const ready = await signer.start();
+    assert.equal(ready.find((a) => a.label === "house-ledger").ok, true);
+    assert.match(ready.find((a) => a.label === "house-old").error, /full-access/);
+    assert.match(signer.ready.operator.market.error, /withdraw_treasury/);
+    assert.match((await signer.anchor("anchor:x:0001", { claim_id: 0, version: 1, prices_hash: "a".repeat(64), request_hash: "b".repeat(64), response_hash: "c".repeat(64), signature_hex: "d".repeat(128), model: "m" })).error, /no usable operator key/);
+    assert.equal(signer.accountOf("house-ledger"), "ledger.testnet");
+    assert.equal((await signer.bet({ agent: "ledger.testnet", claim_id: 2, side: "yes", amount_micro: "100", min_shares_micro: "0" })).ok, true);
+  } finally { await signer.stop(); await c.rpc.close(); }
+});
+
+test("config: agent keys never in the model process's environment; swarm, owners and rates checked", () => {
   assert.match(loadAiConfig({ AGENT_PRIVATE_KEY: "ed25519:x" }).errors.join(), /SIGNER_KEYS_FILE/);
   assert.match(loadAiConfig({ HOUSE_LEDGER_KEY: "ed25519:x" }).errors.join(), /SIGNER_KEYS_FILE/);
   assert.deepEqual(loadAiConfig({ SIGNER_KEYS_FILE: "/x" }).errors, []);
   assert.match(loadAiConfig({ NEARAI_BASE_URL: "http://evil.example/v1" }).errors.join(), /https/);
   assert.match(loadAiConfig({ JURY_ACCOUNT_ID: "a.near" }).errors.join(), /wrong network/);
-});
-
-const CLAIM = { id: 4, page: "botany", text: "Bananas are botanically berries.", status: "Open", price_yes_ppm: 500000, cost_to_move: { up_10_points_usd: 0.669, down_10_points_usd: 0.669 } };
-
-async function swarmSetup({ p = 0.9, credence, bank = 10, key = true } = {}) {
-  const mock = await startMockNearAI();
-  const client = new NearAI({ apiKey: key ? mock.apiKey : null, baseUrl: mock.url });
-  const attestor = new Attestor({ client, quoteVerifier: mock.quoteVerifier, gpuVerifier: mock.gpuVerifier });
-  const hub = new EventHub();
-  const ledger = new Ledger({ pricing: (m) => client.model(m) });
-  const bets = [];
-  const signer = {
-    accountOf: (a) => `${a}.testnet`,
-    bet: async (d) => { bets.push(d); return signer.fail ? { ok: false, error: "rpc down" } : { ok: true, txHash: `tx${bets.length}`, accountId: `${d.agent}.testnet`, trade: { amount_micro: d.amount_micro, shares_micro: "1000000", price_yes_ppm_after: 600000 } }; },
-  };
-  const research = new Research({ fetchImpl: fakeWeb(WIKI) });
-  const agents = [{ name: "house-ledger", model: MOCK_MODELS[2] }, { name: "house-archive", model: MOCK_MODELS[1] }];
-  for (const a of agents) mock.behave(a.model, { content: credence ?? ((body) => JSON.stringify({ p, rationale: "The source says so.", source_url: JSON.parse(body.messages[1].content).sources[0].url })) });
-  const swarm = new Swarm({ agents, client, attestor, claims: { one: async () => CLAIM, all: async () => [CLAIM] }, hub, signer, ledger, research, balanceOf: async () => bank, sweepMs: 0, freshCooldownMs: 0, signatureDeadlineMs: 600 });
-  const events = [];
-  hub.subscribe((e) => { if (e.event === "agent_rationale") events.push(e.data); });
-  return { mock, swarm, hub, signer, bets, events, ledger };
-}
-const fresh = (trader = "alice.testnet", ppm = 500000) => ({ event: "trade", data: { claim_id: 4, trader, side: "no", price_yes_ppm: ppm }, txHash: "txA" });
-
-test("the loop: research, signed credence, policy, then only a decision object reaches the signer", async () => {
-  const { mock, swarm, bets, events, ledger } = await swarmSetup();
-  try {
-    const out = await swarm.onTrade(fresh());
-    assert.equal(out.posted.length, 2);
-    assert.equal(bets.length, 2);
-    for (const d of bets) assert.deepEqual(Object.keys(d).sort(), [...DECISION_FIELDS].sort(), "the signer receives the decision object and nothing else");
-    const e = events[0];
-    assert.equal(e.label, "house");
-    assert.equal(e.side, "yes");
-    assert.ok(e.size_usd > 0 && e.size_usd <= 2);
-    assert.ok(e.tx_hash && e.model && e.agent);
-    assert.equal(e.source_url, "https://en.wikipedia.org/wiki/Banana");
-    assert.equal(e.source_checked.status, 200);
-    assert.equal(e.provenance.status, "signed");
-    assert.equal(e.provenance.signature_kind, "provider_tee");
-    assert.notEqual(e.provenance.signing_address, undefined);
-    const calls = ledger.data.calls.filter((c) => c.purpose === "credence");
-    await new Promise((r) => setTimeout(r, 30));
-    assert.equal(new Set(ledger.data.calls.map((c) => c.agent)).size, 2, "metered per agent");
-    assert.ok(ledger.totals()["house-ledger"].cost_usd > 0 && calls.length >= 1);
-    assert.equal(ledger.betsToday("house-ledger").length, 1);
-    assert.ok(mock.calls.some((c) => c.path === "/v1/attestation/report"));
-  } finally { swarm.stop(); await mock.close(); }
-});
-
-test("no edge on a fresh trade: one agent says 'agree at N%' with its source", async () => {
-  const { mock, swarm, bets, events } = await swarmSetup({ p: 0.51 });
-  try {
-    await swarm.onTrade(fresh());
-    assert.equal(bets.length, 0);
-    assert.equal(events.length, 1);
-    assert.equal(events[0].side, "agree");
-    assert.equal(events[0].text, "agree at 50%");
-    assert.equal(events[0].source_url, "https://en.wikipedia.org/wiki/Banana");
-    assert.equal(events[0].size_usd, 0);
-  } finally { swarm.stop(); await mock.close(); }
-});
-
-test("an agent that disagrees but cannot bet never claims to agree", async () => {
-  const a = await swarmSetup({ p: 0.9, bank: 0 });
-  try {
-    await a.swarm.onTrade(fresh());
-    assert.equal(a.events.length, 1);
-    assert.equal(a.events[0].side, "no_bet");
-    assert.match(a.events[0].text, /no bankroll/);
-  } finally { a.swarm.stop(); await a.mock.close(); }
-  const b = await swarmSetup({ p: 0.9 });
-  try {
-    b.signer.fail = true;
-    await b.swarm.onTrade(fresh());
-    assert.equal(b.events.length, 1);
-    assert.equal(b.events[0].side, "no_bet");
-    assert.equal(b.events[0].tx_hash, null);
-    assert.equal(b.ledger.betsToday("house-ledger").length, 0);
-  } finally { b.swarm.stop(); await b.mock.close(); }
-});
-
-test("no verified signature, no bet: a tampered credence is not even posted", async () => {
-  const a = await swarmSetup({ p: 0.9 });
-  try {
-    for (const m of [MOCK_MODELS[1], MOCK_MODELS[2]]) a.mock.behave(m, { tamper: true });
-    await a.swarm.onTrade(fresh());
-    assert.equal(a.bets.length, 0);
-    assert.equal(a.events.length, 0);
-  } finally { a.swarm.stop(); await a.mock.close(); }
-  const b = await swarmSetup({ p: 0.9 });
-  try {
-    for (const m of [MOCK_MODELS[1], MOCK_MODELS[2]]) b.mock.behave(m, { noSignature: true });
-    await b.swarm.onTrade(fresh());
-    assert.equal(b.bets.length, 0);
-    assert.equal(b.events[0].side, "no_bet");
-    assert.equal(b.events[0].provenance.verified, false);
-  } finally { b.swarm.stop(); await b.mock.close(); }
-});
-
-test("agents never answer their own trades, and with no working source they stay silent", async () => {
-  const { mock, swarm, hub, bets, events } = await swarmSetup();
-  try {
-    swarm.start();
-    hub.publish({ uid: "own", event: "trade", data: { claim_id: 4, trader: "house-ledger.testnet", price_yes_ppm: 500000 } });
-    await new Promise((r) => setTimeout(r, 100));
-    assert.equal(swarm.stats.triggers, 0);
-    swarm.research = new Research({ fetchImpl: async () => { throw new Error("offline"); } });
-    await swarm.onTrade(fresh());
-    assert.equal(bets.length, 0);
-    assert.equal(events.length, 0, "no rationale without a URL that answers 200");
-  } finally { swarm.stop(); await mock.close(); }
-});
-
-test("the daily loss limit stops an agent inside the loop", async () => {
-  const { mock, swarm, bets, ledger } = await swarmSetup({ p: 0.9 });
-  try {
-    swarm.claims.all = async () => [{ ...CLAIM, price_yes_ppm: 10000, id: 4 }];
-    for (const agent of ["house-ledger", "house-archive"]) await ledger.recordBet({ agent, claim_id: 4, side: "yes", amount_micro: "6000000", shares_micro: "6000000" });
-    await swarm.onTrade(fresh());
-    assert.equal(bets.length, 0);
-    assert.equal(DEFAULT_POLICY.dailyLossLimitUsd, 5);
-  } finally { swarm.stop(); await mock.close(); }
+  assert.match(loadAiConfig({ SWARM_CONTRACT_ID: "swarm.near" }).errors.join(), /wrong network/);
+  assert.match(loadAiConfig({ HOUSE_OWNER_IDS: "x.near" }).errors.join(), /wrong network/);
+  assert.match(loadAiConfig({ AGENT_BILLING: "free" }).errors.join(), /AGENT_BILLING/);
+  assert.match(loadAiConfig({ INFERENCE_YOCTO_PER_MICRO_USD: "1.5" }).errors.join(), /yoctoNEAR/);
+  const { ai } = loadAiConfig({ AGENT_BILLING_OVERRIDES: "house-quant=balance", DATA_DIR: "/d" });
+  assert.equal(ai.agents.billing.overrides["house-quant"], "balance");
+  assert.equal(ai.agents.billing.yoctoPerMicro, 400_000_000_000_000_000n, "testnet default: $1 = 0.4 NEAR");
+  assert.equal(path.normalize(ai.agents.keystoreDir), path.normalize("/d/keystore"));
+  assert.equal(DECISION_FIELDS.includes("privateKey"), false);
+  assert.equal(DEFAULT_POLICY.minSellUsd, 0.05);
 });

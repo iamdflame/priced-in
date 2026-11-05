@@ -97,9 +97,10 @@ function defaultContent(model, req) {
 }
 
 /**
- * @param {{ models?: string[], apiKey?: string, searchResults?: object[] }} [o]
+ * @param {{ models?: string[], apiKey?: string, searchResults?: object[], pricing?: Record<string, object> }} [o]
+ *   pricing: per-model USD-per-token prices for /v1/models (default prompt 1e-7, completion 1e-6)
  */
-export async function startMockNearAI({ models = MOCK_MODELS, apiKey = "mock-key", searchResults = [] } = {}) {
+export async function startMockNearAI({ models = MOCK_MODELS, apiKey = "mock-key", searchResults = [], pricing = {} } = {}) {
   const keys = new Map(models.map((m) => [m, nacl.sign.keyPair()]));
   const gatewayKey = nacl.sign.keyPair();
   const behaviour = new Map(); // model -> { content, down, noSignature, signatureDelayMs, tamper, wrongSigner, gatewaySigned, latencyMs, attestation }
@@ -125,7 +126,7 @@ export async function startMockNearAI({ models = MOCK_MODELS, apiKey = "mock-key
     if (b.latencyMs) await new Promise((r) => setTimeout(r, b.latencyMs));
     if (b.down) return json(res, 503, { error: { message: "model unavailable" } });
     const id = `chatcmpl-${(++seq).toString(36)}${randomBytes(6).toString("hex")}`;
-    const content = typeof b.content === "function" ? b.content(body) : b.content ?? defaultContent(model, body);
+    const content = (typeof b.content === "function" ? b.content(body) : b.content) ?? defaultContent(model, body); // a function may return null to keep the default
     const promptTokens = Math.ceil(raw.length / 4);
     const completionTokens = Math.ceil(content.length / 4);
     if (body.stream) {
@@ -189,7 +190,7 @@ export async function startMockNearAI({ models = MOCK_MODELS, apiKey = "mock-key
       const p = url.pathname;
       try {
         if (req.method === "GET" && p === "/v1/models") {
-          return json(res, 200, { object: "list", data: models.map((id) => ({ id, object: "model", owned_by: "nearai", output_modalities: ["text"], pricing: { prompt: "0.0000001", completion: "0.000001", input_cache_read: "0.00000001" } })) });
+          return json(res, 200, { object: "list", data: models.map((id) => ({ id, object: "model", owned_by: "nearai", output_modalities: ["text"], pricing: pricing[id] || { prompt: "0.0000001", completion: "0.000001", input_cache_read: "0.00000001" } })) });
         }
         if (req.method === "POST" && p === "/v1/chat/completions") return chat(req, res, raw);
         const m = p.match(/^\/v1\/signature\/([^/]+)$/);
