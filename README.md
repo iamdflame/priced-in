@@ -72,6 +72,62 @@ All public values are in `deployments/testnet.json`. It holds no key.
 
 Code hashes are the base58 sha256 that NEAR reports: market `CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2` and swarm `FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q`. Both are rebuilt by `node tools/judge/repro.mjs`.
 
+## Agents: the truth API and MCP
+
+Before an agent acts on a claim, it can ask Priced In how sure to be, and get an answer with money behind it.
+
+**Install in Claude Code** (one line, from the repo root, after `npm ci`):
+
+```
+claude mcp add pricedin -e PRICEDIN_API_URL=http://127.0.0.1:8787 -- npx -y ./tools/mcp
+```
+
+**Any other MCP client** (Claude Desktop, Cursor and others; use the absolute path of your clone):
+
+```json
+{
+  "mcpServers": {
+    "pricedin": {
+      "command": "npx",
+      "args": ["-y", "/path/to/priced-in/tools/mcp"],
+      "env": { "PRICEDIN_API_URL": "http://127.0.0.1:8787", "NEAR_NETWORK": "testnet" }
+    }
+  }
+}
+```
+
+**Streamable HTTP** instead of stdio: run `npm run mcp -- --http --port 8788`, then `claude mcp add --transport http pricedin http://127.0.0.1:8788/mcp`.
+
+The hosted API is not public yet, so run one on the testnet deployment first:
+
+```
+MARKET_CONTRACT_ID=market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet \
+USDC_CONTRACT_ID=tusdc.pimw3dxfzp.basalt-lane-mw2skhdc.testnet \
+REWRITE_EVIDENCE_FILES=tools/judge/evidence/rewrite.json npm run api
+```
+
+| Tool | What it does |
+|---|---|
+| `ask` | The credence call: `GET /v1/credence?q=`. It finds the matching claims: an exact page sentence first, then the closest claims by text. Matching is lexical and runs offline; no embeddings are used. For each claim it gives the price as a credence, the open interest, the cost to move it 10 points, the latest agents' rationales with source URLs, the resolution state, and provenance: the contract, the claim id and the last rewrite's signature and anchor. With no match it says so and offers to open the claim, through the paste flow's signed receipts. |
+| `get_claim` | The same answer for one claim id. When no paid call is possible, it falls back to the bare on-chain view. |
+| `quote` | The LMSR cost of a bet, from `GET /v1/quote`: the shares, the payout if right, the price after, and the exact `buy` call. It places nothing. |
+| `bet` | Places the bet with **your own** NEAR key, read from `NEAR_ACCOUNT_ID` and `NEAR_PRIVATE_KEY` in the MCP server's environment. Without a key it refuses. It deposits what your market balance lacks (on testnet, from the test USDC faucet if needed), then calls `buy` with a 1% slippage floor. Bets are capped by `PRICEDIN_MAX_BET_USD`, $5 by default. |
+
+**Paying.** Each address gets 20 free credence calls a day. Past that, a call costs $0.01 in USDC by [x402](https://www.x402.org/) v2, using the NEAR `exact` scheme:
+- The API answers `402` with a `PAYMENT-REQUIRED` header.
+- Any x402 client signs one NEP-366 `ft_transfer` and retries with `PAYMENT-SIGNATURE`. For example, `@fastnear/x402`'s `createNearPaymentFetch` with your key.
+- Our own facilitator verifies the payment, the API answers, and then the payment settles on chain. The answer carries the settled receipt in `PAYMENT-RESPONSE` and as `payment.explorer`.
+- A failed answer is never settled. An unsettled payment gets no answer.
+- With a key set, the MCP server pays on its own, up to `PRICEDIN_MAX_PAY_USD` ($0.05 a call by default). `PRICEDIN_PAY=0` turns paying off.
+
+The defaults are testnet and test USDC. Mainnet values are configured (native USDC), but they are used only when `NEAR_NETWORK=mainnet` is set explicitly, and both the API and the MCP server refuse to mix networks.
+
+```
+curl -s "http://127.0.0.1:8787/v1/credence?q=Does%20Tether%20issue%20USDT%20on%20NEAR%3F"
+npm run truth:smoke    # testnet: asks about the Tether page, runs the MCP over stdio, pays once with x402
+npm run mcp:test       # offline: the four tools, stdio and HTTP, against a local API
+```
+
 ## Layout
 
 | Path | What |
@@ -79,7 +135,8 @@ Code hashes are the base58 sha256 that NEAR reports: market `CNCKYkjR7SAepL4KcCS
 | `contracts/market` | The market: LMSR claims, the lane, challenges, verdicts checked on-chain, the dispute window, the council, `anchor_rewrite`. |
 | `contracts/swarm`, `contracts/agent-wallet` | Agents spawned in one transaction, with metered escrow. |
 | `crates/lmsr`, `crates/rules` | The maths and the resolution rules, as pure Rust the contract calls. |
-| `services/api`, `services/ai` | The read API, SSE, lane keys and planner; the writer, the agents and the jury runner. |
+| `services/api`, `services/ai` | The read API, SSE, lane keys and planner, and the truth API (`/v1/credence`, x402); the writer, the agents and the jury runner. |
+| `tools/mcp` | `pricedin-mcp`, the MCP server for agents: `ask`, `get_claim`, `quote`, `bet`. |
 | `web/` | The browser engine: LMSR port, no-wallet bet, rewrite verification. |
 | `corpus/` | The measured Wikipedia corpus. |
 | `tools/judge/` | This judge run. `deployments/` holds the testnet deployment. |
@@ -88,7 +145,7 @@ Code hashes are the base58 sha256 that NEAR reports: market `CNCKYkjR7SAepL4KcCS
 
 - **AI-written code:** this repository's code, tests and docs were written by an AI coding agent (Claude Code, Anthropic) directed by the entrant, and reviewed through the tests and checks above.
 - **Rust:** `near-sdk` 5.30, `near-contract-standards`, `serde` 1.0.229, `serde_json` 1.0.154 (see `Cargo.lock`).
-- **Node:** `near-api-js` 7, `tweetnacl` 1, `@phala/dcap-qvl` 0.7.1 (TDX quote verification).
+- **Node:** `near-api-js` 7, `tweetnacl` 1, `@phala/dcap-qvl` 0.7.1 (TDX quote verification), `@fastnear/x402` 2.5.0 (x402 on NEAR: the facilitator and the paying client; it brings `@x402/core` and `@x402/near`).
 - **Web:** `@noble/curves` and `@noble/hashes` 2.2, `vite` 8, `vitest` 5, `typescript` 7. Playwright is optional, for `npm run web:e2e`.
 - **Services used:** NEAR testnet RPC (FastNEAR, near.org), NEAR AI Cloud attestation endpoints, the 1Click API, and Wikipedia (CC BY-SA 4.0 text in `corpus/`, attributed per page).
 - The judge itself uses only Node's standard library.
