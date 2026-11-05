@@ -81,7 +81,7 @@ function patient(account) {
       return async (...args) => {
         for (let i = 0; ; i++) {
           try { return await v.apply(t, args); }
-          catch (e) { if (i >= 8 || !SAFE_TO_RESEND.test(String(e?.message || e))) throw e; await sleep(4000 * (i + 1)); }
+          catch (e) { if (i >= 14 || !SAFE_TO_RESEND.test(String(e?.message || e))) throw e; await sleep(Math.min(30000, 4000 * (i + 1))); }
         }
       };
     },
