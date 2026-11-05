@@ -1,0 +1,250 @@
+{
+ "slug": "dai",
+ "title": "Dai (cryptocurrency)",
+ "revid": 1375647492,
+ "timestamp": "2026-09-19T03:29:12Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Dai_(cryptocurrency)&oldid=1375647492",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Dai (cryptocurrency)\", English Wikipedia, revision 1375647492 (2026-09-19T03:29:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 9,
+  "sourced": 21,
+  "opinion": 6
+ },
+ "sentences": [
+  {
+   "id": "dai-0001",
+   "section": "(lead)",
+   "text": "DAI (or DAI, formerly Sai or SAI) is a stablecoin token on the Ethereum blockchain which uses smart contracts designed to control supply to keep its value as close to one United States dollar as possible.",
+   "class": "data",
+   "claim": "DAI is a stablecoin token on Ethereum using contracts to hold $1",
+   "asOf": null
+  },
+  {
+   "id": "dai-0002",
+   "section": "(lead)",
+   "text": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.",
+   "class": "data",
+   "claim": "DAI is maintained by MakerDAO, a DAO of MKR owners who vote on parameters",
+   "asOf": null
+  },
+  {
+   "id": "dai-0003",
+   "section": "(lead)",
+   "text": "MakerDAO was described in a 2020 Bloomberg article as the first example of a decentralized application to receive significant adoption.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0004",
+   "section": "(lead)",
+   "text": "In August 2024 MakerDAO was rebranded as Sky.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0005",
+   "section": "History",
+   "text": "MakerDAO was formed in 2014 by Danish entrepreneur Rune Christensen.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0006",
+   "section": "History",
+   "text": "According to Christensen, the name of the cryptocurrency is based on the Chinese character 貸, which he translated as \"to lend or to provide capital for a loan\".",
+   "class": "opinion"
+  },
+  {
+   "id": "dai-0007",
+   "section": "History",
+   "text": "MakerDAO was one of the earliest apps in decentralized finance, allowing users to trade and lend money to each other without intermediaries.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0008",
+   "section": "History",
+   "text": "Its stablecoin DAI is crypto-backed, most commonly with ether, although it is still pegged to the US dollar.",
+   "class": "data",
+   "claim": "DAI is crypto-backed, most commonly with ether",
+   "asOf": null
+  },
+  {
+   "id": "dai-0009",
+   "section": "History",
+   "text": "Unlike centralized stablecoins, DAI issuance isn't controlled by one entity.",
+   "class": "data",
+   "claim": "DAI issuance is not controlled by one entity",
+   "asOf": null
+  },
+  {
+   "id": "dai-0010",
+   "section": "History",
+   "text": "On December 18, 2017, DAI was launched on the main Ethereum network.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0011",
+   "section": "History",
+   "text": "The price of DAI was successfully kept close to one US dollar during its first year of existence, even though the price of Ether, the only collateral available at the time, declined by more than 80% during the same time period.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0012",
+   "section": "History",
+   "text": "In September 2018, venture capital firm Andreessen Horowitz invested $15 million in MakerDAO by purchasing 6% of all MKR tokens.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0013",
+   "section": "History",
+   "text": "In 2018, MakerDAO formed the Maker Foundation, run from Copenhagen, which funds projects in the system, such as the writing of code needed for the platform to function and adapt.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0014",
+   "section": "History",
+   "text": "In 2019, MakerDAO experienced an internal struggle over whether to integrate more with the traditional financial system.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0015",
+   "section": "History",
+   "text": "Christensen wanted greater regulatory compliance to allow for assets besides cryptocurrency to serve as collateral for DAI.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0016",
+   "section": "History",
+   "text": "The struggle led to the departure of MakerDAO's CTO.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0017",
+   "section": "History",
+   "text": "In March 2020, as a result of market volatility at the onset of the COVID-19 pandemic, DAI experienced a deflationary deleveraging spiral that, at its peak, caused it to trade for up to USD $1.11 before returning to its intended $1.00 valuation.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0018",
+   "section": "History",
+   "text": "MakerDAO had been used by Societe Generale and Huntington Valley Bank by August 2024, and had invested in US Treasuries.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0019",
+   "section": "History",
+   "text": "In August 2024 MakerDAO was rebranded as Sky.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0020",
+   "section": "History",
+   "text": "By the end of the 2025, Sky was considered the third largest issuer of stablecoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0021",
+   "section": "History",
+   "text": "It's flagship stablecoin was USDS.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0022",
+   "section": "History",
+   "text": "According to a press release from the Sky Frontier Foundation, it estimated $611 million in gross revenue for 2025 from its ecosystem, with a $21 billion supply in USDS in early 2026.",
+   "class": "opinion"
+  },
+  {
+   "id": "dai-0023",
+   "section": "Overview",
+   "text": "DAI is created and destroyed through an overcollateralized loan and repayment process facilitated by MakerDAO's smart contracts in the form of a decentralized application.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0024",
+   "section": "Overview",
+   "text": "Users who deposit one of the accepted collateral types (such as Ether) into a contract are able to mint new DAI, as a loan, against the value of their collateral.",
+   "class": "data",
+   "claim": "depositing accepted collateral mints DAI as a loan",
+   "asOf": null
+  },
+  {
+   "id": "dai-0025",
+   "section": "Overview",
+   "text": "The USD value of the collateral at any given time divided by the amount of DAI borrowed is the loan's \"collateralization ratio\"; this is calculated using the USD price of a unit of the collateral asset as reported regularly to a contract by a set of decentralized oracles.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0026",
+   "section": "Overview",
+   "text": "Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.",
+   "class": "data",
+   "claim": "each loan type has a fixed minimum ratio, usually 110-200%",
+   "asOf": null
+  },
+  {
+   "id": "dai-0027",
+   "section": "Overview",
+   "text": "If the collateralization ratio of a loan falls below the minimum ratio, anyone may call a certain function of the contract to cause a portion of the collateral to be sold for DAI on a decentralized exchange, which is then used to pay off the debt and pay a reward to the account that called the function.",
+   "class": "opinion"
+  },
+  {
+   "id": "dai-0028",
+   "section": "Overview",
+   "text": "Setting a minimum ratio well above 100% provides enough time to sell the collateral to cover the debt in the event of a flash crash in the price of the collateral asset; generally, the lower a minimum ratio is, the higher the interest rate will be, to offset the systemic risk.",
+   "class": "opinion"
+  },
+  {
+   "id": "dai-0029",
+   "section": "Overview",
+   "text": "Upon repayment of the loan and its accrued interest, the returned DAI is automatically destroyed, and the collateral is made available for withdrawal.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0030",
+   "section": "Overview",
+   "text": "In this way the USD value of DAI can be said to be backed by the USD value of the underlying collateral held by MakerDAO's smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0031",
+   "section": "Overview",
+   "text": "By controlling the types of accepted collateral, minimum collateralization ratios, and the interest rates for borrowing or storing DAI, MakerDAO is able to control the amount of DAI in circulation, and thus its value.",
+   "class": "sourced"
+  },
+  {
+   "id": "dai-0032",
+   "section": "Overview",
+   "text": "The ability to propose and implement changes to such variables is granted, through code, to holders of the MKR token.",
+   "class": "data",
+   "claim": "changing the variables is granted to holders of the MKR token",
+   "asOf": null
+  },
+  {
+   "id": "dai-0033",
+   "section": "Overview",
+   "text": "Owners of the governance token are able to vote on proposed modifications in equal proportion to the amount of tokens they hold.",
+   "class": "data",
+   "claim": "owners of the governance token vote in proportion to tokens held",
+   "asOf": null
+  },
+  {
+   "id": "dai-0034",
+   "section": "Overview",
+   "text": "The MKR token also serves as an investment in the MakerDAO system.",
+   "class": "opinion"
+  },
+  {
+   "id": "dai-0035",
+   "section": "Overview",
+   "text": "Added interest that borrowers pay back, on top of their loan's principal, is used to buy MKR tokens from the market and \"burn\" them, taking them permanently out of circulation.",
+   "class": "data",
+   "claim": "interest is used to buy MKR and burn it",
+   "asOf": null
+  },
+  {
+   "id": "dai-0036",
+   "section": "Overview",
+   "text": "This mechanism aims to make MKR deflationary in correlation to the revenues from lending DAI.",
+   "class": "opinion"
+  }
+ ]
+}

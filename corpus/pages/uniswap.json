@@ -1,0 +1,262 @@
+{
+ "slug": "uniswap",
+ "title": "Uniswap",
+ "revid": 1379919424,
+ "timestamp": "2026-10-12T17:50:08Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Uniswap&oldid=1379919424",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Uniswap\", English Wikipedia, revision 1379919424 (2026-10-12T17:50:08Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 18,
+  "sourced": 16,
+  "opinion": 1
+ },
+ "sentences": [
+  {
+   "id": "uniswap-0001",
+   "section": "(lead)",
+   "text": "Uniswap is a decentralized cryptocurrency exchange protocol built on the Ethereum blockchain.",
+   "class": "data",
+   "claim": "Uniswap is a DEX protocol built on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0002",
+   "section": "(lead)",
+   "text": "It enables the automated trading of digital assets through smart contracts, eliminating the need for intermediaries or centralized order books.",
+   "class": "data",
+   "claim": "trades through smart contracts without order books",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0003",
+   "section": "(lead)",
+   "text": "Uniswap facilitates cryptocurrency tokens swaps using liquidity pools contributed by users.",
+   "class": "data",
+   "claim": "swaps use liquidity pools from users",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0004",
+   "section": "(lead)",
+   "text": "The protocol, which runs on open-source software, was launched in 2018.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0005",
+   "section": "(lead)",
+   "text": "As of December 2024, Uniswap is estimated to be the largest decentralized exchange and the seventh-largest cryptocurrency exchange overall by daily trading volume.",
+   "class": "data",
+   "claim": "as of December 2024 largest DEX and 7th-largest exchange overall by daily volume",
+   "asOf": "2024-12"
+  },
+  {
+   "id": "uniswap-0006",
+   "section": "History",
+   "text": "Uniswap was created on November 2, 2018 by Hayden Adams, a former mechanical engineer at Siemens.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0007",
+   "section": "History",
+   "text": "Adams is the founder and CEO of Uniswap Labs, the company responsible for the development of the Uniswap Protocol, a decentralized exchange (DEX) built on the Ethereum blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0008",
+   "section": "History",
+   "text": "Adams launched Uniswap in November 2018, after working as a mechanical engineer and being inspired by a blog post written by Vitalik Buterin, the co-founder of Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0009",
+   "section": "History",
+   "text": "His goal was to create a decentralized platform for exchanging tokens without relying on centralized exchanges.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0010",
+   "section": "History",
+   "text": "Uniswap operates using open-source software on blockchain networks, and allows users to exchange cryptocurrencies directly from their wallets.",
+   "class": "data",
+   "claim": "Uniswap runs open-source software and trades directly from wallets",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0011",
+   "section": "History",
+   "text": "Governance of the protocol is managed by holders of its native governance token, UNI, which was introduced in 2020 and distributed retroactively to early users.",
+   "class": "data",
+   "claim": "governance by UNI holders; UNI introduced in 2020",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0012",
+   "section": "History",
+   "text": "While UNI is used to vote on protocol upgrades and changes, it is not required to use the platform.",
+   "class": "data",
+   "claim": "UNI is used for voting and not required to use the platform",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0013",
+   "section": "History",
+   "text": "Uniswap introduced the Automated Market Maker (AMM) model, which allows users to trade cryptocurrencies directly from their wallets.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0014",
+   "section": "History / Uniswap Labs",
+   "text": "Uniswap Labs is a software company founded in 2018 by Hayden Adams.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0015",
+   "section": "History / Uniswap Labs",
+   "text": "The company's early investors included venture capital firms like Andreessen Horowitz, Paradigm Operations, Union Square Ventures LLC and ParaFi.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0016",
+   "section": "History / Uniswap Labs",
+   "text": "In 2022 Uniswap Labs had raised $165 million, after announcing in 2021 that it was looking to raise between $100 and $200 million and was working with Polychain.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0017",
+   "section": "History / Uniswap Labs",
+   "text": "Uniswap offers products such as a self-custodial mobile wallet, a trading API for professional users, and a web interface.",
+   "class": "data",
+   "claim": "offers a self-custodial mobile wallet, a trading API and a web interface",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0018",
+   "section": "History / Uniswap Labs",
+   "text": "These tools provide access to liquidity across multiple blockchains, including Ethereum, Polygon, and Optimism.",
+   "class": "data",
+   "claim": "products reach Ethereum, Polygon and Optimism",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0019",
+   "section": "History / Uniswap Foundation",
+   "text": "The Uniswap Foundation was founded in 2022 by Devin Walsh and Ken Ng, after 95% of Uniswap token holders voted in favor of the proposal.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0020",
+   "section": "History / Uniswap Foundation",
+   "text": "The Foundation facilitates community governance of the Uniswap DAO, development of the Uniswap Protocol, and communication among contributors.",
+   "class": "data",
+   "claim": "the Foundation supports governance and protocol development",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0021",
+   "section": "History / Uniswap Foundation",
+   "text": "Uniswap Foundation's most recent funding proposal, Uniswap Unleashed, outlined a plan to make the Uniswap Protocol the world’s infrastructure for digital value transfer with significant support for Uniswap v4 and Unichain.",
+   "class": "data",
+   "claim": "Uniswap Unleashed is the Foundation's most recent funding proposal",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0022",
+   "section": "History / Uniswap Foundation",
+   "text": "It passed with overwhelming support.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0023",
+   "section": "Protocol",
+   "text": "Uniswap acts as an automated market maker and uses liquidity pools to fulfill orders, instead of relying on a traditional market maker, with an aim to create more efficient markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0024",
+   "section": "Protocol",
+   "text": "Individuals and bots—termed \"liquidity providers\"—provide liquidity to the exchange by adding a pair of tokens to a smart contract which can be bought and sold by other users according to the constant-product rule .",
+   "class": "data",
+   "claim": "LPs add token pairs; constant-product rule",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0025",
+   "section": "Protocol",
+   "text": "In return, liquidity providers are given a percentage of the trading fees earned for that trading pair.",
+   "class": "data",
+   "claim": "LPs earn a percentage of trading fees",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0026",
+   "section": "Protocol",
+   "text": "For each trade, a certain amount of tokens is removed from the pool for an amount of the other token, thereby changing the price.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0027",
+   "section": "Protocol",
+   "text": "No fees are required to list tokens.",
+   "class": "data",
+   "claim": "no fees are required to list tokens",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0028",
+   "section": "Protocol",
+   "text": "Version 3, released on 5 May 2021, added concentrated liquidity, which lets liquidity providers supply capital within a chosen price range instead of across all prices.",
+   "class": "opinion"
+  },
+  {
+   "id": "uniswap-0029",
+   "section": "Protocol",
+   "text": "Version 4, released on 31 January 2025, introduced \"hooks\", contracts that customise how individual pools behave, and consolidated liquidity into a single smart contract.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0030",
+   "section": "Protocol",
+   "text": "In December 2025, Uniswap governance approved the “UNIfication” proposal, enabling protocol fees (the “fee switch”) and introducing a deflationary mechanism tied to protocol revenue.",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0031",
+   "section": "Protocol",
+   "text": "Under the rollout described by Uniswap, Uniswap v2 pools would shift from a 0.30% liquidity-provider fee to 0.25% for liquidity providers plus a 0.05% protocol fee, while selected Uniswap v3 pools would route a portion of LP fees to the protocol depending on the pool’s fee tier; the proposal also included a one-time burn of 100 million UNI from the treasury after a timelock period and an ongoing burn mechanism funded by protocol fees (including sequencer revenue from Unichain after costs and allocations).",
+   "class": "sourced"
+  },
+  {
+   "id": "uniswap-0032",
+   "section": "UNI token",
+   "text": "UNI is the governance token of the Uniswap protocol, enabling holders to participate in the platform's decentralized governance.",
+   "class": "data",
+   "claim": "UNI is the governance token",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0033",
+   "section": "UNI token",
+   "text": "The token allows holders to propose and vote on protocol upgrades, changes to fee structures, and other governance-related matters.",
+   "class": "data",
+   "claim": "UNI holders can propose and vote",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0034",
+   "section": "UNI token",
+   "text": "UNI operates on the Ethereum blockchain following the ERC-20 standard, ensuring compatibility with a wide range of decentralized applications.",
+   "class": "data",
+   "claim": "UNI is an ERC-20 token on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "uniswap-0035",
+   "section": "UNI token",
+   "text": "Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.",
+   "class": "data",
+   "claim": "UNI total supply is capped, with scheduled release",
+   "asOf": null
+  }
+ ]
+}

@@ -1,0 +1,360 @@
+# id | checkable claim | sentence's own date (blank if undated). Every id listed is classed `data`. Written before any verdict work.
+near-0001|NEAR uses proof of stake and provides smart contracts|
+near-0002|native token is NEAR|
+ethereum-0001|Ethereum has smart contract functionality|
+ethereum-0002|native coin is ether (ETH)|
+ethereum-0003|ether is 2nd by market cap, behind only bitcoin|
+ethereum-0004|Ethereum is open-source software|
+ethereum-0008|anyone can deploy applications to Ethereum|
+ethereum-0011|users can create ERC-20 tokens, NFTs and smart contracts|
+ethereum-0034|Mist browser is defunct|
+ethereum-0042|protocol upgrades are done by hard fork|
+ethereum-0060|ether held 2nd place by market cap as of 2021|2021
+ethereum-0069|part of each block's fees is destroyed (EIP-1559)|
+ethereum-0075|switch to PoS cut Ethereum energy use by over 99%|
+ethereum-0079|blob data is stored only temporarily and is cheaper than calldata|
+ethereum-0085|Ethereum is a p2p network maintaining account state and processing transactions|
+ethereum-0086|a block about every 12 seconds|
+ethereum-0087|each block carries the hash of its parent|
+ethereum-0094|staking 32 or more ETH registers a validator|
+ethereum-0095|epoch is 32 slots, slot is 12 seconds, duties assigned for the epoch after next|
+ethereum-0097|self-contradiction or inactivity loses part of a validator's stake|
+ethereum-0098|any account may add ETH to a validator at any time|
+ethereum-0099|attestation weight equals stake capped at 2,048|
+ethereum-0100|canonical chain is the one with highest accumulated attestation weight|
+ethereum-0104|ETH is generated as a reward to validators|
+ethereum-0105|1 ether = 10^18 wei|
+ethereum-0106|new ETH is added to validator balances at the end of each epoch|
+ethereum-0107|ether is the only currency accepted for the transaction fee|
+ethereum-0108|fee has two parts, base fee and tip|
+ethereum-0109|base fee is burned and tip goes to the block proposer|
+ethereum-0115|two account types, EOAs and contract accounts|
+ethereum-0117|EOAs are the only type of account that may create transactions|
+ethereum-0118|EOA private key is a 64-character hex string|
+ethereum-0119|contracts are the only account type with bytecode and storage|
+ethereum-0123|the EVM is the runtime for transaction execution|
+ethereum-0124|the EVM is a stack-based virtual machine|
+ethereum-0127|formal definition of the EVM is in the Yellow Paper|
+ethereum-0128|EVM implemented in C++, C#, Go, Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang, and soon WebAssembly|
+ethereum-0130|each operation has a hardcoded gas cost|
+ethereum-0131|sender must specify a gas limit and gas price|
+ethereum-0133|a transaction needs a gas price at or above the block base fee|
+ethereum-0134|excess over base fee is a priority fee that goes to the proposer|
+ethereum-0135|gas is bought up front and unused gas refunded|
+ethereum-0136|out-of-gas reverts the transaction|
+ethereum-0137|1 gwei = 0.000000001 ETH|
+ethereum-0139|EVM instruction set is Turing-complete|
+ethereum-0141|contracts are compiled to EVM bytecode|
+ethereum-0142|contracts can be written in Solidity and others|
+ethereum-0146|ERC-20 is the fungible token standard on Ethereum|
+ethereum-0148|ERC-20 provides transfer, balance and total supply functions|
+ethereum-0151|Ethereum allows NFTs|
+ethereum-0153|ERC-721 first official NFT standard, followed by ERC-1155|
+ethereum-0159|MakerDAO is an example DeFi platform|
+ethereum-0161|over US$11 billion invested in DeFi as of October 2020|2020-10
+ethereum-0163|Aave is a protocol for lending on Ethereum|
+ethereum-0170|max L1 throughput 238 TPS given 60M gas limit, 12s blocks, 21k gas transfers|2025-12
+ethereum-0171|average throughput is much less than the maximum|
+ethereum-0172|about 25 TPS as of January 2016, unchanged after proof of stake|2016-01
+ethereum-0173|Visa processes 45,000 payments per second|
+ethereum-0175|Ethereum uses a Merkle-Patricia tree for account state|
+ethereum-0180|L2 types include optimistic and zk rollups|
+ethereum-0181|some L2 chains can process thousands of TPS|
+ethereum-0183|US regulators signal ether is a commodity under the CFTC|
+ethereum-0187|under UCC Article 12, ETH is a controllable electronic record|
+bitcoin-0007|each node keeps a copy of the ledger|
+bitcoin-0009|consensus by proof of work|
+bitcoin-0019|Nakamoto's identity remains unknown|
+bitcoin-0061|River Financial estimated 81.7M users as of June 2023|2023-06
+bitcoin-0065|as of 2025 El Salvador still describes bitcoin as legal tender, and a January 2025 reform removed the obligation to accept it|2025
+bitcoin-0070|BTC does not conform to ISO 4217; BT is Bhutan's code|
+bitcoin-0071|XBT is not officially part of ISO 4217 and is used by Bloomberg|
+bitcoin-0074|one bitcoin divisible to eight decimal places|
+bitcoin-0075|mBTC = 1/1000; satoshi = 1/100,000,000, the smallest amount|
+bitcoin-0076|100,000 satoshis = 1 mBTC|
+bitcoin-0080|each block holds the double-SHA-256 hash of the previous header|
+bitcoin-0082|blocks, addresses and transactions are public via explorers|
+bitcoin-0085|a block every 10 minutes on average|
+bitcoin-0096|transactions use a Forth-like scripting language|
+bitcoin-0099|each input refers to a previous unspent output|
+bitcoin-0103|unallocated input satoshis become the fee|
+bitcoin-0106|around 20% of all bitcoins are estimated lost|
+bitcoin-0108|about 980,000 BTC stolen from exchanges as of December 2017|2017-12
+bitcoin-0113|each block needs proof of work below the difficulty target|
+bitcoin-0116|difficulty recalibrated every 2,016 blocks to keep ten-minute blocks|
+bitcoin-0118|miners collect fees plus a fixed reward|
+bitcoin-0119|reward is claimed by a coinbase transaction|
+bitcoin-0120|all bitcoins were created through coinbase transactions|
+bitcoin-0121|reward halves every 210,000 blocks to a 21 million total around 2140|
+bitcoin-0123|fees are measured in satoshis per byte|
+bitcoin-0130|as of 2025 CCAF estimated mining at 0.5% of global electricity and 0.08% of emissions|2025
+bitcoin-0131|about half the electricity used comes from fossil fuels|
+bitcoin-0134|bitcoin is pseudonymous, funds linked to addresses|
+bitcoin-0135|all transactions are public|
+bitcoin-0149|forks of Bitcoin Core exist, such as Bitcoin Unlimited|
+bitcoin-0155|Lightning Network is a second-layer routing network|
+bitcoin-0157|control of over 50% of hash power allows censoring and double-spending|
+bitcoin-0171|bitcoin's legal status varies by jurisdiction|
+bitcoin-0177|as of November 2021, nine absolute bans and 42 implicit bans|2021-11
+bitcoin-0186|as of 2022, 80% of Salvadoran businesses refused bitcoin|2022
+bitcoin-0188|El Salvador still calls it legal tender, acceptance optional, government no longer takes it for taxes or fees|
+bitcoin-0192|since 2020 Iran has required miners to sell to the central bank|
+bitcoin-0193|Colorado, Zug and Lugano accept tax payments in bitcoin|
+bitcoin-0194|as of 2023 the US government owned more than $5 billion of seized bitcoin|2023
+bitcoin-0195|as of 2018 the great majority of bitcoin transactions took place on exchanges|2018
+bitcoin-0196|regulated bitcoin funds have existed since 2014|
+bitcoin-0198|as of 2021, 0.01% of holders held 27% of supply|2021
+bitcoin-0199|as of March 2025, El Salvador held about 6,102 BTC worth $550M|2025-03
+bitcoin-0215|bitcoin markets are always active|
+bitcoin-0218|daily trading volume typically reaches $50 billion as of 2025|2025
+solana-0001|Solana uses proof of stake and provides smart contracts|
+solana-0002|native cryptocurrency is SOL|
+solana-0011|Solana runs on a proof of stake model per its whitepaper|
+usdc-0001|USDC is a stablecoin issued by Circle Internet Group|
+usdc-0002|USDC is pegged to the US dollar|
+usdc-0003|USDC is an ERC-20 token, also available on Base and Polygon|
+usdc-0005|as of 2020 USDC reserves were attested by Grant Thornton|2020
+usdc-0021|as of December 2024 USDC competes with Tether, which leads by market cap|2024-12
+uniswap-0001|Uniswap is a DEX protocol built on Ethereum|
+uniswap-0002|trades through smart contracts without order books|
+uniswap-0003|swaps use liquidity pools from users|
+uniswap-0005|as of December 2024 largest DEX and 7th-largest exchange overall by daily volume|2024-12
+uniswap-0010|Uniswap runs open-source software and trades directly from wallets|
+uniswap-0011|governance by UNI holders; UNI introduced in 2020|
+uniswap-0012|UNI is used for voting and not required to use the platform|
+uniswap-0017|offers a self-custodial mobile wallet, a trading API and a web interface|
+uniswap-0018|products reach Ethereum, Polygon and Optimism|
+uniswap-0020|the Foundation supports governance and protocol development|
+uniswap-0021|Uniswap Unleashed is the Foundation's most recent funding proposal|
+uniswap-0024|LPs add token pairs; constant-product rule|
+uniswap-0025|LPs earn a percentage of trading fees|
+uniswap-0027|no fees are required to list tokens|
+uniswap-0032|UNI is the governance token|
+uniswap-0033|UNI holders can propose and vote|
+uniswap-0034|UNI is an ERC-20 token on Ethereum|
+uniswap-0035|UNI total supply is capped, with scheduled release|
+aave-0001|Aave is a DeFi lending and borrowing protocol|
+aave-0005|AAVE token gives votes on protocol changes|
+aave-0010|lending and borrowing without a central authority|
+aave-0011|users can deposit ether, USDC or DAI|
+aave-0013|depositors receive variable interest|
+aave-0014|collateral must exceed the value of the loan|
+aave-0015|users can choose between variable and stable rates|
+aave-0016|protocol supports flash loans repaid within one block|
+aave-0018|GHO is backed by collateral in Aave|
+aave-0019|Aave is open source and governed by AAVE holders|
+aave-0020|changes decided through a DAO|
+chainlink-0001|Chainlink is a blockchain oracle network|
+chainlink-0002|LINK token is on Ethereum|
+chainlink-0005|Chainlink bridges blockchains and off-chain environments|
+chainlink-0008|Town Crier connects Ethereum with HTTPS web sources|
+chainlink-0020|oracles connect blockchains to off-chain data|
+chainlink-0021|LINK is a utility and governance token|
+chainlink-0022|LINK pays node operators and serves as deposits|
+chainlink-0023|LINK is ERC-677 and fits ERC-20 wallets|
+chainlink-0024|LINK can be staked|
+zcash-0001|Zcash uses zero-knowledge proofs|
+zcash-0004|Zcash uses proof of work|
+zcash-0006|two address types, transparent and shielded|
+zcash-0008|funds can move between transparent and shielded pools|
+zcash-0010|viewing keys can be shared|
+zcash-0041|FPF, HRF and EFF have accepted Zcash donations|
+monero-0002|Monero is open source, based on CryptoNote|
+monero-0004|protocol obfuscates transactions and supports view keys|
+monero-0005|transactions validated by miners running RandomX|
+monero-0006|RandomX issues coins and is designed to resist ASICs|
+monero-0018|Monero has the third-largest developer community after bitcoin and Ethereum|
+monero-0022|all transaction details are obfuscated|
+monero-0025|outputs are obfuscated through ring signatures with decoys|
+monero-0027|Bulletproofs used for amounts|
+monero-0028|recipients are protected by stealth addresses|
+monero-0029|privacy features are enforced by default|
+monero-0030|Monero uses Dandelion++|
+monero-0041|Monero uses RandomX proof of work|
+monero-0044|mining works on x86, x86-64, ARM and GPUs|
+monero-0046|Monero is a common medium of exchange on darknet markets|
+monero-0070|exchanges in South Korea and Australia have delisted Monero|
+polkadot-0001|Polkadot is nominated proof of stake with smart contract functionality|
+polkadot-0002|native coin is DOT|
+polkadot-0007|Polkadot SDK is being developed by Parity Technologies|
+polkadot-0010|Polkadot SDK is being developed by Parity, founded 2015 by Wood and Steiner|
+polkadot-0020|Polkadot provides an open-source SDK|
+polkadot-0027|relay chain is the primary chain and secures parachains|
+polkadot-0030|interoperability uses the XCM standard|
+polkadot-0031|bridging between parachains typically takes under a minute|
+polkadot-0032|XCMP is the protocol for messages between parachains|
+polkadot-0034|XCMP passes messages through the Relay Chain|
+polkadot-0035|on-chain governance|
+polkadot-0037|Polkadot Council members and validators are selected by Phragmen election|
+polkadot-0038|network uses nominated proof of stake|
+polkadot-0039|block production protocol is BABE, derived from Ouroboros|
+polkadot-0040|validators produce blocks; nominators back them with DOT|
+proof-of-stake-0034|NPoS is used by Ouroboros Praos and BABE|
+proof-of-stake-0035|Polkadot uses a Phragmen-based NPoS variant|
+proof-of-stake-0039|BFT schemes are used in Tendermint and Casper FFG|
+proof-of-stake-0042|DPoS is used by EOS, Lisk, Tron|
+proof-of-stake-0046|LPoS is used in Tezos|
+proof-of-stake-0051|as of 2017 PoS coins less widely used than PoW coins|2017
+dai-0001|DAI is a stablecoin token on Ethereum using contracts to hold $1|
+dai-0002|DAI is maintained by MakerDAO, a DAO of MKR owners who vote on parameters|
+dai-0008|DAI is crypto-backed, most commonly with ether|
+dai-0009|DAI issuance is not controlled by one entity|
+dai-0024|depositing accepted collateral mints DAI as a loan|
+dai-0026|each loan type has a fixed minimum ratio, usually 110-200%|
+dai-0032|changing the variables is granted to holders of the MKR token|
+dai-0033|owners of the governance token vote in proportion to tokens held|
+dai-0035|interest is used to buy MKR and burn it|
+cardano-0001|Cardano is a public blockchain using ADA|
+cardano-0004|Cardano Foundation is in Zug, led by CEO Frederik Gregaard|
+cardano-0015|1 ADA = 1,000,000 Lovelace|
+cardano-0019|Cardano has no foundational white paper|
+cardano-0022|Cardano uses an extended UTXO ledger|
+cardano-0023|Cardano uses PoS protocol Ouroboros|
+cardano-0030|native wallet is Daedalus|
+cardano-0031|Daedalus downloads a full copy of the history|
+cardano-0033|phases: Byron, Shelley, Goguen, Basho, Voltaire|
+cardano-0035|Basho focuses on scaling|
+cardano-0036|Voltaire adds a treasury model|
+cardano-0039|Cardano offers staking by delegation|
+cardano-0041|users can join stake pools|
+cardano-0043|Frederik Gregaard has been Foundation CEO since 2021|
+cardano-0053|World Mobile Token runs about 150 nodes in East Africa (2022)|2022
+cardano-0061|Midnight will use the Polkadot framework with Cardano|
+cardano-0062|Cardano enables NFTs|
+avalanche-0002|native coin is AVAX|
+avalanche-0006|network backed by the Avalanche Foundation|
+avalanche-0018|as of January 2026, AVAX near $13.8, cap about $5.9B, daily volume $400-500M|2026-01
+avalanche-0022|FRNT is on Avalanche, Solana, Ethereum, Arbitrum, Base, Optimism, Polygon|
+avalanche-0024|separate chains can be created for applications|
+avalanche-0025|Primary Network runs X, C and P chains|
+avalanche-0026|chains serve assets, contracts, validator coordination|
+avalanche-0027|each chain is its own VM; AVAX moves via atomic import and export|
+avalanche-0028|chains communicate through ICM / Warp messaging|
+avalanche-0029|X-Chain is an instance of the AVM|
+avalanche-0030|X-Chain creates and transfers native tokens|
+avalanche-0031|X-Chain uses UTXO|
+avalanche-0034|P-Chain is the Platform VM and coordination layer|
+avalanche-0035|P-Chain tracks validators and creates chains and L1s|
+avalanche-0036|since Etna a Subnet can convert to an L1 under ACP-77|
+avalanche-0037|L1 validators need not validate the Primary Network; they pay a continuous fee|
+avalanche-0038|C-Chain implements the EVM|
+avalanche-0039|C-Chain supports Solidity, Geth API, chain ID 43114|
+avalanche-0040|Snowman replaces Ethereum consensus|
+avalanche-0041|Coreth until Helicon, then Continuous Execution VM|
+avalanche-0045|Snow protocols use repeated random subsampling|
+avalanche-0046|leaderless; logarithmic bits per decision|
+avalanche-0057|C, P and L1 chains run Snowman++; X-Chain since Cortina|
+avalanche-0060|AvalancheGo defaults k=20, alpha=15, beta=20|
+avalanche-0066|an accepted block is not reverted; about one second acceptance|
+avalanche-0068|proof of stake, sampling proportional to stake|
+avalanche-0069|minimum 2,000 AVAX to validate the Primary Network|
+avalanche-0070|delegation with a validator fee|
+avalanche-0071|no slashing; rewards are all or nothing|
+avalanche-0072|maximum staking period is one year|
+avalanche-0073|Helicon bundles six ACPs|
+avalanche-0076|auto-renewed staking under ACP-236|
+avalanche-0078|delegations do not auto-renew|
+avalanche-0080|L1 validators unaffected by the uptime change|
+avalanche-0082|minimum delegation period remains two weeks|
+avalanche-0084|Helicon includes ACP-194 and ACP-283|
+defi-0020|as of 2021 MakerDAO was a prominent lending platform|2021
+defi-0025|COMP is used for running Compound and is traded on exchanges|
+defi-0049|MetaMask lets users interact with Ethereum|
+defi-0054|Aave flash loans are uncollateralised and repaid in one transaction|
+defi-0056|Uniswap is a DEX for tokens issued on Ethereum|
+defi-0057|Uniswap LPs earn a share of fees|
+defi-0058|no centralized party runs Uniswap; no entity to check identities|
+defi-0067|as of 2018, DEXs suffered low volume|2018
+defi-0069|as of mid-2025 weekly DEX volume averaged $18.6B, over 9.7M wallets|2025-06
+defi-0079|many DeFi exchanges offer a slippage tolerance|
+tether-0002|currency codes USD₮ and USDT|
+tether-0003|USDT is the world's largest stablecoin by market cap|
+tether-0005|as of July 2024 Tether has more than 350M users|2024-07
+tether-0006|as of August 2026 Ardoino estimated more than 650M users|2026-08
+tether-0007|Tether Limited is owned by iFinex, BVI-based, which operates Bitfinex|
+tether-0022|Tether Holdings is headquartered in El Salvador as of January 2025|2025-01
+tether-0027|Tether Limited is a wholly owned subsidiary of BVI-based Tether Holdings|
+tether-0030|Tether issues on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid, Near, Polygon, Solana, Bitcoin Cash SLP, Statemint, Tezos, Tron|
+tether-0031|five distinct Tether tokens|
+tether-0041|as of July 2021 Tether tied to half of all bitcoin trades|2021-07
+tether-0069|as of September 2024 T3 FCU froze about $12M|2024-09
+tether-0091|Cantor Fitzgerald serves as USAT reserve custodian|
+tether-0095|Anchorage Digital Bank is the USAT issuer|
+tether-0104|as of 30 June 2026, about $187.8B assets, $183.6B liabilities, excess about $4.11B|2026-06-30
+tether-0114|each XAU₮ represents one troy fine ounce in Swiss vaults|
+tether-0115|XAU₮ is ERC-20 on Ethereum and TRC-20 on Tron|
+tether-0132|Tether site says issuance by purchase or redemption by exchanges and qualified customers, excluding US-based customers|
+tether-0134|Tether claims 100% backing, has faced scrutiny for failing to publish an external audit|
+tether-0154|Tether has not publicly presented audits showing one-to-one backing|
+tether-0161|majority of cash and equivalents are T-Bills at $72.6 billion|
+tether-0163|if a country, Tether would be the 18th-largest holder of US debt|
+polymarket-0001|Polymarket is a crypto-based prediction market|
+polymarket-0002|deposit through the Polygon network|
+polymarket-0003|headquartered in Manhattan, legal domicile in Panama|
+polymarket-0005|the majority of trades are sports-related|
+polymarket-0006|63% of trades are sports bets|
+polymarket-0008|banned by France, Brazil, Italy and Gibraltar|
+polymarket-0060|Polymarket allows bets on armed conflicts|
+polymarket-0086|Polymarket has been blocked in several countries|
+polymarket-0087|as of September 2024 election markets operate offshore|2024-09
+polymarket-0092|0.1% of accounts net 67% of profits; over 70% of users lose|
+polymarket-0093|about 3% of traders account for most price discovery|
+polymarket-0097|legal domicile in Panama|
+polymarket-0101|banned at some point in a list of countries|
+polymarket-0121|minimum age for joining is 18|
+stablecoin-0008|stablecoins mainly used for crypto trading and cross-border payments|
+stablecoin-0011|95% backed by fiat; 97% of those in US dollars|
+stablecoin-0016|as of October 2025 nearly 97% of fiat-backed stablecoins pegged to USD|2025-10
+stablecoin-0017|USDT and USDC are major USD-pegged stablecoins|
+stablecoin-0018|euro examples: EURC, EUR Tether, Stasis EUR|
+stablecoin-0023|PAX Gold and Tether Gold are commodity-backed|
+stablecoin-0027|major algorithmic stablecoins: Celo Dollar, USDD, USDX|
+stablecoin-0079|USDT is currently the largest stablecoin by market cap|
+stablecoin-0085|as of November 2026 Tether has never completed an audit by an accounting firm|2026-11
+stablecoin-0104|digital euro not legislated by the European Parliament as of August 2025|2025-08
+stablecoin-0108|GENIUS, MiCAR and the HK Stablecoin bill prohibit yield by regulated issuers|
+stablecoin-0109|Australian regulator treats yield-bearing stablecoins as managed investment schemes|
+stablecoin-0115|EU and Hong Kong prohibit CASP yield; Singapore limits it to institutions|
+stablecoin-0126|stablecoins in Australia regulated by ASIC|
+stablecoin-0128|ASIC INFO 225 treatment of issuers and algorithmic and yield stablecoins|
+stablecoin-0131|Bahrain SIO module permits approved single-currency fiat stablecoins|
+stablecoin-0132|Bahrain prohibits algorithmic stablecoins|
+stablecoin-0137|stablecoins are considered illegal in mainland China|
+stablecoin-0151|Japan requires issuers of fiat-backed stablecoins to register|
+stablecoin-0152|Japan treats algorithmic stablecoins as crypto assets, no registration|
+stablecoin-0156|USDKG issuer is state-owned Virtual Asset Issuer OJSC|
+stablecoin-0157|USDKG is gold-backed and dollar-pegged|
+stablecoin-0160|Singapore issuers must hold reserves in the peg currency|
+stablecoin-0164|South Korea stablecoin regulation is being discussed|
+stablecoin-0168|Taiwan law requires full reserves in trust at domestic institutions|
+stablecoin-0170|Taiwan issuers must be audited and cannot pay interest|
+stablecoin-0172|UAE prohibits accepting stablecoins except licensed payment tokens|
+prediction-market-0022|HP and Microsoft conduct private markets|
+prediction-market-0028|contracts priced between $0.01 and $1|
+prediction-market-0034|CLOB is the dominant structure of commercial markets|
+prediction-market-0035|Kalshi is a centralized order book and a CFTC-regulated DCM|
+prediction-market-0036|Polymarket matches off-chain and settles on Polygon|
+prediction-market-0062|every Kalshi contract has a rulebook filed with the CFTC|
+prediction-market-0064|Kalshi is a designated contract market|
+prediction-market-0066|Polymarket uses the UMA optimistic oracle|
+prediction-market-0067|dispute goes to the DVM with a 24-hour commit vote|
+prediction-market-0068|per UMA docs, a dispute resolves when 65% of staked UMA agrees|
+prediction-market-0069|abstainers and minority voters are slashed; stake goes to the majority|
+prediction-market-0070|UMA reports 99.8% of requests resolve without the DVM|
+prediction-market-0164|prediction markets in the UK are betting, licensed by the Gambling Commission|
+prediction-market-0165|the EU has no unified structure for prediction markets|
+prediction-market-0166|Belgium, France, Italy, Poland and Romania have banned Polymarket|
+prediction-market-0167|MiCA comes into effect in July 2026 and will apply to crypto prediction markets|
+prediction-market-0178|as of June 2026 jurisdiction litigated between the CFTC and states|2026-06
+prediction-market-0179|CFTC Chairman Michael S. Selig asserts exclusive jurisdiction|
+prediction-market-0186|Polymarket operates in all of Canada except Ontario|
+prediction-market-0191|Brazil has not settled which regulator covers prediction markets|
+prediction-market-0207|Augur is a now-defunct platform on Ethereum|
+prediction-market-0208|Good Judgment Open is a reputation-based site|
+prediction-market-0209|Iowa Electronic Markets positions are limited to $500|
+prediction-market-0211|Kalshi is CFTC-regulated and available only to US residents|
+prediction-market-0212|Robinhood partnered with Kalshi|
+prediction-market-0213|Manifold is a reputation-based market with fake money|
+prediction-market-0214|Metaculus is reputation-based, with numeric and date ranges|
+prediction-market-0215|Polymarket is built on Polygon and uses USDC|
+prediction-market-0216|PredictIt is a market for political and financial events|

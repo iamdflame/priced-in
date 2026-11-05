@@ -1,0 +1,678 @@
+{
+ "slug": "defi",
+ "title": "Decentralized finance",
+ "revid": 1382583755,
+ "timestamp": "2026-10-29T10:17:46Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Decentralized_finance&oldid=1382583755",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Decentralized finance\", English Wikipedia, revision 1382583755 (2026-10-29T10:17:46Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 10,
+  "sourced": 69,
+  "opinion": 28
+ },
+ "sentences": [
+  {
+   "id": "defi-0001",
+   "section": "(lead)",
+   "text": "Decentralized finance (often stylized as DeFi) provides financial instruments and services through smart contracts on a programmable, permissionless blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0002",
+   "section": "(lead)",
+   "text": "This approach reduces the need for intermediaries such as brokerages, exchanges, or banks.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0003",
+   "section": "(lead)",
+   "text": "DeFi platforms enable users to lend or borrow funds, speculate on asset price movements using derivatives, trade cryptocurrencies, insure against risks, and earn interest in savings-like accounts.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0004",
+   "section": "(lead)",
+   "text": "The DeFi ecosystem is built on a layered architecture and highly composable building blocks.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0005",
+   "section": "(lead)",
+   "text": "While some applications offer high interest rates, they carry high risks.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0006",
+   "section": "(lead)",
+   "text": "Coding errors and hacks are a common challenge in DeFi.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0007",
+   "section": "(lead)",
+   "text": "DeFi protocols exhibit varying degrees of decentralization, with truly decentralized protocols potentially acting as neutral infrastructure, while false decentralization leaves protocols open to manipulation and fraud or to being regulated as financial intermediaries.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0008",
+   "section": "(lead)",
+   "text": "A core principle of DeFi is its accessibility.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0009",
+   "section": "(lead)",
+   "text": "By operating on public blockchains, DeFi applications (commonly referred to as \"dApps\") enable users from across the globe to access financial services without the need for a centralized authority or compliance with traditional Know Your Customer (KYC) and Anti-Money Laundering (AML) regulations.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0010",
+   "section": "(lead)",
+   "text": "DeFi also introduces programmability and composability to finance.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0011",
+   "section": "(lead)",
+   "text": "Developers can create interoperable financial products by combining different DeFi protocols like building blocks, a concept often referred to as \"money Legos\".",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0012",
+   "section": "History",
+   "text": "Decentralized exchanges (abbreviated DEXs) are alternative payment ecosystems that use new protocols for financial transactions.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0013",
+   "section": "History",
+   "text": "They emerged within decentralized finance (DeFi), a sector of blockchain technology and fintech.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0014",
+   "section": "History",
+   "text": "Centralized exchanges (CEXs), DEXs and DEX aggregators are all built on a multi-layered DeFi architecture, with each layer serving a well-defined purpose.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0015",
+   "section": "History",
+   "text": "(See Figure: Multi-layered Architecture of the DeFi Stack).",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0016",
+   "section": "History",
+   "text": "While they share common components of the first four layers, such as the Settlement layer, Asset layer, Protocol layer and Application layer, DEX aggregators have an additional component or Aggregator layer, which allows them to connect and interact with other DEXs via smart contracts.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0017",
+   "section": "History",
+   "text": "The Ethereum blockchain popularized smart contracts, which are the basis of DeFi, in 2017.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0018",
+   "section": "History",
+   "text": "Other blockchains have since implemented smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0019",
+   "section": "History",
+   "text": "Alternative Layer 1 protocols, such as Radix, have been developed utilizing sharded consensus mechanisms to attempt to resolve scalability issues inherent in earlier blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0020",
+   "section": "History",
+   "text": "As of 2021, MakerDAO was a prominent lending DeFi platform based on a stablecoin that was established in 2017.",
+   "class": "data",
+   "claim": "as of 2021 MakerDAO was a prominent lending platform",
+   "asOf": "2021"
+  },
+  {
+   "id": "defi-0021",
+   "section": "History",
+   "text": "It allowed users to borrow DAI, a token pegged to the US dollar.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0022",
+   "section": "History",
+   "text": "Through a set of smart contracts that govern the loan, repayment, and liquidation processes, MakerDAO aimed to maintain the stable value of DAI in a decentralized and autonomous manner.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0023",
+   "section": "History",
+   "text": "In September 2024, MakerDAO rebranded as Sky, and its stablecoin DAI was renamed USDS.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0024",
+   "section": "History",
+   "text": "In June 2020, Compound Finance, a decentralized finance protocol enabling users to lend or borrow cryptocurrency assets and which provides typical interest payments to lenders, started rewarding lenders and borrowers with a cryptocurrency called Comp.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0025",
+   "section": "History",
+   "text": "This token, which is used for running Compound, can also be traded on cryptocurrency exchanges.",
+   "class": "data",
+   "claim": "COMP is used for running Compound and is traded on exchanges",
+   "asOf": null
+  },
+  {
+   "id": "defi-0026",
+   "section": "History",
+   "text": "Other platforms followed suit, leading to stacked investment opportunities known as \"yield farming\" or \"liquidity mining\", where speculators shift cryptocurrency assets between pools in a platform and between platforms to maximize their total yield, which includes not only interest and fees but also the value of additional tokens received as rewards.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0027",
+   "section": "History",
+   "text": "In July 2020, The Washington Post described decentralized finance techniques and the risks involved.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0028",
+   "section": "History",
+   "text": "In September 2020, Bloomberg said that DeFi made up two-thirds of the cryptocurrency market in terms of price changes and that DeFi collateral levels had reached $9 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0029",
+   "section": "History",
+   "text": "Ethereum saw a rise in developers during 2020 due to the increased interest in DeFi.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0030",
+   "section": "History",
+   "text": "DeFi has attracted venture capitalists such as Andreessen Horowitz and Michael Novogratz.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0031",
+   "section": "History",
+   "text": "The Economist regarded the future of digital finance in 2022 as a \"three-way fight\" between: Big Tech, such as Facebook with its digital wallet; \"big rich countries\" that have been testing their own digital currencies; and software developers \"building all sorts of applications\" to decentralize finance.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0032",
+   "section": "History",
+   "text": "Handling the risks presented by crypto-assets already valued at $2.5 trillion was a particular challenge for US regulators.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0033",
+   "section": "History",
+   "text": "The evolution of Decentralized Finance (DeFi) began with Bitcoin in 2009 and matured with Ethereum’s 2015 launch, which introduced smart contracts and enabled decentralized applications.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0034",
+   "section": "History",
+   "text": "By 2021, DeFi protocols such as MakerDAO, Compound, Aave, and Uniswap had driven total value locked (TVL) to over $180 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0035",
+   "section": "History",
+   "text": "The 2022 crypto market crash, which followed events like the collapse of Terra/LUNA and FTX, exposed critical vulnerabilities in the DeFi space and triggered a downturn.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0036",
+   "section": "History",
+   "text": "In 2023, DeFi began recovering.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0037",
+   "section": "History",
+   "text": "A key trend was the tokenization of real-world assets (RWA) such as treasury bills, real estate, and carbon credits.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0038",
+   "section": "History",
+   "text": "Platforms like MakerDAO and Centrifuge enabled institutional investors to access on-chain yield tied to off-chain assets.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0039",
+   "section": "History",
+   "text": "Layer 2 scaling solutions such as Arbitrum and Optimism also gained traction, reducing transaction fees and increasing throughput on top of Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0040",
+   "section": "History",
+   "text": "This period also marked the rise of intent-based DeFi, allowing users to specify desired outcomes, with protocols handling transaction logic (Bankless, 2023).",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0041",
+   "section": "History",
+   "text": "In 2024, regulatory developments shaped DeFi's evolution.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0042",
+   "section": "History",
+   "text": "The European Union’s MiCA framework (Markets in Crypto-Assets Regulation) came into effect, impacting stablecoin issuers and custodial services.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0043",
+   "section": "History",
+   "text": "In response, many DeFi projects began adopting hybrid models, combining decentralized architecture with off-chain compliance layers to navigate legal requirements.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0044",
+   "section": "History",
+   "text": "Meanwhile, interoperability improved with the deployment of cross-chain bridges like Wormhole V2 and Chainlink CCIP, enabling liquidity to flow between Ethereum, Solana, Avalanche, and other ecosystems.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0045",
+   "section": "Key characteristics",
+   "text": "DeFi uses decentralized applications, also known as DApps, that perform financial functions on distributed ledgers called blockchains, a technology that was made popular by bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0046",
+   "section": "Key characteristics",
+   "text": "Transactions are directly made between participants, mediated by smart contract programs, rather than through a centralized intermediary.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0047",
+   "section": "Key characteristics",
+   "text": "These smart contracts, or DeFi protocols, typically run using open-source software.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0048",
+   "section": "Key characteristics",
+   "text": "DApps are typically accessed through a browser extension or application.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0049",
+   "section": "Key characteristics",
+   "text": "For example, MetaMask allows users to interact with Ethereum through a digital wallet.",
+   "class": "data",
+   "claim": "MetaMask lets users interact with Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "defi-0050",
+   "section": "Key characteristics",
+   "text": "Many of these DApps can be linked to create complex financial services.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0051",
+   "section": "Key characteristics",
+   "text": "Examples include lending protocols, in which stablecoin holders can lend assets to a liquidity pool, and allow others to borrow those digital assets by depositing their own collateral.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0052",
+   "section": "Key characteristics",
+   "text": "The protocol is designed to automatically adjusts interest rates based on the demand for the asset.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0053",
+   "section": "Key characteristics",
+   "text": "Some DApps source external (off-chain) data, such as the price of an asset, through blockchain oracles.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0054",
+   "section": "Key characteristics",
+   "text": "The Aave protocol popularized \"flash loans\", which are uncollateralized loans of an arbitrary amount that are taken out and paid back within a single blockchain transaction.",
+   "class": "data",
+   "claim": "Aave flash loans are uncollateralised and repaid in one transaction",
+   "asOf": null
+  },
+  {
+   "id": "defi-0055",
+   "section": "Key characteristics",
+   "text": "Exploits of DeFi platforms have used flash loans to manipulate cryptocurrency spot prices.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0056",
+   "section": "Key characteristics",
+   "text": "Another DeFi protocol is Uniswap, which is a decentralized exchange (DEX) set up to trade tokens issued on Ethereum.",
+   "class": "data",
+   "claim": "Uniswap is a DEX for tokens issued on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "defi-0057",
+   "section": "Key characteristics",
+   "text": "Rather than using a centralized exchange to fill orders, Uniswap pays users to form liquidity pools in exchange for a percentage of the fees collected from traders swapping tokens in and out of the liquidity pools.",
+   "class": "data",
+   "claim": "Uniswap LPs earn a share of fees",
+   "asOf": null
+  },
+  {
+   "id": "defi-0058",
+   "section": "Key characteristics",
+   "text": "Because no centralized party runs Uniswap and any development team can use the open-source software, there is no entity to check the identities of the people using the platform and meet KYC/AML regulations.",
+   "class": "data",
+   "claim": "no centralized party runs Uniswap; no entity to check identities",
+   "asOf": null
+  },
+  {
+   "id": "defi-0059",
+   "section": "Key characteristics",
+   "text": "As of 2020, it was not clear what position regulators would take on the legality of such platforms; subsequent regulatory developments are summarised in the Regulation section.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0060",
+   "section": "Decentralized exchanges",
+   "text": "Decentralized exchanges (DEX) are a type of cryptocurrency exchange, which allow for either direct peer-to-peer, or Automated Market Maker (AMM) liquidity pool cryptocurrency transactions to take place without the need for an intermediary.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0061",
+   "section": "Decentralized exchanges",
+   "text": "The lack of an intermediary differentiates them from centralized exchanges (CEX).",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0062",
+   "section": "Decentralized exchanges",
+   "text": "In transactions made through decentralized exchanges, the typical third party entities which would normally oversee the security and transfer of assets (e.g. banks, stockbrokers, online payment gateways, government institutions, etc.) are substituted by a blockchain or distributed ledger.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0063",
+   "section": "Decentralized exchanges",
+   "text": "Some common methods of operation include the use of smart contracts or order book relaying –although numerous other variations are possible, with differing degrees of decentralization.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0064",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "Because traders on a decentralized exchange often do not need to transfer their assets to the exchange before executing a trade, decentralized exchanges reduce the risk of theft from hacking of exchanges, but liquidity providers do need to transfer tokens to the decentralized exchange.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0065",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "DEXs give users full custody over their own funds, as their decentralized design makes freezing assets or blocking withdrawals more difficult.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0066",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "Decentralized exchanges are also more anonymous than exchanges that implement know your customer (KYC) requirements.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0067",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "As of 2018, there were signs that decentralized exchanges had been suffering from low trading volumes and reduced market liquidity.",
+   "class": "data",
+   "claim": "as of 2018, DEXs suffered low volume",
+   "asOf": "2018"
+  },
+  {
+   "id": "defi-0068",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "The 0x project, a protocol for building decentralized exchanges with interchangeable liquidity, attempted to solve this issue.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0069",
+   "section": "Decentralized exchanges / Advantages",
+   "text": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.",
+   "class": "data",
+   "claim": "as of mid-2025 weekly DEX volume averaged $18.6B, over 9.7M wallets",
+   "asOf": "2025-06"
+  },
+  {
+   "id": "defi-0070",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Due to a lack of KYC processes, and no way to revert a transaction, users are at a loss if they are ever hacked for their passwords or private keys.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0071",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Liquidity providers staking in DeFi protocols may also suffer an impermanent loss when the relative value of the deposited token pair has shifted by the time the deposit is withdrawn.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0072",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Although liquidity pool DEX are the most widely used, they may have some drawbacks.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0073",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "The most common problems of liquidity pool DEXes are market price impact, slippage, and front running.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0074",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Price impact arises from the design of automated market makers: the larger the trade, the greater its effect on the pool's prevailing price.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0075",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "For example, if the constant product AMM is in use, every deal must keep the product xy = k constant, where x and y are quantities of two cryptocurrencies (or tokens) in the pool.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0076",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Price impact is non-linear, so the larger is the input amount Δx, the lower is the final ratio y / x that gives an exchange price.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0077",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "The problem is mostly significant for relatively large deals versus the liquidity pool size.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0078",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Front running is a special type of attack in public blockchains when some participant (usually a miner) seeing an upcoming trading transaction puts his own transaction ahead (playing with a transaction fee for example), making the initial transaction less profitable or even reverted.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0079",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "To provide some protection against front running attacks, many DeFi exchanges offer a slippage tolerance option for end-users.",
+   "class": "data",
+   "claim": "many DeFi exchanges offer a slippage tolerance",
+   "asOf": null
+  },
+  {
+   "id": "defi-0080",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "This setting allows users to set a limit on the worst acceptable execution price relative to the price observed at the time of transaction signing; if the executed price would breach that limit, the transaction reverts.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0081",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "Decentralized exchanges are particularly exposed to cyberattacks, and DEX-related incidents account for a major share of crypto-exchange losses.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0082",
+   "section": "Decentralized exchanges / Disadvantages",
+   "text": "In 2025, at least 20 incidents were reported, resulting in aggregate losses of $535 million.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0083",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "Decentralized Finance protocols exhibit varying degrees of decentralization, which largely depend on the architecture of their underlying smart contracts and external dependencies.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0084",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "When the protocol's smart contracts are deployed statically, such that the protocol's logic cannot be altered and no access-restricted functions are present, they may potentially function as neutral infrastructure.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0085",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "Conversely, if the smart contracts are upgradeable or permit the modification of key parameters, or if key functions are restricted to a specific set of users, this neutrality can be compromised.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0086",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "A decentralized exchange can still have centralized components, whereby some control of the exchange is still in the hands of a central authority.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0087",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "The governance of a DeFi platform, typically as part of a Decentralized Autonomous Organization, is done through tokens that grant voting rights and are distributed amongst participants.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0088",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "However, the majority of these tokens are often held by few individuals and are rarely used to vote.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0089",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "In July 2018, the decentralized exchange Bancor was reportedly hacked and suffered a loss of $23.5 million in assets before freezing funds.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0090",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "In a Twitter tweet, Charlie Lee, the creator of Litecoin, spoke out and claimed an exchange cannot be decentralized if it can lose or freeze customer funds.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0091",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "Operators of decentralized exchanges can face legal consequences from government regulators.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0092",
+   "section": "Decentralized exchanges / Degrees of decentralization",
+   "text": "One example is the founder of EtherDelta, who in November 2018 settled charges with the U.S. Securities and Exchange Commission over operating an unregistered securities exchange.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0093",
+   "section": "Errors and hacking",
+   "text": "Coding errors and hacks are common in DeFi.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0094",
+   "section": "Errors and hacking",
+   "text": "Blockchain transactions are irreversible, which means that an incorrect or fraudulent DeFi transaction cannot be corrected easily if at all.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0095",
+   "section": "Errors and hacking",
+   "text": "The person or entity behind a DeFi protocol may be unknown and may disappear with investors' money.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0096",
+   "section": "Errors and hacking",
+   "text": "Investor Michael Novogratz has described some DeFi protocols as \"Ponzi-like\".",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0097",
+   "section": "Errors and hacking",
+   "text": "DeFi has been compared to the initial coin offering craze of 2017, part of a cryptocurrency bubble.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0098",
+   "section": "Errors and hacking",
+   "text": "Inexperienced investors are at particular risk of losing money because of the sophistication required to interact with DeFi platforms and the lack of any intermediary with customer support.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0099",
+   "section": "Errors and hacking",
+   "text": "On the other hand, as the code for DeFi smart contracts is generally open-source software that can be copied to set up competing platforms, experienced users and user-created bots might create instabilities as funds shift between platforms which share the same code.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0100",
+   "section": "Errors and hacking",
+   "text": "In addition, DeFi platforms might inadvertently provide incentives for cryptocurrency miners to destabilize the system.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0101",
+   "section": "Errors and hacking",
+   "text": "Illicit actors, including cyber criminals, fraudsters and terrorist organisations, are exploiting the technical complexity of DeFi and the absence of AML/CFT checks to launder criminal proceeds or raise funds and crypto-assets to finance criminal activity.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0102",
+   "section": "Errors and hacking",
+   "text": "They use DeFi to obscure the movement of funds through various techniques and services.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0103",
+   "section": "Errors and hacking",
+   "text": "In 2021, half of cryptocurrency crime was related to DeFi.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0104",
+   "section": "Errors and hacking",
+   "text": "This rise has been attributed to a combination of developer incompetence and non-existent or poorly enforced regulations.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0105",
+   "section": "Errors and hacking",
+   "text": "Theft from DeFi can come from either external hackers stealing from vulnerable projects, or \"rug pulls\", where the developers and influencers promote a project and then take the money, as a form of pump-and-dump.",
+   "class": "opinion"
+  },
+  {
+   "id": "defi-0106",
+   "section": "Regulation",
+   "text": "In October 2021, the FATF included DeFi in the guidance for crypto service providers, making the authority's aim to regulate this type of asset.",
+   "class": "sourced"
+  },
+  {
+   "id": "defi-0107",
+   "section": "Regulation",
+   "text": "They are expecting each individual country to determine if individuals involved in DeFi can be considered a virtual asset provider and be subjected to the FATF's guidelines.",
+   "class": "opinion"
+  }
+ ]
+}

@@ -1,0 +1,1260 @@
+{
+ "slug": "ethereum",
+ "title": "Ethereum",
+ "revid": 1383352660,
+ "timestamp": "2026-11-02T07:03:53Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Ethereum&oldid=1383352660",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Ethereum\", English Wikipedia, revision 1383352660 (2026-11-02T07:03:53Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 61,
+  "sourced": 90,
+  "opinion": 36
+ },
+ "sentences": [
+  {
+   "id": "ethereum-0001",
+   "section": "(lead)",
+   "text": "Ethereum is a decentralized blockchain with smart contract functionality.",
+   "class": "data",
+   "claim": "Ethereum has smart contract functionality",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0002",
+   "section": "(lead)",
+   "text": "Ether (abbreviation: ETH) is the native cryptocurrency of the platform.",
+   "class": "data",
+   "claim": "native coin is ether (ETH)",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0003",
+   "section": "(lead)",
+   "text": "Among cryptocurrencies, ether is second only to bitcoin in market capitalization.",
+   "class": "data",
+   "claim": "ether is 2nd by market cap, behind only bitcoin",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0004",
+   "section": "(lead)",
+   "text": "It is open-source software.",
+   "class": "data",
+   "claim": "Ethereum is open-source software",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0005",
+   "section": "(lead)",
+   "text": "Ethereum was conceived in 2013 by programmer Vitalik Buterin.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0006",
+   "section": "(lead)",
+   "text": "Other founders include Gavin Wood, Charles Hoskinson, Anthony Di Iorio, and Joseph Lubin.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0007",
+   "section": "(lead)",
+   "text": "In 2014, development work began and was crowdfunded, and the network went live on 30 July 2015.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0008",
+   "section": "(lead)",
+   "text": "Ethereum allows anyone to deploy decentralized applications onto it, which anyone can then use.",
+   "class": "data",
+   "claim": "anyone can deploy applications to Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0009",
+   "section": "(lead)",
+   "text": "Decentralized finance (DeFi) applications provide financial instruments that do not directly rely on financial intermediaries like brokerages, exchanges, or banks.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0010",
+   "section": "(lead)",
+   "text": "This facilitates borrowing against cryptocurrency holdings or lending them out for interest.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0011",
+   "section": "(lead)",
+   "text": "Ethereum allows users to create fungible (e.g. ERC-20) and non-fungible tokens (NFTs) with a variety of properties, and to create smart contracts that can receive, hold and send those assets in accordance with the contract's immutable code and a transaction's input data.",
+   "class": "data",
+   "claim": "users can create ERC-20 tokens, NFTs and smart contracts",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0012",
+   "section": "(lead)",
+   "text": "On 15 September 2022, Ethereum transitioned its consensus mechanism from proof-of-work (PoW) to proof-of-stake (PoS) in an update known as \"The Merge\", which cut the blockchain's energy usage by over 99%.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0013",
+   "section": "History / Founding (2013–2014)",
+   "text": "Ethereum was initially described in late 2013 in a white paper by Vitalik Buterin, a programmer and co-founder of Bitcoin Magazine, that described a way to build decentralized applications.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0014",
+   "section": "History / Founding (2013–2014)",
+   "text": "Buterin argued to the Bitcoin Core developers that blockchain technology could benefit from other applications besides money and that it needed a more robust language for application development that could lead to attaching real-world assets, such as stocks and property, to the blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0015",
+   "section": "History / Founding (2013–2014)",
+   "text": "In 2013, Buterin briefly worked with eToro CEO Yoni Assia on the Colored Coins project and drafted its white paper outlining additional use cases for blockchain technology.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0016",
+   "section": "History / Founding (2013–2014)",
+   "text": "However, after failing to gain agreement on how the project should proceed, he proposed the development of a new platform with a more robust scripting language—a Turing-complete programming language—that would eventually become Ethereum.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0017",
+   "section": "History / Founding (2013–2014)",
+   "text": "Ethereum was announced at the North American Bitcoin Conference in Miami, in January 2014.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0018",
+   "section": "History / Founding (2013–2014)",
+   "text": "During the conference, Gavin Wood, Charles Hoskinson, and Anthony Di Iorio (who financed the project) rented a house in Miami with Buterin at which they could develop a fuller sense of what Ethereum might become.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0019",
+   "section": "History / Founding (2013–2014)",
+   "text": "Di Iorio invited friend Joseph Lubin, who invited reporter Morgen Peck, to bear witness.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0020",
+   "section": "History / Founding (2013–2014)",
+   "text": "Peck subsequently wrote about the experience in Wired.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0021",
+   "section": "History / Founding (2013–2014)",
+   "text": "Six months later the founders met again in Zug, Switzerland, where Buterin told the founders that the project would proceed as a non-profit.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0022",
+   "section": "History / Founding (2013–2014)",
+   "text": "Hoskinson left the project at that time and soon after founded IOHK, a blockchain company responsible for Cardano.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0023",
+   "section": "History / Founding (2013–2014)",
+   "text": "Ethereum has an unusually long list of founders.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0024",
+   "section": "History / Founding (2013–2014)",
+   "text": "Anthony Di Iorio wrote: \"Ethereum was founded by Vitalik Buterin, Myself, Charles Hoskinson, Mihai Alisie & Amir Chetrit (the initial 5) in December 2013.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0025",
+   "section": "History / Founding (2013–2014)",
+   "text": "Joseph Lubin, Gavin Wood, & Jeffrey Wilcke were added in early 2014 as founders.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0026",
+   "section": "History / Founding (2013–2014)",
+   "text": "Buterin chose the name Ethereum after browsing a list of elements from science fiction on Wikipedia.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0027",
+   "section": "History / Founding (2013–2014)",
+   "text": "He stated, \"I immediately realized that I liked it better than all of the other alternatives that I had seen; I suppose it was that [it] sounded nice and it had the word 'ether', referring to the hypothetical invisible medium that permeates the universe and allows light to travel.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0028",
+   "section": "History / Founding (2013–2014)",
+   "text": "Buterin wanted his platform to be the underlying and imperceptible medium for the applications running on top of it.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0029",
+   "section": "History / Development (2014)",
+   "text": "Formal development of the software underlying Ethereum began in early 2014 through a Swiss company, Ethereum Switzerland GmbH (EthSuisse).The idea of putting executable smart contracts in the blockchain needed to be specified before it could be implemented in software.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0030",
+   "section": "History / Development (2014)",
+   "text": "This work was done by Gavin Wood, then the chief technology officer, in the Ethereum Yellow Paper that specified the Ethereum Virtual Machine.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0031",
+   "section": "History / Development (2014)",
+   "text": "Subsequently, a Swiss non-profit foundation, the Ethereum Foundation (Stiftung Ethereum), was founded.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0032",
+   "section": "History / Development (2014)",
+   "text": "Development was funded by an online public crowd sale from July to August 2014, in which participants bought the Ethereum value token (ether) with another digital currency, bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0033",
+   "section": "History / Development (2014)",
+   "text": "While there was early praise for the technical innovations of Ethereum, questions were also raised about its security and scalability.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0034",
+   "section": "History / Development (2014)",
+   "text": "The Foundation funded multiple teams in different cities building three separate implementations of the protocol: Geth (Go), Pyethereum (Python), a C++ implementation, and also Swarm (decentralized file storage), Mist Browser (A wallet, browser and a user interface for smart contracts, now defunct) among other projects.",
+   "class": "data",
+   "claim": "Mist browser is defunct",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0035",
+   "section": "History / Development (2014)",
+   "text": "The intended purpose of the three distinct implementations would be so that if one of them had a bug, the other two could be used as a comparison.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0036",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "Several codenamed prototypes of Ethereum were developed over 18 months in 2014 and 2015 by the Ethereum Foundation as part of their proof-of-concept series.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0037",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "\"Olympic\" was the last prototype and public beta pre-release.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0038",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "The Olympic network gave users a bug bounty of 25,000 ether for stress-testing the Ethereum blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0039",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "On 30 July 2015, \"Frontier\" marked the official launch of the Ethereum platform, and Ethereum created its \"genesis block\".",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0040",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "The genesis block contained 8,893 transactions allocating various amounts of ether to different addresses, and a block reward of 5 ETH.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0041",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "Since the initial launch, Ethereum has undergone a number of planned protocol upgrades, which are important changes affecting the underlying functionality and/or incentive structures of the platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0042",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "Protocol upgrades are accomplished by means of a hard fork.",
+   "class": "data",
+   "claim": "protocol upgrades are done by hard fork",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0043",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "In 2016, a decentralized autonomous organization called The DAO—a set of smart contracts developed on the platform—raised a record US$150 million in a crowd sale to fund the project.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0044",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "Emin Gün Sirer, Vlad Zamfir and Dino Mark had written a paper called A Call for a Temporary Moratorium on The DAO in which they described in which way the DAO might be vunerable to attacks.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0045",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "The DAO was exploited in June 2016 when US$50 million of DAO tokens were stolen by an unknown hacker.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0046",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "The event sparked a debate in the crypto-community about whether Ethereum should perform a contentious \"hard fork\" to reappropriate the affected funds.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0047",
+   "section": "History / Launch and the DAO event (2014–2016)",
+   "text": "The fork resulted in the network splitting into two blockchains: Ethereum with the theft reversed, and Ethereum Classic which continued on the original chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0048",
+   "section": "History / Continued development and milestones (2017–present)",
+   "text": "In March 2017, various blockchain startups, research groups, and Fortune 500 companies announced the creation of the Enterprise Ethereum Alliance (EEA) with 30 founding members.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0049",
+   "section": "History / Continued development and milestones (2017–present)",
+   "text": "By May 2017, the nonprofit organization had 116 enterprise members, including ConsenSys, CME Group, Cornell University's research group, Toyota Research Institute, Samsung SDS, Microsoft, Intel, J. P. Morgan, Cooley LLP, Merck KGaA, DTCC, Deloitte, Accenture, Banco Santander, BNY Mellon, ING, and National Bank of Canada.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0050",
+   "section": "History / Continued development and milestones (2017–present)",
+   "text": "By July 2017, there were over 150 members in the alliance, including MasterCard, Cisco Systems, Sberbank, and Scotiabank.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0051",
+   "section": "History / Continued development and milestones (2017–present)",
+   "text": "In 2024, Paul Brody, EEA board member for EY, was announced as the new chairperson, and Karen Scarbrough, board member for Microsoft, as the new executive director.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0052",
+   "section": "History / Continued development and milestones (2017–present)",
+   "text": "Vanessa Grellet from Arche Capital also joined as a new board member.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0053",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "In 2017, CryptoKitties, the blockchain game and decentralized application (dApp) featuring digital cat artwork as NFTs, was launched on the Ethereum network.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0054",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "In cultivating popularity with users and collectors, it gained notable mainstream media attention providing significant exposure to Ethereum in the process.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0055",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "It was considered the most popular smart contract in use on the network but it also highlighted concerns over Ethereum's scalability due to the game's substantial consumption of network capacity at the time.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0056",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "In January 2018, a community-driven paper (an EIP, \"Ethereum Improvement Proposal\") under the leadership of civic hacker and lead author William Entriken was published, called ERC-721: Non-Fungible Token Standard.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0057",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "It introduced ERC-721, the first official NFT standard on Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0058",
+   "section": "History / CryptoKitties and the ERC-721 NFT standard",
+   "text": "This standardization allowed Ethereum to become central to a multi-billion dollar digital collectibles market.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0059",
+   "section": "History / Continued developments",
+   "text": "By January 2018, ether was the second-largest cryptocurrency in terms of market capitalization, behind bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0060",
+   "section": "History / Continued developments",
+   "text": "As of 2021, it maintained that relative position.",
+   "class": "data",
+   "claim": "ether held 2nd place by market cap as of 2021",
+   "asOf": "2021"
+  },
+  {
+   "id": "ethereum-0061",
+   "section": "History / Continued developments",
+   "text": "In 2019, Ethereum Foundation employee Virgil Griffith was arrested by the US government for presenting at a blockchain conference in North Korea.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0062",
+   "section": "History / Continued developments",
+   "text": "He would later plead guilty to one count of conspiring to violate the International Emergency Economic Powers Act in 2021.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0063",
+   "section": "History / Continued developments",
+   "text": "In March 2021, Visa Inc. announced that it began settling stablecoin transactions using Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0064",
+   "section": "History / Continued developments",
+   "text": "In April 2021, JP Morgan Chase, UBS, and MasterCard announced that they were investing US$65 million into ConsenSys, a software development firm that builds Ethereum-related infrastructure.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0065",
+   "section": "History / Continued developments",
+   "text": "There were two network upgrades in 2021.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0066",
+   "section": "History / Continued developments",
+   "text": "The first was \"Berlin\", implemented on 14 April 2021.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0067",
+   "section": "History / Continued developments",
+   "text": "The second was \"London\", which took effect on 5 August.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0068",
+   "section": "History / Continued developments",
+   "text": "The London upgrade included Ethereum Improvement Proposal (\"EIP\") 1559, a mechanism for reducing transaction fee volatility.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0069",
+   "section": "History / Continued developments",
+   "text": "The mechanism causes a portion of the ether paid in transaction fees for each block to be destroyed rather than given to the block proposer, reducing the inflation rate of ether and potentially resulting in periods of deflation.",
+   "class": "data",
+   "claim": "part of each block's fees is destroyed (EIP-1559)",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0070",
+   "section": "History / Continued developments",
+   "text": "On 27 August 2021, the blockchain experienced a brief fork that was the result of clients running different incompatible software versions.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0071",
+   "section": "History / Transition to proof-of-stake",
+   "text": "\"The Merge\" (formerly called Ethereum 2.0) was a set of three updates (Bellatrix, Paris, and Shapella) that transitioned Ethereum's consensus protocol from proof-of-work to proof-of-stake.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0072",
+   "section": "History / Transition to proof-of-stake",
+   "text": "Bellatrix updated the proof-of-stake Beacon chain and introduced economic slashing.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0073",
+   "section": "History / Transition to proof-of-stake",
+   "text": "Paris was the event at block 15537393 on 15 September 2022 that merged Ethereum to the Beacon chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0074",
+   "section": "History / Transition to proof-of-stake",
+   "text": "Shapella (Shanghai-Capella) was the update that allowed for staking withdrawals.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0075",
+   "section": "History / Transition to proof-of-stake",
+   "text": "The switch from proof-of-work to proof-of-stake has cut Ethereum's energy usage by over 99%.",
+   "class": "data",
+   "claim": "switch to PoS cut Ethereum energy use by over 99%",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0076",
+   "section": "History / Transition to proof-of-stake",
+   "text": "However, the effect this has on global energy consumption and climate change may be limited since the computers previously used for mining ether may be used to mine other cryptocurrencies that are energy-intensive.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0077",
+   "section": "History / Dencun",
+   "text": "On 13 March 2024, \"Dencun\" or also \"Deneb-Cancun\" set of upgrades went live.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0078",
+   "section": "History / Dencun",
+   "text": "These included EIP-4844 (Proto-Danksharding) which introduced \"blobs\" that can be used for general-purpose data-availability.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0079",
+   "section": "History / Dencun",
+   "text": "Because \"Blob\" data is stored only temporarily, it is much cheaper than using normal call data for storage.",
+   "class": "data",
+   "claim": "blob data is stored only temporarily and is cheaper than calldata",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0080",
+   "section": "History / Dencun",
+   "text": "This allows for Ethereum Layer 2 (L2) networks to greatly reduce the cost of posting compressed transaction data to the Layer 1 (L1).",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0081",
+   "section": "History / Pectra",
+   "text": "The Prague-Electra (\"Pectra\") update was launched on 7 May 2025.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0082",
+   "section": "History / Pectra",
+   "text": "It brought various updates.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0083",
+   "section": "History / Fusaka",
+   "text": "The Fulu-Osaka update went live on 3 December 2025.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0084",
+   "section": "History / Fusaka",
+   "text": "This update introduced several protocol improvements.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0085",
+   "section": "Design / Overview",
+   "text": "Ethereum is a peer-to-peer network that maintains a database containing the storage values of all Ethereum accounts and processes state-altering transactions.",
+   "class": "data",
+   "claim": "Ethereum is a p2p network maintaining account state and processing transactions",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0086",
+   "section": "Design / Overview",
+   "text": "Approximately every 12 seconds, a batch of new transactions, known as a \"block\", is processed by the network.",
+   "class": "data",
+   "claim": "a block about every 12 seconds",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0087",
+   "section": "Design / Overview",
+   "text": "Each block contains a cryptographic hash identifying the series of blocks that must precede it if the block is to be considered valid.",
+   "class": "data",
+   "claim": "each block carries the hash of its parent",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0088",
+   "section": "Design / Overview",
+   "text": "This series of blocks is known as the blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0089",
+   "section": "Design / Overview",
+   "text": "Each \"node\" (network participant) connects with a relatively small subset of the network to offer blocks and unvalidated transactions (i.e. transactions not yet in the blockchain) to its peers for download, and it downloads any from its peers that it doesn't already have.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0090",
+   "section": "Design / Overview",
+   "text": "Each node usually has a unique set of peers, so that offering an item to its peers results in the propagation of that item throughout the entire network within seconds.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0091",
+   "section": "Design / Overview",
+   "text": "A node's collection of unvalidated transactions is known as its \"mempool\".",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0092",
+   "section": "Design / Overview",
+   "text": "A node may choose to create a copy of the state for itself.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0093",
+   "section": "Design / Overview",
+   "text": "It does this by starting with the genesis state and executing every transaction in the blockchain, in the proper order of blocks and in the order they are listed within each block.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0094",
+   "section": "Design / Overview",
+   "text": "Any Ethereum account may \"stake\" (deposit) 32 or more ETH to register a \"validator\".",
+   "class": "data",
+   "claim": "staking 32 or more ETH registers a validator",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0095",
+   "section": "Design / Overview",
+   "text": "At the end of each \"epoch\" (32 block slots, each slot lasting 12 seconds), each validator is pseudorandomly assigned to one of the slots of the epoch after the next, either as the block proposer or as an attester.",
+   "class": "data",
+   "claim": "epoch is 32 slots, slot is 12 seconds, duties assigned for the epoch after next",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0096",
+   "section": "Design / Overview",
+   "text": "During a slot, the block proposer uses their mempool to create a block that is intended to become the new \"head\" (latest block) of the blockchain, and the attesters attest to which block is at the head of the chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0097",
+   "section": "Design / Overview",
+   "text": "If a validator makes self-contradicting proposals or attestations, or if it is inactive, it loses a portion of its stake.",
+   "class": "data",
+   "claim": "self-contradiction or inactivity loses part of a validator's stake",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0098",
+   "section": "Design / Overview",
+   "text": "Any Ethereum account may send ETH to a validator at any time to increase its stake.",
+   "class": "data",
+   "claim": "any account may add ETH to a validator at any time",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0099",
+   "section": "Design / Overview",
+   "text": "A validator's attestation is given a weight equal to its stake or 2,048, whichever is less.",
+   "class": "data",
+   "claim": "attestation weight equals stake capped at 2,048",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0100",
+   "section": "Design / Overview",
+   "text": "According to the Ethereum protocol, the blockchain with the highest accumulated weight of attestations at any given time is to be regarded as the canonical chain.",
+   "class": "data",
+   "claim": "canonical chain is the one with highest accumulated attestation weight",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0101",
+   "section": "Design / Overview",
+   "text": "Validators are rewarded for making valid proposals and attestations.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0102",
+   "section": "Design / Overview",
+   "text": "A validator's rewards are paid via transactions within the same chain that contains their proposal or attestation, and therefore would have little or no market value unless that chain becomes the canonical chain.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0103",
+   "section": "Design / Overview",
+   "text": "This incentivizes validators to support the chain that they think other validators view as the canonical chain, which results in a high degree of consensus.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0104",
+   "section": "Design / Ether",
+   "text": "Ether (ETH) is the cryptocurrency generated in accordance with the Ethereum protocol as a reward to validators in a proof-of-stake system for adding blocks to the blockchain.",
+   "class": "data",
+   "claim": "ETH is generated as a reward to validators",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0105",
+   "section": "Design / Ether",
+   "text": "Ether is represented in the state as an unsigned integer associated with each account, this being the account's ETH balance denominated in wei (1018 wei = 1 ether).",
+   "class": "data",
+   "claim": "1 ether = 10^18 wei",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0106",
+   "section": "Design / Ether",
+   "text": "At the end of each epoch, new ETH is generated by the addition of protocol-specified amounts to the balances of all validators that made valid block proposals or attestations in the epoch before the last (i.e. the epoch being finalized).",
+   "class": "data",
+   "claim": "new ETH is added to validator balances at the end of each epoch",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0107",
+   "section": "Design / Ether",
+   "text": "Additionally, ether is the only currency accepted by the protocol as payment for the transaction fee.",
+   "class": "data",
+   "claim": "ether is the only currency accepted for the transaction fee",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0108",
+   "section": "Design / Ether",
+   "text": "The transaction fee is composed of two parts: the base fee and the tip.",
+   "class": "data",
+   "claim": "fee has two parts, base fee and tip",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0109",
+   "section": "Design / Ether",
+   "text": "The base fee is \"burned\" (deleted from existence) and the tip goes to the block proposer.",
+   "class": "data",
+   "claim": "base fee is burned and tip goes to the block proposer",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0110",
+   "section": "Design / Ether",
+   "text": "The validator reward together with the tips provide the incentive to validators to keep the blockchain growing (i.e. to keep processing new transactions).",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0111",
+   "section": "Design / Ether",
+   "text": "Therefore, ETH is fundamental to the operation of the network.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0112",
+   "section": "Design / Ether",
+   "text": "Ether may be \"sent\" from one account to another via a transaction, the execution of which simply entails subtracting the amount to be sent from the sender's balance and adding the same amount to the recipient's balance.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0113",
+   "section": "Design / Ether",
+   "text": "Ether is often erroneously referred to as \"Ethereum\".",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0114",
+   "section": "Design / Ether",
+   "text": "The uppercase Greek letter Xi, Ξ, is sometimes used as a currency symbol for ether.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0115",
+   "section": "Design / Accounts",
+   "text": "There are two types of accounts on Ethereum: externally-owned accounts (EOAs) and contract accounts.",
+   "class": "data",
+   "claim": "two account types, EOAs and contract accounts",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0116",
+   "section": "Design / Accounts",
+   "text": "Both types have an ETH balance, may transfer ETH to any account, may execute the code of contracts, or create new contracts, and are identified on the blockchain and in the state by an account address.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0117",
+   "section": "Design / Accounts",
+   "text": "EOAs are the only type of account that may create transactions.",
+   "class": "data",
+   "claim": "EOAs are the only type of account that may create transactions",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0118",
+   "section": "Design / Accounts",
+   "text": "Each EOA is controlled using its associated 64-character hexadecimal string known as its \"private key\", from which the account's address is derived.",
+   "class": "data",
+   "claim": "EOA private key is a 64-character hex string",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0119",
+   "section": "Design / Accounts",
+   "text": "Contracts are the only type of account that has associated bytecode and storage (to store contract-specific state).",
+   "class": "data",
+   "claim": "contracts are the only account type with bytecode and storage",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0120",
+   "section": "Design / Accounts",
+   "text": "The code of a contract is evaluated when a transaction is sent to it.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0121",
+   "section": "Design / Accounts",
+   "text": "The code of the contract may read user-specified data from the transaction, and may have a return value.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0122",
+   "section": "Design / Accounts",
+   "text": "The bytecode may include instructions to send ETH, read from and write to the contract's storage, store information in volatile memory that vanishes at the end of code evaluation, perform arithmetic, send transaction-like calls to other contracts (thus executing their code), create new contracts, and query information about the current transaction or the blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0123",
+   "section": "Design / Virtual machine",
+   "text": "The Ethereum Virtual Machine (EVM) is the runtime environment for transaction execution in Ethereum.",
+   "class": "data",
+   "claim": "the EVM is the runtime for transaction execution",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0124",
+   "section": "Design / Virtual machine",
+   "text": "The EVM is a stack based virtual machine with an instruction set specifically designed for Ethereum.",
+   "class": "data",
+   "claim": "the EVM is a stack-based virtual machine",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0125",
+   "section": "Design / Virtual machine",
+   "text": "The instruction set includes, among other things, stack operations, memory operations, and operations to inspect the current execution context, such as remaining gas, information about the current block, and the current transaction.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0126",
+   "section": "Design / Virtual machine",
+   "text": "The EVM is designed to be deterministic on a wide variety of hardware and operating systems, so that given a pre-transaction state and a transaction, each node produces the same post-transaction state, thereby enabling network consensus.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0127",
+   "section": "Design / Virtual machine",
+   "text": "The formal definition of the EVM is specified in the Ethereum Yellow Paper.",
+   "class": "data",
+   "claim": "formal definition of the EVM is in the Yellow Paper",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0128",
+   "section": "Design / Virtual machine",
+   "text": "EVMs have been implemented in C++, C#, Go, Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang, and soon WebAssembly.",
+   "class": "data",
+   "claim": "EVM implemented in C++, C#, Go, Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang, and soon WebAssembly",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0129",
+   "section": "Design / Gas",
+   "text": "Gas is a unit of account within the EVM used in the calculation of the transaction fee, which is the amount of ETH a transaction's sender must pay to the network to have the transaction included in the blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0130",
+   "section": "Design / Gas",
+   "text": "Each type of operation which may be performed by the EVM is hardcoded with a certain gas cost, which is intended to be roughly proportional to the monetary value of the resources (e.g. computation and storage) a node must expend or dedicate to perform that operation.",
+   "class": "data",
+   "claim": "each operation has a hardcoded gas cost",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0131",
+   "section": "Design / Gas",
+   "text": "When a sender is creating a transaction, the sender must specify a gas limit and gas price.",
+   "class": "data",
+   "claim": "sender must specify a gas limit and gas price",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0132",
+   "section": "Design / Gas",
+   "text": "The gas limit is the maximum amount of gas the sender is willing to use in the transaction, and the gas price is the amount of ETH the sender wishes to pay to the network per unit of gas used.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0133",
+   "section": "Design / Gas",
+   "text": "A transaction may only be included in the blockchain at a block slot that has a base gas price less than or equal to the transaction's gas price.",
+   "class": "data",
+   "claim": "a transaction needs a gas price at or above the block base fee",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0134",
+   "section": "Design / Gas",
+   "text": "The portion of the gas price that is in excess of the base gas price, known as a \"priority fee\" (or \"tip\"), goes to the block proposer; the higher the priority fee, the more incentive a block proposer has to include the transaction in their block, and thus the quicker the transaction will be included in the blockchain.",
+   "class": "data",
+   "claim": "excess over base fee is a priority fee that goes to the proposer",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0135",
+   "section": "Design / Gas",
+   "text": "The sender buys the full amount of gas (i.e. their ETH balance is debited gas limit × gas price and their gas balance is set to gas limit) up-front, at the start of the execution of the transaction, and is refunded at the end for any unused gas.",
+   "class": "data",
+   "claim": "gas is bought up front and unused gas refunded",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0136",
+   "section": "Design / Gas",
+   "text": "If at any point the transaction does not have enough gas to perform the next operation, the transaction is reverted but the sender is still only refunded for the unused gas.",
+   "class": "data",
+   "claim": "out-of-gas reverts the transaction",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0137",
+   "section": "Design / Gas",
+   "text": "Gas prices can be denominated in Gwei, a subunit of ETH equal to 0.000000001 ETH.",
+   "class": "data",
+   "claim": "1 gwei = 0.000000001 ETH",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0138",
+   "section": "Design / Gas",
+   "text": "The name GWei is a contraction of \"giga-Wei\", and is a reference to computer engineer Wei Dai.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0139",
+   "section": "Applications",
+   "text": "The EVM's instruction set is Turing-complete.",
+   "class": "data",
+   "claim": "EVM instruction set is Turing-complete",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0140",
+   "section": "Applications",
+   "text": "Popular uses of Ethereum have included the creation of fungible (ERC-20) and non-fungible (ERC-721) tokens with a variety of properties, crowdfunding (e.g. initial coin offerings), decentralized finance, decentralized exchanges, decentralized autonomous organizations (DAOs), games, prediction markets, and gambling.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0141",
+   "section": "Applications / Contract source code",
+   "text": "Ethereum's smart contracts are written in high-level programming languages and then compiled down to EVM bytecode, which is then deployed to the Ethereum blockchain.",
+   "class": "data",
+   "claim": "contracts are compiled to EVM bytecode",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0142",
+   "section": "Applications / Contract source code",
+   "text": "They can be written in Solidity (a language library with similarities to C and JavaScript), as well as others.",
+   "class": "data",
+   "claim": "contracts can be written in Solidity and others",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0143",
+   "section": "Applications / Contract source code",
+   "text": "Source code and compiler information are usually published on blockchain explorer websites soon after the launch of the contract so that users can see the code and verify that it compiles to the bytecode that is on-chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0144",
+   "section": "Applications / Contract source code",
+   "text": "One issue related to using smart contracts on a public blockchain is that bugs, including security holes, are visible to all but cannot be fixed quickly.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0145",
+   "section": "Applications / Contract source code",
+   "text": "One example of this is the 2016 attack on The DAO, which could not be quickly stopped or reversed.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0146",
+   "section": "Applications / ERC-20 tokens",
+   "text": "The ERC-20 (Ethereum Request-for-Comments #20) Token Standard allows for fungible tokens on the Ethereum blockchain.",
+   "class": "data",
+   "claim": "ERC-20 is the fungible token standard on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0147",
+   "section": "Applications / ERC-20 tokens",
+   "text": "The standard, proposed by Fabian Vogelsteller in November 2015, implements an API for tokens within smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0148",
+   "section": "Applications / ERC-20 tokens",
+   "text": "The standard provides functions that include the transfer of tokens from one account to another, getting the current token balance of an account, and getting the total supply of the token available on the network.",
+   "class": "data",
+   "claim": "ERC-20 provides transfer, balance and total supply functions",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0149",
+   "section": "Applications / ERC-20 tokens",
+   "text": "Smart contracts that correctly implement ERC-20 processes are called ERC-20 Token Contracts, and they keep track of created tokens on Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0150",
+   "section": "Applications / ERC-20 tokens",
+   "text": "Numerous cryptocurrencies have launched as ERC-20 tokens and have been distributed through initial coin offerings.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0151",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "Ethereum also allows for the creation of unique and indivisible tokens, called non-fungible tokens (NFTs).",
+   "class": "data",
+   "claim": "Ethereum allows NFTs",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0152",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "Since tokens of this type are unique, they have been used to represent such things as collectibles, digital art, sports memorabilia, virtual real estate, and items within games.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0153",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "ERC-721 is the first official NFT standard for Ethereum and was followed up by ERC-1155 which introduced semi-fungibility; both are widely used, though some fully fungible tokens using ERC-20 have been used for NFTs such as CryptoPunks.",
+   "class": "data",
+   "claim": "ERC-721 first official NFT standard, followed by ERC-1155",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0154",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "The first NFT project, Etheria, a 3D map of tradable and customizable hexagonal tiles, was deployed to the network in October 2015 and demonstrated live at DEVCON1 in November of that year.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0155",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "In 2021, Christie's sold a digital image with an NFT by Beeple for US$69.3 million, making him the third-most-valuable living artist in terms of auction prices at the time, although observers have noted that both the buyer and seller had a vested interest in driving demand for the artist's work.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0156",
+   "section": "Applications / Decentralized finance",
+   "text": "Decentralized finance (DeFi) offers financial instruments in a decentralized architecture, outside of companies' and governments' control, such as money market funds which let users earn interest.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0157",
+   "section": "Applications / Decentralized finance",
+   "text": "DeFi applications are typically accessed through a Web3-enabled browser extension or application, such as MetaMask, which allows users to directly interact with the Ethereum blockchain through a website.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0158",
+   "section": "Applications / Decentralized finance",
+   "text": "Many of these DApps can connect and work together to create complex financial services.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0159",
+   "section": "Applications / Decentralized finance",
+   "text": "Examples of DeFi platforms include MakerDAO.",
+   "class": "data",
+   "claim": "MakerDAO is an example DeFi platform",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0160",
+   "section": "Applications / Decentralized finance",
+   "text": "Uniswap, a decentralized exchange for tokens on Ethereum grew from US$20 million in liquidity to US$2.9 billion in 2020.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0161",
+   "section": "Applications / Decentralized finance",
+   "text": "As of October 2020, over US$11 billion was invested in various DeFi protocols.",
+   "class": "data",
+   "claim": "over US$11 billion invested in DeFi as of October 2020",
+   "asOf": "2020-10"
+  },
+  {
+   "id": "ethereum-0162",
+   "section": "Applications / Decentralized finance",
+   "text": "Additionally, through a process called \"wrapping\", certain DeFi protocols allow synthetic versions of various assets (such as bitcoin, gold, and oil) to be tradeable on Ethereum and also compatible with all of Ethereum's major wallets and applications.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0163",
+   "section": "Applications / Decentralized finance",
+   "text": "Aave is a protocol for microlending using Ethereum.",
+   "class": "data",
+   "claim": "Aave is a protocol for lending on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0164",
+   "section": "Applications / Enterprise software",
+   "text": "Ethereum-based software and networks, independent from the public Ethereum chain, have been tested by enterprise software companies.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0165",
+   "section": "Applications / Enterprise software",
+   "text": "Interested parties have included Microsoft, IBM, JPMorgan Chase, Deloitte, R3, and Innovate UK (cross-border payments prototype).",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0166",
+   "section": "Applications / Enterprise software",
+   "text": "Barclays, UBS, Credit Suisse, Amazon, Visa, and other companies have also experimented with Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0167",
+   "section": "Applications / Enterprise software",
+   "text": "In 2017, JPMorgan Chase proposed developing JPM Coin on a permissioned-variant of Ethereum blockchain dubbed \"Quorum\" for handling institution-to-institution payments.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0168",
+   "section": "Applications / Enterprise software",
+   "text": "JPM Coin was formally announced in February 2019.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0169",
+   "section": "Applications / Enterprise software",
+   "text": "It is designed to satisfy financial regulators while also preserving the privacy of its users from the general public.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0170",
+   "section": "Applications / Performance and scalability",
+   "text": "As of December 2025, the maximum theoretical throughput for Ethereum L1 is 238 TPS (given its current 60M gas limit, 12s blocks, and 21k gas cost for ETH transfers).",
+   "class": "data",
+   "claim": "max L1 throughput 238 TPS given 60M gas limit, 12s blocks, 21k gas transfers",
+   "asOf": "2025-12"
+  },
+  {
+   "id": "ethereum-0171",
+   "section": "Applications / Performance and scalability",
+   "text": "Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.",
+   "class": "data",
+   "claim": "average throughput is much less than the maximum",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0172",
+   "section": "Applications / Performance and scalability",
+   "text": "As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.",
+   "class": "data",
+   "claim": "about 25 TPS as of January 2016, unchanged after proof of stake",
+   "asOf": "2016-01"
+  },
+  {
+   "id": "ethereum-0173",
+   "section": "Applications / Performance and scalability",
+   "text": "In comparison, the Visa payment platform processes 45,000 payments per second.",
+   "class": "data",
+   "claim": "Visa processes 45,000 payments per second",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0174",
+   "section": "Applications / Performance and scalability",
+   "text": "This has led some to question the scalability of Ethereum.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0175",
+   "section": "Applications / Performance and scalability",
+   "text": "Ethereum's blockchain uses a Merkle–Patricia Tree to store account state in each block.",
+   "class": "data",
+   "claim": "Ethereum uses a Merkle-Patricia tree for account state",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0176",
+   "section": "Applications / Performance and scalability",
+   "text": "The trie allows for storage savings, set membership proofs (called \"Merkle proofs\"), and light client synchronization.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0177",
+   "section": "Applications / Performance and scalability",
+   "text": "The network has faced congestion problems, such as in 2017 in relation to CryptoKitties.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0178",
+   "section": "Applications / Performance and scalability",
+   "text": "Layer 2 (L2) is one of the approaches that the Ethereum ecosystem has developed in order to scale up and handle more transactions with lower transaction fees.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0179",
+   "section": "Applications / Performance and scalability",
+   "text": "A Layer 2 chain is a separate blockchain that extends Ethereum (Layer 1) and inherits the security guarantees of Ethereum.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0180",
+   "section": "Applications / Performance and scalability",
+   "text": "There are different types of L2 chains, including optimistic rollups and zero-knowledge rollups (zk rollups).",
+   "class": "data",
+   "claim": "L2 types include optimistic and zk rollups",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0181",
+   "section": "Applications / Performance and scalability",
+   "text": "Depending on their individual technical details, some L2 chains are capable of processing thousands of transactions per second.",
+   "class": "data",
+   "claim": "some L2 chains can process thousands of TPS",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0182",
+   "section": "Legal status and regulation",
+   "text": "The legal status of ether (ETH), Ethereum's native token, remains subject to uncertainty and varies substantially from one jurisdiction to another.",
+   "class": "opinion"
+  },
+  {
+   "id": "ethereum-0183",
+   "section": "Legal status and regulation",
+   "text": "In the United States, regulatory authorities have increasingly signaled that ether should be treated as a commodity under the jurisdiction of the Commodity Futures Trading Commission (CFTC).",
+   "class": "data",
+   "claim": "US regulators signal ether is a commodity under the CFTC",
+   "asOf": null
+  },
+  {
+   "id": "ethereum-0184",
+   "section": "Legal status and regulation",
+   "text": "The CFTC has repeatedly asserted its regulatory authority over Ethereum, with former CFTC Chairman Heath Tarbert stating in 2019 that \"ETH is a commodity\" and subsequent leadership maintaining this position.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0185",
+   "section": "Legal status and regulation",
+   "text": "From a private law perspective, many jurisdictions have recognized ether as a form of intangible personal property that can be owned, transferred, and used as collateral, similar to other forms of personal property.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0186",
+   "section": "Legal status and regulation",
+   "text": "In the United States specifically, the 2022 Amendments to the Uniform Commercial Code (UCC) introduced \"controllable electronic records\" (CERs) as a new category of personal property that includes digital assets like ether.",
+   "class": "sourced"
+  },
+  {
+   "id": "ethereum-0187",
+   "section": "Legal status and regulation",
+   "text": "Under UCC Article 12, ETH is classified as a CER, which provides a comprehensive framework for its commercial circulation.",
+   "class": "data",
+   "claim": "under UCC Article 12, ETH is a controllable electronic record",
+   "asOf": null
+  }
+ ]
+}

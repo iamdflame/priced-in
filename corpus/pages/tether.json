@@ -1,0 +1,1198 @@
+{
+ "slug": "tether",
+ "title": "Tether (cryptocurrency)",
+ "revid": 1382852995,
+ "timestamp": "2026-10-30T17:27:49Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Tether (cryptocurrency)\", English Wikipedia, revision 1382852995 (2026-10-30T17:27:49Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 21,
+  "sourced": 145,
+  "opinion": 24
+ },
+ "sentences": [
+  {
+   "id": "tether-0001",
+   "section": "(lead)",
+   "text": "Tether is a stablecoin—a digital currency whose value aims to maintain a stable value relative to the United States dollar—launched by Tether Limited in 2014.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0002",
+   "section": "(lead)",
+   "text": "It is represented by its currency codes USD₮ and USDT.",
+   "class": "data",
+   "claim": "currency codes USD₮ and USDT",
+   "asOf": null
+  },
+  {
+   "id": "tether-0003",
+   "section": "(lead)",
+   "text": "Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies.",
+   "class": "data",
+   "claim": "USDT is the world's largest stablecoin by market cap",
+   "asOf": null
+  },
+  {
+   "id": "tether-0004",
+   "section": "(lead)",
+   "text": "In 2019, it surpassed bitcoin to become the most traded cryptocurrency globally.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0005",
+   "section": "(lead)",
+   "text": "As of July 2024, Tether has more than 350 million users worldwide.",
+   "class": "data",
+   "claim": "as of July 2024 Tether has more than 350M users",
+   "asOf": "2024-07"
+  },
+  {
+   "id": "tether-0006",
+   "section": "(lead)",
+   "text": "As of August 2026, Tether CEO Paolo Ardoino estimated that USDT had more than 650 million users worldwide, particularly in emerging markets such as Africa and South America.",
+   "class": "data",
+   "claim": "as of August 2026 Ardoino estimated more than 650M users",
+   "asOf": "2026-08"
+  },
+  {
+   "id": "tether-0007",
+   "section": "(lead)",
+   "text": "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange.",
+   "class": "data",
+   "claim": "Tether Limited is owned by iFinex, BVI-based, which operates Bitfinex",
+   "asOf": null
+  },
+  {
+   "id": "tether-0008",
+   "section": "(lead)",
+   "text": "Tether has faced criticism regarding the transparency and verifiability of its stated fiat reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0009",
+   "section": "(lead)",
+   "text": "Tether announced in August 2026 that KPMG U.S. had completed a \"full independent audit\" of its 2025 financial statements and issued an unqualified opinion under U.S. generally accepted accounting principles.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0010",
+   "section": "(lead)",
+   "text": "USDT traded on secondary markets has been linked to money laundering and other financial crimes.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0011",
+   "section": "(lead)",
+   "text": "Tether has also worked with law enforcement agencies to freeze tokens associated with suspected illicit activity.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0012",
+   "section": "(lead)",
+   "text": "By October 2026, the company said it had helped freeze more than $5 billion in illicit assets and supported over 2,900 investigations involving more than 340 law enforcement agencies across 70 countries.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0013",
+   "section": "History / Creation",
+   "text": "In 2012, J. R. Willett published a white paper that described the possibility of building new cryptocurrencies on top of the bitcoin blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0014",
+   "section": "History / Creation",
+   "text": "Willett went on to help implement this idea in the cryptocurrency Mastercoin, which had an associated Mastercoin Foundation (later renamed the Omni Foundation). to promote the use of this new \"second layer\".",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0015",
+   "section": "History / Creation",
+   "text": "The Mastercoin protocol became the technological foundation of the Tether cryptocurrency, and Brock Pierce (one of the original members of Mastercoin Foundation) became a co-founder of Tether while Tether founder Craig Sellars became the CTO of the Mastercoin Foundation.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0016",
+   "section": "History / Creation",
+   "text": "The precursor to Tether, originally named \"Realcoin\", was announced in July 2014 by co-founders Brock Pierce, Reeve Collins, and Craig Sellars as a Santa Monica-based startup.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0017",
+   "section": "History / Creation",
+   "text": "The first tokens were issued on 6 October 2014, on the bitcoin blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0018",
+   "section": "History / Creation",
+   "text": "Realcoin used bitcoin's computer infrastructure to exchange property and execute contracts without third-party intermediaries, enabling additional commercial uses on the bitcoin network.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0019",
+   "section": "History / Creation",
+   "text": "Realcoin worked with banks, digital-currency exchanges, and ATM providers to become \"gateways\" for buying, trading, or redeeming realcoins around the world.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0020",
+   "section": "History / Creation",
+   "text": "On 20 November 2014, Tether CEO Reeve Collins announced the project was being renamed to \"Tether\".",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0021",
+   "section": "History / Creation",
+   "text": "The company also announced it was entering private beta, which supported a \"Tether+ token\" for three currencies: USTether (US+) for United States dollars, EuroTether (EU+) for euros, and YenTether (JP+) for Japanese yen.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0022",
+   "section": "History / Creation",
+   "text": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
+   "class": "data",
+   "claim": "Tether Holdings is headquartered in El Salvador as of January 2025",
+   "asOf": "2025-01"
+  },
+  {
+   "id": "tether-0023",
+   "section": "History / Creation",
+   "text": "In July 2022, Tether started releasing quarterly attestations by the accounting company BDO Italia.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0024",
+   "section": "History / 2015–2016",
+   "text": "In January 2015, the cryptocurrency exchange Bitfinex enabled trading of Tether on their platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0025",
+   "section": "History / 2015–2016",
+   "text": "In 2018, Phil Potter, the chief strategy officer for Bitfinex, left the company after the Paradise Papers leaks in November 2017 named Bitfinex officials Philip Potter and Giancarlo Devasini as responsible for setting up Tether Holdings Limited in the British Virgin Islands in 2014.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0026",
+   "section": "History / 2015–2016",
+   "text": "The Financial Times reported in 2022 that Devasini and Jan Ludovicus van der Velde founded two companies in 2012 and 2014, respectively, Bitfinex and Tether.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0027",
+   "section": "History / 2015–2016",
+   "text": "Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited.",
+   "class": "data",
+   "claim": "Tether Limited is a wholly owned subsidiary of BVI-based Tether Holdings",
+   "asOf": null
+  },
+  {
+   "id": "tether-0028",
+   "section": "History / 2015–2016",
+   "text": "For a short period, Tether managed United States dollar transactions through Taiwanese banks, which worked with Wells Fargo to enable the transfer of funds outside of Taiwan.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0029",
+   "section": "History / 2015–2016",
+   "text": "On 18 April 2017, Tether shared that these international transfers had come to a stop.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0030",
+   "section": "History / 2015–2016",
+   "text": "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.",
+   "class": "data",
+   "claim": "Tether issues on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid, Near, Polygon, Solana, Bitcoin Cash SLP, Statemint, Tezos, Tron",
+   "asOf": null
+  },
+  {
+   "id": "tether-0031",
+   "section": "History / 2015–2016",
+   "text": "There are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network.",
+   "class": "data",
+   "claim": "five distinct Tether tokens",
+   "asOf": null
+  },
+  {
+   "id": "tether-0032",
+   "section": "History / 2015–2016",
+   "text": "In August 2024, Tether announced that they would be launching a stablecoin pegged to the United Arab Emirates dirham.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0033",
+   "section": "History / 2015–2016",
+   "text": "The dirham, like several Gulf currencies, is pegged to the United States dollar.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0034",
+   "section": "History / 2017–2018",
+   "text": "From January 2017 to September 2018, the amount of tethers outstanding grew from about $10 million to about $2.8 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0035",
+   "section": "History / 2017–2018",
+   "text": "In early 2018, Tether accounted for about 10% of the trading volume of bitcoin, but during the summer of 2018, it accounted for up to 80% of bitcoin volume.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0036",
+   "section": "History / 2017–2018",
+   "text": "More than $500 million of Tether was issued in August 2018.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0037",
+   "section": "History / 2017–2018",
+   "text": "On 15 October 2018, the tether price briefly fell to $0.88 due to the perceived credit risk as traders on Bitfinex exchanged tether for bitcoin, driving up the price of bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0038",
+   "section": "History / 2017–2018",
+   "text": "The Wall Street Journal reported that in late 2018, Tether Holdings Ltd former co-owner Stephen Moore discussed efforts by a major Tether trader in China to \"circumvent the banking system by providing fake sales invoices and contracts for each deposit and withdrawal\", and the report quoted a Moore email in which he admitted signing these fake invoices and contracts but said he \"would not want to argue any of the above in a potential fraud/money laundering case.\"",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0039",
+   "section": "History / 2017–2018",
+   "text": "Tether released a response calling the report \"wholly inaccurate and misleading\" but did not cite any specific inaccuracies.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0040",
+   "section": "History / 2019–2023",
+   "text": "In 2019, Tether surpassed bitcoin in trading volume with the highest daily and monthly trading volume of any cryptocurrency on the market.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0041",
+   "section": "History / 2019–2023",
+   "text": "As of July 2021, Tether is tied to half of all bitcoin trades.",
+   "class": "data",
+   "claim": "as of July 2021 Tether tied to half of all bitcoin trades",
+   "asOf": "2021-07"
+  },
+  {
+   "id": "tether-0042",
+   "section": "History / 2019–2023",
+   "text": "Also in 2021, the company was fined by the CFTC for only maintaining full reserves during 27.6% of the days in the period from 2016 to 2018 as well as for failing to present audits showing sufficient asset reserves, an issue that Tether has since addressed.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0043",
+   "section": "History / 2019–2023",
+   "text": "In May 2022, Tether launched its MXNT token pegged to Mexico's peso as a \"testing ground\" in Latin America.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0044",
+   "section": "History / 2019–2023",
+   "text": "Tether continued operating in 2022 when several cryptocurrency and banking companies collapsed.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0045",
+   "section": "History / 2019–2023",
+   "text": "Tether's nearest competitor, Circle, experienced a faltered growth to the point where its $24 billion of USDC was worth barely more than a quarter of Tether's stash.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0046",
+   "section": "History / 2019–2023",
+   "text": "In October 2023, Paolo Ardoino, the chief technology officer for Tether, was promoted to CEO, succeeding Jean-Louis van der Velde.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0047",
+   "section": "History / 2019–2023",
+   "text": "In October 2023, The Wall Street Journal reported that Tether has been increasingly showing up in investigations tied to money laundering, terror financing, and sanctions evasion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0048",
+   "section": "History / 2019–2023",
+   "text": "Research firm Elliptic disputed the report's accuracy.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0049",
+   "section": "History / 2019–2023",
+   "text": "Tether published a blog post denying inadequate customer due diligence and screening practices, stating it had aided governments with criminal investigations, helping freeze $835 million in assets linked to theft.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0050",
+   "section": "History / 2019–2023",
+   "text": "The company reported in 2024 that they have worked with more than 140 law enforcement offices across 45 jurisdictions to assist cases involving illicit stablecoin use.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0051",
+   "section": "History / 2019–2023",
+   "text": "In May 2023, Tether announced plans to establish a bitcoin mining operation in Uruguay.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0052",
+   "section": "History / 2019–2023",
+   "text": "In June 2023, Tether Operations Limited held meetings with governmental structures and signed a memorandum with the Government of Georgia.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0053",
+   "section": "History / 2019–2023",
+   "text": "The partnership will create a special fund for local startups and aid in developing blockchain technologies in Georgia.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0054",
+   "section": "History / 2019–2023",
+   "text": "In November 2023, Tether announced that it plans to invest about half a billion dollars over the next six months to become one of the world's top bitcoin miners.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0055",
+   "section": "History / 2019–2023",
+   "text": "That investment includes part of a $610 million credit facility that Tether had extended to publicly traded bitcoin mining company Northern Data AG after acquiring shares in the Frankfurt-based firm in September.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0056",
+   "section": "History / 2019–2023",
+   "text": "In December 2023, Lugano, Switzerland, started to accept cryptocurrencies, including the Tether stablecoin, for paying taxes, fines, and all other invoices.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0057",
+   "section": "History / 2019–2023",
+   "text": "According to a report by blockchain analytics company TRM Labs, Tether was the most used stablecoin for criminal activity throughout 2023, having been connected to $19.3 billion in illicit transactions.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0058",
+   "section": "History / 2019–2023",
+   "text": "The amount was larger in the previous year, with $24.7 billion worth of transactions linked to criminal activity in 2022.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0059",
+   "section": "History / 2024",
+   "text": "According to comments made in January 2024 by Cantor Fitzgerald CEO Howard Lutnick, that company was acting as custodian for Tether's reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0060",
+   "section": "History / 2024",
+   "text": "During a February 2024 Congressional hearing, Minnesota Congressman Tom Emmer, a cryptocurrency supporter, called The Wall Street Journal's October 2023 article \"erroneous\", observing that federal reports on global financial crimes showed the actual amount of cryptocurrency used by these groups to be \"significantly smaller\" than what was reported by media outlets.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0061",
+   "section": "History / 2024",
+   "text": "In the first quarter of 2024, Tether's profit was $4.52 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0062",
+   "section": "History / 2024",
+   "text": "U.S. Treasury securities were a major contributor to its net profits.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0063",
+   "section": "History / 2024",
+   "text": "Tether also profited from its positions in gold and bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0064",
+   "section": "History / 2024",
+   "text": "Tether announced in April 2024 that they invested $200 million from their excess reserves into Blackrock Neutro, a U.S. based brain-chip company that makes brain-to-computer interfaces, including neural implants that can allow people to control computers and prosthetic arms without moving.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0065",
+   "section": "History / 2024",
+   "text": "In May 2024, Tether announced it would restructure into four divisions focused on artificial intelligence, bitcoin mining, education, and stablecoins.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0066",
+   "section": "History / 2024",
+   "text": "According to Ardoino, the company's ownership structure had not changed.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0067",
+   "section": "History / 2024",
+   "text": "Also in 2015, Tether acquired a $100 million stake in Bitdeer, a bitcoin miner that split from Bitmain, via a private placement, with options to acquire another $50 million at $5.00 per share.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0068",
+   "section": "History / 2024",
+   "text": "In July 2024, Tether, Tron, and blockchain analysis firm TRM Labs formed an alliance intended to curb illicit spending on the Tether and Tron blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0069",
+   "section": "History / 2024",
+   "text": "As of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims.",
+   "class": "data",
+   "claim": "as of September 2024 T3 FCU froze about $12M",
+   "asOf": "2024-09"
+  },
+  {
+   "id": "tether-0070",
+   "section": "History / 2024",
+   "text": "Tether reported in August 2024 that their profit during the first half of the year was $5.2 billion, with a net operating profit of $1.3 billion during the second quarter alone.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0071",
+   "section": "History / 2024",
+   "text": "Tether also reported that it holds more than $97.6 billion in U.S. Treasuries, making them one of the largest buyers of Treasury bills in the world, more than many countries.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0072",
+   "section": "History / 2024",
+   "text": "In October 2024, The Wall Street Journal reported Tether was the target of a federal criminal investigation for possible violations of sanctions and anti-money-laundering rules.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0073",
+   "section": "History / 2024",
+   "text": "In December 2024, Tether announced a $775 million investment in Rumble, an alternative video hosting platform known for its predominantly right-wing user base.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0074",
+   "section": "History / 2025–present",
+   "text": "By 2025, the USDT token's supply had surpassed US $140 billion across multiple blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0075",
+   "section": "History / 2025–present",
+   "text": "In January 2025, the company and its founders completed the relocation of Tether's global headquarters to El Salvador.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0076",
+   "section": "History / 2025–present",
+   "text": "The move coincided with Tether reporting a record profit of US $13 billion for 2024.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0077",
+   "section": "History / 2025–present",
+   "text": "In February 2025, Tether acquired a minority stake in Juventus F.C. By October 2025, Tether formalised the partnership by nominating an executive to Juventus' board of directors.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0078",
+   "section": "History / 2025–present",
+   "text": "In December 2025, Tether made a $1.29 billion offer to purchase Juventus, with CEO Ardoino pledging a 1 billion euro investment in the club itself; however, the proposal was ultimately rejected by the club's ownership, and no deal was pursued further.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0079",
+   "section": "History / 2025–present",
+   "text": "The next month, the company appointed several new executives.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0080",
+   "section": "History / 2025–present",
+   "text": "Giancarlo Devasini was appointed Chairman, and Simon McWilliams became Chief Financial Officer (CFO).",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0081",
+   "section": "History / 2025–present",
+   "text": "In March 2025, Tether also blocked wallets associated with the sanctioned Russian crypto exchange Garantex.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0082",
+   "section": "History / 2025–present",
+   "text": "Throughout the same year, Tether invested in energy, commodities, and infrastructure.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0083",
+   "section": "History / 2025–present",
+   "text": "In May, it acquired a stake in mining company Elemental Altus.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0084",
+   "section": "History / 2025–present",
+   "text": "In July, it invested in Adecoagro, a South American agribusiness.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0085",
+   "section": "History / 2025–present",
+   "text": "That same month, USDT's market capitalisation surpassed US $150 billion, with Tether claiming to hold roughly US $8 billion in gold reserves stored in a Swiss vault.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0086",
+   "section": "History / 2025–present",
+   "text": "Following the signing of the GENIUS Act in July 2025, Tether announced plans to expand operations in the United States.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0087",
+   "section": "History / 2025–present",
+   "text": "In September 2025, Tether launched USAT, a U.S.-based stablecoin, appointing Bo Hines as CEO of the company's U.S. division.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0088",
+   "section": "History / 2025–present",
+   "text": "Around the same period, Tether entered distribution discussions with conservative video platform Rumble.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0089",
+   "section": "History / 2025–present",
+   "text": "Tether reported a profit of approximately $10 billion for 2025, following a profit of $13 billion in 2024.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0090",
+   "section": "History / 2025–present",
+   "text": "In January 2026, Tether launched USAT, a U.S.-focused dollar-backed stablecoin issued by Anchorage Digital Bank.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0091",
+   "section": "History / 2025–present",
+   "text": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
+   "class": "data",
+   "claim": "Cantor Fitzgerald serves as USAT reserve custodian",
+   "asOf": null
+  },
+  {
+   "id": "tether-0092",
+   "section": "History / 2025–present",
+   "text": "In February 2026, Tether invested $200 million in Whop.com, an American social commerce platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0093",
+   "section": "History / 2025–present",
+   "text": "That month, Tether invested $150 million in Gold.com, acquiring a minority stake in the precious metals company as part of an expansion of its gold-related investments.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0094",
+   "section": "History / 2025–present",
+   "text": "Later that month, Tether invested $100 million in Anchorage Digital, valuing the federally chartered digital asset bank at approximately $4.2 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0095",
+   "section": "History / 2025–present",
+   "text": "Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT.",
+   "class": "data",
+   "claim": "Anchorage Digital Bank is the USAT issuer",
+   "asOf": null
+  },
+  {
+   "id": "tether-0096",
+   "section": "History / 2025–present",
+   "text": "In February 2026, Reuters reported that Tether had frozen $4.2 billion in tokens connected to illicit activity, including nearly $61 million associated with an investment fraud case investigated by the U.S. Department of Justice.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0097",
+   "section": "History / 2025–present",
+   "text": "The freezes were voluntarily carried out in response to law enforcement requests.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0098",
+   "section": "History / 2025–present",
+   "text": "In March 2026, Tether's investment arm led a $50 million investment round into Eight Sleep, a company producing smart mattress covers designed to optimize sleep performance.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0099",
+   "section": "History / 2025–present",
+   "text": "Later that month, Tether led a one billion Euro funding round into NEURA Robotics, a company developing humanoid robotics powered by Tether's QVAC local AI system.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0100",
+   "section": "History / 2025–present",
+   "text": "In April 2026, Tether supported an effort by the U.S. Treasury Department's Office of Foreign Assets Control to freeze approximately $344 million in cryptocurrency.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0101",
+   "section": "History / 2025–present",
+   "text": "U.S. authorities subsequently identified the wallets as containing assets linked to Iran.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0102",
+   "section": "History / 2025–present",
+   "text": "In May 2026, Tether announced plans to launch GELT, a stablecoin pegged to the Georgian lari, with support from the Georgian government.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0103",
+   "section": "History / 2025–present",
+   "text": "The company said the token was intended for uses including digital payments and cross-border trade.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0104",
+   "section": "History / 2025–present",
+   "text": "As of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion.",
+   "class": "data",
+   "claim": "as of 30 June 2026, about $187.8B assets, $183.6B liabilities, excess about $4.11B",
+   "asOf": "2026-06-30"
+  },
+  {
+   "id": "tether-0105",
+   "section": "History / 2025–present",
+   "text": "In the second quarter of 2026, the company reported a net operating profit of approximately $1.5 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0106",
+   "section": "History / 2025–present",
+   "text": "Approximately $184.6 billion of USD₮ was issued at the end of the quarter, while Tether's gold holdings increased to more than 146 metric tons.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0107",
+   "section": "History / 2025–present",
+   "text": "In September 2026, Tether assisted the U.S. Department of Justice in an investigation into Xinbi Guarantee, a Chinese-language marketplace accused of facilitating cryptocurrency fraud, money laundering, and scam operations.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0108",
+   "section": "History / 2025–present",
+   "text": "The DOJ's Scam Center Strike Force restrained more than $52 million in cryptocurrency connected to Xinbi and its network in a single day.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0109",
+   "section": "History / 2025–present",
+   "text": "A 2026 investigation by the U.S. Senate analyzed 846 wallets sanctioned by the U.S. and Israel over their connections to Iran, and found that 84% of them transacted exclusively or almost exclusively in Tether.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0110",
+   "section": "History / 2025–present",
+   "text": "The report, written by Richard Blumenthal, stated that USDT had become the primary means through which the Iranian government funded its proxy organizations, such as Hezbollah.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0111",
+   "section": "History / 2025–present",
+   "text": "In September 2026, Tether and London-based asset manager Fasanara Capital launched StableFund, a private credit fund backed by $400 million from its sponsors and targeting up to $3 billion in additional institutional capital.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0112",
+   "section": "History / 2025–present",
+   "text": "The fund was established to provide financing to small and medium-sized businesses through Fasanara's lending network.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0113",
+   "section": "Tether Gold (XAU₮)",
+   "text": "In January 2020, Tether launched Tether Gold (XAU₮), a token issued by TG Commodities Limited, a member of the Tether group.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0114",
+   "section": "Tether Gold (XAU₮)",
+   "text": "Each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
+   "class": "data",
+   "claim": "each XAU₮ represents one troy fine ounce in Swiss vaults",
+   "asOf": null
+  },
+  {
+   "id": "tether-0115",
+   "section": "Tether Gold (XAU₮)",
+   "text": "They are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron.",
+   "class": "data",
+   "claim": "XAU₮ is ERC-20 on Ethereum and TRC-20 on Tron",
+   "asOf": null
+  },
+  {
+   "id": "tether-0116",
+   "section": "Tether Gold (XAU₮)",
+   "text": "According to Reuters, Tether reported having purchased 27 metric tons of gold by January 2026.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0117",
+   "section": "Tether Gold (XAU₮)",
+   "text": "In 2025 and 2026, Tether became a significant participant in the global gold market.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0118",
+   "section": "Tether Gold (XAU₮)",
+   "text": "Its holdings backing USD₮ and XAU₮ totalled approximately 154 metric tons at the end of March 2026, placing it among the world's largest gold holders when compared with national central bank reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0119",
+   "section": "Lobbying and political influence",
+   "text": "In 2025, Tether was among donors who funded the White House's East Wing demolition and planned building of a ballroom.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0120",
+   "section": "Alleged price manipulation / Academic",
+   "text": "Research by Griffin and Shams found that bitcoin prices increased after Tether minted new USD₮ during market downturns.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0121",
+   "section": "Alleged price manipulation / Academic",
+   "text": "They speculated this could indicate market manipulation.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0122",
+   "section": "Alleged price manipulation / Academic",
+   "text": "Tether and its affiliated cryptocurrency exchange, Bitfinex, contested these findings, accusing the authors of cherry-picking data and working with an incomplete dataset.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0123",
+   "section": "Alleged price manipulation / Academic",
+   "text": "Later research found additional evidence of stablecoin activity influencing cryptocurrency prices.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0124",
+   "section": "Alleged price manipulation / Academic",
+   "text": "For instance, a 2021 study observed unusually high cryptocurrency returns in the 24 hours before and after stablecoin issuances.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0125",
+   "section": "Alleged price manipulation / Academic",
+   "text": "In 2022, another study found that bitcoin prices increased following public announcements by Whale Alert on Twitter about Tether minting USDT.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0126",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "Bloomberg News reporters found irregularities on the Kraken cryptocurrency exchange, with small market orders moving the market price of Tether as much as larger market orders from 1 May 2018 to 22 June 2018.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0127",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "New York University Professor Rosa Abrantes-Metz and Federal Reserve bank examiner Mark Williams suggested the unusual order sizes were indicative of wash trading by automated trading programs.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0128",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "Kraken offered a rebuttal of these claims, stating that Bloomberg News misunderstood the concept of stablecoin and that the market price of Tether was not greatly influenced by market order size because Tether was a stablecoin pegged to the United States dollar.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0129",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "The user responsible for unusual order sizes also confirmed that the oddly specific order sizes and decimal places were \"randomly selected\".",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0130",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "The Kraken cryptocurrency exchange rebuttal of the Bloomberg News findings were later supported by academic research concerning the stability of stablecoins.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0131",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "On 20 November 2018, Bloomberg reported that U.S. federal prosecutors are investigating whether Tether was used to manipulate the price of bitcoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0132",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "According to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers.",
+   "class": "data",
+   "claim": "Tether site says issuance by purchase or redemption by exchanges and qualified customers, excluding US-based customers",
+   "asOf": null
+  },
+  {
+   "id": "tether-0133",
+   "section": "Alleged price manipulation / Journalistic",
+   "text": "Journalist Jon Evans stated that he has yet to find publicly verifiable examples of a purchase of newly issued tether or a redemption in the year ending August 2018.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0134",
+   "section": "Security and liquidity",
+   "text": "Tether claims its tokens are backed 100% by reserve assets, but has faced scrutiny for failing to publish an external audit.",
+   "class": "data",
+   "claim": "Tether claims 100% backing, has faced scrutiny for failing to publish an external audit",
+   "asOf": null
+  },
+  {
+   "id": "tether-0135",
+   "section": "Security and liquidity",
+   "text": "About $31 million USDT tokens were stolen from Tether in November 2017.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0136",
+   "section": "Security and liquidity",
+   "text": "Later analysis of the bitcoin distributed ledger showed a close connection between the Tether hack and the January 2015 hack of Bitstamp.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0137",
+   "section": "Security and liquidity",
+   "text": "In response to the theft, Tether suspended trading, and stated it would roll out new software to implement an emergency \"hard fork\" to render all of the tokens that Tether identified as stolen in the heist untradeable.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0138",
+   "section": "Security and liquidity",
+   "text": "Tether has stated that as of 19 December 2017, it has re-enabled limited cryptocurrency wallet services and has begun processing the backlog of pending trades.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0139",
+   "section": "Security and liquidity",
+   "text": "On 19 September 2022, due to an ongoing lawsuit in New York District Court, Bitfinex and Tether (referred to in court records as B/T) were ordered to produce documents showing the backing of USDT, which is still pending.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0140",
+   "section": "Security and liquidity",
+   "text": "On 20 November 2023, Tether reported that together with OKX, it had frozen $225 million worth of its cryptocurrency as a legal compliance action.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0141",
+   "section": "Security and liquidity",
+   "text": "The frozen funds had been linked to a human trafficking group in Southeast Asia responsible for a global pig butchering scam.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0142",
+   "section": "Security and liquidity",
+   "text": "Tether stated the freeze had been done at the request of the U.S. Secret Service and that it was the largest-ever freeze of its token.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0143",
+   "section": "Security and liquidity",
+   "text": "Erin West, deputy district attorney for Santa Clara County, California, told Newsweek that Tether's move represents a decision to declare open season on fraud proceeds.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0144",
+   "section": "Security and liquidity",
+   "text": "In December 2023, Tether CEO Paolo Ardoino told members of House Financial Services and Senate Banking that the company has been strengthening its relationships with law enforcement and taking new steps to strengthen sanctions controls.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0145",
+   "section": "Security and liquidity",
+   "text": "Ardoino emphasized Tether's decision to disable its tokens in all wallets associated with the Office of Foreign Assets Control (OFAC) sanction list.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0146",
+   "section": "Security and liquidity",
+   "text": "In the letter, Ardoino reported that Tether had assisted the U.S. Department of Justice, U.S. Secret Service, and Federal Bureau of Investigation (FBI) in freezing 326 wallets controlling 435 million USDT; however, these frozen wallets appear to contain fewer tokens than the stated sum.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0147",
+   "section": "Security and liquidity",
+   "text": "Ardoino also revealed that Tether had collaborated with the U.S. Secret Service and is working with the FBI.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0148",
+   "section": "Security and liquidity",
+   "text": "In March 2024, Tether was acknowledged in an announcement from Morris Pasqual, the Acting U.S. Attorney based out of Chicago, and FBI Special Agent-in-Charge Robert W. \"Wes\" Wheeler, Jr. for its role in seizing $1.4 million worth of Tether linked to a tech scam network.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0149",
+   "section": "Security and liquidity",
+   "text": "In August 2024, Tether was also acknowledged in an announcement from the U.S. Attorney for eastern North Carolina, Michael Easley, and FBI Charlotte Special Agent in Charge Robert M. DeWitt for their role in effectuating the seizure of $5 million worth of Tether stolen through a pig butchering scam.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0150",
+   "section": "Security and liquidity",
+   "text": "By April 2026, Tether said its cooperation with law enforcement agencies had resulted in the freezing of more than $4.4 billion in assets, including more than $2.1 billion connected to U.S. authorities.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0151",
+   "section": "Reserves and financial reporting",
+   "text": "In September 2017, Tether published a memorandum from a public accounting firm that Tether Limited showed that tethers were fully backed by United States dollars; however, according to The New York Times, independent attorney Lewis Cohen stated the document, because of the careful way it was phrased, does not prove that the Tether coins are backed by dollars.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0152",
+   "section": "Reserves and financial reporting",
+   "text": "The documents also fail to ascertain whether the balances in question are otherwise encumbered.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0153",
+   "section": "Reserves and financial reporting",
+   "text": "The accounting firm specifically stated: \"This information is intended solely to assist the management of Tether Limited ... and is not intended to be, and should not be, used or relied upon by any other party.\"",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0154",
+   "section": "Reserves and financial reporting",
+   "text": "Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets.",
+   "class": "data",
+   "claim": "Tether has not publicly presented audits showing one-to-one backing",
+   "asOf": null
+  },
+  {
+   "id": "tether-0155",
+   "section": "Reserves and financial reporting",
+   "text": "A June 2018 attempt at an audit was posted on their website in June 2018 which showed a report by the law firm Freeh, Sporkin & Sullivan LLP (FSS), which appeared to confirm that dollars fully backed the issued tethers; however, FSS stated that \"FSS is not an accounting firm and did not perform the above review and confirmations using Generally Accepted Accounting Principles\", and added: \"The above confirmation of bank and tether balances should not be construed as the results of an audit and were not conducted in accordance with Generally Accepted Auditing Standards.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0156",
+   "section": "Reserves and financial reporting",
+   "text": "Stuart Hoegner, Tether's general counsel said \"the bottom line is an audit cannot be obtained.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0157",
+   "section": "Reserves and financial reporting",
+   "text": "The big four firms are anathema to that level of risk.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0158",
+   "section": "Reserves and financial reporting",
+   "text": "We've gone for what we think is the next best thing.\"",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0159",
+   "section": "Reserves and financial reporting",
+   "text": "At the end of 2023, Tether reported holding $63 billion of U.S. Treasuries, $3.5 billion of precious metals, $2.8 billion of bitcoin, $3.8 billion of other investments, and $4.8 billion of secured loans in its reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0160",
+   "section": "Reserves and financial reporting",
+   "text": "In January 2024, Cantor Fitzgerald's CEO Howard Lutnick said his firm reviewed Tether's assets and confirmed Tether held assets of approximately $86 billion to back $83 billion of its stablecoin.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0161",
+   "section": "Reserves and financial reporting",
+   "text": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
+   "class": "data",
+   "claim": "majority of cash and equivalents are T-Bills at $72.6 billion",
+   "asOf": null
+  },
+  {
+   "id": "tether-0162",
+   "section": "Reserves and financial reporting",
+   "text": "In Tether's attestation of the second quarter of 2024, it reported that it held nearly $98 billion in U.S. Treasuries.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0163",
+   "section": "Reserves and financial reporting",
+   "text": "If Tether were a country, it would be the 18th largest holder of U.S. debt among nations.",
+   "class": "data",
+   "claim": "if a country, Tether would be the 18th-largest holder of US debt",
+   "asOf": null
+  },
+  {
+   "id": "tether-0164",
+   "section": "Reserves and financial reporting",
+   "text": "In March 2026, KPMG announced that it would conduct Tether's first full financial audit.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0165",
+   "section": "Reserves and financial reporting",
+   "text": "In August 2026, Tether stated that KPMG US had completed the audit and issued an unqualified opinion on its financial statements under U.S. generally accepted accounting principles.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0166",
+   "section": "Reserves and financial reporting",
+   "text": "Tether did not publicly release the audit report.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0167",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "On 25 April 2019, New York Attorney General Letitia James (prosecution) filed a lawsuit against iFinex (defendant)—the parent company of Tether Limited and the Bitfinex cryptocurrency exchange.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0168",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "The prosecution claimed that the Bitfinex cryptocurrency exchange had been unable to secure a reliable fiat banking relationship, so it had entrusted US$1 billion to the Panamanian payment processing firm Crypto Capital Corp. The prosecution alleged that funds were commingled with corporate and client deposits and that no contract was ever signed with Crypto Capital.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0169",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "The prosecution speculated that Crypto Capital Corp had lost or stolen the money, and executives at Bitfinex and Tether Limited had been unable to recover up to US$850 million of funds.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0170",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "The prosecution accused iFinex, Bitfinex, and Tether Limited of using Tether Limited to cover up the shortfall.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0171",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "On 26 April 2019, iFinex contested claims that funds had been lost or stolen by Crypto Capital Corp, stating that funds had been seized, and Bitfinex sought release of the funds.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0172",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "Crypto Capital Corp told Bitfinex the seizures were temporary and presented excuses as to why the funds could not be released to Bitfinex (Case Point 33).",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0173",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "Crypto Capital Corp stated that in May 2018 the government of Poland had frozen a Crypto Capital Corp bank account holding at least US$340 million of Bitfinex funds (Case Point No. 33); and between April and July 2018, a Crypto Capital Corp account in Portugal containing around $150 million of Bitfinex funds had also been frozen (Case Point No. 34).",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0174",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "The principals of Crypto Capital Corp were later arrested.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0175",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "During the case, iFinex contested claims that Tether Limited had been used to cover up alleged losses, stating that Bitfinex had borrowed US$400 million from Tether Limited due to the inability to access seized funds from Crypto Capital Corp (Case Point No. 38).",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0176",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "Bitfinex stated they had fully repaid the loans with interest to Tether Limited by 5 February 2021.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0177",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "On 17 February 2021, iFinex settled the legal dispute with the New York Attorney General's office. iFinex, Bitfinex, and Tether Limited did not admit any wrongdoing and paid US$18.5 million to settle the case.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0178",
+   "section": "Legal cases / New York Attorney General's case against iFinex",
+   "text": "On 6 May 2021, New York Supreme Court Judge Joel M. Cohen granted iFinex's motion to modify the injunction because the New York Attorney General's office's accusations were too general and lacked specificity, stating the prosecution's case was \"couched in exceedingly sweeping terms\" and \"injunctions must be specific\".",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0179",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "On 5 December 2017, the U.S. Commodity Futures Trading Commission (prosecution) issued subpoenas to Bitfinex and Tether Limited concerning the backing of minted USD₮.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0180",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "Before 25 February 2019, Tether Limited's terms stated: \"Every tether is always backed 1-to-1, by traditional currency held in our reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0181",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "So 1 USDT is always equivalent to 1 USD.\"",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0182",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "After 25 February 2019, Tether Limited revised their terms to instead claim that \"Tether Tokens are 100% backed by Tether's Reserves\", defining said \"reserves\" as \"traditional currency and cash equivalents and, from time to time, may include other assets and receivables from loans made by Tether to third parties, which may include affiliated entities.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0183",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "On 30 April 2019, iFinex (defendant)—the parent company of Tether Limited and the Bitfinex cryptocurrency exchange—issued an affidavit asserting that minted USD₮ was 74% backed by a narrow definition of cash and cash equivalents, with the remaining 26% supposedly backed by other assets.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0184",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "On 15 October 2021, Tether Limited paid a fine of US$41.6 million for inaccurately claiming that minted USD₮ were 100% backed by fiat USD when they were not—even by Tether Limited's affidavit, they were only backed by a combination of fiat USD and other assets such as \"unsecured receivables, commercial papers, funds held by third parties, and other non-fiat assets\", which the company stated to total 100%.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0185",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "Tether Limited responded by revising their claims to state: \"All Tether tokens are pegged at 1-to-1 with a matching fiat currency and are backed 100% by Tether's reserves.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0186",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "From 2017 to 2022, Tether Limited released assurance reports, including in September 2017, June 2018, November 2018, February 2021, March 2021, April 2021, June 2021, September 2021, and May 2022, attesting to the 100% backing of minted USD₮.",
+   "class": "opinion"
+  },
+  {
+   "id": "tether-0187",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "In May 2021, Tether published a report showing that 2.9% of Tether was backed by fiat USD, with over 49.6% backed by commercial paper, and the remaining amount backed by other assets.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0188",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "Tether completed a full independent financial-statement audit in 2026.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0189",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "In August of that year, KPMG U.S. completed an audit of Tether International's 2025 financial statements and issued an unqualified opinion.",
+   "class": "sourced"
+  },
+  {
+   "id": "tether-0190",
+   "section": "Legal cases / U.S. Commodity Futures Trading Commission (CFTC)",
+   "text": "Tether reported reducing its commercial paper holdings to zero, replacing them with U.S. treasury bills.",
+   "class": "sourced"
+  }
+ ]
+}

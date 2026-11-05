@@ -1,0 +1,3 @@
+# Raw page HTML is reproducible with `node corpus/scripts/fetch.mjs` (revids pinned in revisions.json)
+raw/
+work/

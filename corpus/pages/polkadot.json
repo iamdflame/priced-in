@@ -1,0 +1,286 @@
+{
+ "slug": "polkadot",
+ "title": "Polkadot (blockchain platform)",
+ "revid": 1378697257,
+ "timestamp": "2026-10-05T18:55:58Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Polkadot_(blockchain_platform)&oldid=1378697257",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Polkadot (blockchain platform)\", English Wikipedia, revision 1378697257 (2026-10-05T18:55:58Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 15,
+  "sourced": 20,
+  "opinion": 5
+ },
+ "sentences": [
+  {
+   "id": "polkadot-0001",
+   "section": "(lead)",
+   "text": "Polkadot is a decentralized, nominated proof-of-stake blockchain with smart contract functionality.",
+   "class": "data",
+   "claim": "Polkadot is nominated proof of stake with smart contract functionality",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0002",
+   "section": "(lead)",
+   "text": "The cryptocurrency native to the blockchain is the DOT.",
+   "class": "data",
+   "claim": "native coin is DOT",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0003",
+   "section": "(lead)",
+   "text": "Designed to facilitate interoperability, Polkadot enables independent blockchains to exchange data and assets securely without relying on centralized intermediaries.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0004",
+   "section": "(lead)",
+   "text": "This cross-chain communication framework allows for the development of decentralized applications (dApps) and services that span multiple blockchains within a unified network architecture.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0005",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "Polkadot was created by the Ethereum co-founder Gavin Wood, Robert Habermeier and Peter Czaban.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0006",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "The white paper for Polkadot was published by Wood in 2016.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0007",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "The Polkadot SDK and other core technology components are being developed by Parity Technologies.",
+   "class": "data",
+   "claim": "Polkadot SDK is being developed by Parity Technologies",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0008",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "The project raised over $144.3 million in its Initial coin offering in October 2017.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0009",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "In 2017, Gavin Wood, Aeron Buchanan, Peter Czaban, Reto Trinkler, and Mathias Bucher, established the Web3 Foundation, a non-profit organization based in Zug, Switzerland, to promote and provide funding for blockchain-based decentralized web technologies.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0010",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "The Polkadot SDK and other core technology components are being developed by Parity Technologies, a blockchain infrastructure company founded in 2015 by Gavin Wood and Jutta Steiner.",
+   "class": "data",
+   "claim": "Polkadot SDK is being developed by Parity, founded 2015 by Wood and Steiner",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0011",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "In October 2017, Polkadot raised over $144.3 million in its initial coin offering (ICO).",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0012",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "Shortly after the ICO, a vulnerability in the multi-signature wallets developed by Parity Technologies led to the freezing of approximately $150 million worth of Ethereum, including a significant portion of the funds raised.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0013",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "Over 500 wallets were impacted, including Polkadot’s wallet, which held a significant portion of the $144.3 million raised during its ICO.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0014",
+   "section": "History / Founding and ICO (2016–2019)",
+   "text": "In 2019, Polkadot raised an additional $43 million through a private token sale.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0015",
+   "section": "History / Network Launch and Parachains (2020–2021)",
+   "text": "In May 2020, Polkadot launched its mainnet under a proof-of-authority consensus model, managed by the Web3 Foundation during its early phase.",
+   "class": "opinion"
+  },
+  {
+   "id": "polkadot-0016",
+   "section": "History / Network Launch and Parachains (2020–2021)",
+   "text": "By June 2020, the network transitioned to a Nominated Proof-of-Stake (NPoS) consensus mechanism, allowing token holders to nominate validators to secure the network and process transactions.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0017",
+   "section": "History / Network Launch and Parachains (2020–2021)",
+   "text": "In December 2021, Polkadot introduced parachain functionality, allowing multiple blockchains to run simultaneously and connect to the network's Relay Chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0018",
+   "section": "History / Network Launch and Parachains (2020–2021)",
+   "text": "In December 2024, Polkadot's canary network Kusama underwent a stress test known as \"The Spammening,\" handling approximately 143,000 transactions per second (TPS) at just 23% capacity.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0019",
+   "section": "Concepts / Multi-chain ecosystem",
+   "text": "Polkadot is founded on the premise that there will be a multitude of blockchains in the future.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0020",
+   "section": "Concepts / Multi-chain ecosystem",
+   "text": "It provides an open-source software development kit called Polkadot SDK that can be used by development teams to build their own blockchains.",
+   "class": "data",
+   "claim": "Polkadot provides an open-source SDK",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0021",
+   "section": "Concepts / Multi-chain ecosystem",
+   "text": "These blockchains can function independently, known as \"solochains,\" or integrate into the Polkadot network as \"parachains,\" thereby benefiting from shared security and cross-chain communication capabilities.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0022",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Polkadot offers three properties to parachains: sovereignty, shared security and interoperability.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0023",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Sovereignty refers to the idea that individual blockchains are sovereign in the way they conduct themselves.",
+   "class": "opinion"
+  },
+  {
+   "id": "polkadot-0024",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Blockchains define their own rules for how users can interact on them.",
+   "class": "opinion"
+  },
+  {
+   "id": "polkadot-0025",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Each parachain maintains autonomy over its governance and transaction processing, allowing it to define its own rules and optimize for specific functionalities without being constrained by the decisions or limitations of other chains.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0026",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Shared security means that one chain provides cryptoeconomic security to other chains.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0027",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "The Polkadot network has a primary blockchain named the relay chain, which provides security for parachains.",
+   "class": "data",
+   "claim": "relay chain is the primary chain and secures parachains",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0028",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "This way, parachains enjoy high cryptoeconomic security, relieving them from the burden to source their own security through means that compromise their sovereignty.",
+   "class": "opinion"
+  },
+  {
+   "id": "polkadot-0029",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "This pooled security model ensures that parachains inherit robust cryptoeconomic security without the necessity of establishing their own validator networks, thereby reducing resource expenditure and enhancing overall network integrity.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0030",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Interoperability is created through a common standard of data exchange, called XCM.",
+   "class": "data",
+   "claim": "interoperability uses the XCM standard",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0031",
+   "section": "Concepts / Sovereignty, shared security and interoperability",
+   "text": "Since parachains have shared security, bridging times between parachains are typically under a minute.",
+   "class": "data",
+   "claim": "bridging between parachains typically takes under a minute",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0032",
+   "section": "Concepts / Cross-Consensus Message Passing (XCMP)",
+   "text": "XCMP is Polkadot's protocol for facilitating communication between parachains.",
+   "class": "data",
+   "claim": "XCMP is the protocol for messages between parachains",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0033",
+   "section": "Concepts / Cross-Consensus Message Passing (XCMP)",
+   "text": "It enables the transfer of arbitrary data across chains, supporting a wide range of applications, including token transfers, smart contract interactions, and more complex cross-chain operations.",
+   "class": "opinion"
+  },
+  {
+   "id": "polkadot-0034",
+   "section": "Concepts / Cross-Consensus Message Passing (XCMP)",
+   "text": "XCMP operates by allowing parachains to send messages to each other through the Relay Chain.",
+   "class": "data",
+   "claim": "XCMP passes messages through the Relay Chain",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0035",
+   "section": "Governance",
+   "text": "Polkadot implements an on-chain governance system, allowing stakeholders to influence the network's development and decision-making processes.",
+   "class": "data",
+   "claim": "on-chain governance",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0036",
+   "section": "Governance",
+   "text": "Over time, its governance model has transitioned from Governance V1 to OpenGov, to address concerns of decentralization and community involvement.",
+   "class": "sourced"
+  },
+  {
+   "id": "polkadot-0037",
+   "section": "Governance",
+   "text": "Polkadot Council members and Relay Chain Validators are selected via Phragmen election method.",
+   "class": "data",
+   "claim": "Polkadot Council members and validators are selected by Phragmen election",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0038",
+   "section": "Technical details / Proof of stake",
+   "text": "The network uses a nominated proof-of-stake consensus algorithm.",
+   "class": "data",
+   "claim": "network uses nominated proof of stake",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0039",
+   "section": "Technical details / Proof of stake",
+   "text": "The protocol used, Blind Assignment for Blockchain Extension (BABE), is derived from Ouroboros.",
+   "class": "data",
+   "claim": "block production protocol is BABE, derived from Ouroboros",
+   "asOf": null
+  },
+  {
+   "id": "polkadot-0040",
+   "section": "Technical details / Proof of stake",
+   "text": "Validators are responsible for block production and validation, while nominators support validators by staking DOT tokens on their behalf.",
+   "class": "data",
+   "claim": "validators produce blocks; nominators back them with DOT",
+   "asOf": null
+  }
+ ]
+}

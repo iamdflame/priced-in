@@ -1,0 +1,388 @@
+{
+ "slug": "proof-of-stake",
+ "title": "Proof of stake",
+ "revid": 1373286584,
+ "timestamp": "2026-09-05T02:25:36Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Proof_of_stake&oldid=1373286584",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Proof of stake\", English Wikipedia, revision 1373286584 (2026-09-05T02:25:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 6,
+  "sourced": 33,
+  "opinion": 21
+ },
+ "sentences": [
+  {
+   "id": "proof-of-stake-0001",
+   "section": "(lead)",
+   "text": "Proof-of-stake (PoS) protocols are a class of consensus mechanisms for blockchains that work by selecting validators in proportion to their quantity of holdings in the associated cryptocurrency.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0002",
+   "section": "(lead)",
+   "text": "This is done to avoid the computational cost of proof-of-work (PoW) schemes.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0003",
+   "section": "(lead)",
+   "text": "The first functioning use of PoS for cryptocurrency was Peercoin in 2012, although its scheme, on the surface, still resembled a PoW.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0004",
+   "section": "Description",
+   "text": "For a blockchain transaction to be recognized, it must be appended to the blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0005",
+   "section": "Description",
+   "text": "In a proof-of-stake blockchain, the appending entities are named minters or validators (in proof-of-work blockchains, this task is carried out by the miners); in most protocols, the validators receive a reward for doing so.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0006",
+   "section": "Description",
+   "text": "For the blockchain to remain secure, it must have a mechanism to prevent a malicious user or group from taking over a majority of validation.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0007",
+   "section": "Description",
+   "text": "PoS accomplishes this by requiring that validators have some quantity of blockchain tokens, requiring potential attackers to acquire a large fraction of the tokens on the blockchain to mount an attack.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0008",
+   "section": "Description",
+   "text": "Proof-of-work (PoW), another commonly used consensus mechanism, uses a validation of computational prowess to verify transactions, requiring a potential attacker to acquire a large fraction of the computational power of the validator network.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0009",
+   "section": "Description",
+   "text": "This incentivizes consuming huge quantities of energy.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0010",
+   "section": "Description",
+   "text": "PoS is more energy-efficient.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0011",
+   "section": "Description",
+   "text": "Riposo and Gupta showed that a formal PoS mathematical model can derive a metric for the expected gain of a staker.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0012",
+   "section": "Description",
+   "text": "They introduced a forward-method model that computes staking rewards as the staking return per block-validation period and proved that the resulting interest equals the ratio of the average staking gain to the total staked coins.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0013",
+   "section": "Description",
+   "text": "The model incorporates PoS-specific factors such as slashing (penalties for misbehavior) and Maximal Extractable Value (MEV), showing that slashing reduces expected rewards and that MEV links transaction-fee extraction to the average staking gain.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0014",
+   "section": "Description",
+   "text": "In addition, the authors illustrated the model using Ethereum 2.0, and presented an analogous derivation for PoW consensus.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0015",
+   "section": "Description",
+   "text": "Early PoS implementations were plagued by a number of new attacks that exploited the unique vulnerabilities of the PoS protocols.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0016",
+   "section": "Description",
+   "text": "Eventually, two dominant designs emerged: Byzantine-fault-tolerance-based and chain-based approaches.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0017",
+   "section": "Description",
+   "text": "Bashir identifies three more types of PoS:",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0018",
+   "section": "Attacks",
+   "text": "The additional vulnerabilities of PoS schemes are directly related to their advantage: a relatively low amount of calculations required when constructing a blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0019",
+   "section": "Attacks / Long-range attacks",
+   "text": "The low amount of computing power involved allows a class of attacks that replace a non-negligible portion of the main blockchain with a hijacked version.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0020",
+   "section": "Attacks / Long-range attacks",
+   "text": "These attacks are called in literature by different names, including Long-Range, Alternative History, Alternate History, and History Revision, and are unfeasible in the PoW schemes due to the sheer volume of calculations required.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0021",
+   "section": "Attacks / Long-range attacks",
+   "text": "The early stages of a blockchain are much more malleable for rewriting, as they likely have much smaller group of stakeholders involved, simplifying the collusion.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0022",
+   "section": "Attacks / Long-range attacks",
+   "text": "If the per-block and per-transaction rewards are offered, then the malicious group can, for example, redo the entire history and collect these rewards.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0023",
+   "section": "Attacks / Long-range attacks",
+   "text": "The classic \"Short-Range\" attack (bribery attack) that rewrites just a small tail portion of the chain is also possible.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0024",
+   "section": "Attacks / Nothing at stake",
+   "text": "Since validators do not need to spend a considerable amount of computing power (and thus money) on the process, they are prone to the Nothing-at-Stake attack: the participation in a successful validation increases the validator's earnings, so there is a built-in incentive for the validators to accept all chain forks submitted to them, thus increasing the chances of earning the validation fee.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0025",
+   "section": "Attacks / Nothing at stake",
+   "text": "The PoS schemes enable low-cost creation of blockchain alternatives starting at any point in history (costless simulation); submitting these forks to eager validators endangers the stability of the system.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0026",
+   "section": "Attacks / Nothing at stake",
+   "text": "If this situation persists, it can allow double-spending, where a digital token can be spent more than once.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0027",
+   "section": "Attacks / Nothing at stake",
+   "text": "This can be mitigated through penalizing validators who validate conflicting chains (\"economic finality\") or by structuring the rewards so that there is no economic incentive to create conflicts.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0028",
+   "section": "Attacks / Nothing at stake",
+   "text": "Byzantine-fault-tolerance-based PoS are generally considered robust against this threat (see below).",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0029",
+   "section": "Attacks / Bribery attack",
+   "text": "Bribery attack, where the attackers financially induce some validators to approve their fork of blockchain, is enhanced in PoS, as rewriting a large portion of history might enable the collusion of once-rich stakeholders that no longer hold significant amounts at stake to claim a necessary majority at some point back in time, and grow the alternative blockchain from there, an operation made possible by the low computing cost of adding blocks in the PoS scheme.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0030",
+   "section": "Variants / Chain-based PoS",
+   "text": "This is essentially a modification of the PoW scheme, where the competition is based not on applying brute force to solving the identical puzzle in the smallest amount of time, but instead on varying the difficulty of the puzzle depending on the stake of the participant; the puzzle is solved if on a tick of the clock (|| is concatenation):",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0031",
+   "section": "Variants / Chain-based PoS",
+   "text": "The smaller amount of calculations required for solving the puzzle for high-value stakeholders helps to avoid excessive hardware.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0032",
+   "section": "Variants / Nominated PoS (NPoS)",
+   "text": "Also known as \"committee-based\", this scheme involves an election of a committee of validators using a verifiable random function with probabilities of being elected higher with higher stake.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0033",
+   "section": "Variants / Nominated PoS (NPoS)",
+   "text": "Validators then randomly take turns producing blocks.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0034",
+   "section": "Variants / Nominated PoS (NPoS)",
+   "text": "NPoS is utilized by Ouroboros Praos and BABE.",
+   "class": "data",
+   "claim": "NPoS is used by Ouroboros Praos and BABE",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0035",
+   "section": "Variants / Nominated PoS (NPoS)",
+   "text": "In addition, Polkadot uses a deterministic variant of NPoS, where the validators are elected using a variant of Phragmen's voting rule.",
+   "class": "data",
+   "claim": "Polkadot uses a Phragmen-based NPoS variant",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0036",
+   "section": "Variants / BFT-based PoS",
+   "text": "The outline of the BFT PoS \"epoch\" (adding a block to the chain) is as follows:",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0037",
+   "section": "Variants / BFT-based PoS",
+   "text": "The BFT consensus is used to finalize the most-voted block.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0038",
+   "section": "Variants / BFT-based PoS",
+   "text": "The scheme works as long as no more than a third of validators are dishonest.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0039",
+   "section": "Variants / BFT-based PoS",
+   "text": "BFT schemes are used in Tendermint and Casper FFG.",
+   "class": "data",
+   "claim": "BFT schemes are used in Tendermint and Casper FFG",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0040",
+   "section": "Variants / Delegated proof of stake (DPoS)",
+   "text": "Proof of stake delegated systems use a two-stage process: first, the stakeholders elect a validation committee, a.k.a. witnesses, by voting proportionally to their stakes, then the witnesses take turns in a round-robin fashion to propose new blocks that are then voted upon by the witnesses, usually in the BFT-like fashion.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0041",
+   "section": "Variants / Delegated proof of stake (DPoS)",
+   "text": "Since there are fewer validators in the DPoS than in many other PoS schemes, the consensus can be established faster.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0042",
+   "section": "Variants / Delegated proof of stake (DPoS)",
+   "text": "The scheme is used in many chains, including EOS, Lisk, Tron.",
+   "class": "data",
+   "claim": "DPoS is used by EOS, Lisk, Tron",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0043",
+   "section": "Variants / Liquid proof of stake (LPoS)",
+   "text": "In the liquid PoS anyone with a stake can declare themselves a validator, but for the small holders it makes sense to delegate their voting rights instead to larger players in exchange for some benefits (like periodic payouts).",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0044",
+   "section": "Variants / Liquid proof of stake (LPoS)",
+   "text": "A market is established where the validators compete on the fees, reputation, and other factors.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0045",
+   "section": "Variants / Liquid proof of stake (LPoS)",
+   "text": "Token holders are free to switch their support to another validator at any time.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0046",
+   "section": "Variants / Liquid proof of stake (LPoS)",
+   "text": "LPoS is used in Tezos.",
+   "class": "data",
+   "claim": "LPoS is used in Tezos",
+   "asOf": null
+  },
+  {
+   "id": "proof-of-stake-0047",
+   "section": "Variants / 'Stake' definition",
+   "text": "The exact definition of \"stake\" varies from implementation to implementation.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0048",
+   "section": "Variants / 'Stake' definition",
+   "text": "For instance, some cryptocurrencies use the concept of \"coin age\", the product of the number of tokens with the amount of time that a single user has held them, rather than merely the number of tokens, to define a validator's stake.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0049",
+   "section": "Implementations",
+   "text": "The first functioning implementation of a proof-of-stake cryptocurrency was Peercoin, introduced in 2012.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0050",
+   "section": "Implementations",
+   "text": "Other cryptocurrencies, such as Blackcoin, Nxt, Cardano, and Algorand followed.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0051",
+   "section": "Implementations",
+   "text": "However, as of 2017, PoS cryptocurrencies were still not as widely used as proof-of-work cryptocurrencies.",
+   "class": "data",
+   "claim": "as of 2017 PoS coins less widely used than PoW coins",
+   "asOf": "2017"
+  },
+  {
+   "id": "proof-of-stake-0052",
+   "section": "Implementations",
+   "text": "In September 2022, Ethereum, the second-largest cryptocurrency, switched from PoW to a PoS consensus mechanism, after several proposals and some delays.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0053",
+   "section": "Concerns / Centralization",
+   "text": "Critics have argued that proof of stake may lead cryptocurrency blockchains to become more centralized than proof of work because the system favors users who hold larger amounts of cryptocurrency, which could give those users greater influence over the management and direction of the blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0054",
+   "section": "Concerns / Legal status in US",
+   "text": "US regulators have argued over the legal status of the proof-of-stake model, with the Securities and Exchange Commission claiming that staking rewards are the equivalent of interest, so coins such as ether and ada are financial securities.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0055",
+   "section": "Concerns / Legal status in US",
+   "text": "However, in 2024, the SEC sidestepped the question by recognising Ethereum market funds on condition that they did not stake their coins.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0056",
+   "section": "Concerns / Legal status in US",
+   "text": "The level of staking of ether at 27% of total supply was low compared with Cardano (66%) and Solana (63%).",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0057",
+   "section": "Concerns / Legal status in US",
+   "text": "However, not staking their tokens meant that the funds were losing about 3% of potential returns a year.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0058",
+   "section": "Energy consumption",
+   "text": "In 2021, a study by the University of London found that in general the energy consumption of the proof-of-work-based Bitcoin was about a thousand times higher than that of the highest-consuming proof-of-stake system that was studied even under the most favorable conditions and that most proof-of-stake systems cause less energy consumption in most configurations.",
+   "class": "sourced"
+  },
+  {
+   "id": "proof-of-stake-0059",
+   "section": "Energy consumption",
+   "text": "In January 2022, Erik Thedéen, the vice-chair of the European Securities and Markets Authority, called on the EU to ban the PoW model in favor of PoS because of the latter's lower energy consumption.",
+   "class": "opinion"
+  },
+  {
+   "id": "proof-of-stake-0060",
+   "section": "Energy consumption",
+   "text": "Ethereum's switch to proof-of-stake was estimated to have cut its energy use by over 99%.",
+   "class": "sourced"
+  }
+ ]
+}

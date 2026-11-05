@@ -1,0 +1,494 @@
+{
+ "slug": "cardano",
+ "title": "Cardano (blockchain platform)",
+ "revid": 1345627574,
+ "timestamp": "2026-03-27T04:21:32Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Cardano_(blockchain_platform)&oldid=1345627574",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Cardano (blockchain platform)\", English Wikipedia, revision 1345627574 (2026-03-27T04:21:32Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 17,
+  "sourced": 47,
+  "opinion": 10
+ },
+ "sentences": [
+  {
+   "id": "cardano-0001",
+   "section": "(lead)",
+   "text": "Cardano is a public decentralized blockchain platform which uses the cryptocurrency, ADA, to facilitate transactions.",
+   "class": "data",
+   "claim": "Cardano is a public blockchain using ADA",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0002",
+   "section": "(lead)",
+   "text": "Cardano's development began in 2015.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0003",
+   "section": "(lead)",
+   "text": "When launched in 2017, it was the largest cryptocurrency to use a proof of stake blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0004",
+   "section": "(lead)",
+   "text": "A number of independent entities collaborate on the project, including the Cardano Foundation based in Zug, Switzerland, and led by its chief executive officer Frederik Gregaard.",
+   "class": "data",
+   "claim": "Cardano Foundation is in Zug, led by CEO Frederik Gregaard",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0005",
+   "section": "History",
+   "text": "After leaving Ethereum in 2014, Charles Hoskinson and Jeremy Wood set out their plans for establishing Cardano in 2015.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0006",
+   "section": "History",
+   "text": "Hoskinson had left Ethereum after a dispute with another co-founder, Vitalik Buterin; Hoskinson wanted to accept venture capital and create a company, while Buterin wanted to keep it as a nonprofit organization.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0007",
+   "section": "History",
+   "text": "Wood and Hoskinson co-founded the business IOHK to develop blockchains for use by corporations, governments, and education institutions.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0008",
+   "section": "History",
+   "text": "Cardano was initially released to the public in 2017.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0009",
+   "section": "History",
+   "text": "That year, IOHK partnered with the University of Edinburgh to launch the Blockchain Technology Laboratory.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0010",
+   "section": "History",
+   "text": "The lab had six post-doctoral and professorial positions with up to 35 jobs created in total, and was led by Aggelos Kiayias, developer of the Ouroboros protocol.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0011",
+   "section": "History",
+   "text": "Cardano reached a market cap of $77 billion in May 2021, which was the fourth highest for a cryptocurrency at that time.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0012",
+   "section": "History",
+   "text": "Advertising agency MBLM ranked Cardano 26th for brand intimacy out of 600 brands in August 2022, in between Ford and Nestlé and the highest rank for a cryptocurrency.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0013",
+   "section": "History",
+   "text": "Citing an MBLM partner, advertising industry magazine Ad Age said Cardano's high ranking \"can likely be chalked up to the gambling element of crypto\".",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0014",
+   "section": "History",
+   "text": "The platform is named after Italian mathematician Gerolamo Cardano, while the cryptocurrency itself is named after the English mathematician Ada Lovelace.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0015",
+   "section": "History",
+   "text": "The Ada sub-unit is the Lovelace; one Ada = 1,000,000 Lovelaces.",
+   "class": "data",
+   "claim": "1 ADA = 1,000,000 Lovelace",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0016",
+   "section": "Design / Governance",
+   "text": "Cardano was originally controlled by three entities:",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0017",
+   "section": "Design / Governance",
+   "text": "Cardano Foundation aims to standardize and promote the ecosystem (based in Switzerland).",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0018",
+   "section": "Design / Governance",
+   "text": "IOHK: an engineering company responsible for building the Cardano blockchain.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0019",
+   "section": "Design / Technical design",
+   "text": "Atypically, Cardano does not have a foundational white paper.",
+   "class": "data",
+   "claim": "Cardano has no foundational white paper",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0020",
+   "section": "Design / Technical design",
+   "text": "Instead, it uses design principles intended to overcome issues—such as scalability, interoperability, and a lack of regulatory compliance—faced by earlier cryptocurrencies.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0021",
+   "section": "Design / Technical design",
+   "text": "Cardano claims that it overcomes problems found in other cryptocurrencies, mainly that Bitcoin is too slow and inflexible and that Ethereum is not safe or scalable.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0022",
+   "section": "Design / Technical design",
+   "text": "Like Bitcoin, Cardano uses a UTXO ledger model, though it is an extended version (EUTXO) to facilitate smart contracts and scripting languages.",
+   "class": "data",
+   "claim": "Cardano uses an extended UTXO ledger",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0023",
+   "section": "Design / Technical design",
+   "text": "Cardano uses a proof-of-stake (PoS) protocol named Ouroboros; this was in contrast to Bitcoin and Ethereum, which used proof-of-work protocols (though the latter switched over in 2022).",
+   "class": "data",
+   "claim": "Cardano uses PoS protocol Ouroboros",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0024",
+   "section": "Design / Technical design",
+   "text": "Proof-of-stake blockchains use far less energy than proof-of-work chains.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0025",
+   "section": "Design / Technical design",
+   "text": "This is achieved by eliminating the computing resources that a proof-of-work algorithm requires.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0026",
+   "section": "Design / Technical design",
+   "text": "In February 2021, Hoskinson estimated the Cardano network used 6 GWh annually, less than 0.01% of the 110.53 TWh used by the Bitcoin network as calculated by researchers at the University of Cambridge.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0027",
+   "section": "Design / Technical design",
+   "text": "Within the Cardano platform, the settlement layer keeps track of transactions.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0028",
+   "section": "Design / Technical design",
+   "text": "The second layer is the computation layer and is designed to be similar to Ethereum, enabling smart contracts and applications to run on the platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0029",
+   "section": "Design / Technical design",
+   "text": "Like other cryptocurrencies, Ada (ADA) can be stored on a digital wallet.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0030",
+   "section": "Design / Technical design",
+   "text": "Cardano's native digital wallet is named \"Daedalus\".",
+   "class": "data",
+   "claim": "native wallet is Daedalus",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0031",
+   "section": "Design / Technical design",
+   "text": "The Daedalus wallet downloads a full copy of the entire transaction history of the Cardano blockchain.",
+   "class": "data",
+   "claim": "Daedalus downloads a full copy of the history",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0032",
+   "section": "Design / Technical design",
+   "text": "Wallet users face the risk of losing access to funds if the wallet's seed phrase is lost or stolen.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0033",
+   "section": "Design / Technical design",
+   "text": "Development phases of Cardano are named after notable figures in poetry and computer science: Byron, Shelley, Goguen, Basho, and Voltaire.",
+   "class": "data",
+   "claim": "phases: Byron, Shelley, Goguen, Basho, Voltaire",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0034",
+   "section": "Design / Technical design",
+   "text": "The first three stages implemented a basic blockchain, and then implemented decentralisation and smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0035",
+   "section": "Design / Technical design",
+   "text": "The Basho era focuses on scaling the blockchain.",
+   "class": "data",
+   "claim": "Basho focuses on scaling",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0036",
+   "section": "Design / Technical design",
+   "text": "The Voltaire release adds a treasury model.",
+   "class": "data",
+   "claim": "Voltaire adds a treasury model",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0037",
+   "section": "Design / Technical design",
+   "text": "Once part of Cardano's Voltaire phase, CIP-1694 was implemented through the Chang upgrade and subsequent Plomin hard fork in 2024 establishing \"on-chain\" governance.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0038",
+   "section": "Design / Technical design",
+   "text": "This transition enabled ADA token holders to create, vote on and implement proposals through a decentralized decision-making process, marking IOHK's successful transfer of network development control to the community.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0039",
+   "section": "Design / Technical design",
+   "text": "As with other proof-of-stake cryptocurrencies, Cardano offers \"staking\", which allows token holders to set-aside (delegate) tokens to potentially \"validate\" transactions on the same blockchain (Figure 1).",
+   "class": "data",
+   "claim": "Cardano offers staking by delegation",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0040",
+   "section": "Design / Technical design",
+   "text": "The quantity of tokens staked corresponds with the likelihood of being chosen to validate a transaction, and thus be rewarded by the algorithm with more of the same token.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0041",
+   "section": "Design / Technical design",
+   "text": "Through various wallet implementations, users can participate in \"staking pools\" with other token holders.",
+   "class": "data",
+   "claim": "users can join stake pools",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0042",
+   "section": "Design / Technical design",
+   "text": "These staked tokens have a dual purpose, both securing the network through validation and enabling participation in the governance system.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0043",
+   "section": "Cardano Foundation",
+   "text": "Since 2021, Frederik Gregaard has been the CEO of the Cardano Foundation.",
+   "class": "data",
+   "claim": "Frederik Gregaard has been Foundation CEO since 2021",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0044",
+   "section": "Applications",
+   "text": "Applications of the Cardano blockchain include:",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0045",
+   "section": "Applications",
+   "text": "In 2018, IOHK signed a memorandum of understanding with the government of Ethiopia to consider the use of Cardano in its coffee supply chain.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0046",
+   "section": "Applications",
+   "text": "The partnership with the Ethiopian government also investigate other ways to deploy Cardano in the country.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0047",
+   "section": "Applications",
+   "text": "In 2019, the Ministry of Education in the country of Georgia signed a memorandum of understanding with the Free University of Tbilisi to use Cardano and Atala, IOHK's decentralized identity software, to build a credential verification system for Georgia.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0048",
+   "section": "Applications",
+   "text": "In 2019, New Balance announced a pilot program on the Cardano blockchain so buyers could track the authenticity of OMN1S Kawhi Leonard basketball shoes.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0049",
+   "section": "Applications",
+   "text": "In April 2021, IOHK and the Ethiopia Ministry of Education announced plans for an identity and record-keeping system on Cardano and Atala for the country's five million school pupils.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0050",
+   "section": "Applications",
+   "text": "In 2021, Hoskinson began working with electronic dance music DJ Paul Oakenfold to release an album, Zombie Lobster, on the Cardano blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0051",
+   "section": "Applications",
+   "text": "In 2021, IOHK and Dish Network announced a collaboration to investigate the use of distributed ledger technology.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0052",
+   "section": "Applications",
+   "text": "The Cardano blockchain was cited in Quartz as having the potential to help citizens in Zanzibar, Ethiopia, and Burundi get digital IDs.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0053",
+   "section": "Applications",
+   "text": "World Mobile Token (WMT), a project built on Cardano, offers remote mobile network access in Africa with approximately 150 nodes in East Africa (2022).",
+   "class": "data",
+   "claim": "World Mobile Token runs about 150 nodes in East Africa (2022)",
+   "asOf": "2022"
+  },
+  {
+   "id": "cardano-0054",
+   "section": "Applications",
+   "text": "Mark Cuban is cited as being skeptical about the project and Cardano adoption.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0055",
+   "section": "Applications",
+   "text": "In 2023, a Ghanaian startup named \"Mazzuma\" received funding from the Adaverse, a Cardano ecosystem accelerator.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0056",
+   "section": "Applications",
+   "text": "MassumaGPT aims to use AI in its contract creation platform.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0057",
+   "section": "Applications / Decentralized finance",
+   "text": "Cardano implemented decentralized finance (DeFi) services on September 12, 2021, including an upgrade to enable smart contracts and the ability to build decentralized applications (DApps).",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0058",
+   "section": "Applications / Decentralized finance",
+   "text": "Also included is Plutus, a smart contract language written in Haskell, and Marlowe, a domain-specific language designed by Simon Thompson for non-programmers in the financial sector.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0059",
+   "section": "Applications / Partner chains",
+   "text": "In November 2023 Cardano began introducing sidechains, referred to by the project as \"partner chains\".",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0060",
+   "section": "Applications / Partner chains",
+   "text": "Sidechains are intended to perform off-chain computations, known as smart contracts, while using the Cardano network for settlement.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0061",
+   "section": "Applications / Partner chains",
+   "text": "The first example of such a chain, named \"Midnight\", will make use of the Polkadot framework in combination with Cardano.",
+   "class": "data",
+   "claim": "Midnight will use the Polkadot framework with Cardano",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0062",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "Cardano also enables creating non-fungible tokens (NFTs).",
+   "class": "data",
+   "claim": "Cardano enables NFTs",
+   "asOf": null
+  },
+  {
+   "id": "cardano-0063",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "Snoop Dogg released several thousand NFTs in a project named \"Baked Nation\" for the Cardano chain in April 2022.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0064",
+   "section": "Applications / Non-fungible tokens (NFTs)",
+   "text": "In 2023 a digital artist from the UK sold 7,200 individual works of humanoid deer for almost £500,000 on Cardano.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0065",
+   "section": "Legal status and regulation",
+   "text": "In 2023, the Securities and Exchange Commission (SEC), a US regulator, issued a complaint against the cryptocurrency exchange Kraken for offering unregistered securities (in violation of the Securities Act) and promising returns on investment for staking in multiple proof-of-stake cryptocurrencies, including Cardano.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0066",
+   "section": "Legal status and regulation",
+   "text": "Without any admission of wrongdoing, Kraken agreed to pay a fine of $30 million and halt its staking program in response.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0067",
+   "section": "Legal status and regulation",
+   "text": "In June 2023, the SEC sued Binance.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0068",
+   "section": "Legal status and regulation",
+   "text": "Among the allegations was that Cardano was a security and so the cryptocurrency exchange was trading illegally in the US.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0069",
+   "section": "Legal status and regulation",
+   "text": "IOG responded that the filing was inaccurate and that Ada was not a security.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0070",
+   "section": "Legal status and regulation",
+   "text": "Robinhood Markets said it would remove Cardano and two other proof of stake coins from its platform.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0071",
+   "section": "Legal status and regulation",
+   "text": "The Ada price fell from $0.38 to $0.26 in a day on the FT Wilshire index.",
+   "class": "opinion"
+  },
+  {
+   "id": "cardano-0072",
+   "section": "Legal status and regulation",
+   "text": "Both the Wall Street Journal and The Times linked a fall in the price of Cardano – 19 per cent in June – and a slide for other major coins to the SEC's actions.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0073",
+   "section": "Legal status and regulation",
+   "text": "In late November, Robinhood re-enabled trading in Ada.",
+   "class": "sourced"
+  },
+  {
+   "id": "cardano-0074",
+   "section": "Legal status and regulation",
+   "text": "The price was $1.09 at the end of the month.",
+   "class": "sourced"
+  }
+ ]
+}

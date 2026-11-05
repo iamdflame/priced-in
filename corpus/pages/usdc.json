@@ -1,0 +1,170 @@
+{
+ "slug": "usdc",
+ "title": "USDC (cryptocurrency)",
+ "revid": 1370061318,
+ "timestamp": "2026-08-18T22:35:20Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=USDC_(cryptocurrency)&oldid=1370061318",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"USDC (cryptocurrency)\", English Wikipedia, revision 1370061318 (2026-08-18T22:35:20Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 5,
+  "sourced": 17,
+  "opinion": 2
+ },
+ "sentences": [
+  {
+   "id": "usdc-0001",
+   "section": "(lead)",
+   "text": "USDC (USD Coin) is a cryptocurrency stablecoin issued by Circle Internet Group.",
+   "class": "data",
+   "claim": "USDC is a stablecoin issued by Circle Internet Group",
+   "asOf": null
+  },
+  {
+   "id": "usdc-0002",
+   "section": "(lead)",
+   "text": "It is pegged to the United States dollar, and is distinct from a central bank digital currency (CBDC).",
+   "class": "data",
+   "claim": "USDC is pegged to the US dollar",
+   "asOf": null
+  },
+  {
+   "id": "usdc-0003",
+   "section": "Usage",
+   "text": "USDC operates as an Ethereum ERC-20 token and is also available on several other blockchain platforms, such as Base and Polygon.",
+   "class": "data",
+   "claim": "USDC is an ERC-20 token, also available on Base and Polygon",
+   "asOf": null
+  },
+  {
+   "id": "usdc-0004",
+   "section": "Usage",
+   "text": "Visa initiated a pilot program in 2023 to send USDC via the Solana blockchain to payment firms Worldpay and Nuvei, who could then transfer payment to merchants.",
+   "class": "opinion"
+  },
+  {
+   "id": "usdc-0005",
+   "section": "Assets and reserves",
+   "text": "As of 2020, USDC reserves were regularly attested (but not audited) by Grant Thornton LLP.",
+   "class": "data",
+   "claim": "as of 2020 USDC reserves were attested by Grant Thornton",
+   "asOf": "2020"
+  },
+  {
+   "id": "usdc-0006",
+   "section": "Assets and reserves",
+   "text": "Until mid-2021, Circle stated that each USDC was backed by either one U.S. dollar in reserve or by other \"approved investments\", though the specifics of these investments were not disclosed.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0007",
+   "section": "Assets and reserves",
+   "text": "In June 2021, Circle updated its website wording from \"backed by US dollars\" to \"backed by fully reserved assets\".",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0008",
+   "section": "Assets and reserves",
+   "text": "In January 2023, Circle said it had engaged Deloitte as its auditor for USDC reserve reporting.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0009",
+   "section": "Assets and reserves",
+   "text": "In December 2024, Forbes reported that USDC had $41 billion in assets under management.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0010",
+   "section": "History",
+   "text": "Circle Internet Group announced USDC on May 15, 2018, and it was subsequently launched in September of the same year by Centre, a consortium formed through a joint venture between Circle and Coinbase.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0011",
+   "section": "History",
+   "text": "On March 29, 2021, Visa announced its support for USDC, enabling the cryptocurrency to be used for settling transactions within its payment network.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0012",
+   "section": "History",
+   "text": "In July 2022, Circle reported that the circulation of USDC had reached $55 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0013",
+   "section": "History",
+   "text": "In December 2022, the United Nations High Commissioner for Refugees (UNHCR) held a pilot program to test the use of the USDC stablecoin to distribute cash assistance to Ukrainians displaced by the Russo-Ukrainian War.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0014",
+   "section": "History",
+   "text": "The pilot initially involved fewer than 100 participants.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0015",
+   "section": "History",
+   "text": "On March 11, 2023, USDC temporarily lost its peg to the US dollar after Circle revealed that $3.3 billion dollars, about 8% of its reserves, were jeopardized due to the collapse of Silicon Valley Bank the day before.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0016",
+   "section": "History",
+   "text": "USDC regained its dollar peg four days later.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0017",
+   "section": "History",
+   "text": "In August 2023, Circle and Coinbase dissolved the Centre Consortium, the entity responsible for managing USDC since 2018.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0018",
+   "section": "History",
+   "text": "This decision granted Circle full governance over USDC.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0019",
+   "section": "History",
+   "text": "In February 2024, Circle discontinued USDC on the TRON blockchain following a risk management review.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0020",
+   "section": "History",
+   "text": "Although the minting of new USDC tokens halted on February 21, 2024, customers had until February 2025 to transfer USDC to other blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0021",
+   "section": "History",
+   "text": "According to Forbes in December 2024, USDC primarily competes with Tether, which dominates the market by market capitalization.",
+   "class": "data",
+   "claim": "as of December 2024 USDC competes with Tether, which leads by market cap",
+   "asOf": "2024-12"
+  },
+  {
+   "id": "usdc-0022",
+   "section": "History",
+   "text": "USDC and Tether nearly reached parity in 2022, but USDC declined coinciding with the collapse of Silicon Valley Bank, where Circle held reserves.",
+   "class": "sourced"
+  },
+  {
+   "id": "usdc-0023",
+   "section": "History",
+   "text": "According to data compiled by Visa, USDC overtook Tether in stablecoin transaction volume in August 2024.",
+   "class": "opinion"
+  },
+  {
+   "id": "usdc-0024",
+   "section": "History",
+   "text": "On June 5, 2025, Circle was listed on the New York Stock Exchange via an initial public offering.",
+   "class": "sourced"
+  }
+ ]
+}

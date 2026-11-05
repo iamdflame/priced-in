@@ -1,0 +1,860 @@
+{
+ "slug": "polymarket",
+ "title": "Polymarket",
+ "revid": 1383536551,
+ "timestamp": "2026-11-03T05:52:06Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Polymarket&oldid=1383536551",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Polymarket\", English Wikipedia, revision 1383536551 (2026-11-03T05:52:06Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 14,
+  "sourced": 100,
+  "opinion": 22
+ },
+ "sentences": [
+  {
+   "id": "polymarket-0001",
+   "section": "(lead)",
+   "text": "Polymarket is an American cryptocurrency-based prediction market which offers a platform where individuals can place bets on future outcomes, including sports matches, economic indicators, weather patterns, awards, political and legislative outcomes, and military conflicts.",
+   "class": "data",
+   "claim": "Polymarket is a crypto-based prediction market",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0002",
+   "section": "(lead)",
+   "text": "Participants can deposit cryptocurrency through the Polygon blockchain network and trade shares that represent the likelihood of specific future outcomes.",
+   "class": "data",
+   "claim": "deposit through the Polygon network",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0003",
+   "section": "(lead)",
+   "text": "The company is headquartered in Manhattan, New York City, where the platform was launched in 2020, and has legal domicile in Panama.",
+   "class": "data",
+   "claim": "headquartered in Manhattan, legal domicile in Panama",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0004",
+   "section": "(lead)",
+   "text": "The platform has been described as operating in \"a legal and ethical grey area\" because of the controversial nature of the betting markets offered by the company, including markets related to military strikes and ongoing wars.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0005",
+   "section": "(lead)",
+   "text": "The majority of trades on the platform are related to sports.",
+   "class": "data",
+   "claim": "the majority of trades are sports-related",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0006",
+   "section": "(lead)",
+   "text": "While it is not labelled a sports betting platform, 63% of trades on the platform are for sports bets.",
+   "class": "data",
+   "claim": "63% of trades are sports bets",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0007",
+   "section": "(lead)",
+   "text": "Instances of insider trading and attempts to manipulate outcomes have been observed on the platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0008",
+   "section": "(lead)",
+   "text": "Polymarket has been banned by the governments of France, Brazil, Italy and Gibraltar.",
+   "class": "data",
+   "claim": "banned by France, Brazil, Italy and Gibraltar",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0009",
+   "section": "(lead)",
+   "text": "It was not able to operate in the United States from 2022 until 2025, when the second Donald Trump administration eased the regulatory environment and Donald Trump Jr. joined the company as an advisor.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0010",
+   "section": "(lead)",
+   "text": "Scholars have challenged whether the platform efficiently and accurately aggregates information about outcomes.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0011",
+   "section": "(lead)",
+   "text": "The company advertises that its markets \"reflect real-time sentiment\"; however, scholars have challenged the way the platform aggregates information about outcomes.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0012",
+   "section": "(lead)",
+   "text": "A review by the New York Times of Polymarket's social media posts found that the platform has published hundreds of false and misleading posts.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0013",
+   "section": "(lead)",
+   "text": "Politico uncovered a campaign by Polymarket to pay influencers to praise Polymarket for its supposed accuracy; The Wall Street Journal reported that Polymarket paid content creators to show simulated trades with fake wins on clones of Polymarket's website, as well as paying to promote user-generated content explaining how to use insider information on Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0014",
+   "section": "(lead)",
+   "text": "A growing number of gamblers are increasingly using unregulated platforms, such as Polymarket, due to regulated bookmakers using regulation as an excuse to void bets and withhold payment.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0015",
+   "section": "History",
+   "text": "Founded in 2020 by Shayne Coplan, Polymarket is a prediction market that allows users to gain/lose on the outcome of world events.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0016",
+   "section": "History",
+   "text": "In January 2022, Polymarket was fined US$1.4 million by the Commodity Futures Trading Commission (CFTC), and received a cease-and-desist order for regulatory violations, including failure to register as a Swap Execution Facility.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0017",
+   "section": "History",
+   "text": "According to the CFTC, Polymarket offered \"substantial cooperation\" throughout the investigation, which resulted in the company receiving a lower fine.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0018",
+   "section": "History",
+   "text": "In May 2022, Polymarket appointed J. Christopher Giancarlo, a former commissioner of the CFTC, as chairman of its advisory board.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0019",
+   "section": "History",
+   "text": "In May 2024, the company announced that it had raised $70 million across two funding rounds.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0020",
+   "section": "History",
+   "text": "These rounds included investments from Vitalik Buterin, the cofounder of Ethereum, and Founders Fund, a venture capital firm founded by Peter Thiel.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0021",
+   "section": "History",
+   "text": "In June 2023, Mother Jones reported that interest in the company had increased after a tweet about the outcome of the Titan submersible went viral; the premise of the bet was whether the submersible would be found by a certain date, rather than a wager on the fate of the passengers.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0022",
+   "section": "History",
+   "text": "Polymarket had over 60 markets available at the time of the submersible wager, including the outcome of the Guatemalan presidential election, the likelihood of Twitter suing Meta, and the likelihood that Russia would use nuclear force.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0023",
+   "section": "History",
+   "text": "Polymarket blocked access to United States customers from 2022 to December 2, 2025, following a settlement with the Commodity Futures Trading Commission, which accused the company of running an unregistered derivatives-trading platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0024",
+   "section": "History",
+   "text": "Under the settlement, Polymarket agreed to wind down U.S. operations after being accused of running an illegal exchange.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0025",
+   "section": "History",
+   "text": "The second Donald Trump administration eased the regulatory environment for Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0026",
+   "section": "History",
+   "text": "In July 2025, the Commodity Futures Trading Commission (CFTC) and Department of Justice ended a probe into Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0027",
+   "section": "History",
+   "text": "At the same time, Polymarket added Donald Trump Jr. as an advisor, whose firm 1789 Capital also invested in the company.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0028",
+   "section": "History",
+   "text": "The platform hosted bets on the January 2025 Southern California wildfires, which drew condemnation from several US senators who argued it created perverse incentives for arson.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0029",
+   "section": "History",
+   "text": "In May 2025, Polymarket acquired viral X account named \"Has Mbappé Scored a Free Kick\" and rebranded it into \"Polymarket FC\".",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0030",
+   "section": "History",
+   "text": "In October 2025, Polymarket secured up to a $2 billion investment from Intercontinental Exchange (ICE), which valued the company at $8 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0031",
+   "section": "History",
+   "text": "By February 2026, the company was valued at $9 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0032",
+   "section": "History",
+   "text": "The company advertises that its markets \"reflect real-time sentiment\"; however, scholars have challenged how efficiently and accurately it aggregates information about outcomes.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0033",
+   "section": "History",
+   "text": "A review by the New York Times of Polymarket's social media posts found that the platform published hundreds of false and misleading posts.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0034",
+   "section": "History",
+   "text": "In March 2026, Polymarket acquired Brahma, a crypto and DeFi infrastructure startup, to simplify its blockchain infrastructure for users.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0035",
+   "section": "History",
+   "text": "Polymarket and other prediction markets platforms have affected traditional bookmakers and online casinos, costing them market share, revenue and prompting investment banks to downgrade the stock of several publicly traded iGaming companies, including DraftKings.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0036",
+   "section": "History / 2024 United States elections",
+   "text": "In 2024, the outcome of U.S. elections became the most active market on the platform, with over $3.3 billion (as of November 5, 2024) wagered on the presidential race between the Republican candidate Donald Trump and Democratic candidate Kamala Harris.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0037",
+   "section": "History / 2024 United States elections",
+   "text": "Nate Silver, founder of polling analysis firm FiveThirtyEight, became an advisor to Polymarket in 2024.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0038",
+   "section": "History / 2024 United States elections",
+   "text": "A few days after the 2024 U.S. presidential debate held on June 27, 2024, Polymarket predicted a 70% chance that Democratic candidate Joe Biden would withdraw from the 2024 U.S. presidential election race (an increase from 20%), weeks before he officially announced his withdrawal.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0039",
+   "section": "History / 2024 United States elections",
+   "text": "By contrast, on August 5, Polymarket showed 68% odds Kamala Harris would pick Pennsylvania governor Josh Shapiro as her running mate, with Minnesota governor Tim Walz at 23% odds.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0040",
+   "section": "History / 2024 United States elections",
+   "text": "Harris selected Walz the next day.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0041",
+   "section": "History / 2024 United States elections",
+   "text": "On October 7, 2024, Polymarket showed a spike in the odds Donald Trump would win the 2024 election, to 53.3%, with a corresponding decline in Kamala Harris's odds, to 46.1%.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0042",
+   "section": "History / 2024 United States elections",
+   "text": "Two Polymarket competitors continued to show Harris with better odds of winning, at about 51%; Polymarket also showed a slight edge for Harris throughout September.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0043",
+   "section": "History / 2024 United States elections",
+   "text": "That day, the FiveThirtyEight simulation model found Harris had a 55% chance to win the election, while elections statistician Nate Silver said his model gave Harris 54.7% odds.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0044",
+   "section": "History / 2024 United States elections",
+   "text": "Forbes reported on theories for the Polymarket divergence, including that one or more major wagers had been placed on Trump, possibly because Elon Musk had spoken at a Trump rally two days earlier, and had previously promoted Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0045",
+   "section": "History / 2024 United States elections",
+   "text": "On the day of the Trump spike, Musk reposted an X post that asserted \"Kamala is collapsing before our eyes.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0046",
+   "section": "History / 2024 United States elections",
+   "text": "However, due to Polymarket lacking a cap on individual investor amounts, large wagers by one or a few bettors may not reflect a material change in the election landscape.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0047",
+   "section": "History / 2024 United States elections",
+   "text": "Silver, a Polymarket advisor, said the shift in Trump's favor was a \"larger swing than is justified.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0048",
+   "section": "History / 2024 United States elections",
+   "text": "Polymarket competitor PredictIt had since shown Trump with better odds of winning after previously favoring Kamala Harris.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0049",
+   "section": "History / 2024 United States elections",
+   "text": "The divergence continued into mid-October 2024, showing Trump with 60% odds on October 18.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0050",
+   "section": "History / 2024 United States elections",
+   "text": "The Wall Street Journal reported the market moves might be a mirage created by four bettors with about $30 million in Trump wagers, though the bets were not necessarily nefarious.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0051",
+   "section": "History / 2024 United States elections",
+   "text": "The four bettors behaved in similar fashion, leading at least one blockchain analyst to conclude there was \"strong reason to believe they are the same entity.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0052",
+   "section": "History / 2024 United States elections",
+   "text": "Polymarket initiated an investigation of potential market manipulation for an influence campaign in favor of the Donald Trump 2024 presidential campaign.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0053",
+   "section": "History / 2024 United States elections",
+   "text": "The company confirmed on October 24 that the four accounts were controlled by one French trader with \"extensive trading experience and a financial services background,\" finding no evidence of efforts at market manipulation.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0054",
+   "section": "History / 2024 United States elections",
+   "text": "The trader ultimately won $85 million upon Trump's victory.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0055",
+   "section": "History / 2024 United States elections",
+   "text": "In October 2025, Intercontinental Exchange (ICE) invested $2 billion in Polymarket, bringing the company's valuation to $9 billion.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0056",
+   "section": "History / Relationship with Trump family",
+   "text": "The second Donald Trump administration eased the regulatory environment for Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0057",
+   "section": "History / Relationship with Trump family",
+   "text": "In July 2025, the Commodity Futures Trading Commission (CFTC) and Department of Justice ended a probe into Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0058",
+   "section": "History / Relationship with Trump family",
+   "text": "The CFTC under the Joe Biden administration had entered into a settlement with Polymarket whereby Polymarket agreed to wind down U.S. operations after being accused of running an illegal exchange.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0059",
+   "section": "History / Relationship with Trump family",
+   "text": "In 2025, Donald Trump Jr., a member of the Trump family, has taken on an advisory role at Polymarket, after his firm 1789 Capital invested in Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0060",
+   "section": "War bets",
+   "text": "Polymarket allows bets on armed conflicts, which has led to members of armed forces placing bets on operations, impacts on war reporting, and bets about nuclear war.",
+   "class": "data",
+   "claim": "Polymarket allows bets on armed conflicts",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0061",
+   "section": "War bets",
+   "text": "War bets may rely on classified military information.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0062",
+   "section": "War bets",
+   "text": "According to the Anti-Corruption Data Collective, 52% of military action long-shot bets—defined as those worth $2,500 or more with odds at or below 35%—are successful, compared to 25% for politics bets and 14% of all bets.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0063",
+   "section": "War bets / Russo-Ukrainian War",
+   "text": "During the Russo-Ukrainian war, the Institute for the Study of War (ISW) indicated on a map that Russian forces had advanced into downtown Myrnohrad on November 14, 2025, despite no evidence to support such an advance.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0064",
+   "section": "War bets / Russo-Ukrainian War",
+   "text": "After a bet that the city would be captured by Russia by November 15 was closed, the fictitious advance was removed from the map.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0065",
+   "section": "War bets / Russo-Ukrainian War",
+   "text": "The next day, a Polymarket user accused ISW of fraud because its maps did not reflect the actual extent of Russian advances.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0066",
+   "section": "War bets / Russo-Ukrainian War",
+   "text": "Ukrainian DeepState in turn accused Polymarket of improperly using its maps and data to fuel bets.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0067",
+   "section": "War bets / 2026 United States attack on Venezuela",
+   "text": "A newly created Polymarket account netted over $400,000 in January 2026 from positions held on Nicolás Maduro being ousted from office and U.S. military action against Venezuela before January 31.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0068",
+   "section": "War bets / 2026 United States attack on Venezuela",
+   "text": "These bets came under scrutiny on social media for potential insider trading due to them being placed before the 2026 United States intervention in Venezuela was publicly announced.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0069",
+   "section": "War bets / 2026 United States attack on Venezuela",
+   "text": "A U.S. Special Forces soldier was later arrested and charged.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0070",
+   "section": "War bets / 2026 United States attack on Venezuela",
+   "text": "He is alleged to have had access to classified information and been involved in the planning and execution of the raid.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0071",
+   "section": "War bets / 2026 United States attack on Venezuela",
+   "text": "Polymarket stated it had cooperated with the investigation.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0072",
+   "section": "War bets / Nuclear war bets",
+   "text": "Polymarket came under scrutiny after users placed nearly $850,000 in bets on nuclear detonations following the beginning of the 2026 Iran war.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0073",
+   "section": "War bets / Nuclear war bets",
+   "text": "The bet had been first listed in November 2025.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0074",
+   "section": "War bets / Nuclear war bets",
+   "text": "Polymarket removed the bet shortly after the majority of bets were placed.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0075",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "There have been multiple cases of suspiciously timed trades related to the 2026 Iran war on Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0076",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "Users who had placed large bets related to an Iranian missile strike in March 2026 are alleged to have harassed and threatened Israeli journalist Emanuel Fabian of The Times of Israel in an attempt to pressure him to alter his reporting and influence the market's outcome.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0077",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "Fabian refused, reported the threats to police, and Polymarket subsequently condemned the behavior and banned those involved, prompting broader criticism of prediction markets over ethical risks and incentives tied to real-world events.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0078",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "The incident drew condemnation from Reporters Without Borders (RSF), which reiterated that the safety of journalists is \"non-negotiable\" and that all actors must respect press freedom and the right to information.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0079",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "It also coincided with renewed political scrutiny in the United States, where lawmakers, including Representative Mike Levin, cited similar concerns about betting on war-related events while promoting legislation to restrict or ban such markets, arguing that they could incentivize profiteering from violence and misuse of sensitive information.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0080",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "Multiple members of the Israeli Air Force have been interrogated or indicted regarding bets on the timing of Israeli and American strikes on Iran during the Twelve-Day War.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0081",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "An air force officer gave information on the 2025 strikes to a colleague and the two allegedly earned $244,000.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0082",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "They continued betting on strikes in Yemen and the questions \"Will Israel strike Iran by the end of January?\" and \"Will Israel strike Iran by the end of March 2026?\" and were eventually indicted for \"delivering secret information\".",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0083",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "A different crewmember was interrogated for placing bets on the Twelve-Day War, allegedly earning $46,000.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0084",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "He stated during his interrogation that \"the entire squadron is on Polymarket, the entire air force is betting.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0085",
+   "section": "War bets / Twelve-Day War and 2026 Iran War",
+   "text": "In February 2026, two people were charged in Israel under suspicion of having used insider knowledge to trade on Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0086",
+   "section": "Legal and regulatory issues",
+   "text": "Polymarket has faced legal issues and has been blocked in several countries.",
+   "class": "data",
+   "claim": "Polymarket has been blocked in several countries",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0087",
+   "section": "Legal and regulatory issues",
+   "text": "As of September 2024, Polymarket operates its election prediction operations offshore, as domestic operations would be regulated in the U.S. by the CFTC.",
+   "class": "data",
+   "claim": "as of September 2024 election markets operate offshore",
+   "asOf": "2024-09"
+  },
+  {
+   "id": "polymarket-0088",
+   "section": "Legal and regulatory issues",
+   "text": "The betting markets offered by the company, as well as the ability of individuals with insider information to bet on outcomes, have been described as a \"legal and ethical grey area.\"",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0089",
+   "section": "Legal and regulatory issues",
+   "text": "The ability of individuals with insider information to bet on outcomes, has been described as a legal grey area by U.S. representative Ritchie Torres.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0090",
+   "section": "Legal and regulatory issues",
+   "text": "Various instances of suspicious insider trading have been observed on Polymarket, as well as attempts by gamblers to manipulate outcomes and pressure journalists to change reporting.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0091",
+   "section": "Legal and regulatory issues",
+   "text": "Suspicious activities, suggestive of insider information being used for Polymarket betting, have been observed in the Russo-Ukrainian war, the 2026 United States strikes in Venezuela, Israeli military operations, the 2026 Israeli–United States strikes on Iran, and OpenAI.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0092",
+   "section": "Legal and regulatory issues",
+   "text": "0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money.",
+   "class": "data",
+   "claim": "0.1% of accounts net 67% of profits; over 70% of users lose",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0093",
+   "section": "Legal and regulatory issues",
+   "text": "An estimated 3% of traders account for the majority of price discovery on the platform.",
+   "class": "data",
+   "claim": "about 3% of traders account for most price discovery",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0094",
+   "section": "Legal and regulatory issues",
+   "text": "Polymarket has a track record of changing the terms of wagers, even after bets have been made.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0095",
+   "section": "Legal and regulatory issues",
+   "text": "On November 13, 2024, the FBI raided Polymarket founder and CEO Shayne Coplan's home and seized his phone.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0096",
+   "section": "Legal and regulatory issues",
+   "text": "According to Bloomberg News, the Department of Justice was investigating Polymarket for allegedly allowing U.S.-based users to make bets on the website.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0097",
+   "section": "Legal and regulatory issues",
+   "text": "Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.",
+   "class": "data",
+   "claim": "legal domicile in Panama",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0098",
+   "section": "Legal and regulatory issues",
+   "text": "Panamanian law used to require no business operations in the country to benefit from this, however a law was introduced to require companies to have strategic business operations in the country to avoid a new 15% tax penalty on foreign income.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0099",
+   "section": "Legal and regulatory issues",
+   "text": "In June 2026, US Senators John Curtis (R-Utah) and Adam Schiff (D-California) formally requested the United States Commodity Futures Trading Commission (CFTC) to review Polymarket’s marketing practices.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0100",
+   "section": "Legal and regulatory issues",
+   "text": "This followed a Wall Street Journal investigation into misleading advertising.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0101",
+   "section": "Legal and regulatory issues / Regional lawsuits and bans",
+   "text": "Polymarket has at some point been banned in a number of countries that regulate gambling and sports betting, including France, Italy, Singapore, South Korea, Spain, Switzerland, Poland, Romania, Australia, Lithuania and the United States.",
+   "class": "data",
+   "claim": "banned at some point in a list of countries",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0102",
+   "section": "Legal and regulatory issues / Regional lawsuits and bans",
+   "text": "In July 2026, the Netherlands rejected an appeal by Polymarket, and Italy re-added Polymarket to its list of unauthorized gambling websites.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0103",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On November 26, 2024, the Swiss Gambling Supervisory Authority added Polymarket.com to its blocked domains list due to the controversial aspects of prediction markets in violation of the regulation on gambling and sports betting.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0104",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "Three days later, the French National Gaming Authority announced that after having investigated Polymarket because its gaming offerings were likely in violation of French laws.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0105",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "The company agreed to perform a geo-block in France.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0106",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "Polymarket.com was added to the Internet gambling blacklists of Poland's Ministry of Finance and Singapore's Gambling Regulatory Authority on January 8 and January 12, 2025, respectively, due to the site being in violation of those countries' gambling laws.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0107",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On February 3, 2025, the Belgian Gaming Commission, Commission des Jeux de Hasard, banned the platform in Belgium, warning users trying to connect that use of the platform in Belgium is illegal.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0108",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "Access has been prohibited by virtue of Decision No. 65/8/24.07.2013 of the Hellenic Gaming Commission (E.E.E.Π.) updated on 21 November 2025, because it has been included in the list of unauthorized websites operating without the required license under Greek legislation.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0109",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On February 2, 2026, Sofia Regional Court of Bulgaria issued a demand for Internet providers to block Polymarket as it does not have a valid gambling license in the country.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0110",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On March 17, 2026, the Portuguese Gaming Policy and Regulation Service (SRIJ) issued a nationwide ban on Polymarket, ordering local Internet service providers to block access to the platform due to a lack of proper licensing for gambling and sports betting operations.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0111",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On 19 May 2026 Tánaiste Simon Harris said at the Banking and Payments Federation Ireland conference that the government would examine \"suspicious bets\" made on Polymarket.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0112",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "In particular, there was concern about bets placed on the 2026 Dublin Central by-election as a million dollars was placed on it, with hundreds of thousands of Euro on Gerry Hutch to lose.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0113",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "There is no suggestion that any candidate is guilty of wrongdoing.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0114",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "Harris also expressed concerns about the issues of gambling and money laundering, saying that he is concerned with issues of both gambling and money laundering and that the Department of Justice, the Garda Síochána, the Gambling Regulatory Authority of Ireland, the Central Bank of Ireland, partners in the EU and relevant agencies.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0115",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On 22 May 2026, Ministry of Communication and Digital Affairs blocked access to Polymarket in Indonesia due to predicting possible early ending a president Prabowo Subianto's tenure.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0116",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "The Supervisor Digital Alexander Sabar labeled it as online gambling on their prediction market.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0117",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On 26 May 2026, the Ministry of Consumer Rights of Spain blocked access to Polymarket in the country, reporting that the platform violates Spanish law for operating without obtaining a gambling license.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0118",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On 18 August 2026, South Korea's Media and Communications Standards Commission ordered domestic internet service providers to block access to Polymarket, citing concerns over illegal gambling.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0119",
+   "section": "Legal and regulatory issues / Asia and Europe",
+   "text": "On 19 August 2026, the Ministry of Taxation of Denmark blocked access to Polymarket.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0120",
+   "section": "Legal and regulatory issues / South America",
+   "text": "Polymarket, along with other prediction markets, was banned in Brazil on April 26, 2026.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0121",
+   "section": "Legal and regulatory issues / United States",
+   "text": "The minimum age for joining Polymarket is 18 years old, despite state-level policy in the United States that permits gambling from the age of 21.",
+   "class": "data",
+   "claim": "minimum age for joining is 18",
+   "asOf": null
+  },
+  {
+   "id": "polymarket-0122",
+   "section": "Legal and regulatory issues / United States",
+   "text": "On July 15, 2025, CNBC reported that the U.S. Department of Justice and the Commodity Futures Trading Commission (CFTC) formally ended their investigations into Polymarket without bringing new charges.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0123",
+   "section": "Legal and regulatory issues / United States",
+   "text": "This development marked the resolution of regulatory scrutiny following the company's earlier settlement with the CFTC in 2022 and enforcement actions in 2024.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0124",
+   "section": "Legal and regulatory issues / United States",
+   "text": "Following the end of the investigations, Polymarket announced the acquisition of QCEX, a CFTC-licensed derivatives exchange and clearinghouse, for $112 million.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0125",
+   "section": "Legal and regulatory issues / United States",
+   "text": "The acquisition allowed Polymarket to legally operate within the United States under regulatory compliance.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0126",
+   "section": "Legal and regulatory issues / United States",
+   "text": "The company received an Amended Order of Designation from the CFTC in November 2025 and began actively expanding in the United States market.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0127",
+   "section": "Legal and regulatory issues / United States",
+   "text": "Some individual states soon thereafter opened court cases claiming that Polymarket should be regulated as a gambling or gaming operator within their state.",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0128",
+   "section": "Legal and regulatory issues / United States",
+   "text": "In January 2026, the Nevada Gaming Control Board filed a civil complaint against Polymarket seeking to prevent the platform from offering event contracts to Nevada residents without a state-issued gaming license.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0129",
+   "section": "Legal and regulatory issues / United States",
+   "text": "This action followed a preliminary injunction issued in the Massachusetts Superior Court case Commonwealth v.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0130",
+   "section": "Legal and regulatory issues / United States",
+   "text": "KalshiEX LLC, which found that similar prediction market contracts functioned as illegal sports wagering under state law.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0131",
+   "section": "Legal and regulatory issues / United States",
+   "text": "Nevada regulators used the Massachusetts ruling as supplemental authority to argue that state jurisdiction over gambling remains intact despite federal oversight by the Commodity Futures Trading Commission (CFTC).",
+   "class": "opinion"
+  },
+  {
+   "id": "polymarket-0132",
+   "section": "Legal and regulatory issues / United States",
+   "text": "The conflicting rulings have led to ongoing litigation regarding whether the federal Commodity Exchange Act preempts state-level gambling enforcement against prediction markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0133",
+   "section": "Legal and regulatory issues / United States",
+   "text": "On May 29, a third prediction market was blocked from operating in Nevada when First Judicial District Court Judge Jason Woodbury granted the preliminary injunction.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0134",
+   "section": "Legal and regulatory issues / United States",
+   "text": "In May 2026, Minnesota enacted a law banning prediction markets as of August 1, 2026.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0135",
+   "section": "Legal and regulatory issues / United States",
+   "text": "The U.S. DOJ filed a lawsuit the following day seeking to stop the law from taking effect.",
+   "class": "sourced"
+  },
+  {
+   "id": "polymarket-0136",
+   "section": "Legal and regulatory issues / United States",
+   "text": "President Trump wrote in a social media post that it is \"critically important\" that the federal government retains \"exclusive authority\" over prediction markets and called Minnesota Governor Walz, among others \"SCUM\" for trying to set rules.",
+   "class": "opinion"
+  }
+ ]
+}

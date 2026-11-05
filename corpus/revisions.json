@@ -1,0 +1,227 @@
+{
+ "cutoff": "2026-11-05T00:00:00Z",
+ "licence": "CC BY-SA 4.0",
+ "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+ "articles": [
+  {
+   "slug": "near",
+   "title": "NEAR (blockchain platform)",
+   "revid": 1374559820,
+   "timestamp": "2026-09-12T20:05:09Z",
+   "bytes": 8798,
+   "url": "https://en.wikipedia.org/w/index.php?title=NEAR_(blockchain_platform)&oldid=1374559820",
+   "history": "https://en.wikipedia.org/w/index.php?title=NEAR_(blockchain_platform)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"NEAR (blockchain platform)\", English Wikipedia, revision 1374559820 (2026-09-12T20:05:09Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "ethereum",
+   "title": "Ethereum",
+   "revid": 1383352660,
+   "timestamp": "2026-11-02T07:03:53Z",
+   "bytes": 86813,
+   "url": "https://en.wikipedia.org/w/index.php?title=Ethereum&oldid=1383352660",
+   "history": "https://en.wikipedia.org/w/index.php?title=Ethereum&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Ethereum\", English Wikipedia, revision 1383352660 (2026-11-02T07:03:53Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "bitcoin",
+   "title": "Bitcoin",
+   "revid": 1382376340,
+   "timestamp": "2026-10-28T11:17:12Z",
+   "bytes": 114310,
+   "url": "https://en.wikipedia.org/w/index.php?title=Bitcoin&oldid=1382376340",
+   "history": "https://en.wikipedia.org/w/index.php?title=Bitcoin&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Bitcoin\", English Wikipedia, revision 1382376340 (2026-10-28T11:17:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "solana",
+   "title": "Solana (blockchain platform)",
+   "revid": 1370327076,
+   "timestamp": "2026-08-20T13:48:00Z",
+   "bytes": 22755,
+   "url": "https://en.wikipedia.org/w/index.php?title=Solana_(blockchain_platform)&oldid=1370327076",
+   "history": "https://en.wikipedia.org/w/index.php?title=Solana_(blockchain_platform)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Solana (blockchain platform)\", English Wikipedia, revision 1370327076 (2026-08-20T13:48:00Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "usdc",
+   "title": "USDC (cryptocurrency)",
+   "revid": 1370061318,
+   "timestamp": "2026-08-18T22:35:20Z",
+   "bytes": 11828,
+   "url": "https://en.wikipedia.org/w/index.php?title=USDC_(cryptocurrency)&oldid=1370061318",
+   "history": "https://en.wikipedia.org/w/index.php?title=USDC_(cryptocurrency)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"USDC (cryptocurrency)\", English Wikipedia, revision 1370061318 (2026-08-18T22:35:20Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "tether",
+   "title": "Tether (cryptocurrency)",
+   "revid": 1382852995,
+   "timestamp": "2026-10-30T17:27:49Z",
+   "bytes": 95494,
+   "url": "https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995",
+   "history": "https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Tether (cryptocurrency)\", English Wikipedia, revision 1382852995 (2026-10-30T17:27:49Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "uniswap",
+   "title": "Uniswap",
+   "revid": 1379919424,
+   "timestamp": "2026-10-12T17:50:08Z",
+   "bytes": 14545,
+   "url": "https://en.wikipedia.org/w/index.php?title=Uniswap&oldid=1379919424",
+   "history": "https://en.wikipedia.org/w/index.php?title=Uniswap&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Uniswap\", English Wikipedia, revision 1379919424 (2026-10-12T17:50:08Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "aave",
+   "title": "Aave",
+   "revid": 1383227531,
+   "timestamp": "2026-11-01T17:21:21Z",
+   "bytes": 9728,
+   "url": "https://en.wikipedia.org/w/index.php?title=Aave&oldid=1383227531",
+   "history": "https://en.wikipedia.org/w/index.php?title=Aave&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Aave\", English Wikipedia, revision 1383227531 (2026-11-01T17:21:21Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "chainlink",
+   "title": "Chainlink (blockchain oracle)",
+   "revid": 1373689437,
+   "timestamp": "2026-09-07T09:49:59Z",
+   "bytes": 11864,
+   "url": "https://en.wikipedia.org/w/index.php?title=Chainlink_(blockchain_oracle)&oldid=1373689437",
+   "history": "https://en.wikipedia.org/w/index.php?title=Chainlink_(blockchain_oracle)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Chainlink (blockchain oracle)\", English Wikipedia, revision 1373689437 (2026-09-07T09:49:59Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "polymarket",
+   "title": "Polymarket",
+   "revid": 1383536551,
+   "timestamp": "2026-11-03T05:52:06Z",
+   "bytes": 65866,
+   "url": "https://en.wikipedia.org/w/index.php?title=Polymarket&oldid=1383536551",
+   "history": "https://en.wikipedia.org/w/index.php?title=Polymarket&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Polymarket\", English Wikipedia, revision 1383536551 (2026-11-03T05:52:06Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "zcash",
+   "title": "Zcash",
+   "revid": 1381362683,
+   "timestamp": "2026-10-21T22:37:57Z",
+   "bytes": 24174,
+   "url": "https://en.wikipedia.org/w/index.php?title=Zcash&oldid=1381362683",
+   "history": "https://en.wikipedia.org/w/index.php?title=Zcash&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Zcash\", English Wikipedia, revision 1381362683 (2026-10-21T22:37:57Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "monero",
+   "title": "Monero",
+   "revid": 1383327494,
+   "timestamp": "2026-11-02T03:23:26Z",
+   "bytes": 37399,
+   "url": "https://en.wikipedia.org/w/index.php?title=Monero&oldid=1383327494",
+   "history": "https://en.wikipedia.org/w/index.php?title=Monero&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Monero\", English Wikipedia, revision 1383327494 (2026-11-02T03:23:26Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "polkadot",
+   "title": "Polkadot (blockchain platform)",
+   "revid": 1378697257,
+   "timestamp": "2026-10-05T18:55:58Z",
+   "bytes": 14160,
+   "url": "https://en.wikipedia.org/w/index.php?title=Polkadot_(blockchain_platform)&oldid=1378697257",
+   "history": "https://en.wikipedia.org/w/index.php?title=Polkadot_(blockchain_platform)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Polkadot (blockchain platform)\", English Wikipedia, revision 1378697257 (2026-10-05T18:55:58Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "prediction-market",
+   "title": "Prediction market",
+   "revid": 1383537451,
+   "timestamp": "2026-11-03T05:59:38Z",
+   "bytes": 81966,
+   "url": "https://en.wikipedia.org/w/index.php?title=Prediction_market&oldid=1383537451",
+   "history": "https://en.wikipedia.org/w/index.php?title=Prediction_market&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Prediction market\", English Wikipedia, revision 1383537451 (2026-11-03T05:59:38Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "stablecoin",
+   "title": "Stablecoin",
+   "revid": 1383799546,
+   "timestamp": "2026-11-04T23:08:36Z",
+   "bytes": 83887,
+   "url": "https://en.wikipedia.org/w/index.php?title=Stablecoin&oldid=1383799546",
+   "history": "https://en.wikipedia.org/w/index.php?title=Stablecoin&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Stablecoin\", English Wikipedia, revision 1383799546 (2026-11-04T23:08:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "proof-of-stake",
+   "title": "Proof of stake",
+   "revid": 1373286584,
+   "timestamp": "2026-09-05T02:25:36Z",
+   "bytes": 22979,
+   "url": "https://en.wikipedia.org/w/index.php?title=Proof_of_stake&oldid=1373286584",
+   "history": "https://en.wikipedia.org/w/index.php?title=Proof_of_stake&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Proof of stake\", English Wikipedia, revision 1373286584 (2026-09-05T02:25:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "dai",
+   "title": "Dai (cryptocurrency)",
+   "revid": 1375647492,
+   "timestamp": "2026-09-19T03:29:12Z",
+   "bytes": 15007,
+   "url": "https://en.wikipedia.org/w/index.php?title=Dai_(cryptocurrency)&oldid=1375647492",
+   "history": "https://en.wikipedia.org/w/index.php?title=Dai_(cryptocurrency)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Dai (cryptocurrency)\", English Wikipedia, revision 1375647492 (2026-09-19T03:29:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "cardano",
+   "title": "Cardano (blockchain platform)",
+   "revid": 1345627574,
+   "timestamp": "2026-03-27T04:21:32Z",
+   "bytes": 38393,
+   "url": "https://en.wikipedia.org/w/index.php?title=Cardano_(blockchain_platform)&oldid=1345627574",
+   "history": "https://en.wikipedia.org/w/index.php?title=Cardano_(blockchain_platform)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Cardano (blockchain platform)\", English Wikipedia, revision 1345627574 (2026-03-27T04:21:32Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "avalanche",
+   "title": "Avalanche (blockchain platform)",
+   "revid": 1381043012,
+   "timestamp": "2026-10-19T17:15:07Z",
+   "bytes": 24648,
+   "url": "https://en.wikipedia.org/w/index.php?title=Avalanche_(blockchain_platform)&oldid=1381043012",
+   "history": "https://en.wikipedia.org/w/index.php?title=Avalanche_(blockchain_platform)&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Avalanche (blockchain platform)\", English Wikipedia, revision 1381043012 (2026-10-19T17:15:07Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  {
+   "slug": "defi",
+   "title": "Decentralized finance",
+   "revid": 1382583755,
+   "timestamp": "2026-10-29T10:17:46Z",
+   "bytes": 45332,
+   "url": "https://en.wikipedia.org/w/index.php?title=Decentralized_finance&oldid=1382583755",
+   "history": "https://en.wikipedia.org/w/index.php?title=Decentralized_finance&action=history",
+   "licence": "CC BY-SA 4.0",
+   "attribution": "\"Decentralized finance\", English Wikipedia, revision 1382583755 (2026-10-29T10:17:46Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  }
+ ]
+}

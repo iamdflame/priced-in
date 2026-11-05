@@ -1,0 +1,178 @@
+{
+ "slug": "chainlink",
+ "title": "Chainlink (blockchain oracle)",
+ "revid": 1373689437,
+ "timestamp": "2026-09-07T09:49:59Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Chainlink_(blockchain_oracle)&oldid=1373689437",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Chainlink (blockchain oracle)\", English Wikipedia, revision 1373689437 (2026-09-07T09:49:59Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 9,
+  "sourced": 14,
+  "opinion": 1
+ },
+ "sentences": [
+  {
+   "id": "chainlink-0001",
+   "section": "(lead)",
+   "text": "Chainlink is a decentralized blockchain oracle network.",
+   "class": "data",
+   "claim": "Chainlink is a blockchain oracle network",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0002",
+   "section": "(lead)",
+   "text": "Chainlink's token is on Ethereum.",
+   "class": "data",
+   "claim": "LINK token is on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0003",
+   "section": "(lead)",
+   "text": "The network is intended to be used to facilitate the transfer of tamper-proof data from off-chain sources to on-chain smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0004",
+   "section": "History",
+   "text": "Chainlink was created in 2017 by Sergey Nazarov and Steve Ellis, who co-authored a white paper introducing the Chainlink protocol and network with Cornell University professor Ari Juels the same year.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0005",
+   "section": "History",
+   "text": "Chainlink acts as a \"bridge\" between a blockchain and off-chain environments.",
+   "class": "data",
+   "claim": "Chainlink bridges blockchains and off-chain environments",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0006",
+   "section": "History",
+   "text": "The network, which services smart contracts, was formally launched in 2019.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0007",
+   "section": "History",
+   "text": "In 2018, Chainlink integrated Town Crier, a trusted execution environment-based blockchain oracle that Juels also worked on.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0008",
+   "section": "History",
+   "text": "Town Crier connects the Ethereum blockchain with web sources that use HTTPS.",
+   "class": "data",
+   "claim": "Town Crier connects Ethereum with HTTPS web sources",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0009",
+   "section": "History",
+   "text": "In 2020, Chainlink integrated DECO, a Cornell project co-created by Juels.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0010",
+   "section": "History",
+   "text": "DECO is described by its authors as a protocol that uses zero-knowledge proofs to allow users to prove information is true to a blockchain oracle without revealing sensitive information, such as birth dates.",
+   "class": "opinion"
+  },
+  {
+   "id": "chainlink-0011",
+   "section": "History",
+   "text": "In 2020, Chainlink launched a proof-of-reserve (PoR) system intended to help cryptocurrency projects and tokenized-asset issuers verify asset backing.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0012",
+   "section": "History",
+   "text": "In 2022, Chainlink announced and launched BUILD, a program under Chainlink Economics 2.0 for projects that commit a portion of their fees and incentives to support the Chainlink ecosystem.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0013",
+   "section": "History",
+   "text": "In 2023, Chainlink introduced the Cross-Chain Interoperability Protocol (CCIP), designed to enable communication between applications across blockchains and traditional financial systems.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0014",
+   "section": "History",
+   "text": "In August 2023, SWIFT reported results from experiments using CCIP with SWIFT messaging to transfer tokenized assets across multiple public and private blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0015",
+   "section": "History",
+   "text": "In November 2024, a SWIFT, UBS Asset Management, Chainlink working under the Monetary Authority of Singapore demonstrated settlement of tokenized fund subscriptions and redemptions over the SWIFT network using Chainlink.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0016",
+   "section": "History",
+   "text": "In 2025, the United States Department of Commerce used Chainlink to publish U.S. government macroeconomic data on blockchains.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0017",
+   "section": "History",
+   "text": "In the same year, Chainlink, J.P. Morgan's Kinexys, and Ondo Finance executed a cross-chain Delivery vs. Payment (DvP) transaction using the Chainlink Runtime Environment.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0018",
+   "section": "History",
+   "text": "On October 31, 2025, the Hong Kong Monetary Authority and the Central Bank of Brazil carried out a cross-border trade finance pilot using CBDCs and smart contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0019",
+   "section": "History",
+   "text": "The test connected Brazil's Drex wholesale CBDC system with HKMA's Ensemble platform through Chainlink.",
+   "class": "sourced"
+  },
+  {
+   "id": "chainlink-0020",
+   "section": "Technology",
+   "text": "Chainlink's oracle network allows blockchains to connect to off-chain data and computation resources.",
+   "class": "data",
+   "claim": "oracles connect blockchains to off-chain data",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0021",
+   "section": "LINK token",
+   "text": "LINK is a utility and governance token of Chainlink.",
+   "class": "data",
+   "claim": "LINK is a utility and governance token",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0022",
+   "section": "LINK token",
+   "text": "The trade value derived from these tokens is used to pay node operators for retrieving data from smart contracts, and also for deposits placed by node operators as required by contract creators.",
+   "class": "data",
+   "claim": "LINK pays node operators and serves as deposits",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0023",
+   "section": "LINK token",
+   "text": "Tokens can be stored in any ERC-20 wallet, as the ERC677 token retains all the functionality of an ERC-20 token.",
+   "class": "data",
+   "claim": "LINK is ERC-677 and fits ERC-20 wallets",
+   "asOf": null
+  },
+  {
+   "id": "chainlink-0024",
+   "section": "LINK token",
+   "text": "Community participants can stake LINK to support the network's cryptoeconomic security.",
+   "class": "data",
+   "claim": "LINK can be staked",
+   "asOf": null
+  }
+ ]
+}

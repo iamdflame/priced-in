@@ -1,0 +1,1502 @@
+{
+ "slug": "prediction-market",
+ "title": "Prediction market",
+ "revid": 1383537451,
+ "timestamp": "2026-11-03T05:59:38Z",
+ "url": "https://en.wikipedia.org/w/index.php?title=Prediction_market&oldid=1383537451",
+ "licence": "CC BY-SA 4.0",
+ "attribution": "\"Prediction market\", English Wikipedia, revision 1383537451 (2026-11-03T05:59:38Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+ "counts": {
+  "data": 29,
+  "sourced": 133,
+  "opinion": 76
+ },
+ "sentences": [
+  {
+   "id": "prediction-market-0001",
+   "section": "(lead)",
+   "text": "Prediction markets, also known as betting markets, information markets, decision markets, idea futures, or event derivatives, are open markets that enable the prediction of specific outcomes using financial incentives.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0002",
+   "section": "(lead)",
+   "text": "They are exchange-traded markets established for trading bets in the outcome of various events.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0003",
+   "section": "(lead)",
+   "text": "The most common form of a prediction market is a binary option market, which will expire at the price of 0 or 100%.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0004",
+   "section": "(lead)",
+   "text": "Prediction markets can be thought of as belonging to the more general concept of crowdsourcing which is specially designed to aggregate beliefs on particular topics of interest, where the market price can indicate what the crowd thinks the probability of the event is.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0005",
+   "section": "(lead)",
+   "text": "Traders with different beliefs trade on contracts whose payoffs are related to the unknown future outcome and the market prices of the contracts are considered as the aggregated belief.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0006",
+   "section": "(lead)",
+   "text": "Prediction markets are considered gambling by many governments, and are banned in some locations.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0007",
+   "section": "(lead)",
+   "text": "Some users and researchers have reported that prediction markets are similar to gambling and can cause addiction.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0008",
+   "section": "History",
+   "text": "Before the era of scientific polling, early forms of prediction markets often existed in the form of political betting.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0009",
+   "section": "History",
+   "text": "One such political bet dates back to 1503, in which people bet on who would be the papal successor.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0010",
+   "section": "History",
+   "text": "Even then, it was already considered \"an old practice\".",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0011",
+   "section": "History",
+   "text": "According to economic historians Paul Rhode and Koleman Strumpf, there are records of election betting in Wall Street dating back to 1884.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0012",
+   "section": "History",
+   "text": "Rhode and Strumpf estimate that average betting turnover per US presidential election is equivalent to over 50 percent of the campaign spend.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0013",
+   "section": "History",
+   "text": "The economic theory behind prediction markets is the efficient market hypothesis.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0014",
+   "section": "History",
+   "text": "Prediction markets are championed in James Surowiecki's 2004 book The Wisdom of Crowds, Cass Sunstein's 2006 Infotopia, and Douglas Hubbard's How to Measure Anything: Finding the Value of Intangibles in Business.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0015",
+   "section": "History / Milestones",
+   "text": "One of the first modern electronic prediction markets is the University of Iowa's Iowa Electronic Markets, introduced during the 1988 US presidential election.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0016",
+   "section": "History / Milestones",
+   "text": "HedgeStreet was the first prediction market to seek approval by the Commodity Futures Trading Commission as a designated contract market after the Commodity Futures Modernization Act of 2000, and it was granted in 2004.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0017",
+   "section": "History / Milestones",
+   "text": "The exchange was acquired by the United Kingdom–based IG Group and rebranded to Nadex in 2007; Nadex was then acquired by Crypto.com in 2021.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0018",
+   "section": "History / Milestones",
+   "text": "In July 2003, the U.S. Department of Defense publicized a Policy Analysis Market on their website, and speculated that additional topics for markets might include terrorist attacks.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0019",
+   "section": "History / Milestones",
+   "text": "A critical backlash quickly denounced the program as a \"terrorism futures market\" and the Pentagon hastily canceled the program.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0020",
+   "section": "History / Milestones",
+   "text": "In 2005, an article in Nature stated how major pharmaceutical company Eli Lilly and Company used prediction markets to help predict which development drugs might have the best chance of advancing through clinical trials by using internal markets to forecast outcomes of drug research and development efforts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0021",
+   "section": "History / Milestones",
+   "text": "Also in 2005, Google announced that it had been using prediction markets to forecast product launch dates, new office openings, and many other things of strategic importance.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0022",
+   "section": "History / Milestones",
+   "text": "Other companies, such as HP and Microsoft, also conduct private markets for statistical forecasts.",
+   "class": "data",
+   "claim": "HP and Microsoft conduct private markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0023",
+   "section": "History / Milestones",
+   "text": "Starting around 2022, mainstream adoption of prediction markets Polymarket and Kalshi began.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0024",
+   "section": "History / Milestones",
+   "text": "In October 2024, the Kalshi prediction market won a lawsuit against the Commodity Futures Trading Commission, allowing it to relist its election prediction markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0025",
+   "section": "History / Milestones",
+   "text": "Kalshi's court victory led to a much broader range of prediction markets offered on their platform and by competitors.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0026",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "Prediction markets are financial markets made up of binary contracts that resolve based on whether certain events happen or not.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0027",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "These contracts are usually exchange traded through a free floating order book system.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0028",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "The price of such contracts are set between $0.01 and $1 and represent the odds of an event occurring.",
+   "class": "data",
+   "claim": "contracts priced between $0.01 and $1",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0029",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "Each event will have a “Yes” or “No” tradable contract.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0030",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "For example, if a “Yes” contract around an event occurring has a market price of $0.93 then the market is implying that there is a 93% that this event will take place.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0031",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "In the same way the “No” contract in the same market will have a price of $0.07 and thus the market thinks this event has a 7% chance of occurring.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0032",
+   "section": "Core concepts and mechanics / General mechanics",
+   "text": "The free-floating central limit order book (CLOB) has shown to be an efficient mechanism for matching supply and demand by giving participants the ability to submit trades at whatever price they choose and only being able to take on a trade or prediction if another market participant disagrees.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0033",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Prices in prediction markets are determined within one of the two predominant structures.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0034",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The dominant structure of modern commercial markets is the central limit order book (CLOB), where participants place limit orders, accept limit orders, and prices are generated by supply and demand.",
+   "class": "data",
+   "claim": "CLOB is the dominant structure of commercial markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0035",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Kalshi operates a fully centralized limit order book as a designated contract market regulated by the Commodity Futures Trading Commission (CFTC).",
+   "class": "data",
+   "claim": "Kalshi is a centralized order book and a CFTC-regulated DCM",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0036",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "As for Polymarket, it has a \"hybrid-decentralized\" order book where trades are matched off-chain and settled on-chain on Polygon.",
+   "class": "data",
+   "claim": "Polymarket matches off-chain and settles on Polygon",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0037",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Previously, Polymarket operated using an automated market maker (AMM), built on Robin Hanson's scoring rule, until late 2022 when the firm switched to a full order book.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0038",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The other structure is the automated market maker, most notably the Logarithmic Market Scoring Rule (LMSR) introduced by Robin Hanson.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0039",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "While in an order book a transaction is matched between two traders, an LMSR market maker keeps a probability distribution over possible outcomes and offers to make trades at prices defined by the cost function, providing guaranteed liquidity even in the case of low trading activity.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0040",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "For each outcome, the price is equal to the exponentiation of the ratio between the number of shares outstanding for that outcome and the liquidity parameter b, normalized so that prices for all the outcomes add up to one.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0041",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The liquidity parameter regulates the sensitivity of prices to the trades and at the same time limits the maximum loss for the operator of the mechanism, which is known beforehand and bounded to b ln n for n outcomes.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0042",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The two structures involve a trade-off since an order book requires a willing counterparty for each transaction, while LMSR guarantees liquidity at the expense of a loss which is known in advance and bounded.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0043",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Academic literature has examined the meaning of prices in terms of probabilities.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0044",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Justin Wolfers and Eric Zitzewitz showed that the market clearing price equals the mean trader belief under logarithmic utility and a symmetric distribution of beliefs, and that prices are close to the mean trader belief in many cases, but that they may be biased estimations of these beliefs.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0045",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Charles Manski argues that prices partially identify mean beliefs, while Wolfers and Zitzewitz argue that prices are still meaningful given reasonable risk preferences.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0046",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Granular exchange-level data allowed studying the microstructure of prediction markets in detail.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0047",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "In a working paper concerning Kalshi, Constantin Bürgi, Wanying Deng, and Karl Whelan studied transaction-level data on over 300,000 contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0048",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "They showed that prices were informative and that they became more accurate as the closing date of the market approached, with the mean absolute pricing error decreasing greatly on the last day of the market.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0049",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "There also was a systematic favorite–longshot bias: low-priced longshot contracts performed worse than their prices and lost money on average, while high-priced favorite contracts overperformed relative to their implied probabilities.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0050",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The degree of this bias depends on price: contracts priced at ten cents or lower lost over 60% on average, while contracts priced above fifty cents earned some profit.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0051",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "For all the contracts, the average return before fees is approximately −20%.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0052",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The returns also differed depending on whether participants posted a resting limit order (maker) or accepted such an order (taker).",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0053",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The makers lost on average 9.64%, while takers lost 31.46%.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0054",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "The bid–ask spread in these markets arises from the order-matching process and not from administrative setting by the exchange; for the sample period, Kalshi charged a fee of 0.07 × P × (1 − P) per taker contract and charged makers no fee.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0055",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "In an efficient market, the prices of the complementary contracts, such as a \"Yes\" contract and its counterpart \"No\" contract, or all the mutually exclusive outcomes of an event, should sum up to a dollar.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0056",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Incoherence in prices generates arbitrage opportunities, and traders' competition for these opportunities leads to the restoration of coherence, a process which is usually regarded as evidence of the informational efficiency of the market.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0057",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Empirical research on Polymarket has identified such opportunities in practice.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0058",
+   "section": "Core concepts and mechanics / Pricing and microstructure of markets",
+   "text": "Analysing on-chain historical order book data, Oriol Saguillo and colleagues distinguish market rebalancing arbitrage, which arises within a single market or condition, from combinatorial arbitrage, which spans several related markets, and estimate that approximately 40 million US dollars of arbitrage profit was realized on the platform.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0059",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Following the occurrence of the event under consideration in the contract, the winning outcome is determined and the contract is settled.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0060",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "The procedures of resolution vary greatly between regulated markets and decentralized ones.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0061",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "In regulated exchanges, settlement happens according to a rulebook filed with a government regulator prior to the start of trading operations.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0062",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Every single Kalshi contract is bound by a rulebook filed with the CFTC, which identifies authoritative data sources (Source Agencies) and a Payout Criterion for a \"Yes\" resolution.",
+   "class": "data",
+   "claim": "every Kalshi contract has a rulebook filed with the CFTC",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0063",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "The Kalshi markets team relies on the results officially stated by these source agencies, settling each winning contract with a payment of one dollar while all the other contracts expire worthless.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0064",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Kalshi operates as a designated contract market under the Commodity Exchange Act.",
+   "class": "data",
+   "claim": "Kalshi is a designated contract market",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0065",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "In decentralized systems, the settlement of the contract is determined by an oracle that transfers the information about the result of the event to the blockchain.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0066",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "For example, Polymarket makes use of UMA (Universal Market Access), an \"optimistic oracle,\" which means that the proposed resolution is considered true unless challenged within a dispute window.",
+   "class": "data",
+   "claim": "Polymarket uses the UMA optimistic oracle",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0067",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "In case of a dispute, the Data Verification Mechanism (DVM) is launched: a Schelling point mechanism in which UMA stakers commit votes in secret over a 24-hour period and reveal them during the following 24 hours.",
+   "class": "data",
+   "claim": "dispute goes to the DVM with a 24-hour commit vote",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0068",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "According to UMA documentation, a dispute resolves when at least 65% of staked UMA both votes and agrees on a single outcome, and a vote that does not meet this threshold rolls into the following round.",
+   "class": "data",
+   "claim": "per UMA docs, a dispute resolves when 65% of staked UMA agrees",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0069",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Stakers who abstain or vote against the majority are slashed, and the forfeited stake is redistributed to the majority voters.",
+   "class": "data",
+   "claim": "abstainers and minority voters are slashed; stake goes to the majority",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0070",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "UMA also reports that its optimistic oracle currently resolves 99.8% of requests without escalating them to the DVM.",
+   "class": "data",
+   "claim": "UMA reports 99.8% of requests resolve without the DVM",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0071",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Cases of disputed resolutions have taken place in decentralized oracle markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0072",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "The most discussed incident of the kind took place in July 2025 and is related to the Polymarket event contract on whether a photograph or video of Volodymyr Zelenskyy wearing a suit would appear between March 22 and June 30, 2025.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0073",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "This contract was to resolve according to the \"consensus of credible reporting,\" and according to Decrypt it attracted more than 237 million US dollars in trading volume.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0074",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Following Zelenskyy's appearance at the NATO summit in June 2025 in attire that numerous media outlets described as a suit, UMA's oracle resolved the market \"No\" on July 1, 2025, reversing an initial \"Yes\" outcome that had been challenged, on the basis that a consensus of credible reporting had not been established.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0075",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "As reported in CoinDesk and Decrypt, critics argued that this incident highlighted potential weaknesses in token-weighted voting mechanisms.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0076",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Namely, as votes are weighted by stakes, stakeholders with significant stakes could influence the resolution greatly, and UMA's incentive structure rewards voting with the anticipated majority rather than with the factually correct outcome.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0077",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Commentators also noted that UMA's market capitalization was small relative to the volume of the contract.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0078",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "No manipulation was substantiated at the time of reporting.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0079",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Resolutions on regulated exchanges have also been contested, though the mechanism of challenge is legal and administrative rather than a token vote.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0080",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "In February 2026, Kalshi listed a contract on whether Ali Khamenei would cease to be Supreme Leader of Iran before March 1, 2026.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0081",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "After Khamenei was killed in United States and Israeli strikes on February 28, Kalshi applied a \"death carveout\" in the contract rules, under which the market resolved at the last traded price before the death instead of paying one dollar to holders of \"Yes\" contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0082",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "A proposed class action covering roughly 54 million US dollars in positions was filed in the United States District Court for the Central District of California in March 2026, alleging that the carveout had not been adequately disclosed and that the exchange continued to accept \"Yes\" trades while reports of the strikes accumulated.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0083",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "Chief executive Tarek Mansour defended the provision, stating that Kalshi does not list contracts that settle directly on a person's death, and the company reimbursed trading fees and net losses on the market.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0084",
+   "section": "Core concepts and mechanics / Resolution and settlement of event contracts",
+   "text": "As economists Lin William Cong, Liam Fox, Siguang Li, and Luofeng Zhou describe the issue, it is a problem of the \"oracle trilemma,\" meaning the intrinsic trade-off among decentralization, truthfulness, and scalability in transferring off-chain information onto a blockchain, the trade-off that oracle mechanisms such as UMA's Data Verification Mechanism attempt to navigate.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0085",
+   "section": "Accuracy claims",
+   "text": "Prediction markets function fundamentally on the premise that many individuals with a financial stake can more accurately predict an outcome than any single individual.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0086",
+   "section": "Accuracy claims",
+   "text": "Eric Zitzewitz, an economics professor at Dartmouth, explains that predictive bets will not value virtue signaling in an anonymous market.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0087",
+   "section": "Accuracy claims",
+   "text": "He explains that prediction prices are essentially the average of opinions weighted by the size of a trade.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0088",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "Prediction markets are based on the theory that individuals with financial stakes in an outcome can collectively predict it more accurately than any single expert.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0089",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "Eric Zitzewitz, an economics professor at Dartmouth, explains \"Financial markets are generally pretty efficient, and the evidence suggests that the same is true of prediction markets.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0090",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "There’s no virtue-signaling in an anonymous market when you're betting.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0091",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "What you're seeing with the market is some average of all of those different opinions, weighted by their willingness to put their money where their mouth is.\"",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0092",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "While prediction markets tend to perform better than polling for the prediction of election outcomes, a study found that belief aggregation of participants who are asked to quantify the strength of their belief can beat prediction markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0093",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "When market participants have some intrinsic interest in trying to predict results, even markets with modest incentives or no incentives have been shown to be effective.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0094",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "When the group is more optimistic, they will bet more in aggregate than the pessimists, raising the market price.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0095",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "The movement of the price will reflect more information than a simple average or vote count.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0096",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "However, polls which were weighted based on expressed confidence in the forecast performed as well as market-based forecasts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0097",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "James Surowiecki posits three necessary conditions for collective wisdom: diversity of information, independence of decision, and decentralization of organization.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0098",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "In the case of a predictive market, each participant normally has diversified information from others and makes their decision independently.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0099",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "The market itself has a character of decentralization compared to expert decisions.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0100",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "For these reasons, a predictive market is generally a valuable source to capture collective wisdom and make accurate predictions.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0101",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "Prediction markets can aggregate information and beliefs of the involved investors and give a good estimate of the mean belief of those investors.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0102",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "The latter have a financial incentive to price in information.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0103",
+   "section": "Accuracy claims / Theory of operation",
+   "text": "This allows prediction markets to incorporate new information quickly and makes them difficult to manipulate.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0104",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Numerous researchers have studied the accuracy of prediction markets:",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0105",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Steven Gjerstad (Purdue), in his paper \"Risk Aversion, Beliefs, and Prediction Market Equilibrium\", has shown that prediction market prices are very close to the mean belief of market participants if the agents are risk averse and the distribution of beliefs is spread out (as with a normal distribution, for example).",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0106",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Justin Wolfers (Wharton) and Eric Zitzewitz (Dartmouth) have obtained similar results to Gjerstad's conclusions in their paper \"Interpreting Prediction Market Prices as Probabilities\".",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0107",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Lionel Page and Robert Clemen have looked at the quality of predictions for events taking place sometime in the future and provide evidence for a favourite-longshot bias.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0108",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "They found that predictions are better when the event predicted is close in time.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0109",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "For events which take place further in time (e.g., elections in more than a year), prices are biased towards 50%.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0110",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "This bias comes from the traders' \"time preferences\" (their preferences not to lock their funds for a long time in assets).",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0111",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Due to the accuracy of the prediction market, it has been applied to different industries to make crucial decisions.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0112",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Some examples include:",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0113",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Prediction markets can be utilized to improve forecasting and have a potential application to test lab-based information theories based on their feature of information aggregation.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0114",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Researchers have applied prediction markets to assess unobservable information in Google's IPO valuation ahead of time.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0115",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "In healthcare, predictive markets can help forecast the spread of infectious diseases.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0116",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "In a pilot study, a statewide influenza outbreak in Iowa was predicted by these markets 2–4 weeks in advance with clinical data volunteered from participating health care workers.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0117",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Some corporations have harnessed internal predictive markets for decisions and forecasts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0118",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "In these cases, employees can use virtual currency to bet on what they think will happen for this company in the future.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0119",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "The most accurate guesser will win a monetary prize as a payoff.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0120",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "For example, Best Buy once experimented with using the predictive market to predict whether a Shanghai store could open on time.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0121",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "The virtual dollar drop in the market successfully forecasted the lateness of the business and prevented the company from extra money loss.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0122",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Although prediction markets are often fairly accurate and successful, there are many times the market fails in making the right prediction or making one at all.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0123",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Based mostly on an idea in 1945 by Austrian economist Friedrich Hayek, prediction markets are \"mechanisms for collecting vast amounts of information held by individuals and synthesizing it into a useful data point\".",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0124",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "One way the prediction market gathers information is through James Surowiecki's phrase, \"The Wisdom of Crowds\", in which a group of people with a sufficiently broad range of opinions can collectively be cleverer than any individual.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0125",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "However, this information-gathering technique can also lead to the failure of the prediction market.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0126",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Oftentimes, the people in these crowds are skewed in their independent judgments due to peer pressure, panic, bias, and other breakdowns developed out of a lack of diversity of opinion.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0127",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "One of the main constraints and limits of the wisdom of crowds is that some prediction questions require specialized knowledge that the majority of people do not have.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0128",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Due to this lack of knowledge, the crowd's answers can sometimes be very wrong.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0129",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "The second market mechanism is the idea of the marginal-trader hypothesis.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0130",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "According to this theory, \"there will always be individuals seeking out places where the crowd is wrong\".",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0131",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "These individuals, in a way, put the prediction market back on track when the crowd fails, and values could be skewed.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0132",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "The effects of manipulation and biases are also internal challenges that prediction markets need to deal with, i.e., liquidity or other factors not intended to be measured are taken into account as risk factors by the market participants, distorting the market probabilities.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0133",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Prediction markets may also be subject to speculative bubbles.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0134",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "For example, in the year 2000, IEM presidential futures markets, seeming \"inaccuracy\" comes from buying that occurred on or after Election Day, 11/7/00, but, by then, the trend was clear.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0135",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "There can also be direct attempts to manipulate such markets.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0136",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "In the Tradesports 2004 presidential markets, there was an apparent manipulation effort.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0137",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "An anonymous trader sold short so many Bush 2004 presidential futures contracts that the price was driven to zero, implying a zero percent chance that Bush would win.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0138",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "The only rational purpose of such a trade would be an attempt to manipulate the market in a strategy called a \"bear raid\".",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0139",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "If this were a deliberate manipulation effort, it failed, however, as the price of the contract rebounded rapidly to its previous level.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0140",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "As more press attention is paid to prediction markets, it is likely that more groups will be motivated to manipulate them.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0141",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "However, in practice, such attempts at manipulation have always proven to be very short-lived.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0142",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "In their paper entitled \"Information Aggregation and Manipulation in an Experimental Market\" (2005), Hanson, Oprea, and Porter (George Mason U), show how attempts at market manipulation can in fact end up increasing the accuracy of the market because they provide that much more profit incentive to bet against the manipulator.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0143",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "Using real-money prediction market contracts as a form of insurance can also affect the price of the contract.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0144",
+   "section": "Accuracy claims / Empirical studies",
+   "text": "For example, if the election of a leader is perceived as negatively impacting the economy, traders may buy shares of that leader being elected, as a hedge.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0145",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "These prediction market inaccuracies were especially prevalent during the 2016 Brexit vote in the United Kingdom.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0146",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Prediction markets leaned heavily in favor of the UK staying in the EU and failed to predict the outcomes of the vote.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0147",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "According to Michael Traugott, a former president of the American Association for Public Opinion Research, the reason for the failure of the prediction markets is due to the influence of manipulation and bias, shadowed by mass opinion and public opinion.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0148",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Clouded by the similar mindset of users in prediction markets, they created a paradoxical environment where they began self-reinforcing their initial beliefs (in this case, that the UK would vote to remain in the EU).",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0149",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Similarly, during the 2016 US presidential elections, prediction markets failed to predict Donald Trump winning.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0150",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Like the Brexit case, information traders were caught in an infinite loop of self-reinforcement once initial odds were measured, leading traders to \"use the current prediction odds as an anchor\" and seemingly discounting incoming prediction odds completely.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0151",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Traders essentially treated the market odds as correct probabilities and did not update enough using outside information, causing the prediction markets to be too stable to represent current circumstances accurately.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0152",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Koleman Strumpf, a University of Kansas professor of business economics, also suggests that a bias effect took place during the US elections; the crowd was unwilling to believe in an outcome with Trump winning, and caused the prediction markets to turn into \"an echo chamber\", where the same information circulated and ultimately led to a stagnant market.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0153",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "Prediction markets can yield better estimates of the mean opinion across a population than opinion polls.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0154",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "A study found that for the five US presidential elections between 1988 and 2004, prediction markets gave a more accurate estimate of the voting result than 74% of the studied opinion polls.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0155",
+   "section": "Accuracy claims / Elections and referendums",
+   "text": "On the other hand, a randomized experiment from 2016 obtained that prediction markets were 12% less accurate than prediction polls, an alternative method for eliciting and statistically aggregating probability judgments from a crowd.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0156",
+   "section": "Legality and regulation",
+   "text": "Whether prediction markets are regulated as financial products or betting platforms varies by jurisdiction.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0157",
+   "section": "Legality and regulation",
+   "text": "Some prediction market platforms have been banned from various countries, though often over registration issues rather than broad bans on prediction markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0158",
+   "section": "Legality and regulation",
+   "text": "Regulatory concerns stem principally from two sources; one being whether or not they ought to be considered as gambling and regulated as such, while another comes from concern over their lack of oversight and potential vulnerability to insider trading, as those with material non-public information can leverage their knowledge for financial gain.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0159",
+   "section": "Legality and regulation",
+   "text": "Oversight plans have been proposed but remain slow to implement, particularly for off-shore companies overseas which are outside of US jurisdiction.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0160",
+   "section": "Legality and regulation",
+   "text": "In October 2026, Kalshi began investigating suspicious bets placed shortly before Katie Zacharia was announced as the new White House press secretary.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0161",
+   "section": "Legality and regulation",
+   "text": "The bets could have earned traders thousands of dollars.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0162",
+   "section": "Legality and regulation / Asia",
+   "text": "Singapore's Gambling Regulatory Authority blocked Polymarket as an illegal online gambling platform in December 2024.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0163",
+   "section": "Legality and regulation / Asia",
+   "text": "In January 2025, Thailand's Cyber Crime Investigation Bureau announced plans to block Polymarket as an illegal gambling website due to its use of cryptocurrency.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0164",
+   "section": "Legality and regulation / Europe",
+   "text": "Prediction markets are classified as betting platforms in the United Kingdom, and require operating licenses from the Gambling Commission.",
+   "class": "data",
+   "claim": "prediction markets in the UK are betting, licensed by the Gambling Commission",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0165",
+   "section": "Legality and regulation / Europe",
+   "text": "The European Union has no unified regulatory structure for prediction markets, though some countries have taken action against various platforms.",
+   "class": "data",
+   "claim": "the EU has no unified structure for prediction markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0166",
+   "section": "Legality and regulation / Europe",
+   "text": "Belgium, France, Italy, Poland, and Romania have banned Polymarket as an unlicensed gambling platform.",
+   "class": "data",
+   "claim": "Belgium, France, Italy, Poland and Romania have banned Polymarket",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0167",
+   "section": "Legality and regulation / Europe",
+   "text": "The EU's Markets in Crypto-Assets (MiCA) regulation, which comes into effect in July 2026, will apply to prediction markets using cryptocurrency assets.",
+   "class": "data",
+   "claim": "MiCA comes into effect in July 2026 and will apply to crypto prediction markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0168",
+   "section": "Legality and regulation / Europe",
+   "text": "On May 26, 2026, Spain's Ministry of Consumer Affairs banned Kalshi and Polymarket for a period of three to four months for operating without a gambling license.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0169",
+   "section": "Legality and regulation / North America",
+   "text": "Early prediction markets were regulated by the Commodity Futures Trading Commission as futures contracts in the United States.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0170",
+   "section": "Legality and regulation / North America",
+   "text": "Though Iowa Electronic Markets did not pursue registration with the CFTC, the University of Iowa granted a no-action letter in 1993 and allowed to continue operating the platform with restrictions on the number of traders and trading amounts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0171",
+   "section": "Legality and regulation / North America",
+   "text": "When Congress passed the Commodity Futures Modernization Act of 2000, prediction markets were required to \"self-certify\" their contracts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0172",
+   "section": "Legality and regulation / North America",
+   "text": "In 2010, the law was amended by the Dodd–Frank Wall Street Reform and Consumer Protection Act, which created a special rule in which the CFTC, could perform a public-interest review on contracts involving terrorism, assassination, war, gaming, activity that violates state or federal law, or activity deemed similar to any of the reviewable activities.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0173",
+   "section": "Legality and regulation / North America",
+   "text": "In 2011, the CFTC deemed the North American Derivatives Exchange's political event contracts to be contrary to the public interest.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0174",
+   "section": "Legality and regulation / North America",
+   "text": "In 2023, the CFTC made the same finding for Kalshi's event contracts on which political party would control chambers of Congress.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0175",
+   "section": "Legality and regulation / North America",
+   "text": "Kalshi sued the CFTC, and in 2024, the District Court for the District of Columbia ruled in favor of Kalshi with an opinion that narrowly interpreted the CEA's mention of \"gaming\".",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0176",
+   "section": "Legality and regulation / North America",
+   "text": "The CFTC appealed the decision, but dropped the appeal under the Trump administration.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0177",
+   "section": "Legality and regulation / North America",
+   "text": "After Kalshi's court victory, it and other prediction markets platforms dramatically expanded their offerings.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0178",
+   "section": "Legality and regulation / North America",
+   "text": "As of June 2026, jurisdiction to regulate prediction markets is being actively litigated between the CFTC and various states.",
+   "class": "data",
+   "claim": "as of June 2026 jurisdiction litigated between the CFTC and states",
+   "asOf": "2026-06"
+  },
+  {
+   "id": "prediction-market-0179",
+   "section": "Legality and regulation / North America",
+   "text": "CFTC Chairman Michael S. Selig has asserted that the agency has exclusive jurisdiction over prediction markets.",
+   "class": "data",
+   "claim": "CFTC Chairman Michael S. Selig asserts exclusive jurisdiction",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0180",
+   "section": "Legality and regulation / North America",
+   "text": "However, state attorneys general and gaming regulators have taken enforcement action against prediction markets platforms that have offered sports-related event contracts, including Kalshi and Crypto.com.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0181",
+   "section": "Legality and regulation / North America",
+   "text": "In February 2026, the CFTC submitted an amicus brief asserting its sole authority in a lawsuit by Crypto.com against the state of Nevada.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0182",
+   "section": "Legality and regulation / North America",
+   "text": "Similar lawsuits were filed against Arizona, Connecticut, Illinois, and Massachusetts.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0183",
+   "section": "Legality and regulation / North America",
+   "text": "In May 2026, Minnesota enacted a law to ban prediction market trading.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0184",
+   "section": "Legality and regulation / North America",
+   "text": "The DOJ sued to block the law from taking effect.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0185",
+   "section": "Legality and regulation / North America",
+   "text": "The Canadian Securities Administrators prohibited trading binary options in 2017.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0186",
+   "section": "Legality and regulation / North America",
+   "text": "However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.",
+   "class": "data",
+   "claim": "Polymarket operates in all of Canada except Ontario",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0187",
+   "section": "Legality and regulation / North America",
+   "text": "The CBC has described prediction market regulation as a \"grey area\", and a spokesperson for the CSA has said prediction markets not covered by the binary options ban could be considered \"securities, derivatives or both\".",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0188",
+   "section": "Legality and regulation / Oceania",
+   "text": "In August 2025, the Australian Communications and Media Authority determined that Polymarket was a \"prohibited and unlicensed regulated interactive gambling service\" and blocked access to the website.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0189",
+   "section": "Legality and regulation / Oceania",
+   "text": "In February 2026, the New Zealand Department of Internal Affairs ruled that prediction markets like Polymarket and Kalshi are prohibited under the Gambling Act 2003 and the Racing Industry Act 2020.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0190",
+   "section": "Legality and regulation / South America",
+   "text": "Polymarket was deemed an unlicensed betting platform and banned nationwide in Argentina by a Buenos Aires judge in March 2026.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0191",
+   "section": "Legality and regulation / South America",
+   "text": "In Brazil, regulators have not established whether prediction markets fall under the purview of the country's Securities Commission or the Ministry of Finance's Secretariat of Prizes and Betting.",
+   "class": "data",
+   "claim": "Brazil has not settled which regulator covers prediction markets",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0192",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "Some kinds of prediction markets may create controversial incentives.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0193",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "For example, a market predicting the death of a world leader might be quite useful for those whose activities are strongly related to this leader's policies, but it also might turn into an assassination market.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0194",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "In 2026, United States Representative Chris Murphy announced plans to propose a bill regulating prediction markets, citing concerns that government officials might be profiting from inside knowledge, or that officials money riding on military-related events contracts could be influenced to make decisions that would be profitable to them.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0195",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "In July 2026, concerns were raised over the possibility of markets providing a financial incentive to start wildfires.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0196",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "This escalated when users on social media began questioning the ethics of these markets by rhetorically suggesting there should be markets predicting the likelihood of Polymarket or Kalshi head offices being firebombed.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0197",
+   "section": "Controversies and risks / Controversial incentives",
+   "text": "In response, some smaller online platforms began to offer markets on these predictions.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0198",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Some users of prediction markets have reported gambling addictions, with some gambling addiction clinicians saying that they generate the same \"cycle of that anticipation, action and reaction\" that traditional gambling does.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0199",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Signs of over-use or over-reliance can be shown in obsession over the subject in question, using trading to cope with stress, and excluding real-world life to do more trading.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0200",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Gambling disorder, regardless of the cause, can be diagnosed using criteria from the DSM-5.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0201",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "According to the Associated Press, there have been documented cases of individuals struggling with gambling addiction relapsing with prediction trading.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0202",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Researchers have said that while \"academic and institutional PMs continue to serve research-oriented forecasting purposes, the broader PM landscape has expanded to include gamified, large-scale digital trading platforms enabling continuous, real-time global participation across jurisdictions, some operating on crypto-based infrastructure and optimized for engagement over epistemic rigor\" and that prediction markets resemble gambling, with users staking money on outcomes out of their control.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0203",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Researchers have differentiated research-oriented academic and institutional prediction markets from commercial platforms, noting that the latter's broadened scope and gamified design may result in addiction-like behaviors associated with gambling.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0204",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "The National Council on Problem Gambling in the United States has described prediction markets as having similar risks to sports betting.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0205",
+   "section": "Controversies and risks / Gambling comparisons",
+   "text": "Some prediction market users are disappointed that \"sports gambling has become such a prominent part of prediction markets\" and that a significant fraction of prediction market use is \"sports betting that doesn’t provide any utility whatsoever\", rather than predicting outcomes and aggregating group knowledge.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0206",
+   "section": "Controversies and risks / Insider trading",
+   "text": "Some behavior on prediction markets has been considered to be de facto insider trading by authorities.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0207",
+   "section": "List of prediction markets",
+   "text": "Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain.",
+   "class": "data",
+   "claim": "Augur is a now-defunct platform on Ethereum",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0208",
+   "section": "List of prediction markets",
+   "text": "Good Judgment Open is a reputation-based prediction website.",
+   "class": "data",
+   "claim": "Good Judgment Open is a reputation-based site",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0209",
+   "section": "List of prediction markets",
+   "text": "The Iowa Electronic Markets is an academic market examining elections where positions are limited to $500.",
+   "class": "data",
+   "claim": "Iowa Electronic Markets positions are limited to $500",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0210",
+   "section": "List of prediction markets",
+   "text": "iPredict was a prediction market in New Zealand.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0211",
+   "section": "List of prediction markets",
+   "text": "Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.",
+   "class": "data",
+   "claim": "Kalshi is CFTC-regulated and available only to US residents",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0212",
+   "section": "List of prediction markets",
+   "text": "Robinhood has also partnered with Kalshi to offer prediction markets on its platform.",
+   "class": "data",
+   "claim": "Robinhood partnered with Kalshi",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0213",
+   "section": "List of prediction markets",
+   "text": "Manifold is a reputation-based prediction market that allows users to create markets and bet on them using fake money.",
+   "class": "data",
+   "claim": "Manifold is a reputation-based market with fake money",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0214",
+   "section": "List of prediction markets",
+   "text": "Metaculus is a reputation-based prediction website with the ability to make numeric-range or date-range predictions, inspired by SciCast.",
+   "class": "data",
+   "claim": "Metaculus is reputation-based, with numeric and date ranges",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0215",
+   "section": "List of prediction markets",
+   "text": "Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.",
+   "class": "data",
+   "claim": "Polymarket is built on Polygon and uses USDC",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0216",
+   "section": "List of prediction markets",
+   "text": "PredictIt is a prediction market for political and financial events.",
+   "class": "data",
+   "claim": "PredictIt is a market for political and financial events",
+   "asOf": null
+  },
+  {
+   "id": "prediction-market-0217",
+   "section": "List of prediction markets",
+   "text": "SciCast was a reputation-based combinatorial prediction market focusing on science and technology forecasting.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0218",
+   "section": "Types / Reputation-based",
+   "text": "Some prediction websites, sometimes classified as prediction markets, do not involve betting real money but rather add to or subtract from a predictor's reputation points based on the accuracy of a prediction.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0219",
+   "section": "Types / Reputation-based",
+   "text": "This incentive system may be better-suited than traditional prediction markets for niche or long-timeline questions.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0220",
+   "section": "Types / Reputation-based",
+   "text": "These include Manifold, Metaculus, and Good Judgment Open.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0221",
+   "section": "Types / Combinatorial prediction markets",
+   "text": "A combinatorial prediction market is a type of prediction market where participants can make bets on combinations of outcomes.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0222",
+   "section": "Types / Combinatorial prediction markets",
+   "text": "The advantage of making bets on combinations of outcomes is that, in theory, conditional information can be better incorporated into the market price.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0223",
+   "section": "Types / Combinatorial prediction markets",
+   "text": "One difficulty of combinatorial prediction markets is that the number of possible combinatorial trades scales exponentially with the number of normal trades.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0224",
+   "section": "Types / Combinatorial prediction markets",
+   "text": "For example, a market with merely 100 binary contracts would have possible combinations of contracts.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0225",
+   "section": "Types / Combinatorial prediction markets",
+   "text": "These exponentially large data structures can be too large for a computer to keep track of, so there have been efforts to develop algorithms and rules to make the data more tractable.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0226",
+   "section": "Types / Election prediction markets",
+   "text": "Election prediction markets are a type of prediction market in which the ultimate values of the contracts being traded are based on the outcome of elections.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0227",
+   "section": "Types / Election prediction markets",
+   "text": "The main purpose of an election stock market is to predict the election outcome, such as the share of the popular vote or share of seats each political party receives in a legislature or parliament.",
+   "class": "opinion"
+  },
+  {
+   "id": "prediction-market-0228",
+   "section": "Types / Election prediction markets",
+   "text": "Before World War II, election betting was widespread in the U.S., dating back to George Washington’s election and becoming organized by Lincoln's era.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0229",
+   "section": "Types / Election prediction markets",
+   "text": "Though often illegal, it operated openly through “betting commissioners” who held stakes and charged a 5% commission.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0230",
+   "section": "Types / Election prediction markets",
+   "text": "New York was the hub, with activity shifting from poolrooms to the Curb Exchange (precursor to AMEX) and Wall Street offices.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0231",
+   "section": "Types / Election prediction markets",
+   "text": "By the 1930s, wagers involved large sums from anonymous business and entertainment figures.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0232",
+   "section": "Types / Election prediction markets",
+   "text": "In some elections, the volumes traded rivaled those of stocks and bonds, with daily odds reported in major newspapers like The New York Times.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0233",
+   "section": "Types / Election prediction markets",
+   "text": "The CFTC has attempted to restrict election markets, arguing they resemble gaming rather than the financial derivatives it oversees.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0234",
+   "section": "Types / Election prediction markets",
+   "text": "It previously allowed limited academic use, such as with PredictIt, but withdrew support in 2022 and became involved in litigation with the project.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0235",
+   "section": "Types / Election prediction markets",
+   "text": "The CFTC also targeted Polymarket, a cryptocurrency-based prediction market, resulting in the company moving offshore and paying a $1.4 million fine.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0236",
+   "section": "Types / Election prediction markets",
+   "text": "In October 2024, prediction market Kalshi won a lawsuit against its regulator, the Commodity Futures Trading Commission, with a federal appeals court in Washington allowing it to revive the first fully regulated election prediction markets in the United States.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0237",
+   "section": "Types / Election prediction markets",
+   "text": "Kalshi's court victory over the CFTC opened the market for election markets.",
+   "class": "sourced"
+  },
+  {
+   "id": "prediction-market-0238",
+   "section": "Types / Election prediction markets",
+   "text": "In late 2025, MetaMask integrated Polymarket into its wallet interface, expanding user access to blockchain-based prediction markets through a self-custodial application.",
+   "class": "sourced"
+  }
+ ]
+}
