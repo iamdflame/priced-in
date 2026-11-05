@@ -3,6 +3,17 @@
 //   node scripts/deploy.mjs testnet           fresh funded test root under the test funder
 //   node scripts/deploy.mjs testnet --delete  deletes what the last testnet run created
 //   CONFIRM_MAINNET=yes node scripts/deploy.mjs mainnet
+//   LANE_ADMIN_PUBLIC_KEY=ed25519:... node scripts/deploy.mjs <network> --lock
+//
+// --lock, after deploy and verification, removes the root's full-access key from the market,
+// swarm and lane accounts, so no key can replace their code again:
+//   market, swarm: every key is deleted. Neither needs one: operators sign from the owner's
+//     account with function-call keys there, and the swarm creates agents from its own code.
+//     A key left on either could also call its #[private] callbacks, so none stays.
+//   lane: the root's key is replaced by LANE_ADMIN_PUBLIC_KEY, the public half of the API's
+//     LANE_PRIVATE_KEY, which must be a full-access key because only a full-access key can add
+//     the judges' function-call keys. The judges' keys already there stay.
+// The default is unlocked. Mainnet also needs CONFIRM_LOCK=yes, given only when the owner says so.
 //
 // Mainnet root: priced-in.near, signed by NEAR_DEPLOYER_ADDRESS / NEAR_DEPLOYER_PRIVATE_KEY
 // from .env. It refuses to run without CONFIRM_MAINNET=yes, before it reads any key.
@@ -25,11 +36,17 @@ const STATE = ".apex-test/deploy-testnet.json";
 
 const network = process.argv[2];
 if (network !== "testnet" && network !== "mainnet") {
-  console.error("usage: node scripts/deploy.mjs <testnet|mainnet> [--delete]");
+  console.error("usage: node scripts/deploy.mjs <testnet|mainnet> [--delete | --lock]");
   process.exit(1);
 }
 if (network === "mainnet" && process.env.CONFIRM_MAINNET !== "yes") {
   console.error("Refusing to touch mainnet: set CONFIRM_MAINNET=yes to mean it.");
+  process.exit(1);
+}
+const LOCK = process.argv.includes("--lock");
+if (LOCK && process.argv.includes("--delete")) { console.error("--lock and --delete don't go together"); process.exit(1); }
+if (LOCK && network === "mainnet" && process.env.CONFIRM_LOCK !== "yes") {
+  console.error("Refusing to lock mainnet: the code can never be replaced afterwards. Set CONFIRM_LOCK=yes once the owner has said so.");
   process.exit(1);
 }
 const near = (x) => BigInt(Math.round(x * 1000)) * NEAR / 1000n;
@@ -45,7 +62,26 @@ function loadDotEnv() {
   return out;
 }
 const env = { ...loadDotEnv(), ...process.env };
-const provider = new JsonRpcProvider({ url: env.NEAR_RPC || (network === "mainnet" ? "https://rpc.fastnear.com" : "https://test.rpc.fastnear.com") });
+if (LOCK && !/^ed25519:[1-9A-HJ-NP-Za-km-z]{43,44}$/.test(env.LANE_ADMIN_PUBLIC_KEY || "")) {
+  console.error("--lock needs LANE_ADMIN_PUBLIC_KEY=ed25519:...: the public half of the API's LANE_PRIVATE_KEY, which keeps adding the judges' keys to the lane once the root's key is gone");
+  process.exit(1);
+}
+// NEAR_RPC may list several endpoints, comma-separated: a request refused with a rate limit
+// (429, before the endpoint took it) goes to the next one; every other answer stands.
+class RotatingProvider extends JsonRpcProvider {
+  constructor(urls) { super({ url: urls[0] }); this.urls = urls; this.at = 0; }
+  async sendJsonRpc(method, params) {
+    for (let n = 0; ; n++) {
+      try { return await super.sendJsonRpc(method, params); }
+      catch (e) {
+        if (n >= 4 * this.urls.length || !(e?.cause === 429 || /-429|Rate limits exceeded|Too Many Requests/i.test(String(e?.message || e)))) throw e;
+        this.at = (this.at + 1) % this.urls.length; this.connection.url = this.urls[this.at];
+        await new Promise((r) => setTimeout(r, 800 * (1 + Math.floor(n / this.urls.length))));
+      }
+    }
+  }
+}
+const provider = new RotatingProvider((env.NEAR_RPC || (network === "mainnet" ? "https://rpc.fastnear.com" : "https://test.rpc.fastnear.com,https://testnet-rpc.intea.rs")).split(",").map((s) => s.trim()).filter(Boolean));
 const acct = (id, kp) => new Account(id, provider, new KeyPairSigner(kp));
 
 async function exists(id) {
@@ -211,5 +247,43 @@ verify("the market knows the swarm", (await view(ids.market, "get_resolution")).
 verify("the swarm points at the market", swarmStats.market === ids.market);
 verify("the market answers", stats.paused === false);
 console.log(JSON.stringify({ network, root: rootId, ...ids, usdc, market_code_hash: market.hash, swarm_code_hash: swarm.hash }, null, 1));
+
+// ---------- --lock: no key can replace the code ----------
+const keysOf = async (id) => (await provider.query({ request_type: "view_access_key_list", finality: "final", account_id: id })).keys || [];
+const full = (k) => k.access_key.permission === "FullAccess";
+if (LOCK) {
+  if (bad) { console.error("not locking: the deployment didn't verify"); process.exit(1); }
+  const rootPk = kp.getPublicKey().toString();
+  const laneAdmin = env.LANE_ADMIN_PUBLIC_KEY;
+  if (laneAdmin === rootPk) { console.error("LANE_ADMIN_PUBLIC_KEY is the root's key: give the API its own lane key"); process.exit(1); }
+  // the lane first: its new admin key goes on before the root's key comes off
+  if (!(await keysOf(ids.lane)).some((k) => k.public_key === laneAdmin && full(k))) {
+    console.log(`lane: adding the API's lane key ${laneAdmin}`);
+    await subs.lane.addFullAccessKey(laneAdmin);
+  }
+  // market and swarm: every key, the root's last, since it signs the deletions
+  for (const k of ["market", "swarm"]) {
+    const keys = (await keysOf(ids[k])).map((x) => x.public_key);
+    for (const pk of [...keys.filter((p) => p !== rootPk), ...keys.filter((p) => p === rootPk)]) {
+      console.log(`${k}: deleting key ${pk}`);
+      await subs[k].deleteKey(pk);
+    }
+  }
+  if ((await keysOf(ids.lane)).some((x) => x.public_key === rootPk)) {
+    console.log(`lane: deleting the root's key ${rootPk}`);
+    await subs.lane.deleteKey(rootPk);
+  }
+  const after = {};
+  for (const k of ["market", "swarm", "lane"]) after[k] = await keysOf(ids[k]);
+  const lockedOk = (name, ok) => { console.log(`${ok ? "ok  " : "BAD "} ${name}`); if (!ok) bad++; };
+  lockedOk("market has no keys: its code can't change", after.market.length === 0);
+  lockedOk("swarm has no keys: its code can't change", after.swarm.length === 0);
+  lockedOk("lane: the root's key is gone", !after.lane.some((x) => x.public_key === rootPk));
+  lockedOk("lane: one full-access key, the API's, to add the judges' keys", after.lane.filter(full).map((x) => x.public_key).join() === laneAdmin);
+  lockedOk("lane: every other key is a function-call key on the market", after.lane.filter((x) => !full(x)).every((x) => x.access_key.permission.FunctionCall?.receiver_id === ids.market));
+  lockedOk("market and swarm still answer", (await view(ids.market, "stats")).claims !== undefined && (await view(ids.swarm, "stats")).market === ids.market);
+  lockedOk("code hashes unchanged", (await codeHash(ids.market)) === market.hash && (await codeHash(ids.swarm)) === swarm.hash);
+  console.log(`locked. Operators sign from their own accounts (the owner ${rootId} is one), never as the market; the owner keeps every owner method.`);
+}
 console.log("Next: fund the treasury with ft_transfer_call {\"treasury\":true}, set_limits, set_planner_key and register_model from fresh attestations (npm run ai:attest).");
 process.exit(bad ? 1 : 0);
