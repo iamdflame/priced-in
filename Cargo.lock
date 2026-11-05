@@ -1740,6 +1740,10 @@ dependencies = [
 ]
 
 [[package]]
+name = "pricedin-agent"
+version = "0.1.0"
+
+[[package]]
 name = "pricedin-market"
 version = "0.1.0"
 dependencies = [

@@ -2,13 +2,15 @@
 //!
 //! `spawn_agent` creates the sub-account `aN.<swarm>` with one key: the runner's function-call
 //! key, limited to the market's `buy`, `sell` and `redeem` with a 0.25 NEAR allowance. The
-//! account has no full-access key and no code, so nobody can withdraw from it, the runner
-//! included. Its USDC bankroll arrives with `ft_transfer_call` and {"for":"aN.<swarm>"}, and
-//! leaves only through `release_bankroll`, to the owner on record here.
+//! account has no full-access key, so nobody can withdraw from it, the runner included. Its
+//! only code is contracts/agent-wallet, whose one method lets this contract delete the account
+//! back to its owner. Its USDC bankroll arrives with `ft_transfer_call` and
+//! {"for":"aN.<swarm>"}, and leaves only through `release_bankroll`, to the owner on record.
 //!
 //! The rest of the deposit is the agent's inference escrow, held here. The operator's metered
 //! charge sweeps it to the treasury account with a usage hash and an event. At zero the agent
-//! sleeps. The owner can top it up or close the agent and take back what is left.
+//! sleeps. The owner can top it up or close the agent and take back what is left, then
+//! `delete_agent` returns the account's own NEAR too.
 
 use near_sdk::json_types::{U128, U64};
 use near_sdk::store::LookupMap;
@@ -19,6 +21,9 @@ const RUNNER_ALLOWANCE: u128 = NEAR / 4;
 const RUNNER_METHODS: &str = "buy,sell,redeem";
 const GAS_CALLBACK: Gas = Gas::from_tgas(10);
 const GAS_RELEASE: Gas = Gas::from_tgas(10);
+const GAS_DELETE: Gas = Gas::from_tgas(10);
+/// contracts/agent-wallet, built by scripts/build-contracts.mjs before this contract.
+const AGENT_WASM: &[u8] = include_bytes!("../res/agent.wasm");
 
 fn ensure(cond: bool, msg: &str) {
     if !cond {
@@ -51,6 +56,8 @@ pub struct Agent {
     pub charged_yocto: U128,
     pub sleeping: bool,
     pub closed: bool,
+    /// The agent account was deleted and its NEAR returned to the owner.
+    pub deleted: bool,
     pub created_ns: U64,
 }
 
@@ -185,6 +192,7 @@ impl Swarm {
                 charged_yocto: U128(0),
                 sleeping: false,
                 closed: false,
+                deleted: false,
                 created_ns: U64(env::block_timestamp()),
             },
         );
@@ -201,6 +209,7 @@ impl Swarm {
         Promise::new(account)
             .create_account()
             .transfer(NearToken::from_yoctonear(self.agent_near_yocto))
+            .deploy_contract(AGENT_WASM.to_vec())
             .add_access_key_allowance(runner_public_key, allowance, self.market.clone(), RUNNER_METHODS)
             .then(Promise::new(env::current_account_id()).function_call(
                 "on_spawn".to_string(),
@@ -304,6 +313,37 @@ impl Swarm {
             Promise::new(owner).transfer(NearToken::from_yoctonear(escrow)).detach();
         }
         release
+    }
+
+    /// After `close_agent`, the owner deletes the agent account and gets its NEAR back (its
+    /// storage and whatever is left of the runner's allowance). Shares the agent never redeemed
+    /// are given up: redeem them with the runner key first. A balance redeemed before this call
+    /// can still be released with `release_bankroll`, since the market keeps it by name.
+    pub fn delete_agent(&mut self, agent_id: AccountId) -> Promise {
+        let a = self.agent(&agent_id);
+        ensure(env::predecessor_account_id() == a.owner, "agent owner only");
+        ensure(a.closed, "close the agent first");
+        ensure(!a.deleted, "already deleted");
+        Promise::new(agent_id)
+            .function_call("close".to_string(), a.owner.as_str().as_bytes().to_vec(), NearToken::from_yoctonear(0), GAS_DELETE)
+            .then(Promise::new(env::current_account_id()).function_call(
+                "on_delete".to_string(),
+                format!("{{\"id\":{}}}", a.id).into_bytes(),
+                NearToken::from_yoctonear(0),
+                GAS_CALLBACK,
+            ))
+    }
+
+    #[private]
+    pub fn on_delete(&mut self, id: u64) -> bool {
+        let ok = env::promise_result_checked(0, 64).is_ok();
+        if ok {
+            let mut a = self.agents.get(&id).cloned().unwrap();
+            a.deleted = true;
+            self.log("delete", &format!("{{\"agent\":\"{}\",\"owner\":\"{}\"}}", a.account, a.owner));
+            self.agents.insert(id, a);
+        }
+        ok
     }
 
     pub fn get_agent(&self, agent_id: AccountId) -> Option<Agent> {
