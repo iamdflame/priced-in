@@ -15,12 +15,10 @@ const v = vercelApi(env);
 const pid = await projectId(v);
 const prod = !process.argv.includes("--preview");
 
-// the committed tree only
-const stage = fs.mkdtempSync(path.join(os.tmpdir(), "pricedin-deploy-"));
-const tar = path.join(stage, "..", `${path.basename(stage)}.tar`);
-execFileSync("git", ["archive", "--format=tar", "-o", tar, "HEAD"], { cwd: ROOT });
-execFileSync("tar", ["-xf", tar.replace(/\\/g, "/"), "-C", stage.replace(/\\/g, "/")], { stdio: "ignore", shell: process.platform === "win32" });
-fs.rmSync(tar, { force: true });
+// the committed tree only: a detached worktree of HEAD (the main checkout and its index are untouched)
+const stage = path.join(os.tmpdir(), `pricedin-deploy-${Date.now()}`);
+execFileSync("git", ["worktree", "add", "--detach", stage, "HEAD"], { cwd: ROOT, stdio: "ignore" });
+const cleanup = () => { try { execFileSync("git", ["worktree", "remove", "--force", stage], { cwd: ROOT, stdio: "ignore" }); } catch { fs.rmSync(stage, { recursive: true, force: true }); } };
 for (const bad of [".env", ".apex-test", ".apex"]) if (fs.existsSync(path.join(stage, bad))) throw new Error(`${bad} is in the committed tree: refusing to deploy`);
 const commit = execFileSync("git", ["rev-parse", "--short", "HEAD"], { cwd: ROOT }).toString().trim();
 console.log(`deploying commit ${commit} from a clean copy of the committed tree`);
@@ -37,7 +35,7 @@ const scrub = (s) => String(s).split(env.VERCEL_TOKEN).join("<token>");
 child.stdout.on("data", (d) => { const t = scrub(d); process.stdout.write(t); const m = t.match(/https:\/\/[a-z0-9-]+\.vercel\.app/); if (m) url = m[0]; });
 child.stderr.on("data", (d) => process.stderr.write(scrub(d)));
 child.on("exit", (code) => {
-  fs.rmSync(stage, { recursive: true, force: true });
+  cleanup();
   if (code === 0) console.log(`\n${PROJECT}: ${prod ? "production" : "preview"} deployment ${url ?? "(see above)"} (commit ${commit})`);
   process.exit(code ?? 1);
 });
