@@ -74,7 +74,7 @@ const shots = [
   { name: "post-gone", path: "/jack/status/20", wait: 3000 },
   { name: "agents", path: "/agents", wait: 2500 },
   { name: "audit", path: "/audit", wait: 2500 },
-  { name: "verify", path: "/verify/tether%3A2%3Av1?page=tether", wait: 8000 },
+  { name: "verify", path: "/verify/tether%3A2%3Av4?page=tether", wait: 8000 },
   { name: "notfound", path: "/nope/really/not", wait: 1500 },
   { name: "reduced", path: "/", wait: 1500, reduced: true },
 ];

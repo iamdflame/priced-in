@@ -48,7 +48,6 @@ export class VerifyPanel {
       h("button", { class: "x", type: "button", "aria-label": "Close", onclick: () => this.close() }, "×"),
       h("h2", { id: "vp-title" }, "Signed in a TEE"),
       h("p", { class: "lede" }, "The model's rewrite came with its exact request and response, their hashes and an ed25519 signature. Your browser checks each one, and asks the market contract for the model's registered key."),
-      ...(ctx.mode === "recorded" ? [h("p", { class: "lede" }, "This recorded rewrite was signed by a test key standing in for NEAR AI Cloud's enclave; that key is the one registered on the testnet market.")] : []),
       this.body,
     );
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !this.el.hidden) this.close(); });
