@@ -42,8 +42,8 @@
   "planner_public_hex": "8003b93781d016f7e432ab14b1e7b903d00fd03f091bff94f08a3ab8266473c0",
   "planner": "TEST planner key, made for this deployment; its private half is not in git",
   "writer_model": "z-ai/glm-5.3-flash",
-  "writer_public_hex": "49468af2afbf0e3465d00601db4bdc666d5187b78fed060c8222f008397e512c",
-  "writer": "TEST writer key of services/ai's offline NEAR AI stand-in; NOT a NEAR AI Cloud key"
+  "writer_public_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation (services/ai/attestations/z-ai__glm-5.3-flash.json); the same key rules as a juror"
  },
  "seed": {
   "page": "tether",
@@ -464,7 +464,7 @@
  },
  "rewrite": {
   "evidence": "tools/judge/evidence/rewrite.json",
-  "anchor_tx": "BUYNo54M17r5eamtm6g1k2b8ihJRWvhnVFwefx816qse"
+  "anchor_tx": "GxtD3AdjKJziFYNK718wmFhmUJ7LVJZvXzmNLsqtiBUz"
  },
  "stats_at_record": {
   "claims": 20,
