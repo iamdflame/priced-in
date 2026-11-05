@@ -4,14 +4,16 @@
 // beside the bowl. When money moves, the new ink spreads out of the bowl as a ring.
 import type { AppState, Sentence } from "../core/store";
 import { priceable } from "../core/store";
-import { BEAT, countTo, ease, h, nodes, onFrame, reducedMotion, s, wait, withoutStop, wordDiff, type Child } from "./dom";
-import { display, displayInk, fitFat, FAT, greyInk, baseline, type Display, type Fit } from "./type/display";
-import { dishName, doubtButton, doubtWords, todayLine, tradeWords, type Ctx } from "./context";
+import { BEAT, countTo, ease, h, nodes, onFrame, reducedMotion, s, wait, withoutStop, wordDiff, type Child, type DiffPart } from "./dom";
+import { display, displayInk, fitFat, wrapFat, FAT, greyInk, baseline, type Display, type Fit } from "./type/display";
+import { dishName, doubtButton, doubtWords, livingProof, todayLine, type Ctx } from "./context";
 import { loadField, palette, safeField, type Field } from "./field-port";
+import { PLAIN } from "./data";
 
-const LEAD = 1.04;
+const LEAD = 1.06; // display leading on desktop; phones open it to 1.12
+const PHONE_LEAD = 1.12;
 
-interface Layout { W: number; H: number; phone: boolean; pad: number; groundTop: number; fit: Fit; box: { x: number; y: number; w: number }; beside: boolean; bowl: { cx: number; cy: number; r: number; u: number }; readout: { x: number; y: number; w: number } }
+interface Layout { lead: number; clamped: boolean; W: number; H: number; phone: boolean; pad: number; groundTop: number; fit: Fit; box: { x: number; y: number; w: number }; beside: boolean; bowl: { cx: number; cy: number; r: number; u: number }; readout: { x: number; y: number; w: number } }
 
 export class Hero {
   readonly el: HTMLElement;
@@ -44,13 +46,25 @@ export class Hero {
   private unsub: (() => void) | null = null;
   private dead = false;
   private failedShown = false;
+  /** the after-state of a rewrite: the old words struck and the new ones in, at hero size */
+  private merged: DiffPart[] | null = null;
+  private delSlots: number[] = [];
+  private insSlots: number[] = [];
+  /** a long line clamped on a phone, and whether the reader opened it */
+  private expanded = false;
+  private reveal = h("button", { class: "reveal link-btn", type: "button", hidden: true }, "Read the full line");
+  private trick = h("p", { class: "trick" });
+  /** on phones the one plain line sits under the image, on the ground */
+  private plain = h("p", { class: "plainline phone-only-block" }, PLAIN);
 
   constructor(private ctx: Ctx, private o: { short?: boolean; label: () => Child[] }) {
     this.el = h("section", { class: `ps${o.short ? " short" : ""}`, "aria-label": "The sentence, its price and the doubt" },
-      this.canvas, this.labelEl, this.srText, this.poster, this.bowl, this.fx, this.readout);
+      this.canvas, this.labelEl, this.srText, this.poster, this.reveal, this.bowl, this.fx, this.readout, this.plain);
+    this.reveal.addEventListener("click", () => { this.expanded = !this.expanded; this.reveal.textContent = this.expanded ? "Set it large again" : "Read the full line"; this.relayout(); });
     this.poster.append(this.marks);
-    this.priceEl.append(this.pnum, h("span", { class: "pc" }, "%"));
-    this.readout.append(h("div", { class: "row" }, this.priceEl, this.btn), this.statusEl, this.chipWrap);
+    this.priceEl.append(h("span", { class: "pa" }, "priced at"), this.pnum, h("span", { class: "pc" }, "%"));
+    this.trick.append("Any post on X opens priced here: change x.com to ", h("b", {}, typeof location !== "undefined" ? location.host : "this site"), " in its link.");
+    this.readout.append(h("div", { class: "row" }, this.priceEl, this.btn), this.statusEl, this.chipWrap, this.trick);
     // nothing shows until it has its place: no shift on first paint
     for (const el of [this.labelEl, this.readout, this.bowl]) el.style.visibility = "hidden";
     this.btn.addEventListener("click", () => this.onDoubt());
@@ -128,7 +142,7 @@ export class Hero {
     if (tok !== this.tok) return;
     // beat 10: the latest trade arrives along its beam
     const last = this.ctx.history.of(this.cur()?.claimId ?? null)[0];
-    if (last) this.pulse(last.trader, last.side);
+    if (last) this.pulse(last.trader, last.side, last.amountUsd);
   }
 
   private cur(): Sentence | null {
@@ -158,49 +172,70 @@ export class Hero {
     const pad = card ? 56 : phone ? 20 : W >= 1280 ? 64 : W >= 960 ? 44 : 32;
     const shown = withoutStop(text).text;
     // the label sits under the header; the sentence starts under the label
-    const labelTop = card ? 96 : phone ? 70 : 96;
+    const labelTop = card ? 96 : phone ? 74 : 96;
     this.labelEl.style.left = pad + "px";
     this.labelEl.style.right = pad + "px";
     this.labelEl.style.top = labelTop + "px";
-    const top = labelTop + (this.labelEl.offsetHeight || 24) + (phone ? 14 : 22);
+    const top = labelTop + (this.labelEl.offsetHeight || 24) + (phone ? 12 : 22);
     if (phone) {
+      // the claim at display size, then the bowl, the price and the action in one row, then the trade;
+      // the engraved field takes the bottom 190 px or more of the first 844
+      const lead = PHONE_LEAD;
       const r = 22, u = r * 0.46;
       const rowH = r * 2 + u * 6.7;
-      const below = 20 + rowH + 18 + 52 + 12 + 50 + 44;
-      const ground = H - 104;
-      const clear = ground - 64; // the foreground dishes rise above the ground line
-      const fit = fitFat(shown, { w: W - pad * 2, h: Math.max(120, clear - top - below) }, { max: 56, min: 24, leading: LEAD });
-      const ph = fit.lines.length * fit.size * LEAD;
-      const rowTop = top + ph + 20;
+      const below = 18 + rowH + 14 + 84; // the row, then up to three lines of words
+      const ground = Math.min(H - 236, 610);
+      const clear = ground - 40;
+      const boxH = Math.max(120, clear - top - below);
+      let fit = fitFat(shown, { w: W - pad * 2, h: boxH }, { max: 58, min: this.expanded ? 22 : 38, leading: lead });
+      let clamped = false;
+      if (!this.expanded && fit.lines.length * fit.size * lead > boxH - 40) {
+        // too long to set large: the first lines large, and the whole line one tap away
+        const size = 40;
+        const all = wrapFat(shown, W - pad * 2, size);
+        const n = Math.max(2, Math.floor((boxH - 40) / (size * lead)));
+        if (all.lines.length > n) {
+          const lines = all.lines.slice(0, n);
+          lines[n - 1] = lines[n - 1].replace(/\s*\S+$/, "") + "\u2026";
+          fit = { size, lines, widths: all.widths.slice(0, n), room: false };
+          clamped = true;
+        } else fit = { size, ...all, room: false };
+      }
+      const ph = fit.lines.length * fit.size * lead + (clamped || this.expanded ? 40 : 0);
+      const rowTop = top + ph + 18;
       const bowl = { cx: pad + r, cy: rowTop + rowH - r, r, u };
-      return { W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 18 + 52 + 12 + 50 + 64), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
+      return { lead, clamped, W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 14 + 84 + 40), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
     }
+    const lead = LEAD;
     const groundTop = Math.round(H * (card ? 0.86 : 0.8));
     // keep the sentence clear of the foreground dishes that rise at the edges; the readout's words sit lower, in the clear middle
     const clear = card ? Math.round(H * 0.64) : groundTop - Math.max(118, H * 0.15, W * 0.19);
     // the card's foreground dishes stand at its edges: the sentence keeps to the middle
     const bx = card ? 210 : pad, bw = card ? W - 420 : W - pad * 2;
     const hFull = clear - top;
-    const readW = card ? 180 : 470;
+    const readW = card ? 180 : 480;
     const max = card ? 112 : Math.min(150, Math.round(W / 9.6));
-    const reserve = (size: number) => size * 0.17 * 2 + size * 0.32 + 40 + readW;
-    const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: LEAD, reserve });
+    const reserve = (size: number) => size * 0.17 * 2 + size * 0.42 + 40 + readW;
+    const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: lead, reserve });
     // below the sentence: the numeral, the action, two lines of words and the mark must stand clear of the ground
     const belowH = card ? 110 : (W < 1200 ? 96 : 128) * 0.82 + 22 + 18 + 92 + 56;
-    const b = fitFat(shown, { w: bw, h: Math.min(hFull, groundTop - 8 - top - belowH) }, { max, min: card ? 30 : 36, leading: LEAD });
+    const b = fitFat(shown, { w: bw, h: Math.min(hFull, groundTop - 8 - top - belowH) }, { max, min: card ? 30 : 36, leading: lead });
     // beside the last line only when the numeral (72 px at least) fits inside that line's height
     const beside = !card && a.room && a.size >= 68 && a.size >= b.size * 0.86;
     const fit = beside ? a : b;
-    return { W, H, phone, pad, groundTop, fit, box: { x: bx, y: top, w: bw }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
+    return { lead, clamped: false, W, H, phone, pad, groundTop, fit, box: { x: bx, y: top, w: bw }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
   }
 
   private render(text: string) {
-    const L = (this.L = this.layout(text));
+    // a rewrite's after-state sets the old and the new words together
+    const merged = this.merged;
+    const setText = merged ? merged.map((x) => x.text).join("") + (withoutStop(text).stop || "") : text;
+    const L = (this.L = this.layout(setText));
     const { fit, box } = L;
     this.poster.style.left = box.x + "px";
     this.poster.style.top = box.y + "px";
     this.poster.style.width = box.w + "px";
-    this.d = display(this.poster, fit.lines, { size: fit.size, leading: LEAD, ink: FAT, label: text });
+    this.d = display(this.poster, fit.lines, { size: fit.size, leading: L.lead, ink: FAT, label: text });
     this.poster.removeAttribute("role");
     this.poster.removeAttribute("aria-label");
     this.poster.append(this.marks);
@@ -209,18 +244,19 @@ export class Hero {
     this.marks.setAttribute("height", String(this.d.height() + fit.size));
     this.srText.textContent = `${text} ${this.priceWords()}`;
     // beside the last line the numeral stays inside that line's height; below the sentence it can be larger
-    const priceSize = L.phone ? 76 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.05))) : this.ctx.card || L.W < 1200 ? 96 : 128;
+    const priceSize = L.phone ? 64 : L.beside ? Math.round(Math.max(72, Math.min(150, fit.size * 1.05))) : this.ctx.card || L.W < 1200 ? 96 : 128;
     this.el.style.setProperty("--price", priceSize + "px");
     // the bowl takes the full stop's place, on the last line's baseline
     if (!L.phone) {
       const last = this.d.slots[this.d.slots.length - 1];
       const r = Math.max(9, fit.size * 0.17);
-      const base = baseline(fit.size, LEAD);
+      const base = baseline(fit.size, L.lead);
       // the hook stays inside its own line, clear of the line above
       const u = Math.min(r * 0.78, (base - r - fit.size * 0.06) / 6.7);
-      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + r * 1.15, cy: box.y + (last ? last.y : 0) + base - r, r, u };
+      // a proper sidebearing: the gauge never touches the last word, at any weight
+      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + r + fit.size * 0.16, cy: box.y + (last ? last.y : 0) + base - r, r, u };
       if (L.beside) {
-        L.readout = { x: L.bowl.cx + r + Math.max(28, fit.size * 0.3), y: L.bowl.cy + r - priceSize * 0.82, w: L.readout.w };
+        L.readout = { x: L.bowl.cx + r + Math.max(28, fit.size * 0.3), y: L.bowl.cy + r - priceSize * 0.82 + priceSize * 0.085, w: L.readout.w };
       } else {
         // below the sentence, kept right of the foreground dish that rises at the left edge
         const x = this.ctx.card ? box.x : Math.max(box.x, Math.round(L.W * 0.22));
@@ -234,14 +270,65 @@ export class Hero {
     this.readout.style.width = L.beside ? Math.max(300, Math.min(620, L.W - L.pad - L.readout.x)) + "px" : L.readout.w + "px";
     if (L.phone) {
       // the row: the bowl, then the price beside it; the action and the words below
-      this.priceEl.style.marginLeft = L.bowl.r * 2 + 18 + "px";
-      this.priceEl.style.marginTop = (L.bowl.cy + L.bowl.r - L.readout.y - priceSize * 0.82) + "px";
+      // one row: the bowl, the price on the bowl's baseline, the action on the same line
+      this.readout.style.top = L.bowl.cy + L.bowl.r - priceSize * 0.82 + priceSize * 0.085 + "px";
+      this.priceEl.style.marginLeft = L.bowl.r * 2 + 14 + "px";
+      this.priceEl.style.marginTop = "";
     } else {
       this.priceEl.style.marginLeft = "";
       this.priceEl.style.marginTop = "";
     }
+    // the clamp's reveal sits under the clamped line
+    this.reveal.hidden = !(L.clamped || (L.phone && this.expanded));
+    if (!this.reveal.hidden) { this.reveal.style.left = L.box.x + "px"; this.reveal.style.top = L.box.y + this.d.height() + 2 + "px"; }
+    this.markDiff(setText);
+    if (L.phone) { this.plain.style.top = L.groundTop - 58 + "px"; this.plain.style.bottom = "auto"; }
     this.layoutField();
+    requestAnimationFrame(() => this.fitReadout());
   }
+
+  /** The quiet lines under the action give way, last first, before anything reaches the ground. */
+  private fitReadout() {
+    const L = this.L;
+    if (!L || L.phone) return;
+    const limit = L.groundTop - 24;
+    for (const el of [this.trick, this.chipWrap]) el.style.display = "";
+    for (const el of [this.trick, this.chipWrap]) {
+      const r = this.readout.getBoundingClientRect(), host = this.el.getBoundingClientRect();
+      if (r.bottom - host.top <= limit) break;
+      el.style.display = "none";
+    }
+  }
+
+  /** Strike the outgoing words (thread weight, red pen) and mark the incoming ones, in the set line. */
+  private markDiff(setText: string) {
+    this.delSlots = [];
+    this.insSlots = [];
+    const parts = this.merged;
+    const d = this.d!;
+    if (!parts) return;
+    const del: number[] = [], ins: number[] = [];
+    let ci = 0;
+    for (const prt of parts) for (let k = 0; k < prt.text.length; k++) { if (prt.text[k].trim()) { if (prt.op === "del") del.push(ci); if (prt.op === "ins") ins.push(ci); } ci++; }
+    const shown = withoutStop(setText).text;
+    this.delSlots = mapToSlots(shown, d, del);
+    this.insSlots = mapToSlots(shown, d, ins);
+    const size = this.L!.fit.size;
+    const base = baseline(size, this.L!.lead);
+    for (const i of this.delSlots) { const g = d.glyph(i); g.style.fontVariationSettings = displayInk(0.02, size); g.style.color = "var(--red-text)"; }
+    for (const [, xs] of groupByLine(this.delSlots, d)) {
+      const a = d.slots[xs[0]], b = d.slots[xs[xs.length - 1]];
+      const y = a.y + base - size * 0.28;
+      this.marks.append(s("line", { x1: a.x - 3, y1: y, x2: b.x + b.w + 3, y2: y, "stroke-width": Math.max(2, size * 0.035) }));
+    }
+    for (const [, xs] of groupByLine(this.insSlots, d)) {
+      const a = d.slots[xs[0]], b = d.slots[xs[xs.length - 1]];
+      const y = a.y + base + size * 0.1;
+      this.marks.append(s("line", { class: "ins", x1: a.x, y1: y, x2: b.x + b.w, y2: y, "stroke-width": Math.max(1.5, size * 0.02) }));
+    }
+  }
+
+
 
   private fieldKey = "";
   /** Lay the field out only when its viewport or ground line changed. */
@@ -387,10 +474,12 @@ export class Hero {
     if (this.ctx.card) this.field.still();
   }
 
-  private pulse(trader: string, side: string) {
+  private pulse(trader: string, side: string, amountUsd?: number) {
     if (!this.field) return;
     const n = dishName(trader, this.ctx.agents);
-    this.field.assign(trader, n.name, n.house);
+    // the dish carries its agent's name and its bet, in the illustration's own lettering
+    const bet = amountUsd ? `, $${amountUsd.toFixed(amountUsd % 1 ? 2 : 0)} ${side === "no" || side === "sell_yes" ? "against" : "for"}` : "";
+    this.field.assign(trader, n.name + bet, n.house);
     this.field.pulse(trader, side === "no" || side === "sell_yes" ? "no" : "yes");
   }
 
@@ -421,7 +510,7 @@ export class Hero {
     if (!sen || !this.L || this.dead) return;
     for (const a of this.ctx.agents.all()) this.field?.assign(a.account, a.name, a.house);
     const fresh = this.ctx.history.absorb(st.page.sentences);
-    for (const t of fresh) if (!t.mine) this.pulse(t.trader, t.side);
+    for (const t of fresh) if (!t.mine) this.pulse(t.trader, t.side, t.amountUsd);
     if (!this.settled) return;
     const d = st.doubt;
     const mine = d.ctx?.key === sen.key;
@@ -453,61 +542,50 @@ export class Hero {
     this.updateReadout(st);
   }
 
+  /** A rewrite in about 1.2 s: the outgoing words struck in one beat, then the new words print in with a hard
+   * ease-out; the after-state holds both at hero size. */
   private async rewrite(text: string) {
     const d = this.d!;
     const L = this.L!;
-    const old = withoutStop(this.shownText).text;
+    const old = withoutStop(this.merged ? this.merged.filter((x) => x.op !== "del").map((x) => x.text).join("") : this.shownText).text;
     const neu = withoutStop(text).text;
     const parts = wordDiff(old, neu);
-    if (!reducedMotion() && !this.ctx.card) {
-      // strike the words that go, one beat
+    const motion = !reducedMotion() && !this.ctx.card;
+    if (motion && !this.merged) {
       let ci = 0;
       const struck: number[] = [];
-      for (const prt of parts) {
-        if (prt.op === "ins") continue;
-        for (let k = 0; k < prt.text.length; k++) { if (prt.op === "del" && prt.text[k].trim()) struck.push(ci); ci++; }
-      }
-      const glyphIdx = mapToSlots(old, d, struck);
-      const base = baseline(L.fit.size, LEAD);
-      for (const [line, xs] of groupByLine(glyphIdx, d)) {
+      for (const prt of parts) { if (prt.op === "ins") continue; for (let k = 0; k < prt.text.length; k++) { if (prt.op === "del" && prt.text[k].trim()) struck.push(ci); ci++; } }
+      const base = baseline(L.fit.size, L.lead);
+      for (const [, xs] of groupByLine(mapToSlots(old, d, struck), d)) {
         const y = d.slots[xs[0]].y + base - L.fit.size * 0.28;
-        const x1 = d.slots[xs[0]].x - 4, x2 = d.slots[xs[xs.length - 1]].x + d.slots[xs[xs.length - 1]].w + 4;
-        const ln = s("line", { x1, y1: y, x2, y2: y, "stroke-width": Math.max(3, L.fit.size * 0.05) });
-        const len = x2 - x1;
-        ln.style.strokeDasharray = String(len);
-        ln.style.strokeDashoffset = String(len);
+        const x1 = d.slots[xs[0]].x - 3, x2 = d.slots[xs[xs.length - 1]].x + d.slots[xs[xs.length - 1]].w + 3;
+        const ln = s("line", { x1, y1: y, x2, y2: y, "stroke-width": Math.max(2, L.fit.size * 0.035) });
+        ln.style.strokeDasharray = String(x2 - x1);
+        ln.style.strokeDashoffset = String(x2 - x1);
         this.marks.append(ln);
-        requestAnimationFrame(() => requestAnimationFrame(() => { ln.style.transition = `stroke-dashoffset ${BEAT}ms cubic-bezier(.65,0,.35,1)`; ln.style.strokeDashoffset = "0"; }));
-        void line;
+        requestAnimationFrame(() => requestAnimationFrame(() => { ln.style.transition = `stroke-dashoffset ${BEAT}ms cubic-bezier(.16,1,.3,1)`; ln.style.strokeDashoffset = "0"; }));
       }
-      await wait(3);
+      await wait(1);
     }
     if (this.dead) return;
     this.shownText = text;
+    // struck and inserted words side by side keep a word space between them
+    const spaced = parts.map((x, i) => (x.op === "del" && parts[i + 1]?.op === "ins" && !/\s$/.test(x.text) && !/^\s/.test(parts[i + 1].text) ? { ...x, text: x.text + " " } : x));
+    this.merged = parts.some((x) => x.op !== "eq") ? spaced : null;
     this.tok++;
     this.render(text);
     const sen = this.cur();
     if (sen) this.settle(sen);
-    // the words that came in, underlined in red pen for a moment
-    if (!reducedMotion() && !this.ctx.card) {
-      const ins: number[] = [];
-      let ci = 0;
-      for (const prt of parts) {
-        if (prt.op === "del") continue;
-        for (let k = 0; k < prt.text.length; k++) { if (prt.op === "ins" && prt.text[k].trim()) ins.push(ci); ci++; }
-      }
-      const idx = mapToSlots(neu, this.d!, ins);
-      const base = baseline(this.L!.fit.size, LEAD);
-      for (const [, xs] of groupByLine(idx, this.d!)) {
-        const a = this.d!.slots[xs[0]], b = this.d!.slots[xs[xs.length - 1]];
-        const y = a.y + base + this.L!.fit.size * 0.1;
-        const ln = s("line", { class: "ins", x1: a.x, y1: y, x2: b.x + b.w, y2: y, "stroke-width": Math.max(2, this.L!.fit.size * 0.03) });
-        ln.style.transition = `opacity ${4 * BEAT}ms var(--ease) ${4 * BEAT}ms`;
-        this.marks.append(ln);
-        requestAnimationFrame(() => requestAnimationFrame(() => { ln.style.opacity = "0"; }));
-      }
+    if (motion && this.insSlots.length) {
+      // the new words print in over two beats, hard ease-out, in reading order
+      const n = this.insSlots.length;
+      this.insSlots.forEach((i, k) => {
+        const g = this.d!.glyph(i);
+        g.style.opacity = "0";
+        g.style.transition = `opacity ${2 * BEAT}ms cubic-bezier(.16,1,.3,1) ${Math.round((k / n) * BEAT)}ms`;
+        requestAnimationFrame(() => requestAnimationFrame(() => { g.style.opacity = "1"; }));
+      });
     }
-    void L;
   }
 
   private updateReadout(st: AppState) {
@@ -533,10 +611,11 @@ export class Hero {
       const key = last ? `${last.txHash}:${last.priceAfter}` : "none";
       if (key !== this.lastTradeKey || !this.statusEl.childNodes.length || this.statusEl.dataset.mode !== "idle") {
         this.lastTradeKey = key;
-        swap(this.statusEl, nodes([last ? tradeWords(last, this.ctx.agents) : "No one has bet on this line yet.", " ", todayLine(sen)]));
+        swap(this.statusEl, nodes([...livingProof(sen, this.ctx), " ", todayLine(sen)]));
       }
     }
     this.statusEl.dataset.mode = words ? "doubt" : "idle";
+    requestAnimationFrame(() => this.fitReadout());
     // the provenance mark for a rewritten line
     const rw = sen.rewrite;
     const page = st.page.slug;

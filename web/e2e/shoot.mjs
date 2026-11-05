@@ -47,6 +47,17 @@ const shots = [
     });
     await p.waitForTimeout(1500);
   } },
+  // a rewrite whose wording changes band, on a sentence that opens at 65%: the struck and printed words at hero size
+  { name: "rewrite-claim", path: "/c/1", wait: 5000, act: async (p) => {
+    await p.locator(".ps .doubt").click();
+    await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
+    await p.waitForTimeout(2400);
+  } },
+  { name: "rewrite-mid", path: "/c/2", wait: 5000, act: async (p) => {
+    await p.locator(".ps .doubt").click();
+    await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
+    await p.waitForTimeout(650);
+  } },
   { name: "card-open", path: "/", wait: 4000, act: async (p) => {
     await p.evaluate(() => document.getElementById("the-page")?.scrollIntoView());
     const s = p.locator(".running .s[role=button]").nth(1);
@@ -80,8 +91,9 @@ const shots = [
 ];
 
 const browser = await chromium.launch();
-for (const vp of vps) {
-  for (const s of shots) {
+// shot by shot, both sizes together: every doubt moves the shared stack, so desktop and phone see the same state
+for (const s of shots) {
+  for (const vp of vps) {
     if (only && !only.includes(s.name)) continue;
     const ctx = await browser.newContext({ ...VP[vp], reducedMotion: s.reduced ? "reduce" : "no-preference" });
     const page = await ctx.newPage();

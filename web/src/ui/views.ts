@@ -4,7 +4,7 @@ import type { Rationale } from "../core/api";
 import type { AppState, Sentence } from "../core/store";
 import { priceable } from "../core/store";
 import { h, host, pct, usd, type Child } from "./dom";
-import { CORPUS, PLAIN, PROOF, RULE, pageInfo, pageTitle } from "./data";
+import { CORPUS, PROOF, RULE, pageInfo, pageTitle } from "./data";
 import { markSvg, type Ctx } from "./context";
 import { Hero } from "./hero";
 import { Running } from "./running";
@@ -21,9 +21,9 @@ function recordedNote(ctx: Ctx): Child {
     h("span", { class: "phone-only" }, `Recorded on testnet, ${ctx.recordedDate}. Not live. `));
 }
 
-/** The line above the sentence; on phones it also carries the plain line the header carries on desktop. */
+/** The line above the sentence. */
 function heroLabel(ctx: Ctx, rest: Child[]): Child[] {
-  return [h("span", { class: "phone-only lbl-plain" }, PLAIN, " "), recordedNote(ctx), ...rest];
+  return [recordedNote(ctx), ...rest];
 }
 
 /** The sentence that takes the first screen: real, self-explaining, and doubted. */
@@ -32,8 +32,12 @@ export function pickHero(list: Sentence[], ctx: Ctx, todayKnown: (s: Sentence) =
   for (const s of list) {
     const p = ctx.store.derived.price(s);
     if (!priceable(s) || p === null) continue;
-    const n = s.text.length;
-    let score = (todayKnown(s) ? 100 : 0) + (n >= 40 && n <= 140 ? 30 : n < 40 ? 10 : 0) + (1 - p) * 20 + Math.min(10, s.trades);
+    // short, punchy and self-explaining first; then proof the source has moved on; then a market with bets in it.
+    // Nothing here depends on the exact price, so desktop and phone pick the same line.
+    // the line as written, not a rewrite that may load a moment later: the pick never depends on timing
+    const n = s.original.length;
+    if (/[^\u0000-\u024f\u2010-\u203a\u20ac]/.test(s.original)) continue; // a glyph the display face doesn't have
+    let score = (n >= 30 && n <= 90 ? 70 : n <= 120 ? 45 : n <= 150 ? 0 : -60) + (todayKnown(s) ? 40 : 0) + (s.trades > 1 ? 25 : s.trades === 1 ? 10 : 0) + (p < 0.5 ? 10 : 0);
     if (s.status === "challenged") score += 5;
     if (!best || score > best.score) best = { k: s.key, score };
   }

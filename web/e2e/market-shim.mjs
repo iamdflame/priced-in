@@ -19,6 +19,7 @@ export async function startMarketShim({ marketId, laneAccountId, claims, models 
   const positions = new Map();
   const credited = new Set();
   const executed = new Map(); // tx hash -> { outcome, at }
+  const inflight = new Map(); // tx hash -> promise, while it executes
   const stats = () => ({ claims: markets.length, challenges: 0, treasury_micro: "100000000", reserved_micro: "0", lane_budget_micro: "100000000", lane_credit_micro: "1000000", paused: false, held_micro: "0", balances_micro: "0", collected_micro: "0", payouts_micro: "0", bonds_micro: "0", bounties_micro: "0", rewrites_anchored: 0 });
 
   const view = (c) => {
@@ -115,6 +116,13 @@ export async function startMarketShim({ marketId, laneAccountId, claims, models 
       if (t.receiverId !== marketId) return null; // lane AddKey and anything else: the mock handles it
       const hash = baseEncode(createHash("sha256").update(t.encode()).digest());
       if (executed.has(hash)) return { result: method === "send_tx" ? executed.get(hash).outcome : hash };
+      // the same transaction raced to the second RPC while the first executes: NEAR answers it as the same
+      // transaction, never as a nonce clash
+      if (inflight.has(hash)) { await inflight.get(hash); return { result: method === "send_tx" ? executed.get(hash).outcome : hash }; }
+      let done;
+      inflight.set(hash, new Promise((r) => { done = r; }));
+      try { return await run(); } finally { inflight.delete(hash); done(); }
+      async function run() {
       const pk = t.publicKey.toString();
       const ak = mock.st.keys.get(`${t.signerId}|${pk}`);
       if (!ak) return err("INVALID_TRANSACTION", { InvalidTxError: { InvalidAccessKeyError: { AccessKeyNotFound: { account_id: t.signerId, public_key: pk } } } });
@@ -137,6 +145,7 @@ export async function startMarketShim({ marketId, laneAccountId, claims, models 
       if (!mock.st.txsAt.has(h)) mock.st.txsAt.set(h, []);
       mock.st.txsAt.get(h).push({ hash, signer_id: t.signerId, receiver_id: marketId, actions: [{ FunctionCall: { method_name: fc.methodName, args: "", gas: 1, deposit: "0" } }], public_key: pk, nonce: Number(t.nonce), signature: "ed25519:x" });
       return { result: method === "send_tx" ? outcome : hash };
+      }
     }
     if ((method === "EXPERIMENTAL_tx_status" || method === "tx") && executed.has(params?.tx_hash)) {
       const e = executed.get(params.tx_hash);

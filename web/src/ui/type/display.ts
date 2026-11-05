@@ -29,6 +29,28 @@ export const greyInk = (size: number) => `"opsz" ${size < 64 ? 48 : 144},"wght" 
 
 export const FAMILY = "Amstelvar";
 
+// Spacing for display lines (review: never collapse word spaces or tighten the display serif):
+// tracking opens about 1.5%, a word space never falls under a quarter em, and the pairs that the
+// condensed black setting crowds (abbreviations like "U.S.", capitals like "EOS", apostrophes) get
+// a little air, so they stay apart at every weight from thread to black.
+export const TRACK = 0.015;
+const WORD_MIN = 0.27;
+const spaceCache = new Map<number, number>();
+/** Extra px between two glyphs, by pair. */
+export function pairExtra(prev: string | undefined, cur: string, size: number): number {
+  if (!prev) return 0;
+  const up = (c: string) => /[A-Z]/.test(c);
+  let e = 0;
+  if (prev === "." && /[A-Za-z]/.test(cur)) e += 0.07; // U.S, S.T
+  if (up(prev) && cur === ".") e += 0.025;
+  if (up(prev) && up(cur)) e += 0.03; // EOS, USDT
+  if (cur === "'" || cur === "’") e += 0.035;
+  if (prev === "'" || prev === "’") e += 0.035;
+  if (prev === "$" || cur === "%") e += 0.02;
+  return e * size;
+}
+const extrasOf = (t: string, size: number) => { let e = 0; for (let i = 1; i < t.length; i++) e += pairExtra(t[i - 1], t[i], size); return e; };
+
 let meas: HTMLSpanElement | null = null;
 function measurer(size: number): HTMLSpanElement {
   if (!meas) {
@@ -38,14 +60,29 @@ function measurer(size: number): HTMLSpanElement {
     document.body.append(meas);
   }
   meas.style.fontSize = size + "px";
+  meas.style.letterSpacing = "0px";
+  meas.style.wordSpacing = "0px";
+  if (!spaceCache.has(size)) {
+    meas.textContent = "n n"; const a = meas.getBoundingClientRect().width;
+    meas.textContent = "nn"; const b = meas.getBoundingClientRect().width;
+    spaceCache.set(size, a - b);
+  }
+  meas.style.letterSpacing = `${TRACK}em`;
+  meas.style.wordSpacing = `${wordSpace(size)}px`;
   return meas;
+}
+
+/** The word spacing (px) that brings a space up to the minimum at the fat setting. */
+export function wordSpace(size: number): number {
+  const sp = spaceCache.get(size);
+  return sp === undefined ? 0 : Math.max(0, WORD_MIN * size - sp - TRACK * size);
 }
 
 /** Break text into lines that fit a width at the fat setting. */
 export function wrapFat(text: string, width: number, size: number): { lines: string[]; widths: number[] } {
   const m = measurer(size);
   const lines: string[] = [], widths: number[] = [];
-  const w = (t: string) => { m.textContent = t; return m.getBoundingClientRect().width; };
+  const w = (t: string) => { m.textContent = t; return m.getBoundingClientRect().width + extrasOf(t, size); };
   let cur = "";
   for (const word of text.split(/\s+/).filter(Boolean)) {
     const t = cur ? cur + " " + word : word;
@@ -113,7 +150,8 @@ export function display(el: HTMLElement, lines: string[], { size = 128, leading 
   el.style.fontVariantLigatures = "none";
   const slots: Slot[] = [];
   const box = document.createElement("div");
-  box.style.cssText = `position:absolute;left:0;top:0;visibility:hidden;white-space:pre;font-variation-settings:${FAT}`;
+  measurer(size); // primes the space width for this size
+  box.style.cssText = `position:absolute;left:0;top:0;visibility:hidden;white-space:pre;font-variation-settings:${FAT};letter-spacing:${TRACK}em;word-spacing:${wordSpace(size)}px`;
   el.append(box);
   const o = el.getBoundingClientRect();
   lines.forEach((t, line) => {
@@ -123,12 +161,16 @@ export function display(el: HTMLElement, lines: string[], { size = 128, leading 
     box.append(l);
     const n = l.firstChild;
     if (!n) return;
+    let extra = 0;
     for (let i = 0; i < t.length; i++) {
+      extra += pairExtra(t[i - 1], t[i], size);
       const r = document.createRange();
       r.setStart(n, i);
       r.setEnd(n, i + 1);
       const b = r.getBoundingClientRect();
-      slots.push({ line, ch: t[i], x: b.left - o.left, w: b.width, y: line * size * leading });
+      // the range includes the tracking after the glyph: centre on the glyph itself
+      const track = TRACK * size;
+      slots.push({ line, ch: t[i], x: b.left - o.left + extra, w: Math.max(0, b.width - (t[i] === " " ? 0 : track)), y: line * size * leading });
     }
   });
   box.remove();

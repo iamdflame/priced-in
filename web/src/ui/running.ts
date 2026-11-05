@@ -5,7 +5,7 @@ import type { AppState, Sentence } from "../core/store";
 import { priceable } from "../core/store";
 import { BEAT, countTo, h, host, onFrame, pct, reducedMotion, usd, wordDiff, type Child } from "./dom";
 import { runningInk } from "./type/ink";
-import { doubtButton, doubtWords, markSvg, todayLine, tradeWords, type Ctx } from "./context";
+import { doubtButton, doubtWords, livingProof, markSvg, todayLine, type Ctx } from "./context";
 import { sectionOf } from "./data";
 import { chip } from "./hero";
 
@@ -234,7 +234,7 @@ export class Running {
       p === null ? h("p", {}, sen.reason ?? "Not priced.") : h("div", { class: "cp", "aria-label": `Priced at ${Math.round(p * 100)} percent` }, String(Math.round(p * 100)), h("span", { class: "pc" }, "%")),
       cost ? h("p", {}, `It costs ${usd(cost.downUsd)} to move it 10 points down, ${usd(cost.upUsd)} up.`) : null,
       sen.status === "settled" ? h("p", {}, h("b", {}, sen.reason ?? "Settled.")) : null,
-      last ? h("p", {}, tradeWords(last, this.ctx.agents)) : can ? h("p", {}, "No one has bet on this line yet.") : null,
+      can || last ? h("p", {}, ...livingProof(sen, this.ctx)) : null,
       sen.source ? h("p", {}, `${sen.source.agent} cites `, h("a", { href: sen.source.url, target: "_blank", rel: "noopener nofollow" }, sen.source.title || host(sen.source.url) || "a source"), ".") : null,
       todayLine(sen) ? h("p", {}, todayLine(sen)) : null,
       can || d.ctx?.key === sen.key ? h("div", { class: "acts" }, btn) : null,

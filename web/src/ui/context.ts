@@ -101,6 +101,18 @@ export function tradeWords(t: Trade, agents: AgentBook): string {
   return `${who} ${bet}.${move}`;
 }
 
+/** The market is never shown empty: who bet and how it moved, the tally of bets, or what it opened at. */
+export function livingProof(s: Sentence, ctx: Ctx): Child[] {
+  const hist = ctx.history.of(s.claimId);
+  const n = Math.max(s.trades, hist.length);
+  const tally = n > 1 ? ` ${n} bets so far, ${usd(Math.max(s.volumeUsd, hist.reduce((a, t) => a + t.amountUsd, 0)))} in all.` : "";
+  if (hist.length) return [tradeWords(hist[0], ctx.agents) + tally];
+  if (s.trades > 0) return [`${s.trades} ${s.trades === 1 ? "bet" : "bets"} so far, ${usd(s.volumeUsd)} in all.`];
+  const p = ctx.store.derived.price(s);
+  const b = s.bMicro ? Number(s.bMicro) / 1e6 : null;
+  return [`It opened at ${pct(p)}${b ? `, with ${usd(b)} of liquidity behind it` : ""}. The first bet moves it.`];
+}
+
 /** What the source says today, for a sentence the audit found out of date. */
 export function todayLine(s: Sentence): Child {
   const t = todayFor(s.original) ?? todayFor(s.text);

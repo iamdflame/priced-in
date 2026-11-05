@@ -43,8 +43,11 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .tagline{flex:1;margin:0 0 0 40px;font-size:18px;line-height:1.35;color:var(--ink-7);font-variation-settings:"opsz" 18}
 .head.hero-mode .site-nav{display:none}
 .head:not(.hero-mode) .tagline{display:none}
-.phone-only{display:none}
-@media (max-width:720px){.phone-only{display:inline}.desk-only{display:none}}
+.phone-only,.phone-only-block{display:none}
+@media (max-width:720px){.phone-only{display:inline}.phone-only-block{display:block}.desk-only{display:none}
+  .ps .chipwrap{display:none}
+  .ps .status{min-height:0;max-height:5em;overflow:hidden}
+  .ps .plainline{font-size:17px;color:var(--ink-7)}}
 .ps .label .lbl-plain{display:none;font-style:normal;color:var(--ink-8)}
 @media (max-width:720px){.ps .label .lbl-plain{display:block;margin-bottom:6px}}
 .foot-nav a{color:var(--paper);padding:10px 0}
@@ -79,11 +82,13 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .fx{position:absolute;inset:0;z-index:5;pointer-events:none;overflow:visible}
 
 .readout{position:absolute;z-index:6}
-.readout .row{display:flex;align-items:center;gap:26px;flex-wrap:wrap}
-.price{display:inline-flex;align-items:flex-start;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
+.readout .row{display:flex;align-items:flex-end;gap:26px;flex-wrap:nowrap}
+.readout .row .doubt{margin-bottom:calc(var(--price,128px) * .085)}
+.price{display:inline-flex;align-items:baseline;position:relative;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
 .price .pn{display:inline-block}
 @media (min-width:721px){.price .pn{min-width:2ch;text-align:right}}
-.price .pc{font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
+.price .pa{margin-right:14px;font-size:18px;font-style:italic;line-height:1;letter-spacing:0;color:var(--ink-6);font-variation-settings:"opsz" 18;align-self:baseline}
+.price .pc{align-self:flex-start;font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
 .price.none{visibility:hidden}
 .status{margin:18px 0 0;max-width:30em;font-size:19px;line-height:1.42;color:var(--ink-7);font-variation-settings:"opsz" 20;min-height:2.84em}
 .status b{font-weight:inherit;color:var(--ink-9);font-variation-settings:"opsz" 20,"GRAD" 200}
@@ -95,14 +100,31 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .chip svg{width:18px;height:18px;flex:none}
 .chip.unsigned{color:var(--ink-6);text-decoration:none;cursor:default}
 
-/* the action: red-pen ink on paper. Never a glossy pill. */
-.doubt{position:relative;display:inline-flex;align-items:center;justify-content:center;height:56px;padding:0 28px;white-space:nowrap;background:var(--red);color:oklch(0.99 0.005 32);font-size:24px;line-height:1;font-variation-settings:"opsz" 36,"GRAD" 120;transition:background var(--beat) var(--ease),transform calc(var(--beat)/2) var(--heavy)}
-.doubt:hover{background:var(--red-deep)}
-.doubt:active,.doubt.stamp{transform:scale(.965)}
-.doubt[aria-disabled=true]{background:var(--ink-1);color:var(--ink-6);cursor:default}
-.doubt.busy{background:var(--red-deep);color:oklch(0.99 0.005 32);cursor:progress}
+/* the action: an engraved coupon in red ink. Notched corners, an inner rule cut in the ink, and a stamp on press. */
+.doubt{--n:9px;position:relative;display:inline-flex;align-items:center;justify-content:center;height:58px;padding:0 32px 1px;white-space:nowrap;background:var(--red-deep);color:oklch(0.99 0.005 32);font-size:24px;line-height:1;letter-spacing:.01em;font-variation-settings:"opsz" 36,"GRAD" 140;
+  clip-path:polygon(var(--n) 0,calc(100% - var(--n)) 0,100% var(--n),100% calc(100% - var(--n)),calc(100% - var(--n)) 100%,var(--n) 100%,0 calc(100% - var(--n)),0 var(--n));
+  transition:background var(--beat) var(--ease)}
+.doubt::before{content:"";position:absolute;inset:5px;border:1px solid oklch(0.99 0.005 32 / .5);pointer-events:none;
+  clip-path:polygon(6px 0,calc(100% - 6px) 0,100% 6px,100% calc(100% - 6px),calc(100% - 6px) 100%,6px 100%,0 calc(100% - 6px),0 6px);transition:border-color var(--beat) var(--ease),inset calc(var(--beat)/2) var(--heavy)}
+.doubt::after{content:"";position:absolute;left:14px;right:14px;bottom:9px;height:1px;background:oklch(0.99 0.005 32 / .28);pointer-events:none}
+.doubt:hover{background:oklch(0.47 0.19 32)}
+.doubt:hover::before{border-color:oklch(0.99 0.005 32 / .85)}
+.doubt:focus-visible{outline:none}
+.doubt:focus-visible::before{border:2px solid oklch(0.99 0.005 32);inset:4px}
+.doubt:active::before{inset:7px}
+.doubt.stamp{animation:stamp var(--beat) var(--heavy)}
+@keyframes stamp{0%{transform:scale(1)}35%{transform:scale(.94) rotate(-.6deg);background:oklch(0.44 0.18 32)}100%{transform:scale(1)}}
+.doubt[aria-disabled=true]{background:var(--ink-1);color:var(--ink-6)}
+.doubt[aria-disabled=true]::before{border-color:oklch(0.44 0.05 265 / .35)}
+.doubt[aria-disabled=true]::after{background:oklch(0.44 0.05 265 / .2)}
+.doubt.busy{background:oklch(0.47 0.19 32);color:oklch(0.99 0.005 32);cursor:progress}
+.doubt.busy::before{border-color:oklch(0.99 0.005 32 / .5)}
 .doubt.done{background:var(--ink-9);color:var(--paper)}
-.doubt.sm{height:52px;font-size:24px;padding:0 22px}
+.doubt.done::before{border-color:oklch(0.975 0.004 255 / .45)}
+.doubt.sm{height:54px;font-size:24px;padding:0 26px}
+.ps .reveal{position:absolute;z-index:6;min-height:40px;font-size:16px;font-style:italic;color:var(--ink-7)}
+.ps .trick{margin:10px 0 0;font-size:16px;font-style:italic;color:var(--ink-6);max-width:34em}
+.ps .trick b{font-style:normal;font-weight:inherit;color:var(--ink-8)}
 .link-btn{min-height:44px;font-size:18px;color:var(--ink-9);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}
 
 .plainline{position:absolute;z-index:6;left:var(--pad);right:var(--pad);bottom:26px;margin:0;font-size:20px;line-height:1.35;color:var(--night-text);font-variation-settings:"opsz" 20;max-width:46em}
@@ -233,8 +255,10 @@ main:focus,.panel:focus,.card:focus{outline:none}
   .head .tagline{display:none}
   .status{font-size:17px;margin-top:12px;min-height:0}
   .doubt{height:52px;font-size:24px;padding:0 22px}
-  .readout .row{display:block}
-  .readout .row .doubt{display:flex;width:100%;margin-top:22px}
+  .readout .row{gap:14px}
+  .readout .row .doubt{margin-left:auto;padding:0 18px;height:54px}
+  .price .pa{position:absolute;left:2px;top:-1.6em;font-size:15px;margin:0}
+  .ps .trick{display:none}
   .plainline{font-size:16px;bottom:16px}
   .sec{padding-top:88px}
   .sec-title{font-size:56px}
