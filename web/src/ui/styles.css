@@ -129,6 +129,7 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .ps .trick b{font-style:normal;font-weight:inherit;color:var(--ink-8)}
 /* the copy under the image is one paper knockout: a beam passes behind it, never across a word; the bowl stays on top */
 .ps .readout{background:var(--paper);box-shadow:0 0 0 16px var(--paper)}
+.ps .poster{background:var(--paper);box-shadow:0 0 0 12px var(--paper)}
 .ps .label,.ps .reveal{background:var(--paper);box-shadow:0 0 0 6px var(--paper)}
 .ps .bowl{z-index:7}
 .link-btn{min-height:44px;font-size:18px;color:var(--ink-9);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}

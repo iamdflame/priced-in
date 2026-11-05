@@ -46,7 +46,7 @@ export class Hero {
   private unsub: (() => void) | null = null;
   private dead = false;
   private failedShown = false;
-  private baseRewrite = "";
+  private baseRewrite: string | null = null;
   /** the after-state of a rewrite: the old words struck and the new ones in, at hero size */
   private merged: DiffPart[] | null = null;
   private delSlots: number[] = [];
@@ -108,8 +108,10 @@ export class Hero {
     this.grey = !priceable(sen) || p === null;
     // the line as written; a rewrite shows when it happens in front of the visitor
     this.shownText = sen.original;
-    this.baseRewrite = sen.rewrite ? `${sen.rewrite.id}:${sen.rewrite.version}` : "";
-    this.render(sen.text);
+    // rewrites the page loads with are history: only one that lands after the first screen settles plays on it
+    this.baseRewrite = null;
+    setTimeout(() => { const c = this.cur(); this.baseRewrite = c?.rewrite ? `${c.rewrite.id}:${c.rewrite.version}` : ""; }, 3000);
+    this.render(this.shownText);
     this.deferField();
     if (!document.fonts.check('1000 64px "Amstelvar"')) void document.fonts.load('1000 64px "Amstelvar"').then(() => { if (!this.dead) this.relayout(); });
     const quiet = reducedMotion() || this.ctx.card;
@@ -199,7 +201,9 @@ export class Hero {
         const n = Math.max(2, Math.floor(boxH / (size * lead)));
         if (all.lines.length > n) {
           const lines = all.lines.slice(0, n);
-          lines[n - 1] = lines[n - 1].replace(/\s*\S+$/, "") + "\u2026";
+          // the ellipsis ends a word, never stands alone on a line
+          const cut = lines[n - 1].replace(/\s*\S+$/, "");
+          lines[n - 1] = (cut || lines[n - 1]).replace(/[,;:]$/, "") + "\u2026";
           fit = { size, lines, widths: all.widths.slice(0, n), room: false };
           clamped = true;
         } else fit = { size, ...all, room: false };
@@ -518,7 +522,7 @@ export class Hero {
     const mine = d.ctx?.key === sen.key;
     // a rewrite: struck in red pen, then the new words at their own weight
     const rewriteHere = mine && (d.stage === "rewritten" || d.stage === "answered") ? d.ctx!.rewrite?.sentences.find((x) => x.claim_id === sen.claimId)?.text ?? null : null;
-    const freshRewrite = sen.rewrite && `${sen.rewrite.id}:${sen.rewrite.version}` !== this.baseRewrite && sen.rewrite.status !== "template";
+    const freshRewrite = this.baseRewrite !== null && sen.rewrite && `${sen.rewrite.id}:${sen.rewrite.version}` !== this.baseRewrite && sen.rewrite.status !== "template";
     const otherRewrite = (!mine || d.stage === "idle" || d.stage === "failed") && freshRewrite ? (sen.text !== this.shownText ? sen.text : null) : null;
     const nextText = rewriteHere ?? otherRewrite;
     const rkey = `${sen.rewrite?.id}:${nextText}`;
