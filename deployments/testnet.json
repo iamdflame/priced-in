@@ -16,17 +16,18 @@
  },
  "code": {
   "market": {
-   "code_hash": "GmDTFsi8eTBqnjphFUYSSXQtaYKrV76W8tvdvc1Z7P29",
-   "sha256": "ea32f0970739ebfe312d9f044471f229e80423c5c2c9ef78b2cb0c89d214418a",
+   "code_hash": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "sha256": "eb22fe8f93137ff2476bdbe885f9321b3603a65ee948bdeec69f530362f6e7f8",
    "source": "contracts/market",
    "build": "node tools/judge/repro.mjs",
-   "source_rev": "63d3da9"
+   "source_rev": "236fbf6"
   },
   "swarm": {
-   "code_hash": "FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q",
-   "sha256": "dd4d63be455ba867dc6d8e099d73d98faa38be04a1f1ea524f6c1681780e24ba",
+   "code_hash": "p7URj5imKbrCxikR8o7xeBh6iZiF41VhoBedJoMqpgi",
+   "sha256": "0c119dee87259883f67e141b5499be410368781c5e5d8356a49769ae1f67475b",
    "source": "contracts/swarm (embeds contracts/swarm/res/agent.wasm)",
-   "build": "node tools/judge/repro.mjs"
+   "build": "node tools/judge/repro.mjs",
+   "source_rev": "236fbf6"
   },
   "agent_wallet": {
    "code_hash": "14AB93Dn5Ec2JTQr3fjR8ksWbEEkTaeE9sAy9Y4tbKri",
@@ -501,6 +502,24 @@
    "at": "2026-11-05T21:54:48.135Z",
    "source_rev": "63d3da9",
    "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-testnet.mjs)"
+  },
+  {
+   "account": "market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "from": "GmDTFsi8eTBqnjphFUYSSXQtaYKrV76W8tvdvc1Z7P29",
+   "to": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "tx": "4ziib8C47tGiKxX6Li374FF7ZygnAN9WDbpNeLg3p5rB",
+   "at": "2026-11-05T22:56:51.962Z",
+   "source_rev": "236fbf6",
+   "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-testnet.mjs)"
+  },
+  {
+   "account": "swarm.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "from": "FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q",
+   "to": "p7URj5imKbrCxikR8o7xeBh6iZiF41VhoBedJoMqpgi",
+   "tx": "GmrrtigxAgyB2qeg9qEMuP2QsUi5aRFk7xggwFaGrgBU",
+   "at": "2026-11-05T22:58:16.339Z",
+   "source_rev": "236fbf6",
+   "note": "same source, rebuilt on near-sdk 5.30.1: code replaced in place, no migration (tools/judge/upgrade-swarm-testnet.mjs)"
   }
  ]
 }
