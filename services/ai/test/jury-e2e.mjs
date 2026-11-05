@@ -42,7 +42,7 @@ else if (fs.existsSync(spikeFile)) { const f = JSON.parse(fs.readFileSync(spikeF
 if (!funder) { console.log("SKIP jury-e2e: no testnet funder. Set FUNDER_ID and FUNDER_KEY."); process.exit(0); }
 if (funder.accountId.endsWith(".near")) { console.error("FUNDER_ID is a mainnet account; jury-e2e runs on testnet only."); process.exit(1); }
 
-const NEED = { market: 3.3, token: 2.0, runner: 0.3, challenger: 0.2, agent: 0.2 };
+const NEED = { market: 4.5, token: 2.0, runner: 0.3, challenger: 0.2, agent: 0.2 };
 const need = Object.values(NEED).reduce((a, b) => a + b, 0) + 0.12;
 const available = Number(BigInt((await funder.getState()).balance.available) / 10n ** 21n) / 1000;
 if (available < need) { console.error(`FAIL funder ${funder.accountId} has ${available} NEAR available; jury-e2e needs ${need.toFixed(2)}.`); process.exit(1); }

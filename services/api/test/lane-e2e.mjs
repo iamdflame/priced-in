@@ -63,7 +63,7 @@ if (funder.accountId.endsWith(".near")) {
   process.exit(1);
 }
 
-const NEED = { market: 3.3, token: 2.0, lane: 0.5 };
+const NEED = { market: 4.5, token: 2.0, lane: 0.5 };
 const funderState = await funder.getState();
 const available = Number(BigInt(funderState.balance.available) / 10n ** 21n) / 1000;
 const need = NEED.market + NEED.token + NEED.lane + 0.15;

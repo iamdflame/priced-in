@@ -193,7 +193,7 @@ async function main() {
   check("default resolution: 1 hour jury, 10 min < $50, 1 h < $500, 24 h at $5,000", r0.jury_deadline_secs === 3600 && r0.dispute_tiers[0][0] === "50000000" && r0.dispute_tiers[0][1] === 600 && r0.dispute_tiers[1][0] === "500000000" && r0.dispute_tiers[1][1] === 3600 && r0.dispute_tiers[2][0] === "5000000000" && r0.dispute_top_secs === 86400, JSON.stringify(r0.dispute_tiers));
   await refused("only the owner sets the dispute table", () => call(alice, M, "set_resolution", { jury_deadline_secs: 1, dispute_tiers: [], dispute_top_secs: 1, bounty_ttl_secs: 1 }), /owner only/);
   await refused("a table whose windows shrink as money grows is refused", () => call(council, M, "set_resolution", { jury_deadline_secs: 60, dispute_tiers: [["1000000", 50], ["2000000", 10]], dispute_top_secs: 60, bounty_ttl_secs: 60 }), /bad dispute table/);
-  const JURY = 120, LOW = 75, TOP = 120, TTL = 20;
+  const JURY = 300, LOW = 75, TOP = 120, TTL = 40;
   const setTimes = (jury) => call(council, M, "set_resolution", { jury_deadline_secs: jury, dispute_tiers: [["2000000", LOW]], dispute_top_secs: TOP, bounty_ttl_secs: TTL });
   await setTimes(JURY);
   await call(council, M, "set_limits", { reserve_cap_micro: "50000000", lane_budget_micro: "5000000", lane_credit_micro: "1000000", challenge_bond_micro: "1000000" });
@@ -412,7 +412,7 @@ async function main() {
   const c4 = await open("D");
   await call(bob, M, "fund_question", { claim_id: c4, amount_micro: "200000" });
   await refused("an unexpired bounty can't be refunded", () => call(carol, M, "refund_bounty", { claim_id: c4, funder: B }), /can still be won/);
-  await setTimes(15);
+  await setTimes(40);
   const aliceD = await bal(A);
   const ch3 = await call(alice, M, "challenge", { claim_id: c4, claimed_outcome: true, evidence: "Thin evidence." });
   await refused("a live jury can't be expired", () => call(carol, M, "expire_challenge", { challenge_id: ch3 }), /deadline has not passed/);
@@ -494,6 +494,7 @@ async function main() {
   await books("agent");
 
   // ---------- the council voids; pause; the treasury ----------
+  await waitPast((await view(M, "get_challenge", { challenge_id: xCh })).jury_deadline_ns);
   await call(carol, M, "expire_challenge", { challenge_id: xCh });
   const c8 = await open("V");
   const ch7 = await call(carol, M, "challenge", { claim_id: c8, claimed_outcome: true, evidence: "No evidence can settle this." });
