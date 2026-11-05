@@ -13,7 +13,19 @@
 //   signed     the provider_tee signature verified against the model's attested key
 //   unverified the signature arrived but did not verify (never shown as signed)
 // A late signature is retried in the background and the record is replaced when it lands.
+//
+// Every signed rewrite is anchored on-chain with the market's anchor_rewrite: the claim, the
+// paragraph version, prices_hash (sha256 of the record's prices_canonical string: the exact
+// prices the rewrite was written from), the request and response hashes, the model's signature
+// and the model. The contract checks the signature against the model's registered key. The
+// record then carries anchor: { status, tx_hash }. Anchors use a deterministic intent id, so a
+// retry after a restart never anchors the same version twice.
+//
+// Every published record is appended to rewrites.jsonl; on start the store and each
+// paragraph's version counter are rebuilt from it, so a restart keeps every rewrite and never
+// reuses a version number.
 
+import { createHash } from "node:crypto";
 import { attestedCompletion, judgeSignature, provenanceOf } from "./nearai.js";
 
 export const BANDS = ["assert", "hedge", "disputed", "negate"];
@@ -151,13 +163,72 @@ export class Writer {
     this.signatureDeadlineMs = o.signatureDeadlineMs ?? 6000;
     this.lateRetriesMs = o.lateRetriesMs ?? [20_000, 60_000, 180_000];
     this.modelTimeoutMs = o.modelTimeoutMs ?? 30_000;
+    this.journal = o.journal || null;
+    this.anchorer = o.anchor || null; // (intentId, anchorArgs) => signer outcome
     this.paragraphs = new Map(); // `${page}#${i}` -> { version, sentences: Map(claim_id -> text), text, busy, again }
     this.timers = new Set();
     this.pubSeq = 0;
     this.stats = { triggers: 0, templates: 0, unsigned: 0, signed: 0, unverified: 0, modelErrors: 0, lastRewriteAt: 0, lastSignedAt: 0, queue: 0 };
     this.unsub = null;
     this.modelReason = !this.client?.hasKey ? "NEARAI_API_KEY is not set: template rewrites only, marked unsigned" : !this.model ? "no writer model" : null;
+    this.stats.anchored = 0;
+    this.stats.anchorFailures = 0;
+    this.restore();
     this.updateStatus();
+  }
+
+  /** Rebuild the store and the paragraphs' version counters from rewrites.jsonl. */
+  restore() {
+    const recs = this.journal?.read() || [];
+    if (!recs.length) return;
+    const latest = new Map();
+    for (const r of recs) latest.set(r.id, r);
+    if (recs.length > 2 * latest.size + 100) this.journal.rewrite([...latest.values()]); // compaction
+    for (const r of latest.values()) {
+      this.store.put(r);
+      const key = `${r.page}#${r.paragraph}`;
+      let st = this.paragraphs.get(key);
+      if (!st) { st = { version: 0, sentences: new Map(), text: null, busy: false, again: null }; this.paragraphs.set(key, st); }
+      if (r.version >= st.version) {
+        st.version = r.version;
+        st.text = r.text;
+        for (const x of r.sentences || []) st.sentences.set(x.claim_id, x.text);
+      }
+      if (r.status === "signed") this.stats.signed++;
+      if (r.anchor?.status === "anchored") this.stats.anchored++;
+    }
+    this.restored = latest.size;
+  }
+
+  /** Anchor every signed rewrite that is not anchored yet (after a restart, or a failed try). */
+  async reanchor() {
+    if (!this.anchorer) return 0;
+    let n = 0;
+    for (const list of this.store.byKey.values()) {
+      for (const r of list) if (r.status === "signed" && r.anchor?.status !== "anchored") { await this.anchor(r); n++; }
+    }
+    return n;
+  }
+
+  async anchor(rec) {
+    if (!this.anchorer || rec.status !== "signed") return null;
+    const p = rec.provenance || {};
+    const args = {
+      claim_id: rec.trigger?.claim_id ?? rec.sentences[0].claim_id,
+      version: rec.version,
+      prices_hash: rec.prices_hash,
+      request_hash: p.request_hash,
+      response_hash: p.response_hash,
+      signature_hex: String(p.signature || "").replace(/^0x/i, "").toLowerCase(),
+      model: p.model,
+    };
+    let r;
+    try { r = await this.anchorer(`anchor:${rec.id}`, args); } catch (e) { r = { ok: false, error: e.message }; }
+    const anchor = r.ok ? { status: "anchored", tx_hash: r.txHash, at: this.now() } : { status: r.pending || r.final === false ? "pending" : "failed", tx_hash: r.txHash ?? null, error: r.error ?? null, at: this.now() };
+    if (r.ok) this.stats.anchored++; else { this.stats.anchorFailures++; this.log(`writer: anchor for ${rec.id} ${anchor.status}: ${r.error}`); }
+    const cur = this.store.get(rec.id) || rec;
+    const st = this.paragraphs.get(`${cur.page}#${cur.paragraph}`);
+    return this.publish(st, { ...cur, anchor });
   }
 
   updateStatus() {
@@ -234,7 +305,9 @@ export class Writer {
       return { claim_id: c.id, claim: c.text, current: st.sentences.get(c.id) ?? c.text, probability, band: band(probability) };
     });
     const previous = st.text ?? paraClaims.map((c) => c.text).join(" ");
-    const base = { id: `${page}:${index}:v${version}`, page, paragraph: index, version, createdAt: t0, trigger, previous_text: previous };
+    const prices_canonical = JSON.stringify({ page, paragraph: index, version, prices: sentences.map((s) => [s.claim_id, Math.round(s.probability * 1e6)]) });
+    const prices_hash = createHash("sha256").update(prices_canonical, "utf8").digest("hex");
+    const base = { id: `${page}:${index}:v${version}`, page, paragraph: index, version, createdAt: t0, trigger, previous_text: previous, prices_canonical, prices_hash };
 
     // 1. the template, at once
     const tpl = sentences.map((s) => templateSentence(s.claim, s.probability));
@@ -288,6 +361,7 @@ export class Writer {
     const out = this.publish(st, { ...rec, status, provenance: { kind: "model", ...provenance, ...bytes }, latency_ms: { ...rec.latency_ms, signed: this.now() - t0 } });
     if (status === "signed") { this.stats.signed++; this.stats.lastSignedAt = this.now(); } else { this.stats.unverified++; this.log(`writer: signature for ${rec.id} did not verify: ${provenance.reason}`); }
     this.updateStatus();
+    if (status === "signed" && this.anchorer) this.anchor(out).catch((e) => this.log(`writer: anchor: ${e.message}`));
     return out;
   }
 
@@ -311,11 +385,12 @@ export class Writer {
     const full = { ...rec, text: rec.sentences.map((s) => s.text).join(" "), updatedAt: this.now() };
     full.diff = wordDiff(full.previous_text, full.text);
     // the paragraph's current wording follows the latest version only
-    if (full.version === st.version) {
+    if (st && full.version === st.version) {
       st.text = full.text;
       for (const s of full.sentences) st.sentences.set(s.claim_id, s.text);
     }
     this.store.put(full);
+    this.journal?.append(full);
     this.hub.publish({ uid: `rewrite:${full.id}:${full.status}:${++this.pubSeq}`, event: "rewrite", source: "ai", data: lite(full) });
     this.stats.lastRewriteAt = this.now();
     this.updateStatus();

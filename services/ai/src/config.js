@@ -1,6 +1,7 @@
 // AI layer configuration. Network rules come from the API's loadConfig: testnet by default,
 // mainnet only with NEAR_NETWORK=mainnet, and accounts from the other network are refused.
 
+import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadConfig } from "../../api/src/config.mjs";
@@ -34,14 +35,39 @@ export function loadAiConfig(env = process.env) {
   }
   let agents = DEFAULT_AGENTS;
   try { agents = parseAgents(env.HOUSE_AGENTS); } catch (e) { errors.push(e.message); }
-  const juryAccount = (env.JURY_ACCOUNT_ID || "").trim() || null;
+  const wrong = api.network === "testnet" ? ".near" : ".testnet";
+  const swarmId = (env.SWARM_CONTRACT_ID || "").trim() || null;
+  if (swarmId && swarmId.endsWith(wrong)) errors.push(`SWARM_CONTRACT_ID=${swarmId} is on the wrong network for NEAR_NETWORK=${api.network}`);
+  const houseOwners = list(env.HOUSE_OWNER_IDS);
+  for (const h of houseOwners) if (h.endsWith(wrong)) errors.push(`HOUSE_OWNER_IDS: ${h} is on the wrong network for NEAR_NETWORK=${api.network}`);
+  const dataDir = env.DATA_DIR || path.join(HERE, "../data");
+  const route = env.AGENT_BILLING || "escrow";
+  if (!["escrow", "balance", "none"].includes(route)) errors.push("AGENT_BILLING must be escrow, balance or none");
+  const overrides = {};
+  for (const x of list(env.AGENT_BILLING_OVERRIDES)) {
+    const [k, v] = x.split("=");
+    if (!k || !["escrow", "balance", "none"].includes(v)) errors.push(`AGENT_BILLING_OVERRIDES entry "${x}" must be name=escrow|balance|none`);
+    else overrides[k] = v;
+  }
+  // NEAR per micro-USD for escrow bills. Testnet defaults to $1 = 0.4 NEAR; mainnet has no default.
+  const rateRaw = env.INFERENCE_YOCTO_PER_MICRO_USD ?? (api.network === "testnet" ? "400000000000000000" : "0");
+  let yoctoPerMicro = 0n;
+  try { yoctoPerMicro = BigInt(rateRaw); if (yoctoPerMicro < 0n) throw new Error(); } catch { errors.push("INFERENCE_YOCTO_PER_MICRO_USD must be a whole number of yoctoNEAR"); }
+  let juryAccount = (env.JURY_ACCOUNT_ID || "").trim() || null;
+  let juryKey = (env.JURY_PRIVATE_KEY || "").trim() || null;
+  if (!juryKey && env.JURY_KEY_FILE) {
+    try { const j = JSON.parse(fs.readFileSync(env.JURY_KEY_FILE, "utf8")); juryAccount ||= j.accountId || null; juryKey = j.privateKey || null; }
+    catch (e) { errors.push(`JURY_KEY_FILE unreadable (${e.code || "bad JSON"})`); }
+  }
   if (juryAccount && juryAccount.endsWith(api.network === "testnet" ? ".near" : ".testnet")) errors.push(`JURY_ACCOUNT_ID=${juryAccount} is on the wrong network for NEAR_NETWORK=${api.network}`);
   const ai = {
     nearai: { apiKey: (env.NEARAI_API_KEY || "").trim() || null, baseUrl },
     attestationsDir: env.ATTESTATIONS_DIR || path.join(HERE, "../attestations"),
     requireGpu: env.ATTESTATION_REQUIRE_GPU !== "0",
     pagesFile: env.PAGES_FILE || null,
-    ledgerFile: env.LEDGER_FILE || path.join(HERE, "../data/ledger.json"),
+    dataDir,
+    swarmId,
+    houseOwners,
     writer: {
       enabled: env.WRITER_ENABLED !== "0",
       model: env.WRITER_MODEL || "z-ai/glm-5.3-flash",
@@ -50,6 +76,10 @@ export function loadAiConfig(env = process.env) {
     agents: {
       list: agents,
       keysFile: env.SIGNER_KEYS_FILE || null,
+      keystoreDir: env.KEYSTORE_DIR || path.join(dataDir, "keystore"),
+      cycleMs: num(env.AGENT_CYCLE_MS, 60_000),
+      freshCooldownMs: num(env.AGENT_FRESH_COOLDOWN_MS, 20_000),
+      billing: { route, overrides, yoctoPerMicro, dailyBillMicro: num(env.SIGNER_DAILY_BILL_MICRO, 2_000_000) },
       useWebSearch: env.AGENT_WEB_SEARCH !== "0",
       sweepMs: num(env.AGENT_SWEEP_MS, 15 * 60_000),
       policy: { ...DEFAULT_POLICY, dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
@@ -58,7 +88,7 @@ export function loadAiConfig(env = process.env) {
     jury: {
       models: list(env.JURY_MODELS).length ? list(env.JURY_MODELS) : DEFAULT_JURY_MODELS,
       accountId: juryAccount,
-      privateKey: (env.JURY_PRIVATE_KEY || "").trim() || null,
+      privateKey: juryKey,
       auto: env.JURY_AUTO !== "0",
       timeoutMs: num(env.JURY_TIMEOUT_MS, 90_000),
     },
@@ -71,6 +101,7 @@ export function describeAi(a) {
   return {
     nearaiApiKey: a.nearai.apiKey ? "set" : "unset", baseUrl: a.nearai.baseUrl,
     writerModel: a.writer.model, agents: a.agents.list.map((x) => x.name), signerKeysFile: a.agents.keysFile ? "set" : "unset",
+    swarm: a.swarmId, houseOwners: a.houseOwners, dataDir: a.dataDir, billing: a.agents.billing.route, yoctoPerMicroUsd: String(a.agents.billing.yoctoPerMicro),
     juryModels: a.jury.models, juryAccount: a.jury.accountId, juryKey: a.jury.privateKey ? "set" : "unset",
   };
 }

@@ -109,7 +109,7 @@ try {
     NEAR_NETWORK: "testnet", HOST: "127.0.0.1", PORT: "0", SCAN_INTERVAL_MS: "300", RPC_URLS: RPC_URLS.join(","), MARKET_CONTRACT_ID: M, USDC_CONTRACT_ID: T,
     NEARAI_API_KEY: mock.apiKey, NEARAI_BASE_URL: mock.url, WRITER_MODEL: MOCK_MODELS[2], HOUSE_AGENTS: `house-ledger=${MOCK_MODELS[2]}`, SIGNER_KEYS_FILE: keysFile,
     AGENT_WEB_SEARCH: "0", AGENT_SWEEP_MS: "0", JURY_ACCOUNT_ID: runner.account.accountId, JURY_PRIVATE_KEY: runner.kp.toString(), JURY_AUTO: "1", JURY_TIMEOUT_MS: "45000",
-    ATTESTATIONS_DIR: path.join(tmp, "attestations"), LEDGER_FILE: path.join(tmp, "ledger.json"),
+    ATTESTATIONS_DIR: path.join(tmp, "attestations"), DATA_DIR: path.join(tmp, "data"),
   };
   const { api, ai, errors } = loadAiConfig(env);
   if (errors.length) throw new Error(errors.join("; "));
@@ -127,7 +127,7 @@ try {
   const base = `http://127.0.0.1:${addr.port}`;
   stream = await sse(`${base}/events`);
   await stream.next((e) => e.event === "hello", 8000);
-  const st0 = layer.signer.agents[0];
+  const st0 = layer.signer.agents.find((a) => a.label === "house-ledger");
   check("the signer process accepted the agent's function-call key", st0?.ok === true && st0.methods.join() === "buy,sell", `${st0?.agent}: methods ${st0?.methods}`);
   check("the agent key is in the signer's child process, not here", layer.signer.child.pid !== process.pid && !JSON.stringify(process.env).includes(fcKey.toString()) && !JSON.stringify(env).includes(fcKey.toString()));
 
@@ -176,8 +176,8 @@ try {
   } catch (e) { check("a forged verdict is refused on-chain", /signature does not verify/.test(short(e)), short(e).slice(0, 90)); }
   const bundle = JSON.parse(fs.readFileSync(path.join(env.ATTESTATIONS_DIR, "z-ai__glm-5.3-flash.json"), "utf8"));
   check("attestation bundles are written with a fresh nonce and name their verifier", bundle.verdict === "verified" && /^[0-9a-f]{64}$/.test(bundle.nonce) && /MOCK/.test(bundle.verifiers.quote), bundle.verifiers.quote);
-  const led = JSON.parse(fs.readFileSync(env.LEDGER_FILE, "utf8"));
-  check("inference is metered per agent", led.totals["house-ledger"]?.calls >= 1 && led.totals.writer?.calls >= 1 && led.totals.jury?.calls >= 2, JSON.stringify(Object.fromEntries(Object.entries(led.totals).map(([k, v]) => [k, v.calls]))));
+  const led = { totals: layer.ledger.totals() };
+  check("inference is metered per agent", led.totals[A]?.calls >= 1 && led.totals.writer?.calls >= 1 && led.totals.jury?.calls >= 2, JSON.stringify(Object.fromEntries(Object.entries(led.totals).map(([k, v]) => [k, v.calls]))));
 } catch (e) {
   check("run completed", false, short(e));
 } finally {
