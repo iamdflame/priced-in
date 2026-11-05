@@ -13,6 +13,8 @@ import { splitSentences } from "./sentences.mjs";
 import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
 import { RewriteStore } from "./rewrites.mjs";
 import { PostStore, parsePostLink, postSlug, pricedText, postNotices } from "./posts.mjs";
+import { createCredence } from "./credence.mjs";
+import { Paywall, HttpFacilitator, nearFacilitator, paymentHeader, sameRequirements, requirements as x402Requirements, caip2 } from "./x402.mjs";
 
 /** The page's voice line when nothing in a post can be checked. */
 export const ALL_OPINION = "Nothing here to price. Unfalsifiable from start to finish.";
@@ -48,6 +50,36 @@ export function createApp(config, deps = {}) {
   /** Routes and health checks attached by other layers: "GET /path" -> handler(ctx). */
   const extraRoutes = new Map();
   const extraHealth = new Map();
+
+  // ---------- the truth API: credence answers, free tier, x402 beyond it ----------
+  const credenceIp = new DailyLimiter(config.credence.freePerIpPerDay, { now });
+  const credence = createCredence({
+    config, claims, hub, rewrites, rpc, now, log,
+    // the AI layer's rationale journal, when services/ai is mounted on this app
+    rationales: async (claimId) => {
+      const h = extraRoutes.get("GET /rationales");
+      if (!h) return [];
+      const r = await h({ url: new URL(`http://x/rationales?claim=${claimId}`), path: "/rationales", ip: "internal" });
+      return r?.rationales || r?.body?.rationales || [];
+    },
+    paste: (body, ip) => paste(body, ip),
+  });
+  const x402 = config.x402;
+  let paywallP = null;
+  /** The paywall, with its facilitator: injected (tests), in-process with our relayer, or remote. */
+  function paywall() {
+    if (!paywallP) {
+      paywallP = (async () => {
+        let f = deps.facilitator || null;
+        if (!f && x402.relayerId && x402.relayerKey) f = await nearFacilitator(x402, config.rpcUrls[0]);
+        else if (!f && x402.facilitatorUrl) f = new HttpFacilitator(x402.facilitatorUrl, { fetchImpl: deps.fetchImpl });
+        return new Paywall(x402, f, { log });
+      })().catch((e) => { log(`x402: facilitator unavailable: ${e.message}`); paywallP = null; return new Paywall(x402, null, { log }); });
+    }
+    return paywallP;
+  }
+  const CREDENCE_DESCRIPTION = "Priced In credence: the market's price, open interest, cost to move, agents' rationales with sources, resolution and provenance for the claims matching your question.";
+  const resourceUrl = (req, url) => `${req.headers["x-forwarded-proto"] === "https" || req.socket.encrypted ? "https" : "http"}://${req.headers.host || "localhost"}${url.pathname}${url.search}`;
 
   let plannerKey = null;
   let plannerReason = null;
@@ -123,6 +155,10 @@ export function createApp(config, deps = {}) {
         lane: laneInfo,
         planner: { status: plannerKey ? "ok" : "unavailable", reason: plannerReason, plannerPublicKeyHex },
         posts: { cached: posts.size, fetches: posts.fetches, lastFetchMs: posts.lastFetchMs, lastError: posts.lastError, newToday: postGlobal.used("global"), newPerDay: config.post.perDay },
+        credence: await (async () => {
+          const pw = await paywall();
+          return { freePerIpPerDay: config.credence.freePerIpPerDay, payments: pw.enabled ? "x402" : "off", network: caip2(x402.network), priceMicro: x402.priceMicro, asset: x402.asset, payTo: x402.payTo, facilitator: pw.f?.kind ?? null, relayer: pw.f?.relayer ?? null, stats: pw.stats };
+        })(),
       },
     };
   }
@@ -275,7 +311,8 @@ export function createApp(config, deps = {}) {
       res.setHeader("access-control-allow-origin", allow);
       if (allow !== "*") res.setHeader("vary", "origin");
       res.setHeader("access-control-allow-methods", "GET, POST, OPTIONS");
-      res.setHeader("access-control-allow-headers", "content-type, last-event-id");
+      res.setHeader("access-control-allow-headers", "content-type, last-event-id, payment-signature, x-payment");
+      res.setHeader("access-control-expose-headers", "payment-required, payment-response, x-free-calls-remaining, retry-after");
       res.setHeader("access-control-max-age", "600");
     }
   }
@@ -349,8 +386,83 @@ export function createApp(config, deps = {}) {
     if (path === "/" && req.method === "GET") {
       return send(res, 200, {
         name: "Priced In API", network: config.network, marketId: config.marketId,
-        endpoints: ["POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste", "GET /rewrites?page=<slug>", "GET /post/:id", "GET /post?url=<link>", ...[...extraRoutes.keys()]],
+        endpoints: ["GET /v1", "GET /v1/credence?q=<question or claim>", "GET /v1/credence?claim=<id>", "GET /v1/quote?claim=<id>&side=yes|no&amount_usd=<n>", "POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste", "GET /rewrites?page=<slug>", "GET /post/:id", "GET /post?url=<link>", ...[...extraRoutes.keys()]],
       });
+    }
+    if (path === "/v1" && req.method === "GET") {
+      const pw = await paywall();
+      return send(res, 200, {
+        name: "Priced In truth API", network: config.network, contract: config.marketId, usdc: config.usdcId, rpc: config.publicRpcUrls,
+        credence: {
+          path: "/v1/credence?q=<question or claim>", free_per_ip_per_day: config.credence.freePerIpPerDay,
+          payments: pw.enabled ? { protocol: "x402", version: 2, ...x402Requirements(x402), usd: x402.priceMicro / 1e6, facilitator: pw.f?.kind ?? null } : null,
+        },
+        quote: "/v1/quote?claim=<id>&side=yes|no&amount_usd=<n>",
+        mcp: "From a clone of the repo: claude mcp add pricedin -- npx -y ./tools/mcp (tools: ask, get_claim, quote, bet).",
+      });
+    }
+    if (path === "/v1/credence" && req.method === "GET") {
+      const q = (url.searchParams.get("q") ?? "").replace(/\s+/g, " ").trim();
+      const claimParam = url.searchParams.get("claim");
+      const page = url.searchParams.get("page");
+      const limit = Math.min(config.credence.maxResults, Math.max(1, Number(url.searchParams.get("limit") || config.credence.maxResults) || 1));
+      if (claimParam === null && !q) throw new ApiError(400, "empty_query", "Ask something: /v1/credence?q=<a question or a claim>, or ?claim=<id>.");
+      if (claimParam !== null && !/^\d{1,15}$/.test(claimParam)) throw new ApiError(400, "invalid_claim_id", "Claim ids are whole numbers.");
+      if (q.length > config.credence.maxQueryChars) throw new ApiError(413, "query_too_long", `Ask in at most ${config.credence.maxQueryChars} characters.`);
+      if (page !== null && !validPage(page)) throw new ApiError(400, "invalid_page", "page must be a slug: lowercase letters, digits and dashes.");
+      const args = { q: claimParam !== null ? null : q, claim: claimParam !== null ? Number(claimParam) : null, page, limit, open: url.searchParams.get("open") !== "0" };
+      const work = async () => {
+        try { return await credence.answer(args, ip); } catch (e) {
+          if (e instanceof ApiError) return { status: e.status, body: { error: { code: e.code, message: e.message } } };
+          log(`credence: ${e.message}`);
+          return { status: 502, body: { error: { code: "upstream_error", message: "The NEAR RPC did not answer. Try again in a moment." } } };
+        }
+      };
+      const resource = resourceUrl(req, url);
+      const header = paymentHeader(req);
+      if (header) {
+        const pw = await paywall();
+        if (!pw.enabled) throw new ApiError(400, "payments_off", "This server takes no payments; use the free tier.");
+        const r = await pw.charge(String(header), resource, CREDENCE_DESCRIPTION, work);
+        return send(res, r.status, r.body, r.headers || {});
+      }
+      const lim = credenceIp.take(ip);
+      if (!lim.ok) {
+        const pw = await paywall();
+        if (pw.enabled) {
+          const msg = `The free tier is ${config.credence.freePerIpPerDay} credence calls a day per address, and this address has used them. Each further call costs $${(x402.priceMicro / 1e6).toFixed(2)} in USDC by x402.`;
+          const r = pw.challenge(resource, msg, CREDENCE_DESCRIPTION);
+          return send(res, 402, { ...r.body, free: { limit: config.credence.freePerIpPerDay, remaining: 0, resets_in_s: lim.retryAfterS } }, r.headers);
+        }
+        throw new ApiError(429, "free_tier_used", `The free tier is ${config.credence.freePerIpPerDay} credence calls a day per address, and this server takes no payments yet. Come back tomorrow.`, { retryAfterS: lim.retryAfterS });
+      }
+      const r = await work();
+      if (r.status >= 400) credenceIp.release(ip);
+      const remaining = r.status >= 400 ? lim.remaining + 1 : lim.remaining;
+      return send(res, r.status, { ...r.body, free: { limit: config.credence.freePerIpPerDay, remaining } }, { "x-free-calls-remaining": String(remaining) });
+    }
+    if (path === "/v1/quote" && req.method === "GET") {
+      const claimParam = url.searchParams.get("claim") ?? "";
+      const side = (url.searchParams.get("side") || "").toLowerCase();
+      const amountUsd = Number(url.searchParams.get("amount_usd") ?? url.searchParams.get("amount") ?? 1);
+      if (!/^\d{1,15}$/.test(claimParam)) throw new ApiError(400, "invalid_claim_id", "claim=<id>: claim ids are whole numbers.");
+      if (side !== "yes" && side !== "no") throw new ApiError(400, "invalid_side", 'side must be "yes" or "no".');
+      if (!(amountUsd > 0) || amountUsd > 1000) throw new ApiError(400, "invalid_amount", "amount_usd must be more than 0 and at most 1000.");
+      const r = await credence.quote({ claim: Number(claimParam), side, amountUsd });
+      return send(res, r.status, r.body);
+    }
+    if (path.startsWith("/x402/") && x402.relayerKey && x402.facilitatorRoutes) {
+      // our own facilitator's HTTP interface. It only verifies and settles payments to us,
+      // so nobody can spend our relayer's gas on their own transfers.
+      const pw = await paywall();
+      if (!pw.f) throw new ApiError(503, "facilitator_unavailable", "The facilitator is not ready.");
+      if (path === "/x402/supported" && req.method === "GET") return send(res, 200, await pw.f.getSupported());
+      if ((path === "/x402/verify" || path === "/x402/settle") && req.method === "POST") {
+        const b = await readJson(req, 64 * 1024);
+        if (!sameRequirements(b?.paymentRequirements, x402Requirements(x402))) throw new ApiError(403, "not_our_payment", "This facilitator only verifies and settles payments to Priced In, on the requirements GET /v1 lists.");
+        const r = path === "/x402/verify" ? await pw.f.verify(b.paymentPayload, x402Requirements(x402)) : await pw.f.settle(b.paymentPayload, x402Requirements(x402));
+        return send(res, 200, r);
+      }
     }
     if (path === "/rewrites" && req.method === "GET") {
       const page = url.searchParams.get("page");
@@ -429,7 +541,9 @@ export function createApp(config, deps = {}) {
     addHealth(name, fn) { extraHealth.set(name, fn); },
     /** Extra start/stop work from attached layers. */
     hooks: { start: [], stop: [] },
+    credence, paywall,
     async start() {
+      paywall();
       scanner.start();
       runProbe();
       this.probeTimer = setInterval(runProbe, 5000);

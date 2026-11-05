@@ -15,6 +15,7 @@
     "api:e2e": "node services/api/test/lane-e2e.mjs",
     "api:post-smoke": "node services/api/test/post-smoke.mjs",
     "api:test": "npm run api:unit && npm run api:e2e",
+    "truth:smoke": "node services/api/test/truth-smoke.mjs",
     "ai": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/server.js",
     "ai:attest": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/jury.js --attest",
     "ai:unit": "node --test --test-concurrency=1 \"services/ai/test/*.test.mjs\"",
@@ -33,6 +34,7 @@
     "web:e2e": "npm --prefix web run e2e"
   },
   "devDependencies": {
+    "@fastnear/x402": "2.5.0",
     "@phala/dcap-qvl": "0.7.1",
     "near-api-js": "^7.4.0",
     "tweetnacl": "^1.0.3"

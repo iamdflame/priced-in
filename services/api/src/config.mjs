@@ -9,6 +9,9 @@ const DEFAULT_RPC = {
 
 const NEAR = 10n ** 24n;
 
+// Circle's native USDC on NEAR mainnet: the x402 asset only when NEAR_NETWORK=mainnet.
+export const MAINNET_USDC = "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1";
+
 const list = (s) => (s || "").split(",").map((x) => x.trim()).filter(Boolean);
 const int = (v, d) => {
   if (v === undefined || v === "") return d;
@@ -109,11 +112,34 @@ export function loadConfig(env = process.env) {
       maxEventAgeS: num("HEALTH_MAX_EVENT_AGE_S", 0), // 0 = report the age, don't assert it
     },
     claimsTtlMs: num("CLAIMS_TTL_MS", 1000),
+    // the truth API: GET /v1/credence
+    credence: {
+      freePerIpPerDay: num("CREDENCE_FREE_PER_IP_PER_DAY", 20),
+      maxResults: Math.min(10, Math.max(1, num("CREDENCE_MAX_RESULTS", 3))),
+      maxQueryChars: 600,
+      rationalesPerClaim: 3,
+      tradesPerClaim: 3,
+      // JSON files holding signed rewrite records to serve as provenance (e.g. tools/judge/evidence/rewrite.json)
+      rewriteEvidence: list(env.REWRITE_EVIDENCE_FILES),
+    },
+    // x402 payments beyond the free tier: $0.01 in test USDC on testnet by default
+    x402: {
+      network: net,
+      priceMicro: num("X402_PRICE_MICRO", 10_000),
+      asset: (env.X402_ASSET || "").trim() || (env.USDC_CONTRACT_ID || "").trim() || (net === "mainnet" ? MAINNET_USDC : null),
+      payTo: (env.X402_PAY_TO || "").trim() || null,
+      maxTimeoutS: num("X402_MAX_TIMEOUT_S", 60),
+      facilitatorUrl: (env.X402_FACILITATOR_URL || "").trim().replace(/\/+$/, "") || null,
+      relayerId: (env.X402_RELAYER_ACCOUNT_ID || "").trim() || null,
+      relayerKey: (env.X402_RELAYER_PRIVATE_KEY || "").trim() || null,
+      // with a relayer held here, also serve the facilitator's own HTTP interface at /x402/*
+      facilitatorRoutes: env.X402_FACILITATOR_ROUTES !== "0",
+    },
   };
 
   // network guards: never let a testnet config touch mainnet or the reverse
   const wrongSuffix = net === "testnet" ? ".near" : ".testnet";
-  for (const [name, id] of [["MARKET_CONTRACT_ID", config.marketId], ["USDC_CONTRACT_ID", config.usdcId], ["LANE_ACCOUNT_ID", config.lane.accountId]]) {
+  for (const [name, id] of [["MARKET_CONTRACT_ID", config.marketId], ["USDC_CONTRACT_ID", config.usdcId], ["LANE_ACCOUNT_ID", config.lane.accountId], ["X402_PAY_TO", config.x402.payTo], ["X402_RELAYER_ACCOUNT_ID", config.x402.relayerId], ["X402_ASSET", config.x402.asset]]) {
     if (id && id.endsWith(wrongSuffix)) errors.push(`${name}=${id} looks like a ${net === "testnet" ? "mainnet" : "testnet"} account but NEAR_NETWORK=${net}`);
     if (id && !/^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/.test(id)) errors.push(`${name}=${id} is not a valid NEAR account ID`);
   }
@@ -130,6 +156,13 @@ export function loadConfig(env = process.env) {
   } catch { errors.push(`POST_OEMBED_URL is not a URL: ${config.post.oembedUrl}`); }
   if (config.post.timeoutMs < 100 || config.post.retries < 0 || config.post.retries > 5) errors.push("POST_OEMBED_TIMEOUT_MS must be at least 100 and POST_OEMBED_RETRIES 0..5");
   if (config.post.cacheMax < 1) errors.push("POST_CACHE_MAX must be at least 1");
+  const x = config.x402;
+  if (x.priceMicro < 1 || x.priceMicro > 1_000_000) errors.push("X402_PRICE_MICRO must be 1..1000000 (at most $1 a call)");
+  if (x.maxTimeoutS < 10 || x.maxTimeoutS > 600) errors.push("X402_MAX_TIMEOUT_S must be 10..600");
+  if (net === "testnet" && x.asset === MAINNET_USDC) errors.push("X402_ASSET is mainnet USDC but NEAR_NETWORK=testnet");
+  if (x.relayerId && !x.relayerKey) warnings.push("X402_RELAYER_ACCOUNT_ID is set without X402_RELAYER_PRIVATE_KEY: no in-process facilitator");
+  if (x.payTo && !x.relayerKey && !x.facilitatorUrl) warnings.push("X402_PAY_TO is set but no facilitator (X402_RELAYER_* or X402_FACILITATOR_URL): calls beyond the free tier get 429, not 402");
+  if (x.facilitatorUrl) { try { if (!/^https?:$/.test(new URL(x.facilitatorUrl).protocol)) errors.push("X402_FACILITATOR_URL must be http(s)"); } catch { errors.push(`X402_FACILITATOR_URL is not a URL: ${x.facilitatorUrl}`); } }
   if (config.lane.allowanceYocto > NEAR) errors.push("LANE_ALLOWANCE_NEAR above 1 NEAR is refused");
   if (config.planner.bMicro < 100_000 || config.planner.bMicro > 100_000_000) errors.push("PLANNER_B_MICRO must be 100000..100000000 (the contract's $0.10..$100)");
   if (!config.marketId) warnings.push("MARKET_CONTRACT_ID is not set: claims, events and the lane are off, and /health reports 503");
@@ -148,5 +181,7 @@ export function describeConfig(c) {
     usdcId: c.usdcId,
     lane: { accountId: c.lane.accountId, privateKey: c.lane.privateKey ? "set" : "unset", perIpPerDay: c.lane.perIpPerDay, perDay: c.lane.perDay },
     planner: { nearaiApiKey: c.planner.apiKey ? "set" : "unset", model: c.planner.model, privateKey: c.planner.privateKey ? "set" : "unset", bMicro: c.planner.bMicro },
+    credence: { freePerIpPerDay: c.credence.freePerIpPerDay },
+    x402: { network: `near:${c.x402.network}`, priceMicro: c.x402.priceMicro, asset: c.x402.asset, payTo: c.x402.payTo, facilitator: c.x402.relayerKey ? "in-process" : c.x402.facilitatorUrl || "none", relayer: c.x402.relayerId, relayerKey: c.x402.relayerKey ? "set" : "unset" },
   };
 }
