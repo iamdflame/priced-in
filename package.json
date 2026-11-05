@@ -6,6 +6,8 @@
   "license": "MIT",
   "scripts": {
     "build:contracts": "node scripts/build-contracts.mjs",
+    "deploy": "node scripts/deploy.mjs",
+    "test:rules": "cargo test -p rules --release",
     "test:lmsr": "cargo test -p lmsr --release",
     "test:lifecycle": "node contracts/market/test/lifecycle.mjs",
     "api": "node --env-file-if-exists=services/api/.env services/api/src/server.mjs",
