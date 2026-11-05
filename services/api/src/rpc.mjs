@@ -90,7 +90,8 @@ export class Rpc {
     }
     if (body.error) {
       const e = body.error;
-      const transport = e.code === -429 || status === 429 || (status >= 500 && !e.cause);
+      // a NEAR node error always has a name or a cause; anything else is the provider (a plan limit, a gateway) and worth trying elsewhere
+      const transport = e.code === -429 || status === 429 || (status >= 500 && !e.cause) || (!e.name && !e.cause);
       const err = new RpcError(rpcMessage(e) || `${e.message || "RPC error"} (${e.code ?? status}) from ${hostOf(url)}`, { name: e.name, cause: e.cause, data: e.data, url, transport });
       err.rateLimited = e.code === -429 || status === 429;
       // a node that answers with a real error is still reachable
