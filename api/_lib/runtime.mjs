@@ -254,11 +254,11 @@ export async function runJob(name, work, { lock: lockName = "ai-job", agents = t
     const settled = await idle(layer, Math.max(t0 + budgetMs, Date.now() + 20_000)); // an anchor already sent is always waited for
     await p.spend.settle();
     // the agents' and the operator's transactions become market events in the store too
+    // (the most recent dozen, in parallel: a re-anchoring backlog must not hold the job)
     const evs = [];
-    for (const [hash, sender] of txs) {
-      if (!sender) continue;
+    await Promise.all([...txs].filter(([, s2]) => s2).slice(-12).map(async ([hash, sender]) => {
       try { evs.push(...(await txEvents(app.rpc, p.api.marketId, hash, sender, { attempts: 3 })).events); } catch (e) { log(`${name}: events of ${hash}: ${e.message}`); }
-    }
+    }));
     for (const e of evs) if (!p.journals.read("events.jsonl").some((x) => x.uid === e.uid)) p.journals.append("events.jsonl", e);
     if (agents) await p.state.updateDoc("snapshots/status.json", () => ({ at: new Date().toISOString(), job: name, status: safeStatus(layer.status()), spend: p.spend.status() })).catch((e) => log(`${name}: status snapshot: ${e.message}`));
     timings.total_ms = Date.now() - t0;

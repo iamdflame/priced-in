@@ -239,7 +239,7 @@ function lastOutcomes(ctx) {
   const { app, layer } = ctx;
   let trade = 0, rewrite = 0, answer = 0;
   for (const e of app.hub.buf) if (e.event === "trade") trade = Math.max(trade, e.blockTimestampMs || e.seenAtMs || 0);
-  for (const r of app.rewrites.recent(20)) if (!r.evidence_file) rewrite = Math.max(rewrite, r.updatedAt || 0);
+  for (const r of app.rewrites.recent(50)) if (!r.evidence_file) rewrite = Math.max(rewrite, r.createdAt || 0);
   for (const r of layer.crowd?.rationales || []) answer = Math.max(answer, r.at || 0);
   return { trade, rewrite, answer };
 }

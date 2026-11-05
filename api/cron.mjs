@@ -16,7 +16,7 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 function newestOutcome(p) {
   const trade = Math.max(0, ...p.journals.read("events.jsonl").filter((e) => e.event === "trade").map((e) => e.blockTimestampMs || e.seenAtMs || 0));
-  const rewrite = Math.max(0, ...p.journals.read("rewrites.jsonl").filter((x) => !x.evidence_file).map((x) => x.updatedAt || 0));
+  const rewrite = Math.max(0, ...p.journals.read("rewrites.jsonl").filter((x) => !x.evidence_file).map((x) => x.createdAt || 0)); // a new rewrite, not a re-anchored one
   const answer = Math.max(0, ...p.journals.read("rationales.jsonl").map((x) => x.at || 0));
   return { trade, rewrite, answer };
 }
@@ -49,7 +49,7 @@ export default async function handler(req, res) {
       let stalest = null;
       for (const page of [...new Set(claims.map((c) => c.page))]) {
         paragraphsOf(page, claims.filter((c) => c.page === page), layer.writer.pagesDoc).forEach((para, i) => {
-          const at = app.rewrites.byPage(page).find((x) => x.paragraph === i)?.updatedAt || 0;
+          const at = app.rewrites.byPage(page).find((x) => x.paragraph === i)?.createdAt || 0;
           if (para.length && (!stalest || at < stalest.at)) stalest = { page, i, para, at };
         });
       }
