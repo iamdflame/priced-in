@@ -1,5 +1,7 @@
 // The Priced In API: the no-wallet lane, cached claim reads, the market's live event stream,
-// outcome-asserting health, and the paste planner. Plain node:http, no framework.
+// outcome-asserting health, the paste planner, and the AI writer's paragraph rewrites.
+// Plain node:http, no framework. Other layers (services/ai) attach through addRoute and
+// addHealth and publish their events on the same hub.
 
 import http from "node:http";
 import { Rpc } from "./rpc.mjs";
@@ -9,6 +11,7 @@ import { LaneIssuer, ApiError, parsePublicKey } from "./lane.mjs";
 import { DailyLimiter, clientIp } from "./ratelimit.mjs";
 import { splitSentences } from "./sentences.mjs";
 import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE } from "./planner.mjs";
+import { RewriteStore } from "./rewrites.mjs";
 
 const MAX_BODY = { "/lane/key": 2048, "/paste": 64 * 1024 };
 
@@ -33,6 +36,10 @@ export function createApp(config, deps = {}) {
   const pasteIp = new DailyLimiter(config.paste.perIpPerDay, { now });
   const plannerCache = new TtlCache(6 * 3600_000, { max: 500, now });
   hub.subscribe((e) => { if (e.event === "trade") lane.noteTrade(e.data?.trader); });
+  const rewrites = new RewriteStore();
+  /** Routes and health checks attached by other layers: "GET /path" -> handler(ctx). */
+  const extraRoutes = new Map();
+  const extraHealth = new Map();
 
   let plannerKey = null;
   let plannerReason = null;
@@ -87,12 +94,21 @@ export function createApp(config, deps = {}) {
         laneInfo = { ...laneInfo, open: !b.paused && b.free > 0, creditsLeft: b.credits, outstandingKeys: b.outstanding, paused: b.paused, keysIssued: lane.issuedTotal, lastIssueMs: lane.lastIssueMs };
       } catch (e) { laneInfo = { ...laneInfo, open: null, error: e.message }; }
     }
+    const extra = {};
+    for (const [name, fn] of extraHealth) {
+      try {
+        const r = await fn();
+        extra[name] = r?.check ?? r;
+        for (const f of r?.failures || []) failures.push(`${name}: ${f}`);
+      } catch (e) { extra[name] = { error: e.message }; failures.push(`${name}: health check failed: ${e.message}`); }
+    }
     return {
       ok: failures.length === 0,
       network: config.network,
       marketId: config.marketId,
       failures,
       checks: {
+        ...extra,
         scanner: { lastBlockHeight: st.lastHeight, lastScanAgeS: scanAgeS, maxAgeS: config.health.maxScanAgeS, chainLagS, blocksScanned: st.blocksScanned, txsTracked: st.txsTracked, skippedBlocks: st.skippedBlocks, lostTxs: st.lostTxs, lastError: st.lastError },
         rpc: { reachable: reachable.length, urls: probes },
         events: { lastEventAgeS: eventAgeS, maxAgeS: config.health.maxEventAgeS || null, buffered: hub.buf.length, streams: sse.size },
@@ -276,8 +292,20 @@ export function createApp(config, deps = {}) {
     if (path === "/" && req.method === "GET") {
       return send(res, 200, {
         name: "Priced In API", network: config.network, marketId: config.marketId,
-        endpoints: ["POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste"],
+        endpoints: ["POST /lane/key", "GET /claims?page=<slug>", "GET /claims/:id", "GET /events (SSE)", "GET /events/recent", "GET /health", "POST /paste", "GET /rewrites?page=<slug>", ...[...extraRoutes.keys()]],
       });
+    }
+    if (path === "/rewrites" && req.method === "GET") {
+      const page = url.searchParams.get("page");
+      if (page !== null && !validPage(page)) throw new ApiError(400, "invalid_page", "page must be a slug: lowercase letters, digits and dashes.");
+      const history = url.searchParams.get("history") === "1";
+      const list = page ? rewrites.byPage(page, { history }) : rewrites.recent(50);
+      return send(res, 200, { page, writer: rewrites.status, rewrites: list, count: list.length, asOf: now() });
+    }
+    const extra = extraRoutes.get(`${req.method} ${path}`) || [...extraRoutes.entries()].find(([k]) => k.endsWith("/*") && `${req.method} ${path}`.startsWith(k.slice(0, -1)))?.[1];
+    if (extra) {
+      const r = await extra({ req, url, path, ip, readJson: (limit = 64 * 1024) => readJson(req, limit) });
+      return send(res, r?.status || 200, r?.body ?? r, r?.headers || {});
     }
     if (path === "/health" && req.method === "GET") {
       const h = await health();
@@ -328,7 +356,13 @@ export function createApp(config, deps = {}) {
   server.headersTimeout = 15000;
 
   return {
-    server, rpc, hub, scanner, lane, claims, health, config,
+    server, rpc, hub, scanner, lane, claims, health, config, rewrites, ApiError,
+    /** Attach a route: addRoute("GET", "/rationales", handler); a path ending in /* matches a prefix. */
+    addRoute(method, p, handler) { extraRoutes.set(`${method.toUpperCase()} ${p}`, handler); },
+    /** Attach a health check: fn() -> { check, failures? }. */
+    addHealth(name, fn) { extraHealth.set(name, fn); },
+    /** Extra start/stop work from attached layers. */
+    hooks: { start: [], stop: [] },
     async start() {
       scanner.start();
       runProbe();
@@ -340,11 +374,13 @@ export function createApp(config, deps = {}) {
         this.warmTimer = setInterval(() => { lane.warm(); }, 30_000);
         this.warmTimer.unref();
       }
+      for (const fn of this.hooks.start) await fn();
       await new Promise((resolve, reject) => { server.once("error", reject); server.listen(config.port, config.host, resolve); });
       return server.address();
     },
     async stop() {
       scanner.stop();
+      for (const fn of this.hooks.stop) { try { await fn(); } catch { /* keep stopping */ } }
       clearInterval(this.warmTimer);
       clearInterval(this.probeTimer);
       for (const c of [...sse]) { c.close(); c.res.end(); }
