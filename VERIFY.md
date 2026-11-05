@@ -108,7 +108,7 @@ Then open https://testnet.nearblocks.io/txns/BUYNo54M17r5eamtm6g1k2b8ihJRWvhnVFw
 ## 6. A 1Click dry quote (30 s, mainnet API, no money moves)
 
 ```
-curl -s -X POST https://1click.chaindefuser.com/v0/quote -H 'content-type: application/json' -d '{"dry":true,"swapType":"EXACT_INPUT","slippageTolerance":100,"originAsset":"nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near","depositType":"ORIGIN_CHAIN","destinationAsset":"nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","amount":"5000000","refundTo":"0x1111111111111111111111111111111111111111","refundType":"ORIGIN_CHAIN","recipient":"priced-in.near","recipientType":"INTENTS","deadline":"2030-01-01T00:00:00.000Z"}'
+curl -s -X POST https://1click.chaindefuser.com/v0/quote -H 'content-type: application/json' -d '{"dry":true,"swapType":"EXACT_INPUT","slippageTolerance":100,"originAsset":"nep141:base-0x833589fcd6edb6e08f4c7c32d4f71b54bda02913.omft.near","depositType":"ORIGIN_CHAIN","destinationAsset":"nep141:17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1","amount":"5000000","refundTo":"0x1111111111111111111111111111111111111111","refundType":"ORIGIN_CHAIN","recipient":"isitpriced.near","recipientType":"INTENTS","deadline":"2030-01-01T00:00:00.000Z"}'
 ```
 
 **Expect:** `{"quote":{"amountIn":"5000000",...,"amountOut":"499....","minAmountOut":...,"timeEstimate":...}}`, with no `depositAddress`, because the quote is dry.

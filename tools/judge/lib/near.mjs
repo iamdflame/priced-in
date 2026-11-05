@@ -1,5 +1,6 @@
 // Read-only NEAR JSON-RPC with failover. No dependencies, no keys: the judge only reads.
 export const TESTNET_RPCS = ["https://test.rpc.fastnear.com", "https://rpc.testnet.near.org", "https://testnet-rpc.intea.rs"];
+export const MAINNET_RPCS = ["https://rpc.fastnear.com", "https://near.lava.build", "https://rpc.mainnet.near.org"];
 
 export class Rpc {
   constructor(urls = TESTNET_RPCS, timeoutMs = 15_000) {

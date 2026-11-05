@@ -31,10 +31,13 @@ const { checkLmsr } = await import("./checks/lmsr.mjs");
 const { checkRules } = await import("./checks/rules.mjs");
 const { checkRepro, checkBooks, checkRewrite, reproBuild } = await import("./checks/chain.mjs");
 const { checkOneClick, checkCorpus, checkSuites, checkSite } = await import("./checks/offchain.mjs");
-const { Rpc } = await import("./lib/near.mjs");
+const { Rpc, MAINNET_RPCS } = await import("./lib/near.mjs");
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
 const rpc = new Rpc();
+// the real-money deployment, when there is one: check 3 also reads its code hash from mainnet
+const mainFile = path.join(REPO, "deployments/mainnet.json");
+const mainnet = fs.existsSync(mainFile) ? { dep: JSON.parse(fs.readFileSync(mainFile, "utf8")), rpc: new Rpc(MAINNET_RPCS) } : null;
 const t0 = Date.now();
 
 // slow work starts at once and runs while the quick checks do
@@ -45,7 +48,7 @@ const offlineSkip = (what) => async () => ({ status: "SKIP", detail: `--offline:
 const CHECKS = [
   [1, "LMSR properties", () => checkLmsr(REPO), "node tools/judge/judge.mjs, or npm run web:test (lmsr.test.ts); cargo test -p lmsr --release"],
   [2, "verdict rule and bond split", () => checkRules(REPO), "cargo run --release --manifest-path tools/judge/rules-vectors/Cargo.toml (regenerates the vectors); cargo test -p rules --release"],
-  [3, "reproducible contracts", async () => { const r = await checkRepro(REPO, dep, rpc, { offline: OFFLINE, build }); if (r.status === "SKIP" && NO_BUILD) r.see = "npm run judge (without --no-build)"; return r; }],
+  [3, "reproducible contracts", async () => { const r = await checkRepro(REPO, dep, rpc, { offline: OFFLINE, build, mainnet }); if (r.status === "SKIP" && NO_BUILD) r.see = "npm run judge (without --no-build)"; return r; }],
   [4, "testnet deployment live, books close", OFFLINE ? offlineSkip("testnet") : () => checkBooks(dep, rpc)],
   [5, "signed rewrite verifies, anchored", () => checkRewrite(REPO, dep, rpc, { offline: OFFLINE })],
   [6, "1Click dry quote, Base USDC -> NEAR USDC", OFFLINE ? offlineSkip("the 1Click API (mainnet)") : () => checkOneClick()],

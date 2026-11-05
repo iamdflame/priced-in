@@ -15,14 +15,14 @@ export async function checkOneClick() {
       dry: true, swapType: "EXACT_INPUT", slippageTolerance: 100,
       originAsset: BASE_USDC, depositType: "ORIGIN_CHAIN", destinationAsset: NEAR_USDC, amount: "5000000",
       refundTo: "0x1111111111111111111111111111111111111111", refundType: "ORIGIN_CHAIN",
-      recipient: "priced-in.near", recipientType, deadline: new Date(Date.now() + 3_600_000).toISOString(),
+      recipient: "isitpriced.near", recipientType, deadline: new Date(Date.now() + 3_600_000).toISOString(),
     }),
   }).then(async (r) => ({ status: r.status, body: await r.json().catch(() => ({})) }));
   let intents, chain;
   try { [intents, chain] = await Promise.all([quote("INTENTS"), quote("DESTINATION_CHAIN")]); }
   catch (e) { return { status: "SKIP", detail: `1Click API unreachable (${String(e.message).slice(0, 80)})`, see: `curl -X POST ${ONECLICK}/quote` }; }
   const q = intents.body?.quote;
-  const cmd = `curl -s -X POST ${ONECLICK}/quote -H 'content-type: application/json' -d '{"dry":true,"swapType":"EXACT_INPUT","slippageTolerance":100,"originAsset":"${BASE_USDC}","depositType":"ORIGIN_CHAIN","destinationAsset":"${NEAR_USDC}","amount":"5000000","refundTo":"0x1111111111111111111111111111111111111111","refundType":"ORIGIN_CHAIN","recipient":"priced-in.near","recipientType":"INTENTS","deadline":"<an ISO time an hour ahead>"}'`;
+  const cmd = `curl -s -X POST ${ONECLICK}/quote -H 'content-type: application/json' -d '{"dry":true,"swapType":"EXACT_INPUT","slippageTolerance":100,"originAsset":"${BASE_USDC}","depositType":"ORIGIN_CHAIN","destinationAsset":"${NEAR_USDC}","amount":"5000000","refundTo":"0x1111111111111111111111111111111111111111","refundType":"ORIGIN_CHAIN","recipient":"isitpriced.near","recipientType":"INTENTS","deadline":"<an ISO time an hour ahead>"}'`;
   if (!q?.amountOut) return { status: "FAIL", detail: `no quote: HTTP ${intents.status} ${JSON.stringify(intents.body).slice(0, 160)}`, see: cmd };
   const direct = chain.body?.quote?.amountOut ? `delivery straight to a NEAR account quotes too (${chain.body.quote.amountOutFormatted})` : `delivery straight to a NEAR account (recipientType DESTINATION_CHAIN, which customRecipientMsg needs) is refused today: "${chain.body?.message ?? chain.status}"`;
   return {

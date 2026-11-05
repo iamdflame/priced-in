@@ -1,5 +1,6 @@
-// Checks 3, 4 and 5: the contracts on testnet are the source in this repo, their books close,
-// and a recorded signed rewrite verifies from its own bytes and is anchored on-chain.
+// Checks 3, 4 and 5: the contracts on testnet (and the real-money market on mainnet) are the
+// source in this repo, their books close, and a recorded signed rewrite verifies from its own
+// bytes and is anchored on-chain.
 import { createHash, createPublicKey, verify } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -9,9 +10,10 @@ import { reproBuild } from "../lib/repro.mjs";
 const X = (kind, v) => `https://testnet.nearblocks.io/${kind}/${v}`;
 
 // ---------- 3. reproducible contracts ----------
-export async function checkRepro(repo, dep, rpc, { offline, build }) {
+export async function checkRepro(repo, dep, rpc, { offline, build, mainnet = null }) {
   const r = await build; // started early: the build runs while the other checks do
   if (!r.ok) {
+    if (/--no-build/.test(r.reason)) return { status: "SKIP", detail: "--no-build: the contracts were not rebuilt", see: "npm run judge (without --no-build)" };
     if (/not installed|needs rustc|wasm32/.test(r.reason)) return { status: "SKIP", detail: `${r.reason}, so nothing was built`, see: "rustup toolchain install 1.99.1 --target wasm32-unknown-unknown, then npm run judge (or node tools/judge/repro.mjs)" };
     return { status: "FAIL", detail: r.reason, see: "node tools/judge/repro.mjs" };
   }
@@ -24,7 +26,16 @@ export async function checkRepro(repo, dep, rpc, { offline, build }) {
   const ok = got.market === against.market && got.swarm === against.swarm && agentOk && (!live || (live.market === want.market && live.swarm === want.swarm));
   const where = live ? "the code on testnet" : "the code hashes recorded in deployments/testnet.json (chain not read: --offline)";
   if (!ok) return { status: "FAIL", detail: `built market ${got.market}, swarm ${got.swarm}; ${live ? "testnet has" : "recorded"} market ${against.market}, swarm ${against.swarm}${agentOk ? "" : "; the agent wallet doesn't rebuild to contracts/swarm/res/agent.wasm"} (${r.toolchain}, ${process.platform})`, see: "VERIFY.md, step 3" };
-  return { status: "PASS", detail: `${r.toolchain} rebuilt market ${got.market} and swarm ${got.swarm}: identical to ${where}; the agent wallet rebuilds to the committed contracts/swarm/res/agent.wasm`, see: X("address", dep.accounts.market) };
+  // the real-money market on mainnet: the same bytes as the build, read from mainnet itself
+  let main = "";
+  if (mainnet) {
+    const mid = mainnet.dep.accounts.market;
+    const mlive = offline ? null : (await mainnet.rpc.account(mid)).code_hash;
+    const mwant = mlive || mainnet.dep.code.market.code_hash;
+    if (mwant !== got.market) return { status: "FAIL", detail: `built market ${got.market}; mainnet ${mid} ${mlive ? "runs" : "is recorded as"} ${mwant} (${r.toolchain}, ${process.platform})`, see: "VERIFY.md, step 3" };
+    main = `; the real-money market on mainnet, ${mid}, ${mlive ? "runs" : "is recorded as"} the same market build`;
+  }
+  return { status: "PASS", detail: `${r.toolchain} rebuilt market ${got.market} and swarm ${got.swarm}: identical to ${where}${main}; the agent wallet rebuilds to the committed contracts/swarm/res/agent.wasm`, see: X("address", dep.accounts.market) };
 }
 
 // ---------- 4. the deployment is live and its books close ----------

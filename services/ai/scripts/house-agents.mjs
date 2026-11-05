@@ -6,7 +6,7 @@
 //
 // Owner (who spawns, owns the agents and is the operator):
 //   testnet  --owner-file <json {accountId, privateKey}>, else the root in .apex-test/deploy-testnet.json
-//   mainnet  priced-in.near with NEAR_DEPLOYER_PRIVATE_KEY from .env (read only after CONFIRM_MAINNET=yes)
+//   mainnet  isitpriced.near with NEAR_DEPLOYER_PRIVATE_KEY from .env (read only after CONFIRM_MAINNET=yes)
 // Contracts: MARKET_CONTRACT_ID, SWARM_CONTRACT_ID, USDC_CONTRACT_ID, else market.<root>,
 // swarm.<root> and tusdc.<root> (mainnet USDC on mainnet).
 // Keys go to KEYSTORE_DIR (default services/ai/data/keystore, git-ignored), one file per key, and
@@ -38,7 +38,7 @@ const provider = new JsonRpcProvider({ url: env.NEAR_RPC || (network === "mainne
 
 let ownerId, ownerKey, rootId;
 if (arg("--owner-file")) { const o = JSON.parse(fs.readFileSync(arg("--owner-file"), "utf8")); ownerId = o.accountId; ownerKey = o.privateKey; rootId = ownerId; }
-else if (network === "mainnet") { rootId = ownerId = "priced-in.near"; ownerKey = env.NEAR_DEPLOYER_PRIVATE_KEY; }
+else if (network === "mainnet") { rootId = ownerId = "isitpriced.near"; ownerKey = env.NEAR_DEPLOYER_PRIVATE_KEY; }
 else {
   const f = path.join(ROOT, ".apex-test/deploy-testnet.json");
   if (!fs.existsSync(f)) { console.error("no owner: pass --owner-file or run node scripts/deploy.mjs testnet first"); process.exit(1); }
