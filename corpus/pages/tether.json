@@ -24,7 +24,20 @@
    "text": "It is represented by its currency codes USD₮ and USDT.",
    "class": "data",
    "claim": "currency codes USD₮ and USDT",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CoinGecko symbol usdt",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1",
+     "match": "tc\",\"percentage\":4330.908962886355},\"last_updated\":\"2026-11-05T04:35:48.000Z\"},{\"id\":\"tether\",\"symbol\":\"usdt\",\"name\":\"Tether\",\"image\":\"https://coin-images.coingecko.com/coins/images/325/lar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0003",
@@ -32,7 +45,24 @@
    "text": "Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies.",
    "class": "data",
    "claim": "USDT is the world's largest stablecoin by market cap",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CoinGecko rank 3; $178B; issuer says largest",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1",
+     "match": "tc\",\"percentage\":4330.908962886355},\"last_updated\":\"2026-11-05T04:35:48.000Z\"},{\"id\":\"tether\",\"symbol\":\"usdt\",\"name\":\"Tether\",\"image\":\"https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661\",\"current_price\":0.999333,\"market_cap\":178254839101,\"market_cap_rank\":3,\"fully_diluted_valuation\":183718143317,\"total_volume\":59958117840,\"high_24h\":0."
+    },
+    {
+     "url": "https://tether.io/",
+     "match": "s tokenisation services, and our trusted, reliable flagship product: USD₮ - the world's largest stablecoin, used by hundreds of millions of users across every continent. Explore power ne"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0004",
@@ -46,7 +76,15 @@
    "text": "As of July 2024, Tether has more than 350 million users worldwide.",
    "class": "data",
    "claim": "as of July 2024 Tether has more than 350M users",
-   "asOf": "2024-07"
+   "asOf": "2024-07",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no 2024 primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0006",
@@ -54,7 +92,15 @@
    "text": "As of August 2026, Tether CEO Paolo Ardoino estimated that USDT had more than 650 million users worldwide, particularly in emerging markets such as Africa and South America.",
    "class": "data",
    "claim": "as of August 2026 Ardoino estimated more than 650M users",
-   "asOf": "2026-08"
+   "asOf": "2026-08",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "CEO estimate; primary statement not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0007",
@@ -62,7 +108,15 @@
    "text": "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange.",
    "class": "data",
    "claim": "Tether Limited is owned by iFinex, BVI-based, which operates Bitfinex",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary ownership filing",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0008",
@@ -154,7 +208,20 @@
    "text": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
    "class": "data",
    "claim": "Tether Holdings is headquartered in El Salvador as of January 2025",
-   "asOf": "2025-01"
+   "asOf": "2025-01",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "terms: redomiciled to El Salvador",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://tether.to/en/legal/",
+     "match": "nge in counterparty. However, please note that Tether International Limited has redomiciled from the British Virgin Islands to the Republic of El Salvador, and is now named Tether International, S.A. de C.V. The following documents ar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0023",
@@ -186,7 +253,20 @@
    "text": "Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited.",
    "class": "data",
    "claim": "Tether Limited is a wholly owned subsidiary of BVI-based Tether Holdings",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "terms show Tether Limited assigned its contracts on 27 Jan 2025; ownership not stated",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://tether.to/en/legal/",
+     "match": "TL Users ”) and Tether Limited. As of and with effect from 27 January 2025: (1) Tether Limited assigned, granted, conveyed and transferred to Tether all of Tether Limited’s right, tit"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0028",
@@ -206,7 +286,25 @@
    "text": "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.",
    "class": "data",
    "claim": "Tether issues on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid, Near, Polygon, Solana, Bitcoin Cash SLP, Statemint, Tezos, Tron",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording from Apr 2021 (rev 1017210611).",
+   "receipts": [
+    {
+     "url": "https://tether.to/en/supported-protocols/",
+     "match": "s they support. Currently Supported Asset Protocols: Please note that Tether is no longer issuing or obligated to redeem Tether Tokens on the Kusama, Bitcoin Cash SLP, Omni Layer, EOS and Algorand blockchains. For more information, please see Tether Provides Update on Transit"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/2023/https://tether.to/en/supported-protocols/",
+     "match": "er implementations. The transition process will move forward as follows: Tether ceased minting USD₮-Omni, USD₮-Kusama, and USD₮–BCHSLP from 17th August 2023 Tether will continue to redeem USD₮-Omni, USD₮-Kusama, and USD₮-BCH-SLP as norm"
+    }
+   ]
   },
   {
    "id": "tether-0031",
@@ -214,7 +312,25 @@
    "text": "There are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network.",
    "class": "data",
    "claim": "five distinct Tether tokens",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "EUR₮ wound down; Omni discontinued; many more chains now",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording from Jan 2021 (rev 1002798994).",
+   "receipts": [
+    {
+     "url": "https://tether.to/en/supported-protocols/",
+     "match": "ed strictly for historical reference purposes only. Please note that Tether has wound down and is no longer obligated to redeem EUR₮. For more information, please see Tether Updates Users on a Strategic Transitio"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/2023/https://tether.to/en/supported-protocols/",
+     "match": "er implementations. The transition process will move forward as follows: Tether ceased minting USD₮-Omni, USD₮-Kusama, and USD₮–BCHSLP from 17th August 2023 Tether will continue to red"
+    }
+   ]
   },
   {
    "id": "tether-0032",
@@ -276,7 +392,15 @@
    "text": "As of July 2021, Tether is tied to half of all bitcoin trades.",
    "class": "data",
    "claim": "as of July 2021 Tether tied to half of all bitcoin trades",
-   "asOf": "2021-07"
+   "asOf": "2021-07",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary source",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0042",
@@ -446,7 +570,15 @@
    "text": "As of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims.",
    "class": "data",
    "claim": "as of September 2024 T3 FCU froze about $12M",
-   "asOf": "2024-09"
+   "asOf": "2024-09",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "Tether news URL returned 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0070",
@@ -580,7 +712,20 @@
    "text": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
    "class": "data",
    "claim": "Cantor Fitzgerald serves as USAT reserve custodian",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Tether's USAT launch release: Cantor Fitzgerald is designated reserve custodian and preferred primary dealer",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Was undecidable; changed after the audit found this source. Company statement.",
+   "receipts": [
+    {
+     "url": "https://tether.io/news/tether-announces-the-launch-of-usat-the-federally-regulated-dollar-backed-stablecoin-made-in-america/",
+     "match": "ned up to support broad access to USA₮ across the American financial ecosystem. Cantor Fitzgerald serves as the designated reserve custodian and preferred primary dealer, ensuring secure asset management and clear visibility into reserves from day o"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0092",
@@ -606,7 +751,20 @@
    "text": "Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT.",
    "class": "data",
    "claim": "Anchorage Digital Bank is the USAT issuer",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "issuer is Anchorage Digital Bank, N.A.",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://usat.io/",
+     "match": "ional purposes only. Tether Operations, S.A. de C.V. is not the issuer of USA₮. The issuer of USA₮ is Anchorage Digital Bank, N.A. Terms Privacy Statement Cookies Notice Manage Cookies Branding Bug Bounty"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0096",
@@ -662,7 +820,20 @@
    "text": "As of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion.",
    "class": "data",
    "claim": "as of 30 June 2026, about $187.8B assets, $183.6B liabilities, excess about $4.11B",
-   "asOf": "2026-06-30"
+   "asOf": "2026-06-30",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "BDO report: assets 187,751; liabilities 183,642; equity 4,110 ($M)",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://assets.ctfassets.net/vyse88cgwfbl/2kYf7r64h3tzwiu6F0CbUB/2997abd2f11ecea74a21528048b50707/Opinion%5F%5F%5FReport%5F-%5FTether%5FInternational%5FFinancial%5FFigure%5F30-06-2026.pdf",
+     "match": "otal Equity Tether International, S.A. de C.V. 1 Assets Liabilities Liabilities 6,338 187,751 (183,642) 4,110 192,878 (186,540) The value of the assets composing the Reserves as of 30 June "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0105",
@@ -724,7 +895,15 @@
    "text": "Each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
    "class": "data",
    "claim": "each XAU₮ represents one troy fine ounce in Swiss vaults",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "gold.tether.io unreachable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0115",
@@ -732,7 +911,15 @@
    "text": "They are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron.",
    "class": "data",
    "claim": "XAU₮ is ERC-20 on Ethereum and TRC-20 on Tron",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "gold.tether.io unreachable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0116",
@@ -836,7 +1023,15 @@
    "text": "According to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers.",
    "class": "data",
    "claim": "Tether site says issuance by purchase or redemption by exchanges and qualified customers, excluding US-based customers",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "terms read; the exact wording on US customers not isolated",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "tether-0133",
@@ -850,7 +1045,24 @@
    "text": "Tether claims its tokens are backed 100% by reserve assets, but has faced scrutiny for failing to publish an external audit.",
    "class": "data",
    "claim": "Tether claims 100% backing, has faced scrutiny for failing to publish an external audit",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "audit not made public; 100% backed claim stands",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.thestar.com.my/tech/tech-news/2026/08/14/stablecoin-issuer-tether-says-kpmg-us-has-audited-its-2025-statements",
+     "match": "ent audit\" of its financial statements for the first time. The audit, which was not made public, marks a move by Tether to ​reassure markets about its finances following ⁠he"
+    },
+    {
+     "url": "https://tether.to/en/faqs/",
+     "match": " and protocols, please see our Supported Protocols Page . Every Tether token is 100% backed by Reserves, which includes traditional currency, cash equivalents, and other a"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0135",
@@ -972,7 +1184,24 @@
    "text": "Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets.",
    "class": "data",
    "claim": "Tether has not publicly presented audits showing one-to-one backing",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "audit not published",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.thestar.com.my/tech/tech-news/2026/08/14/stablecoin-issuer-tether-says-kpmg-us-has-audited-its-2025-statements",
+     "match": "ent audit\" of its financial statements for the first time. The audit, which was not made public, marks a move by Tether to ​reassure markets about its finances following ⁠he"
+    },
+    {
+     "url": "https://thedefiant.io/news/cefi/tether-clears-first-full-audit-from-kpmg-without-publishing-the-statements",
+     "match": "Tether Clears First Full Audit From KPMG Without Publishing the Statements | The Defiant Toggle navigation menu Toggle theme The Defiant News Newsletter P"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0155",
@@ -1016,7 +1245,25 @@
    "text": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
    "class": "data",
    "claim": "majority of cash and equivalents are T-Bills at $72.6 billion",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "$122.84B in US T-bills at 30 Sep 2026 (BDO report); $114.96B at 30 Jun 2026",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Undated sentence, wording from Feb 2024 (rev 1210461759), citing a Bloomberg story of 31 Oct 2023.",
+   "receipts": [
+    {
+     "url": "https://assets.ctfassets.net/vyse88cgwfbl/7nQYtcoP9GxIUFSyro2dGK/8d0521470b9e99c8c0831019cabea4ee/ISAE%5F3000R%5F-%5FOpinion%5FTether%5FInternational%5FFinancial%5FFigure%5F30-09-2026.pdf",
+     "match": "lows: Asset Category US$ 1. Cash & Cash Equivalent & Other Short-Term Deposits: U.S. Treasury Bills4 122,839,738,995 Overnight Reverse Repurchase Agreements5 9,518,706,336 Term Reverse Repurchase "
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/20231214184921/https://www.bloomberg.com/news/articles/2023-10-31/tether-says-reserves-held-in-cash-equivalents-are-highest-ever",
+     "match": "majority of Tether’s reserves held in cash and cash equivalents are US T-Bills, accounting for $72.6 billion. Photographer: Lam Yik/Bloomberg Gift this article Have a confidential tip for "
+    }
+   ]
   },
   {
    "id": "tether-0162",
@@ -1030,7 +1277,20 @@
    "text": "If Tether were a country, it would be the 18th largest holder of U.S. debt among nations.",
    "class": "data",
    "claim": "if a country, Tether would be the 18th-largest holder of US debt",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "$122.84B to $132.4B ranks 19th on the Aug 2026 TIC table if territories count",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Rank depends on whether territories count as nations.",
+   "receipts": [
+    {
+     "url": "https://ticdata.treasury.gov/resource-center/data-chart-center/tic/Documents/slt_table5.html",
+     "match": "a 141.2 142.4 142.5 140.3 140.1 152.0 160.4 134.8 149.5 148.8 134.3 134.2 133.0 Korea, South 134.2 131.5 134.7 132.3 135.2 136.8 140.9 141.3 140.6 145.1 145.0 142.7 135.8 United "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "tether-0164",

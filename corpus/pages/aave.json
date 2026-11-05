@@ -18,7 +18,20 @@
    "text": "Aave is a decentralized finance protocol (DeFi) that enables the lending and borrowing of cryptocurrencies without the involvement of intermediary financial institutions.",
    "class": "data",
    "claim": "Aave is a DeFi lending and borrowing protocol",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Aave docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs",
+     "match": "s User Activities Exchange Rates Swap Features Reference React Hooks BigDecimal Aave V3 Overview Getting Started React TypeScript GraphQL Concepts Liquidity Pool Reser"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0002",
@@ -44,7 +57,20 @@
    "text": "The associated governance token carries the same name (AAVE) and allows holders to vote on protocol changes.",
    "class": "data",
    "claim": "AAVE token gives votes on protocol changes",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Aave governance docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs/ecosystem/governance",
+     "match": "Aave Governance – Aave Docs Skip to Content docs Search Use Aave Introduction Overview Aave 101"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0006",
@@ -76,7 +102,20 @@
    "text": "Aave allows crypto lending and borrowing without the use of a central authority.",
    "class": "data",
    "claim": "lending and borrowing without a central authority",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "protocol docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs",
+     "match": "s User Activities Exchange Rates Swap Features Reference React Hooks BigDecimal Aave V3 Overview Getting Started React TypeScript GraphQL Concepts Liquidity Pool Reser"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0011",
@@ -84,7 +123,15 @@
    "text": "Users can deposit various cryptocurrencies—such as Ether, USDC, or DAI—into pools.",
    "class": "data",
    "claim": "users can deposit ether, USDC or DAI",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "market list did not render in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "aave-0012",
@@ -98,7 +145,15 @@
    "text": "In return, depositors receive variable interest earnings.",
    "class": "data",
    "claim": "depositors receive variable interest",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "rate page not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "aave-0014",
@@ -106,7 +161,15 @@
    "text": "Borrowers must provide collateral that exceeds the value of the loan.",
    "class": "data",
    "claim": "collateral must exceed the value of the loan",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Text on overcollateralisation not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "aave-0015",
@@ -114,7 +177,20 @@
    "text": "Aave allows users to choose between variable and stable interest rates.",
    "class": "data",
    "claim": "users can choose between variable and stable rates",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "source marks stable rate borrowing deprecated at v3.2.0",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED: wording dates from Oct 2025 (rev 1314489208), after v3.2.0 and so not true when written; docs show it was once offered, so not \"never true\".",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/main/src/contracts/protocol/libraries/types/DataTypes.sol",
+     "match": " is active //bit 57: reserve is frozen //bit 58: borrowing is enabled //bit 59: DEPRECATED: stable rate borrowing enabled //bit 60: asset is paused //bit 61: DEPRECATED: borrowing in isolation mode is "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0016",
@@ -122,7 +198,20 @@
    "text": "The protocol also supports flash loans—loans that must be taken out and repaid within a single block and are therefore suitable only for experienced developers.",
    "class": "data",
    "claim": "protocol supports flash loans repaid within one block",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "one transaction, single block",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs/aave-v3/guides/flash-loans",
+     "match": " or insufficient collateral, the transaction reverts . All of the above happens in one transaction, and therefore in a single block. Applications of Flash Loans Aave V3 itself uses flash loans for its liquidity "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0017",
@@ -136,7 +225,20 @@
    "text": "This stablecoin is backed by collateral deposited within the Aave protocol.",
    "class": "data",
    "claim": "GHO is backed by collateral in Aave",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "backed by assets in Aave",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/gho",
+     "match": " its development and future roadmap. Learn More Multi-collateral Backing GHO is backed by multiple different assets supplied into the Aave Protocol. Learn More Build with GHO With as few as 10 li"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0019",
@@ -144,7 +246,20 @@
    "text": "Aave is an open-source project that is governed by a decentralized community of AAVE token holders.",
    "class": "data",
    "claim": "Aave is open source and governed by AAVE holders",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "aave-v3-origin is under Business Source License 1.1",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED on \"open-source\" for this repository; wording dates from Oct 2025 and other Aave code differs.",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/aave-dao/aave-v3-origin/main/LICENSE",
+     "match": "Business Source License 1.1 License text copyright (c) 2020 MariaDB Corporation Ab, All Rights Reserved. “B"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0020",
@@ -152,7 +267,20 @@
    "text": "Through a so-called DAO (Decentralized Autonomous Organization), changes to the protocol can be decided.",
    "class": "data",
    "claim": "changes decided through a DAO",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Aave governance docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs/ecosystem/governance",
+     "match": "Aave Governance – Aave Docs Skip to Content docs Search Use Aave Introduction Overview Aave 101"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "aave-0021",

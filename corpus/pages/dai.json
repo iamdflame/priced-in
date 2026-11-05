@@ -18,7 +18,25 @@
    "text": "DAI (or DAI, formerly Sai or SAI) is a stablecoin token on the Ethereum blockchain which uses smart contracts designed to control supply to keep its value as close to one United States dollar as possible.",
    "class": "data",
    "claim": "DAI is a stablecoin token on Ethereum using contracts to hold $1",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "totalSupply call answers; $4.73B on DefiLlama, crypto-backed",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x6B175474E89094C44Da98b954EedeAC495271d0F\",\"data\":\"0x18160ddd\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x00000000000000000000000000000000000000000eb3f880408a39c0d90b73f6\"} "
+    },
+    {
+     "url": "https://stablecoins.llama.fi/stablecoins?includePrices=false",
+     "match": "rbitrum\",\"OP Mainnet\",\"Unichain\",\"Avalanche\"],\"price\":1},{\"id\":\"5\",\"name\":\"Dai\",\"symbol\":\"DAI\",\"gecko_id\":\"dai\",\"pegType\":\"peggedUSD\",\"priceSource\":\"defillama\",\"pegMechanism\":\"crypto-backed\",\"circulating\":{\"peggedUSD\":4730803732.236601},\"circulatingPrevDay\":{\"peggedUSD\""
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "dai-0002",
@@ -26,7 +44,25 @@
    "text": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.",
    "class": "data",
    "claim": "DAI is maintained by MakerDAO, a DAO of MKR owners who vote on parameters",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "SKY is now the sole governance token of the protocol",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording from Dec 2020 (rev 994092139). The same page records the rename to Sky in another sentence.",
+   "receipts": [
+    {
+     "url": "https://upgrademkrtosky.sky.money/",
+     "match": "out the Delayed Upgrade Penalty Vote with SKY Stake with SKY Upgrade MKR to SKY SKY has been voted in as the sole governance token of the Sky Protocol. Upgrade your MKR to SKY promptly to maintain the ability t"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/2023/https://docs.makerdao.com/smart-contract-modules/governance-module",
+     "match": "l ​ 1. Introduction (Summary) The Governance Module contains the contracts that facilitate MKR voting, proposal execution, and voting security of the Maker Protocol. 2. Module Detai"
+    }
+   ]
   },
   {
    "id": "dai-0003",
@@ -64,7 +100,15 @@
    "text": "Its stablecoin DAI is crypto-backed, most commonly with ether, although it is still pegged to the US dollar.",
    "class": "data",
    "claim": "DAI is crypto-backed, most commonly with ether",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary collateral breakdown saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "dai-0009",
@@ -72,7 +116,15 @@
    "text": "Unlike centralized stablecoins, DAI issuance isn't controlled by one entity.",
    "class": "data",
    "claim": "DAI issuance is not controlled by one entity",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary test of \"controlled by one entity\"",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "dai-0010",
@@ -164,7 +216,15 @@
    "text": "Users who deposit one of the accepted collateral types (such as Ether) into a contract are able to mint new DAI, as a loan, against the value of their collateral.",
    "class": "data",
    "claim": "depositing accepted collateral mints DAI as a loan",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "current mint flow page not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "dai-0025",
@@ -178,7 +238,31 @@
    "text": "Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.",
    "class": "data",
    "claim": "each loan type has a fixed minimum ratio, usually 110-200%",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ETH-A 145%, ETH-B 130%, ETH-C 170% read from the Spot contract",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Three collateral types sampled, not all.",
+   "receipts": [
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3\",\"data\":\"0xd9638d364554482d41000000000000000000000000000000000000000000000000000000\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x00000000000000000000000081fe72b5a8d1a857d176c3e7d5bd2679a9b857630000000000000000"
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3\",\"data\":\"0xd9638d364554482d42000000000000000000000000000000000000000000000000000000\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x00000000000000000000000081fe72b5a8d1a857d176c3e7d5bd2679a9b857630000000000000000"
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x65C79fcB50Ca1594B025960e539eD7A9a6D434A3\",\"data\":\"0xd9638d364554482d43000000000000000000000000000000000000000000000000000000\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x00000000000000000000000081fe72b5a8d1a857d176c3e7d5bd2679a9b857630000000000000000"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "dai-0027",
@@ -216,7 +300,25 @@
    "text": "The ability to propose and implement changes to such variables is granted, through code, to holders of the MKR token.",
    "class": "data",
    "claim": "changing the variables is granted to holders of the MKR token",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "SKY is the sole governance token",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording from Jan 2021 (rev 1000259394).",
+   "receipts": [
+    {
+     "url": "https://upgrademkrtosky.sky.money/",
+     "match": "out the Delayed Upgrade Penalty Vote with SKY Stake with SKY Upgrade MKR to SKY SKY has been voted in as the sole governance token of the Sky Protocol. Upgrade your MKR to SKY promptly to maintain the ability t"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/2023/https://docs.makerdao.com/smart-contract-modules/governance-module",
+     "match": "l ​ 1. Introduction (Summary) The Governance Module contains the contracts that facilitate MKR voting, proposal execution, and voting security of the Maker Protocol. 2. Module Detai"
+    }
+   ]
   },
   {
    "id": "dai-0033",
@@ -224,7 +326,20 @@
    "text": "Owners of the governance token are able to vote on proposed modifications in equal proportion to the amount of tokens they hold.",
    "class": "data",
    "claim": "owners of the governance token vote in proportion to tokens held",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "voting portal: vote with or delegate SKY",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "The sentence says \"the governance token\", which is now SKY.",
+   "receipts": [
+    {
+     "url": "https://vote.sky.money/",
+     "match": "Sky Governance - Governance Portal Sky Governance Voting Portal Vote with or delegate your SKY tokens to help protect the integrity of the Sky protocol How to vote Latest Executive "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "dai-0034",
@@ -238,7 +353,20 @@
    "text": "Added interest that borrowers pay back, on top of their loan's principal, is used to buy MKR tokens from the market and \"burn\" them, taking them permanently out of circulation.",
    "class": "data",
    "claim": "interest is used to buy MKR and burn it",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page on the current buyback saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED by implication only; MKR is not the governance token, but the burn flow was not read at source.",
+   "receipts": [
+    {
+     "url": "https://upgrademkrtosky.sky.money/",
+     "match": "out the Delayed Upgrade Penalty Vote with SKY Stake with SKY Upgrade MKR to SKY SKY has been voted in as the sole governance token of the Sky Protocol. Upgrade your MKR to SKY promp"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "dai-0036",

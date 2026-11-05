@@ -60,7 +60,15 @@
    "text": "Stablecoins are now mainly used for buying or selling cryptoassets, and for making cross-border payments.",
    "class": "data",
    "claim": "stablecoins mainly used for crypto trading and cross-border payments",
-   "asOf": null
+   "asOf": null,
+   "verdict": "reclassified",
+   "dated": false,
+   "checkedValue": "",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "\"Mainly used\" names no metric.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0009",
@@ -80,7 +88,20 @@
    "text": "Within the stablecoin market, 95% of them are backed by fiat currency, while 97% among those fiat currency-backed stablecoins are denominated in US dollar.",
    "class": "data",
    "claim": "95% backed by fiat; 97% of those in US dollars",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "DefiLlama: fiat-backed 91.8% of about $295B; taxonomy differs from the source",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://stablecoins.llama.fi/stablecoins?includePrices=false",
+     "match": "ko_id\":\"tether\",\"pegType\":\"peggedUSD\",\"priceSource\":\"defillama\",\"pegMechanism\":\"fiat-backed\",\"circulating\":{\"peggedUSD\":177727657613.2874},\"circulatingPrevDay\":{\"peggedUSD"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0012",
@@ -112,7 +133,15 @@
    "text": "As of October 2025, nearly 97% of fiat-backed stablecoins are pegged to the US dollar.",
    "class": "data",
    "claim": "as of October 2025 nearly 97% of fiat-backed stablecoins pegged to USD",
-   "asOf": "2025-10"
+   "asOf": "2025-10",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "Oct 2025 breakdown by source not retrievable (FATF 403)",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0017",
@@ -120,7 +149,20 @@
    "text": "Major examples of US-dollar-pegged stablecoins are Tether's USDT and Circle's USDC.",
    "class": "data",
    "claim": "USDT and USDC are major USD-pegged stablecoins",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "USDT $177.7B, USDC $71.1B, both fiat-backed USD",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://stablecoins.llama.fi/stablecoins?includePrices=false",
+     "match": "{\"peggedAssets\":[{\"id\":\"1\",\"name\":\"Tether\",\"symbol\":\"USDT\",\"gecko_id\":\"tether\",\"pegType\":\"peggedUSD\",\"priceSource\":\"defillama\",\"pegMechani"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0018",
@@ -128,7 +170,24 @@
    "text": "For Euro-pegged stablecoins, examples include Circle's EURC, EUR Tether, and Stasis EUR.",
    "class": "data",
    "claim": "euro examples: EURC, EUR Tether, Stasis EUR",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "EUR₮ wound down; EURC and EURS exist",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED on EUR Tether. Wording dates from Aug 2025; wind-down date not pinned against it.",
+   "receipts": [
+    {
+     "url": "https://tether.to/en/supported-protocols/",
+     "match": "ed strictly for historical reference purposes only. Please note that Tether has wound down and is no longer obligated to redeem EUR₮. For more information, please see Tether Updates Users on a Strategic Transitio"
+    },
+    {
+     "url": "https://www.circle.com/eurc",
+     "match": "EURC | A Euro-Backed Stablecoin | Circle Home Digital Assets Back USDC The leading digital dollar USDC EURC The"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0019",
@@ -160,7 +219,24 @@
    "text": "Examples are PAX Gold and Tether Gold.",
    "class": "data",
    "claim": "PAX Gold and Tether Gold are commodity-backed",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "PAXG and XAU₮ exist",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.paxos.com/pax-gold",
+     "match": "Paxos | Pax Gold (PAXG) Pax gold | PAXG T h e s a f e s t w a y t o o w n d i g i t a l g o l d "
+    },
+    {
+     "url": "https://tether.io/",
+     "match": "t news LATEST Others 2026-11-04 Tether Gold Reserves Grow 59% Since Year-End as XAU₮ Backing Reaches Record US$ 3.44 Billion 4 November 2026 &#8211; Tether Gold (XA"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0024",
@@ -186,7 +262,20 @@
    "text": "Some major examples of algorithmic stablecoins are Celo Dollar, Tron's USDD and Kava's USDX.",
    "class": "data",
    "claim": "major algorithmic stablecoins: Celo Dollar, USDD, USDX",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "DefiLlama lists USDD as crypto-backed; wording from Aug 2025",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED on USDD; true-when-written evidence not found.",
+   "receipts": [
+    {
+     "url": "https://stablecoins.llama.fi/stablecoins?includePrices=false",
+     "match": ",\"Tron\",\"Robinhood Chain\"],\"price\":0.9986164112354506},{\"id\":\"14\",\"name\":\"USDD\",\"symbol\":\"USDD\",\"gecko_id\":\"usdd\",\"pegType\":\"peggedUSD\",\"priceSource\":\"defillama\",\"pegMechanism\":\"crypto-backed\",\"circulating\":{\"peggedUSD\":1491986765.1590495},\"circulatingPrevDay\":{\"peggedUSD"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0028",
@@ -500,7 +589,20 @@
    "text": "Tether's USDT is currently the world's largest market capitalization stablecoin.",
    "class": "data",
    "claim": "USDT is currently the largest stablecoin by market cap",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CoinGecko: USDT above USDC",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1",
+     "match": "tc\",\"percentage\":4330.908962886355},\"last_updated\":\"2026-11-05T04:35:48.000Z\"},{\"id\":\"tether\",\"symbol\":\"usdt\",\"name\":\"Tether\",\"image\":\"https://coin-images.coingecko.com/coins/images/325/large/Tether.png?1696501661\",\"current_price\":0.999333,\"market_cap\":178254839101,\"market_cap_rank\":3,\"fully_diluted_valuation\":183718143317,\"total_volume\":59958117840,\"high_24h\":0."
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0080",
@@ -538,7 +640,28 @@
    "text": "As of November 2026, Tether has still never once completed an audit by an accounting firm.",
    "class": "data",
    "claim": "as of November 2026 Tether has never completed an audit by an accounting firm",
-   "asOf": "2026-11"
+   "asOf": "2026-11",
+   "verdict": "wrong",
+   "dated": true,
+   "checkedValue": "Tether, 13 Aug 2026: KPMG U.S. completed a full audit of Tether International 2025 statements, unqualified opinion. Audit report not published",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Second check: Reuters copy and The Defiant. Evidence is Tether plus press; the signed report is not public. Wording added 3 Nov 2026 (rev 1383595351); the Tether page in this corpus records the audit.",
+   "receipts": [
+    {
+     "url": "https://tether.io/news/tether-completes-the-largest-inaugural-financial-audit-in-history/",
+     "match": "gust 13, 2026 Tether Completes the Largest Inaugural Financial Audit in History KPMG U.S. issues unqualified audit opinion on Tether’s 2025 financial statements &#8"
+    },
+    {
+     "url": "https://www.thestar.com.my/tech/tech-news/2026/08/14/stablecoin-issuer-tether-says-kpmg-us-has-audited-its-2025-statements",
+     "match": "ters) - El Salvador-based Tether, which issues the ⁠world's largest stablecoin, said KPMG U.S. had performed ‌a \"full independent audit\" of its financial statements for the first time. The"
+    },
+    {
+     "url": "https://thedefiant.io/news/cefi/tether-clears-first-full-audit-from-kpmg-without-publishing-the-statements",
+     "match": "Tether Clears First Full Audit From KPMG Without Publishing the Statements | The Defiant Toggle navigation menu Toggle theme The Defiant News Newsletter P"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0086",
@@ -654,7 +777,20 @@
    "text": "The European Central Bank's digital euro project has been under consideration since 2021 but has not been legislated by the European Parliament as of August 2025.",
    "class": "data",
    "claim": "digital euro not legislated by the European Parliament as of August 2025",
-   "asOf": "2025-08"
+   "asOf": "2025-08",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "ECB: assuming legislation is adopted during 2026",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.ecb.europa.eu/euro/digital_euro/html/index.en.html",
+     "match": "aim to be ready for a potential first issuance of the digital euro during 2029, assuming the necessary EU legislation is adopted in the course of 2026. Explore the project Digital euro – get the facts Confused by all the claims ab"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0105",
@@ -680,7 +816,15 @@
    "text": "The US's GENIUS Act, Europe's MiCAR, and Hong Kong's Stablecoin Bill all explicitly prohibit the provision of yield-bearing stablecoins by regulated issuers.",
    "class": "data",
    "claim": "GENIUS, MiCAR and the HK Stablecoin bill prohibit yield by regulated issuers",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Congress.gov 403",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0109",
@@ -688,7 +832,20 @@
    "text": "Australian regulator treats yield-bearing stablecoins as managed investment schemes.",
    "class": "data",
    "claim": "Australian regulator treats yield-bearing stablecoins as managed investment schemes",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ASIC INFO 225",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Passage read at summary level.",
+   "receipts": [
+    {
+     "url": "https://asic.gov.au/regulatory-resources/digital-transformation/digital-assets-financial-products-and-services/",
+     "match": "al products and services information sheet – 225 This is Information Sheet 225 (INFO 225) . It is directed to businesses and people offering products and services in re"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0110",
@@ -726,7 +883,15 @@
    "text": "The European Union and Hong Kong completely prohibit CASPs from offering yield on payment stablecoins, while Singapore restricted such products to institutional investors under limited conditions.",
    "class": "data",
    "claim": "EU and Hong Kong prohibit CASP yield; Singapore limits it to institutions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no regulator text saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0116",
@@ -794,7 +959,20 @@
    "text": "Stablecoins in Australia are regulated by the Australian Securities and Investments Commission (ASIC).",
    "class": "data",
    "claim": "stablecoins in Australia regulated by ASIC",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ASIC INFO 225 covers stablecoins",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://asic.gov.au/regulatory-resources/digital-transformation/digital-assets-financial-products-and-services/",
+     "match": "example, crypto-assets, crypto tokens, utility tokens, asset-referenced tokens, stablecoins, or tokenised assets (including where the underlying assets may be financial pr"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0127",
@@ -808,7 +986,15 @@
    "text": "Under the definition, issuers of stablecoin are treated as operating non-cash payment facilities; algorithmic stablecoins are treated as derivatives; while yield-bearing stablecoins are treated as managed investment schemes.",
    "class": "data",
    "claim": "ASIC INFO 225 treatment of issuers and algorithmic and yield stablecoins",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "ASIC text not read at clause level",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0129",
@@ -828,7 +1014,15 @@
    "text": "Under the regulation, stablecoin issuers can issue single currency fiat-backed stablecoins pegged to the Bahraini Dinar, US dollar, or any other fiat currency upon obtaining approval of the central bank.",
    "class": "data",
    "claim": "Bahrain SIO module permits approved single-currency fiat stablecoins",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Central Bank of Bahrain page 403",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0132",
@@ -836,7 +1030,15 @@
    "text": "Algorithmic stablecoins are prohibited.",
    "class": "data",
    "claim": "Bahrain prohibits algorithmic stablecoins",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Central Bank of Bahrain page 403",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0133",
@@ -868,7 +1070,15 @@
    "text": "Stablecoins are considered illegal in Mainland China.",
    "class": "data",
    "claim": "stablecoins are considered illegal in mainland China",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0138",
@@ -954,7 +1164,15 @@
    "text": "The regulation requires stablecoin issuer of fiat-backed stablecoin (known as digital-money type stablecoins in Japan) to register with the agency.",
    "class": "data",
    "claim": "Japan requires issuers of fiat-backed stablecoins to register",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Japan FSA page 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0152",
@@ -962,7 +1180,15 @@
    "text": "The agency views algorithmic stablecoin as crypto assets and does not require issuer to register.",
    "class": "data",
    "claim": "Japan treats algorithmic stablecoins as crypto assets, no registration",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Japan FSA page 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0153",
@@ -988,7 +1214,20 @@
    "text": "The issuer is state-owned company Virtual Asset Issuer OJSC.",
    "class": "data",
    "claim": "USDKG issuer is state-owned Virtual Asset Issuer OJSC",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Cabinet order No. 639-t of 20 Aug 2026 ends the USDKG project; who the issuer is was not re-read",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Not contradicted: ending the project does not change the named issuer. The page omits the termination.",
+   "receipts": [
+    {
+     "url": "https://usdkg.com/",
+     "match": "639-t of the Cabinet of Ministers of the Kyrgyz Republic dated August 20, 2026, the USDKG project is ceasing its operations, including its activities on blockchain networks. Holders of USDKG tokens may c"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0157",
@@ -996,7 +1235,20 @@
    "text": "The stablecoin is backed by gold and pegged to the US dollar.",
    "class": "data",
    "claim": "USDKG is gold-backed and dollar-pegged",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "USDKG project ceasing; holders may exchange for fiat or USDT; current backing not published on the site",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Not contradicted: the notice does not say the backing has gone. The page omits the termination.",
+   "receipts": [
+    {
+     "url": "https://usdkg.com/",
+     "match": "ts activities on blockchain networks. Holders of USDKG tokens may contact us to exchange their tokens for fiat currency or USDT by email at: hello@usdkg.com Order No. 639-t of the Cabinet of Ministers of the"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0158",
@@ -1016,7 +1268,15 @@
    "text": "Issuers of stablecoins are required to maintain a portfolio of reserve assets denominated in the currency of the stablecoin peg.",
    "class": "data",
    "claim": "Singapore issuers must hold reserves in the peg currency",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "MAS page empty when saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0161",
@@ -1042,7 +1302,15 @@
    "text": "Regulations on the issuance of stablecoins in South Korea are being discussed.",
    "class": "data",
    "claim": "South Korea stablecoin regulation is being discussed",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0165",
@@ -1068,7 +1336,15 @@
    "text": "The law requires stablecoin issuers to maintain full reserve backing, with segregated reserve assets held in trust by domestic financial institutions.",
    "class": "data",
    "claim": "Taiwan law requires full reserves in trust at domestic institutions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0169",
@@ -1082,7 +1358,15 @@
    "text": "Stablecoin issuers must also undergo regular audits and are prohibited from paying interest or other returns to holders.",
    "class": "data",
    "claim": "Taiwan issuers must be audited and cannot pay interest",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0171",
@@ -1096,7 +1380,15 @@
    "text": "The regulations prohibit persons within the UAE from accepting stablecoins for the sale of goods and services except licensed payment token.In April 2025, the sovereign wealth fund of Abu Dhabi, ADQ, and the First Abu Dhabi Bank, are set to launch a stablecoin backed by dirhams.",
    "class": "data",
    "claim": "UAE prohibits accepting stablecoins except licensed payment tokens",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "UAE rulebook 403",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "stablecoin-0173",

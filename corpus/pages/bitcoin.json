@@ -54,7 +54,20 @@
    "text": "Each node maintains an independent copy of a public distributed ledger of transactions, called a blockchain, without central oversight.",
    "class": "data",
    "claim": "each node keeps a copy of the ledger",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "public ledger shared by the network",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/en/faq",
+     "match": " is how Bitcoin works for most users. Behind the scenes, the Bitcoin network is sharing a public ledger called the \"blockchain\". This ledger contains every transaction ever processed,"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0008",
@@ -68,7 +81,20 @@
    "text": "Consensus between nodes about the content of the blockchain is achieved using a computationally intensive process based on proof of work, called mining, which is performed by purpose-built computers.",
    "class": "data",
    "claim": "consensus by proof of work",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "proof of work",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/bitcoin.pdf",
+     "match": "ork timestamps transactions by hashing them into an ongoing chain of hash-based proof-of-work, forming a record that cannot be changed without redoing the proof-of-work. The"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0010",
@@ -130,7 +156,15 @@
    "text": "Nakamoto's identity remains unknown.",
    "class": "data",
    "claim": "Nakamoto's identity remains unknown",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary data can prove an absence",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0020",
@@ -384,7 +418,20 @@
    "text": "As of June 2023, River Financial estimated that bitcoin had 81.7 million users, about 1% of the global population.",
    "class": "data",
    "claim": "River Financial estimated 81.7M users as of June 2023",
-   "asOf": "2023-06"
+   "asOf": "2023-06",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "River: 81.7M users, 1% of global population, June 2023",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "River now estimates 300M owners as of May 2026; dated sentence stands.",
+   "receipts": [
+    {
+     "url": "https://web.archive.org/web/2023/https://river.com/learn/how-many-people-use-bitcoin/",
+     "match": "ll show you why we believe the real number of Bitcoin users is closer to around 81.7 million users as of June 2023, or 1% of the global population. First, we look into what hard data we can gath"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0062",
@@ -410,7 +457,15 @@
    "text": "As of 2025, the Salvadoran government continues to describe Bitcoin as legal tender under the 2021 Bitcoin Law; however, a January 2025 reform removed obligations for businesses and the government to accept it, so many analysts regard its legal-tender status as effectively ended in practice.",
    "class": "data",
    "claim": "as of 2025 El Salvador still describes bitcoin as legal tender, and a January 2025 reform removed the obligation to accept it",
-   "asOf": "2025"
+   "asOf": "2025",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "IMF page not retrievable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0066",
@@ -442,7 +497,20 @@
    "text": "However, the BTC code does not conform to ISO 4217 as BT is the country code of Bhutan, and ISO 4217 requires the first letter used in global commodities to be 'X'.",
    "class": "data",
    "claim": "BTC does not conform to ISO 4217; BT is Bhutan's code",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "BTN is Bhutan's code; BTC absent from the ISO list",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.six-group.com/dam/download/financial-information/data-center/iso-currrency/lists/list-one.xml",
+     "match": "cyMnrUnts> </CcyNtry> <CcyNtry> <CtryNm>BHUTAN</CtryNm> <CcyNm>Ngultrum</CcyNm> <Ccy>BTN</Ccy> <CcyNbr>064</CcyNbr> <CcyMnrUnts>2</CcyMnrUnts> </CcyNtry> <CcyNtry> <CtryNm>BO"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0071",
@@ -450,7 +518,15 @@
    "text": "XBT, a code that conforms to ISO 4217 though not officially part of it, is used by Bloomberg L.P.",
    "class": "data",
    "claim": "XBT is not officially part of ISO 4217 and is used by Bloomberg",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "XBT absent from ISO list; Bloomberg usage not checked at source",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0072",
@@ -470,7 +546,20 @@
    "text": "One bitcoin is divisible to eight decimal places.",
    "class": "data",
    "claim": "one bitcoin divisible to eight decimal places",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "COIN = 100,000,000 units",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/consensus/amount.h",
+     "match": "4_t CAmount; /** The amount of satoshis in one BTC. */ inline constexpr CAmount COIN{100'000'000}; /** No amount larger than this (in satoshi) is valid. * * Note that this const"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0075",
@@ -478,7 +567,20 @@
    "text": "Units for smaller amounts of bitcoin are the millibitcoin (mBTC), equal to 1⁄1000 bitcoin, and the satoshi (sat), representing 1⁄100000000 (one hundred millionth) bitcoin, the smallest amount possible.",
    "class": "data",
    "claim": "mBTC = 1/1000; satoshi = 1/100,000,000, the smallest amount",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "COIN = 100,000,000 units",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/consensus/amount.h",
+     "match": "4_t CAmount; /** The amount of satoshis in one BTC. */ inline constexpr CAmount COIN{100'000'000}; /** No amount larger than this (in satoshi) is valid. * * Note that this const"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0076",
@@ -486,7 +588,20 @@
    "text": "100,000 satoshis are one mBTC.",
    "class": "data",
    "claim": "100,000 satoshis = 1 mBTC",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "arithmetic from COIN",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/consensus/amount.h",
+     "match": "4_t CAmount; /** The amount of satoshis in one BTC. */ inline constexpr CAmount COIN{100'000'000}; /** No amount larger than this (in satoshi) is valid. * * Note that this const"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0077",
@@ -512,7 +627,20 @@
    "text": "Each block contains the hash of the previous block, made by hashing its header twice with SHA-256, chaining them in chronological order.",
    "class": "data",
    "claim": "each block holds the double-SHA-256 hash of the previous header",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "double SHA-256 of previous header",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/reference/block_chain.html",
+     "match": " See the list of block versions below. 32 previous block header hash char[32] A SHA256(SHA256()) hash in internal byte order of the previous block’s header. This ensures no previous"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0081",
@@ -526,7 +654,20 @@
    "text": "Individual blocks, public addresses, and transactions within blocks are public information, and can be examined using a blockchain explorer.",
    "class": "data",
    "claim": "blocks, addresses and transactions are public via explorers",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "all transactions are public",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/en/protect-your-privacy",
+     "match": "recedented level of transparency that most people are not used to dealing with. All Bitcoin transactions are public, traceable, and permanently stored in the Bitcoin network. Bitcoin addresses ar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0083",
@@ -546,7 +687,20 @@
    "text": "A new block is created every 10 minutes on average, updating the blockchain across all nodes without central oversight.",
    "class": "data",
    "claim": "a block every 10 minutes on average",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "target spacing 10 minutes",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/kernel/chainparams.cpp",
+     "match": "fff\"}; consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks consensus.nPowTargetSpacing = 10 * 60; consensus.fPowAllowMinDifficultyBlocks = false; consensus.enforce_BIP94 = fals"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0086",
@@ -614,7 +768,20 @@
    "text": "Bitcoin transactions use a Forth-like scripting language, involving one or more inputs and outputs.",
    "class": "data",
    "claim": "transactions use a Forth-like scripting language",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Forth-like script",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/transactions.html",
+     "match": "P OP_HASH160 < PubkeyHash > OP_EQUALVERIFY OP_CHECKSIG The script language is a Forth-like stack-based language deliberately designed to be stateless and not Turing "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0097",
@@ -634,7 +801,20 @@
    "text": "To prevent double-spending, each input must refer to a previous unspent output in the blockchain.",
    "class": "data",
    "claim": "each input refers to a previous unspent output",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "inputs spend previous outputs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/transactions.html",
+     "match": "ansaction has at least one input and one output. Each input spends the satoshis paid to a previous output. Each output then waits as an Unspent Transaction Output (UTXO) until a later i"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0100",
@@ -660,7 +840,20 @@
    "text": "Unallocated input satoshis in the transaction become the transaction fee.",
    "class": "data",
    "claim": "unallocated input satoshis become the fee",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "remainder is the fee",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/transactions.html",
+     "match": "toshis for a P2PKH or P2SH output on a Bitcoin Core node with the default relay fee. Exception: standard null data outputs must receive zero satoshis. Signature Ha"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0104",
@@ -680,7 +873,15 @@
    "text": "It is estimated that around 20% of all bitcoins are lost.",
    "class": "data",
    "claim": "around 20% of all bitcoins are estimated lost",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "estimate; no primary source",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0107",
@@ -694,7 +895,15 @@
    "text": "As of December 2017, approximately ₿980,000 had been stolen from cryptocurrency exchanges.",
    "class": "data",
    "claim": "about 980,000 BTC stolen from exchanges as of December 2017",
-   "asOf": "2017-12"
+   "asOf": "2017-12",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0109",
@@ -726,7 +935,20 @@
    "text": "Each block must contain a proof of work (PoW) to be accepted, involving finding a nonce number that, combined with the block content, produces a hash numerically smaller than the network's difficulty target.",
    "class": "data",
    "claim": "each block needs proof of work below the difficulty target",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "proof of work against target",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/block_chain.html",
+     "match": "mate the probability that a given hash attempt will generate a number below the target threshold. Bitcoin assumes a linear probability that the lower it makes the tar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0114",
@@ -746,7 +968,20 @@
    "text": "The difficulty of generating a block is deterministically adjusted based on the mining power on the network by changing the difficulty target, which is recalibrated every 2,016 blocks (approximately two weeks) to maintain an average time of ten minutes between new blocks.",
    "class": "data",
    "claim": "difficulty recalibrated every 2,016 blocks to keep ten-minute blocks",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "two-week timespan at ten-minute spacing",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/kernel/chainparams.cpp",
+     "match": "{\"00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff\"}; consensus.nPowTargetTimespan = 14 * 24 * 60 * 60; // two weeks consensus.nPowTargetSpacing = 10 * 60; consensus.fPowAllowMinDiff"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0117",
@@ -760,7 +995,20 @@
    "text": "Miners who successfully create a new block with a valid nonce can collect transaction fees from the included transactions and a fixed reward in bitcoins.",
    "class": "data",
    "claim": "miners collect fees plus a fixed reward",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "block reward and fees",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/mining.html",
+     "match": "he miner attempts to generate new blocks on his own, with the proceeds from the block reward and transaction fees going entirely to himself, allowing him to receive large payments with a higher"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0119",
@@ -768,7 +1016,20 @@
    "text": "To claim this reward, a special transaction called a coinbase is included in the block, with the miner as the payee.",
    "class": "data",
    "claim": "reward is claimed by a coinbase transaction",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "coinbase transaction",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/mining.html",
+     "match": " , which provides the list of new transactions plus the public key to which the coinbase transaction should be sent. Solo Bitcoin Mining ¶ The mining software constructs a block us"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0120",
@@ -776,7 +1037,20 @@
    "text": "All bitcoins in existence have been created through this type of transaction.",
    "class": "data",
    "claim": "all bitcoins were created through coinbase transactions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "new coins arise in the coinbase",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/devguide/mining.html",
+     "match": " , which provides the list of new transactions plus the public key to which the coinbase transaction should be sent. Solo Bitcoin Mining ¶ The mining software construct"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0121",
@@ -784,7 +1058,24 @@
    "text": "This reward is halved every 210,000 blocks until ₿21 million have been issued in total, which is expected to occur around the year 2140.",
    "class": "data",
    "claim": "reward halves every 210,000 blocks to a 21 million total around 2140",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "halving interval 210,000; max money 21M",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/kernel/chainparams.cpp",
+     "match": " consensus.signet_blocks = false; consensus.signet_challenge.clear(); consensus.nSubsidyHalvingInterval = 210000; consensus.script_flag_exceptions.emplace( // BIP16 exception uint256{\"00000000"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/bitcoin/bitcoin/master/src/consensus/amount.h",
+     "match": "ut of thin air modification could lead to a fork. * */ inline constexpr CAmount MAX_MONEY{21'000'000 * COIN}; inline bool MoneyRange(const CAmount& nValue) { return (nValue >= 0 &&"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0122",
@@ -798,7 +1089,20 @@
    "text": "These fees are determined by the transaction's size and the amount of data stored, measured in satoshis per byte.",
    "class": "data",
    "claim": "fees are measured in satoshis per byte",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "fee rates use virtual size under BIP 141",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Kept current: virtual bytes are still a per-byte measure.",
+   "receipts": [
+    {
+     "url": "https://developer.bitcoin.org/reference/rpc/estimatesmartfee.html",
+     "match": " possible and return the number of blocks for which the estimate is valid. Uses virtual transaction size as defined in BIP 141 (witness data is discounted). Argument #1 - conf_target ¶"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0124",
@@ -842,7 +1146,20 @@
    "text": "As of 2025, a non-peer-reviewed study by the Cambridge Centre for Alternative Finance (CCAF) estimated that bitcoin mining represented 0.5% of global electricity consumption and 0.08% of world greenhouse gas emissions, comparable to Slovakia's emissions.",
    "class": "data",
    "claim": "as of 2025 CCAF estimated mining at 0.5% of global electricity and 0.08% of emissions",
-   "asOf": "2025"
+   "asOf": "2025",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "CCAF: 138 TWh, about 0.54% of global electricity",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Emissions clause read in the report summary only.",
+   "receipts": [
+    {
+     "url": "https://www.jbs.cam.ac.uk/faculty-research/centres/alternative-finance/publications/cambridge-digital-mining-industry-report/",
+     "match": "d annual electricity consumption grew 17% year-on-year to 138 TWh, representing approximately 0.54% of global electricity usage. This consumption growth occurred despite notable energy efficiency gains"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0131",
@@ -850,7 +1167,20 @@
    "text": "About half of the electricity used is generated through fossil fuels.",
    "class": "data",
    "claim": "about half the electricity used comes from fossil fuels",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CCAF: 52.4% sustainable, so about half fossil or other",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.jbs.cam.ac.uk/faculty-research/centres/alternative-finance/publications/cambridge-digital-mining-industry-report/",
+     "match": "able move towards sustainable energy Surveyed miners reported to mainly utilize sustainable energy sources (52.4%), signifying a marked increase compared to previous estimates (37.6% in 2022), c"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0132",
@@ -870,7 +1200,20 @@
    "text": "Bitcoin is pseudonymous, with funds linked to addresses, not real-world identities.",
    "class": "data",
    "claim": "bitcoin is pseudonymous, funds linked to addresses",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "public and traceable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/en/protect-your-privacy",
+     "match": "ncy that most people are not used to dealing with. All Bitcoin transactions are public, traceable, and permanently stored in the Bitcoin network. Bitcoin addresses are the only "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0135",
@@ -878,7 +1221,20 @@
    "text": "While the owners of these addresses are not directly identified, all transactions are public on the blockchain.",
    "class": "data",
    "claim": "all transactions are public",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "public",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/en/protect-your-privacy",
+     "match": "recedented level of transparency that most people are not used to dealing with. All Bitcoin transactions are public, traceable, and permanently stored in the Bitcoin network. Bitcoin addresses ar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0136",
@@ -964,7 +1320,20 @@
    "text": "Forks of Bitcoin Core exist such as Bitcoin Unlimited.",
    "class": "data",
    "claim": "forks of Bitcoin Core exist, such as Bitcoin Unlimited",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Bitcoin Unlimited continues on GitLab",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/BitcoinUnlimited/BitcoinUnlimited",
+     "match": "GitHub - BitcoinUnlimited/BitcoinUnlimited: Bitcoin Unlimited continues on gitlab see https://gitlab.com/bitcoinunlimited/BCHUnlimited · GitHub Skip to content N"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0150",
@@ -1002,7 +1371,20 @@
    "text": "The Lightning Network, a second-layer routing network, is a potential scaling solution.",
    "class": "data",
    "claim": "Lightning Network is a second-layer routing network",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Lightning Network site",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://lightning.network/",
+     "match": "Lightning Network Toggle navigation Lightning Network How it Works Documents Lightning Network Sc"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0156",
@@ -1016,7 +1398,20 @@
    "text": "If a single miner or pool controls more than 50% of the hashing power, it would allow them to censor transactions and double-spend coins.",
    "class": "data",
    "claim": "control of over 50% of hash power allows censoring and double-spending",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "whitepaper's majority assumption",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://bitcoin.org/bitcoin.pdf",
+     "match": "nessed, but proof that it came from the largest pool of CPU power. As long as a majority of CPU power is controlled by nodes that are not cooperating to attack the network, they'll "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0158",
@@ -1102,7 +1497,20 @@
    "text": "The legal status of bitcoin varies substantially from one jurisdiction to another.",
    "class": "data",
    "claim": "bitcoin's legal status varies by jurisdiction",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Library of Congress survey shows varied status",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://tile.loc.gov/storage-services/service/ll/llglrd/2021687419/2021687419.pdf",
+     "match": "creased significantly. While the 2018 report identified 8 jurisdictions with an absolute ban and 15 jurisdictions with an implicit ban, the November 2021 update identifies "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0172",
@@ -1140,7 +1548,20 @@
    "text": "As of November 2021, nine countries applied an absolute ban (Algeria, Bangladesh, China, Egypt, Iraq, Morocco, Nepal, Qatar, and Tunisia) while another 42 countries had an implicit ban.",
    "class": "data",
    "claim": "as of November 2021, nine absolute bans and 42 implicit bans",
-   "asOf": "2021-11"
+   "asOf": "2021-11",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "Library of Congress, Nov 2021: 9 absolute, 42 implicit",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://tile.loc.gov/storage-services/service/ll/llglrd/2021687419/2021687419.pdf",
+     "match": "risdictions with an absolute ban and 15 jurisdictions with an implicit ban, the November 2021 update identifies 9 jurisdictions with an absolute ban and 42 with an implicit ban. Likewise, the application of tax laws, AML/CFT laws, or both types of laws to "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0178",
@@ -1196,7 +1617,15 @@
    "text": "As of 2022, the use of Bitcoin in El Salvador remained low: 80% of businesses refused to accept it.",
    "class": "data",
    "claim": "as of 2022, 80% of Salvadoran businesses refused bitcoin",
-   "asOf": "2022"
+   "asOf": "2022",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "NBER page shows no figure in the saved abstract",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0187",
@@ -1210,7 +1639,15 @@
    "text": "El Salvador still describes bitcoin as \"legal tender\", but its acceptance is no longer obligitory (as it is with the US dollar) and the El Salvador government no longer accepts bitcoin for payment of taxes or fees.",
    "class": "data",
    "claim": "El Salvador still calls it legal tender, acceptance optional, government no longer takes it for taxes or fees",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "IMF page not retrievable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0189",
@@ -1236,7 +1673,15 @@
    "text": "Since 2020, Iran has required local bitcoin miners to sell bitcoin to the Central Bank of Iran, allowing the central bank to use it for imports.",
    "class": "data",
    "claim": "since 2020 Iran has required miners to sell to the central bank",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary source reached",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0193",
@@ -1244,7 +1689,15 @@
    "text": "Some constituent states and local governments also accept tax payments in bitcoin, including Colorado in the US and Zug and Lugano in Switzerland.",
    "class": "data",
    "claim": "Colorado, Zug and Lugano accept tax payments in bitcoin",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Colorado 403, Lugano and Zug 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0194",
@@ -1252,7 +1705,15 @@
    "text": "As of 2023, the US government owned more than $5 billion worth of seized bitcoin.",
    "class": "data",
    "claim": "as of 2023 the US government owned more than $5 billion of seized bitcoin",
-   "asOf": "2023"
+   "asOf": "2023",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0195",
@@ -1260,7 +1721,15 @@
    "text": "As of 2018, the overwhelming majority of bitcoin transactions took place on cryptocurrency exchanges.",
    "class": "data",
    "claim": "as of 2018 the great majority of bitcoin transactions took place on exchanges",
-   "asOf": "2018"
+   "asOf": "2018",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0196",
@@ -1268,7 +1737,15 @@
    "text": "Since 2014, regulated bitcoin funds also allow exposure to the asset or to futures as an investment.",
    "class": "data",
    "claim": "regulated bitcoin funds have existed since 2014",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0197",
@@ -1282,7 +1759,15 @@
    "text": "Bitcoin wealth is highly concentrated, with 0.01% holding 27% of in-circulation currency, as of 2021.",
    "class": "data",
    "claim": "as of 2021, 0.01% of holders held 27% of supply",
-   "asOf": "2021"
+   "asOf": "2021",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "NBER abstract did not state the figure",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0199",
@@ -1290,7 +1775,15 @@
    "text": "As of March 2025, El Salvador had $550 million worth of bitcoin in its international reserves, about 6,102 coins.",
    "class": "data",
    "claim": "as of March 2025, El Salvador held about 6,102 BTC worth $550M",
-   "asOf": "2025-03"
+   "asOf": "2025-03",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "El Salvador's bitcoin office unreachable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0200",
@@ -1388,7 +1881,20 @@
    "text": "Bitcoin markets are always active, contrasting with traditional financial markets that may adhere to fixed trading hours.",
    "class": "data",
    "claim": "bitcoin markets are always active",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "volume recorded on every one of 301 sampled days",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=300&interval=daily",
+     "match": "6.4917],[1793836800000,1617330089308.3184],[1793859410000,1618302129904.1997]],\"total_volumes\":[[1768003200000,40577564756.70896],[1768089600000,13130560424.187477],[1768176"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "bitcoin-0216",
@@ -1408,7 +1914,20 @@
    "text": "The daily transaction volume of bitcoin across all exchanges typically reaches $50 billion as of 2025.",
    "class": "data",
    "claim": "daily trading volume typically reaches $50 billion as of 2025",
-   "asOf": "2025"
+   "asOf": "2025",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "CoinGecko free history reaches Jan 2026 only; Jan-Nov 2026 mean $33.7B",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Dated 2025; the free API window does not cover 2025.",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=usd&days=300&interval=daily",
+     "match": "6.4917],[1793836800000,1617330089308.3184],[1793859410000,1618302129904.1997]],\"total_volumes\":[[1768003200000,40577564756.70896],[1768089600000,13130560424.187477],[1768176"
+    }
+   ],
+   "thenReceipts": []
   }
  ]
 }

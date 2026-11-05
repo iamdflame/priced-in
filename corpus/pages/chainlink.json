@@ -18,7 +18,20 @@
    "text": "Chainlink is a decentralized blockchain oracle network.",
    "class": "data",
    "claim": "Chainlink is a blockchain oracle network",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Chainlink oracle platform",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://chain.link/",
+     "match": "Chainlink: The Industry-Standard Oracle Platform , before first paint --> --> Copy as PNG Copy as SVG Download all logos View br"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0002",
@@ -26,7 +39,25 @@
    "text": "Chainlink's token is on Ethereum.",
    "class": "data",
    "claim": "LINK token is on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "LINK contract on Ethereum answers",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.chain.link/resources/link-token-contracts",
+     "match": "VM Testnet DogeOS DogeOS Chikyu Testnet Edge Edge Mainnet Edge Testnet Ethereum Ethereum Mainnet Sepolia Testnet Ethereum Holesky Testnet Ethereum Hoodi Testnet Etherlink Ether"
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x514910771AF9Ca656af840dff83E8264EcF986CA\",\"data\":\"0x95d89b41\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000044c494e4b0000000"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0003",
@@ -46,7 +77,20 @@
    "text": "Chainlink acts as a \"bridge\" between a blockchain and off-chain environments.",
    "class": "data",
    "claim": "Chainlink bridges blockchains and off-chain environments",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Chainlink oracle education page",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://chain.link/education/blockchain-oracles",
+     "match": "What Is an Oracle in Blockchain? » Explained | Chainlink , before first paint --> Copy as PNG Copy as SVG Downl"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0006",
@@ -66,7 +110,20 @@
    "text": "Town Crier connects the Ethereum blockchain with web sources that use HTTPS.",
    "class": "data",
    "claim": "Town Crier connects Ethereum with HTTPS web sources",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Repo points to a Rinkeby test image; Rinkeby is gone; no statement of current service",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/bl4ck5un/Town-Crier",
+     "match": "-crier.netlify.app . To run a TC node TC docker images (configured to serve the Rinkeby testnet) are released online for evaluation purposes. git clone https://github."
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0009",
@@ -140,7 +197,20 @@
    "text": "Chainlink's oracle network allows blockchains to connect to off-chain data and computation resources.",
    "class": "data",
    "claim": "oracles connect blockchains to off-chain data",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "same",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://chain.link/education/blockchain-oracles",
+     "match": "What Is an Oracle in Blockchain? » Explained | Chainlink , before first paint --> Copy as PNG Copy as SVG Downl"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0021",
@@ -148,7 +218,15 @@
    "text": "LINK is a utility and governance token of Chainlink.",
    "class": "data",
    "claim": "LINK is a utility and governance token",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary source describes LINK as governance",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0022",
@@ -156,7 +234,15 @@
    "text": "The trade value derived from these tokens is used to pay node operators for retrieving data from smart contracts, and also for deposits placed by node operators as required by contract creators.",
    "class": "data",
    "claim": "LINK pays node operators and serves as deposits",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no exact statement saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0023",
@@ -164,7 +250,20 @@
    "text": "Tokens can be stored in any ERC-20 wallet, as the ERC677 token retains all the functionality of an ERC-20 token.",
    "class": "data",
    "claim": "LINK is ERC-677 and fits ERC-20 wallets",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "contract imports ERC677Token",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/smartcontractkit/LinkToken/master/contracts/v0.4/LinkToken.sol",
+     "match": "pragma solidity ^0.4.11; import './ERC677Token.sol'; import './token/linkStandardToken.sol'; contract LinkToken is linkStandar"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "chainlink-0024",
@@ -172,7 +271,20 @@
    "text": "Community participants can stake LINK to support the network's cryptoeconomic security.",
    "class": "data",
    "claim": "LINK can be staked",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Chainlink Staking page",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://chain.link/economics/staking",
+     "match": "Chainlink Staking | Chainlink Economics , before first paint --> Copy as PNG Copy as SVG Download"
+    }
+   ],
+   "thenReceipts": []
   }
  ]
 }

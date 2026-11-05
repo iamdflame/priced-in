@@ -1,0 +1,554 @@
+{
+ "question": "Of the checkable factual sentences on public encyclopedia pages about crypto and NEAR topics, how many are out of date or wrong today, checked against primary data?",
+ "checkedOn": "2026-11-05",
+ "revisionCutoff": "2026-11-05T00:00:00Z",
+ "source": "English Wikipedia, CC BY-SA 4.0, by Wikipedia contributors",
+ "licenceUrl": "https://creativecommons.org/licenses/by-sa/4.0/",
+ "headline": {
+  "formula": "(stale + wrong) / (current + stale + wrong)",
+  "numerator": 16,
+  "denominator": 232,
+  "share": 0.069,
+  "wilson95": [
+   0.0429,
+   0.1091
+  ]
+ },
+ "counts": {
+  "checked": 359,
+  "current": 216,
+  "currentDated": 10,
+  "stale": 11,
+  "wrong": 5,
+  "undecidable": 122,
+  "undecidableContradicted": 9,
+  "reclassified": 5
+ },
+ "sensitivity": {
+  "lowerBoundCountingUndecidable": 0.0452,
+  "excludingDated": 0.0721,
+  "countingContradictedUndecidableAsOutOfDate": 0.1037
+ },
+ "byClass": {
+  "data": 359,
+  "sourced": 1117,
+  "opinion": 390,
+  "total": 1866
+ },
+ "staleAge": {
+  "medianDays": 2034,
+  "n": 11,
+  "method": "days from the first revision whose wikitext holds the wording, found by bisecting page history, to the check date",
+  "rows": [
+   {
+    "id": "ethereum-0119",
+    "wordingFirstSeen": "2021-01-19",
+    "days": 2116
+   },
+   {
+    "id": "ethereum-0131",
+    "wordingFirstSeen": "2020-12-03",
+    "days": 2163
+   },
+   {
+    "id": "proof-of-stake-0042",
+    "wordingFirstSeen": "2023-03-01",
+    "days": 1345
+   },
+   {
+    "id": "dai-0002",
+    "wordingFirstSeen": "2020-12-14",
+    "days": 2152
+   },
+   {
+    "id": "dai-0032",
+    "wordingFirstSeen": "2021-01-14",
+    "days": 2121
+   },
+   {
+    "id": "tether-0030",
+    "wordingFirstSeen": "2021-04-11",
+    "days": 2034
+   },
+   {
+    "id": "tether-0031",
+    "wordingFirstSeen": "2021-01-26",
+    "days": 2109
+   },
+   {
+    "id": "tether-0161",
+    "wordingFirstSeen": "2024-02-26",
+    "days": 983
+   },
+   {
+    "id": "prediction-market-0186",
+    "wordingFirstSeen": "2026-03-19",
+    "days": 231
+   },
+   {
+    "id": "prediction-market-0211",
+    "wordingFirstSeen": "2024-11-15",
+    "days": 720
+   },
+   {
+    "id": "prediction-market-0215",
+    "wordingFirstSeen": "2025-07-14",
+    "days": 479
+   }
+  ]
+ },
+ "audit": {
+  "sampled": 54,
+  "agree": 52,
+  "agreementRate": 0.963,
+  "bothDecided": 31,
+  "bothDecidedAgree": 31,
+  "disagreements": [
+   "avalanche-0073",
+   "tether-0091"
+  ],
+  "limit": "Same agent in the same session; first verdicts were not displayed during the audit but cannot be unlearned. Treat the rate as an upper bound."
+ },
+ "articles": [
+  {
+   "slug": "near",
+   "title": "NEAR (blockchain platform)",
+   "revid": 1374559820,
+   "timestamp": "2026-09-12T20:05:09Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=NEAR_(blockchain_platform)&oldid=1374559820",
+   "attribution": "\"NEAR (blockchain platform)\", English Wikipedia, revision 1374559820 (2026-09-12T20:05:09Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 22,
+   "classes": {
+    "data": 2,
+    "sourced": 19,
+    "opinion": 1
+   },
+   "verdicts": {
+    "data": 2,
+    "current": 2,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 0,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "ethereum",
+   "title": "Ethereum",
+   "revid": 1383352660,
+   "timestamp": "2026-11-02T07:03:53Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Ethereum&oldid=1383352660",
+   "attribution": "\"Ethereum\", English Wikipedia, revision 1383352660 (2026-11-02T07:03:53Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 187,
+   "classes": {
+    "data": 61,
+    "sourced": 90,
+    "opinion": 36
+   },
+   "verdicts": {
+    "data": 61,
+    "current": 50,
+    "stale": 2,
+    "wrong": 1,
+    "undecidable": 7,
+    "reclassified": 1
+   }
+  },
+  {
+   "slug": "bitcoin",
+   "title": "Bitcoin",
+   "revid": 1382376340,
+   "timestamp": "2026-10-28T11:17:12Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Bitcoin&oldid=1382376340",
+   "attribution": "\"Bitcoin\", English Wikipedia, revision 1382376340 (2026-10-28T11:17:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 218,
+   "classes": {
+    "data": 45,
+    "sourced": 114,
+    "opinion": 59
+   },
+   "verdicts": {
+    "data": 45,
+    "current": 30,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 15,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "solana",
+   "title": "Solana (blockchain platform)",
+   "revid": 1370327076,
+   "timestamp": "2026-08-20T13:48:00Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Solana_(blockchain_platform)&oldid=1370327076",
+   "attribution": "\"Solana (blockchain platform)\", English Wikipedia, revision 1370327076 (2026-08-20T13:48:00Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 49,
+   "classes": {
+    "data": 3,
+    "sourced": 41,
+    "opinion": 5
+   },
+   "verdicts": {
+    "data": 3,
+    "current": 1,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 2,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "usdc",
+   "title": "USDC (cryptocurrency)",
+   "revid": 1370061318,
+   "timestamp": "2026-08-18T22:35:20Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=USDC_(cryptocurrency)&oldid=1370061318",
+   "attribution": "\"USDC (cryptocurrency)\", English Wikipedia, revision 1370061318 (2026-08-18T22:35:20Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 24,
+   "classes": {
+    "data": 5,
+    "sourced": 17,
+    "opinion": 2
+   },
+   "verdicts": {
+    "data": 5,
+    "current": 5,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 0,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "tether",
+   "title": "Tether (cryptocurrency)",
+   "revid": 1382852995,
+   "timestamp": "2026-10-30T17:27:49Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995",
+   "attribution": "\"Tether (cryptocurrency)\", English Wikipedia, revision 1382852995 (2026-10-30T17:27:49Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 190,
+   "classes": {
+    "data": 21,
+    "sourced": 145,
+    "opinion": 24
+   },
+   "verdicts": {
+    "data": 21,
+    "current": 8,
+    "stale": 3,
+    "wrong": 0,
+    "undecidable": 10,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "uniswap",
+   "title": "Uniswap",
+   "revid": 1379919424,
+   "timestamp": "2026-10-12T17:50:08Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Uniswap&oldid=1379919424",
+   "attribution": "\"Uniswap\", English Wikipedia, revision 1379919424 (2026-10-12T17:50:08Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 35,
+   "classes": {
+    "data": 18,
+    "sourced": 16,
+    "opinion": 1
+   },
+   "verdicts": {
+    "data": 18,
+    "current": 13,
+    "stale": 0,
+    "wrong": 1,
+    "undecidable": 4,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "aave",
+   "title": "Aave",
+   "revid": 1383227531,
+   "timestamp": "2026-11-01T17:21:21Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Aave&oldid=1383227531",
+   "attribution": "\"Aave\", English Wikipedia, revision 1383227531 (2026-11-01T17:21:21Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 24,
+   "classes": {
+    "data": 11,
+    "sourced": 12,
+    "opinion": 1
+   },
+   "verdicts": {
+    "data": 11,
+    "current": 6,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 5,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "chainlink",
+   "title": "Chainlink (blockchain oracle)",
+   "revid": 1373689437,
+   "timestamp": "2026-09-07T09:49:59Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Chainlink_(blockchain_oracle)&oldid=1373689437",
+   "attribution": "\"Chainlink (blockchain oracle)\", English Wikipedia, revision 1373689437 (2026-09-07T09:49:59Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 24,
+   "classes": {
+    "data": 9,
+    "sourced": 14,
+    "opinion": 1
+   },
+   "verdicts": {
+    "data": 9,
+    "current": 6,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 3,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "polymarket",
+   "title": "Polymarket",
+   "revid": 1383536551,
+   "timestamp": "2026-11-03T05:52:06Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Polymarket&oldid=1383536551",
+   "attribution": "\"Polymarket\", English Wikipedia, revision 1383536551 (2026-11-03T05:52:06Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 136,
+   "classes": {
+    "data": 14,
+    "sourced": 100,
+    "opinion": 22
+   },
+   "verdicts": {
+    "data": 14,
+    "current": 6,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 8,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "zcash",
+   "title": "Zcash",
+   "revid": 1381362683,
+   "timestamp": "2026-10-21T22:37:57Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Zcash&oldid=1381362683",
+   "attribution": "\"Zcash\", English Wikipedia, revision 1381362683 (2026-10-21T22:37:57Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 46,
+   "classes": {
+    "data": 6,
+    "sourced": 34,
+    "opinion": 6
+   },
+   "verdicts": {
+    "data": 6,
+    "current": 5,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 1,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "monero",
+   "title": "Monero",
+   "revid": 1383327494,
+   "timestamp": "2026-11-02T03:23:26Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Monero&oldid=1383327494",
+   "attribution": "\"Monero\", English Wikipedia, revision 1383327494 (2026-11-02T03:23:26Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 75,
+   "classes": {
+    "data": 15,
+    "sourced": 41,
+    "opinion": 19
+   },
+   "verdicts": {
+    "data": 15,
+    "current": 12,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 2,
+    "reclassified": 1
+   }
+  },
+  {
+   "slug": "polkadot",
+   "title": "Polkadot (blockchain platform)",
+   "revid": 1378697257,
+   "timestamp": "2026-10-05T18:55:58Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Polkadot_(blockchain_platform)&oldid=1378697257",
+   "attribution": "\"Polkadot (blockchain platform)\", English Wikipedia, revision 1378697257 (2026-10-05T18:55:58Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 40,
+   "classes": {
+    "data": 15,
+    "sourced": 20,
+    "opinion": 5
+   },
+   "verdicts": {
+    "data": 15,
+    "current": 12,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 3,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "prediction-market",
+   "title": "Prediction market",
+   "revid": 1383537451,
+   "timestamp": "2026-11-03T05:59:38Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Prediction_market&oldid=1383537451",
+   "attribution": "\"Prediction market\", English Wikipedia, revision 1383537451 (2026-11-03T05:59:38Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 238,
+   "classes": {
+    "data": 29,
+    "sourced": 133,
+    "opinion": 76
+   },
+   "verdicts": {
+    "data": 29,
+    "current": 11,
+    "stale": 3,
+    "wrong": 1,
+    "undecidable": 13,
+    "reclassified": 1
+   }
+  },
+  {
+   "slug": "stablecoin",
+   "title": "Stablecoin",
+   "revid": 1383799546,
+   "timestamp": "2026-11-04T23:08:36Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Stablecoin&oldid=1383799546",
+   "attribution": "\"Stablecoin\", English Wikipedia, revision 1383799546 (2026-11-04T23:08:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 197,
+   "classes": {
+    "data": 27,
+    "sourced": 119,
+    "opinion": 51
+   },
+   "verdicts": {
+    "data": 27,
+    "current": 6,
+    "stale": 0,
+    "wrong": 1,
+    "undecidable": 19,
+    "reclassified": 1
+   }
+  },
+  {
+   "slug": "proof-of-stake",
+   "title": "Proof of stake",
+   "revid": 1373286584,
+   "timestamp": "2026-09-05T02:25:36Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Proof_of_stake&oldid=1373286584",
+   "attribution": "\"Proof of stake\", English Wikipedia, revision 1373286584 (2026-09-05T02:25:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 60,
+   "classes": {
+    "data": 6,
+    "sourced": 33,
+    "opinion": 21
+   },
+   "verdicts": {
+    "data": 6,
+    "current": 3,
+    "stale": 1,
+    "wrong": 0,
+    "undecidable": 2,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "dai",
+   "title": "Dai (cryptocurrency)",
+   "revid": 1375647492,
+   "timestamp": "2026-09-19T03:29:12Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Dai_(cryptocurrency)&oldid=1375647492",
+   "attribution": "\"Dai (cryptocurrency)\", English Wikipedia, revision 1375647492 (2026-09-19T03:29:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 36,
+   "classes": {
+    "data": 9,
+    "sourced": 21,
+    "opinion": 6
+   },
+   "verdicts": {
+    "data": 9,
+    "current": 3,
+    "stale": 2,
+    "wrong": 0,
+    "undecidable": 4,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "cardano",
+   "title": "Cardano (blockchain platform)",
+   "revid": 1345627574,
+   "timestamp": "2026-03-27T04:21:32Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Cardano_(blockchain_platform)&oldid=1345627574",
+   "attribution": "\"Cardano (blockchain platform)\", English Wikipedia, revision 1345627574 (2026-03-27T04:21:32Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 74,
+   "classes": {
+    "data": 17,
+    "sourced": 47,
+    "opinion": 10
+   },
+   "verdicts": {
+    "data": 17,
+    "current": 11,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 6,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "avalanche",
+   "title": "Avalanche (blockchain platform)",
+   "revid": 1381043012,
+   "timestamp": "2026-10-19T17:15:07Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Avalanche_(blockchain_platform)&oldid=1381043012",
+   "attribution": "\"Avalanche (blockchain platform)\", English Wikipedia, revision 1381043012 (2026-10-19T17:15:07Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 84,
+   "classes": {
+    "data": 36,
+    "sourced": 32,
+    "opinion": 16
+   },
+   "verdicts": {
+    "data": 36,
+    "current": 21,
+    "stale": 0,
+    "wrong": 0,
+    "undecidable": 15,
+    "reclassified": 0
+   }
+  },
+  {
+   "slug": "defi",
+   "title": "Decentralized finance",
+   "revid": 1382583755,
+   "timestamp": "2026-10-29T10:17:46Z",
+   "url": "https://en.wikipedia.org/w/index.php?title=Decentralized_finance&oldid=1382583755",
+   "attribution": "\"Decentralized finance\", English Wikipedia, revision 1382583755 (2026-10-29T10:17:46Z), by Wikipedia contributors, licensed CC BY-SA 4.0.",
+   "sentences": 107,
+   "classes": {
+    "data": 10,
+    "sourced": 69,
+    "opinion": 28
+   },
+   "verdicts": {
+    "data": 10,
+    "current": 5,
+    "stale": 0,
+    "wrong": 1,
+    "undecidable": 3,
+    "reclassified": 1
+   }
+  }
+ ]
+}

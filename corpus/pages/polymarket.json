@@ -18,7 +18,20 @@
    "text": "Polymarket is an American cryptocurrency-based prediction market which offers a platform where individuals can place bets on future outcomes, including sports matches, economic indicators, weather patterns, awards, political and legislative outcomes, and military conflicts.",
    "class": "data",
    "claim": "Polymarket is a crypto-based prediction market",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "prediction market docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.polymarket.com/concepts/resolution",
+     "match": "ediction markets and Chainlink TWAP for up-down markets. ​ UMA-Resolved Markets Prediction markets use the UMA Optimistic Oracle for decentralized, permissionless resolution. ​ Resolution Ru"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0002",
@@ -26,7 +39,20 @@
    "text": "Participants can deposit cryptocurrency through the Polygon blockchain network and trade shares that represent the likelihood of specific future outcomes.",
    "class": "data",
    "claim": "deposit through the Polygon network",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ERC-20 on Polygon",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.polymarket.com/concepts/pusd.md",
+     "match": "ymarket USD) is the collateral token used for all trading on Polymarket. It's a standard ERC-20 token on Polygon, backed by USDC. The smart contract — which enables the withdrawal functionalit"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0003",
@@ -34,7 +60,20 @@
    "text": "The company is headquartered in Manhattan, New York City, where the platform was launched in 2020, and has legal domicile in Panama.",
    "class": "data",
    "claim": "headquartered in Manhattan, legal domicile in Panama",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "terms: Panama law; New York headquarters not at source",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://polymarket.com/tos",
+     "match": "y action related thereto will be governed by the Panama Arbitration Law and the laws of Panama, without regard to its conflict of laws provisions. Except as otherwise express"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0004",
@@ -48,7 +87,15 @@
    "text": "The majority of trades on the platform are related to sports.",
    "class": "data",
    "claim": "the majority of trades are sports-related",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary sports share saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0006",
@@ -56,7 +103,15 @@
    "text": "While it is not labelled a sports betting platform, 63% of trades on the platform are for sports bets.",
    "class": "data",
    "claim": "63% of trades are sports bets",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary sports share saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0007",
@@ -70,7 +125,20 @@
    "text": "Polymarket has been banned by the governments of France, Brazil, Italy and Gibraltar.",
    "class": "data",
    "claim": "banned by France, Brazil, Italy and Gibraltar",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Polymarket's list blocks FR, BR and IT; Gibraltar absent, government orders not read",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "match": " CF Central African Republic CD Congo (Kinshasa) CU Cuba DE Germany ET Ethiopia FR France GB United Kingdom IE Ireland IR Iran IQ Iraq IT Italy JP Japan KP North Korea L"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0009",
@@ -384,7 +452,20 @@
    "text": "Polymarket allows bets on armed conflicts, which has led to members of armed forces placing bets on operations, impacts on war reporting, and bets about nuclear war.",
    "class": "data",
    "claim": "Polymarket allows bets on armed conflicts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "live geopolitics events from Polymarket's API",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://gamma-api.polymarket.com/events?limit=5&tag_slug=geopolitics&active=true&closed=false",
+     "match": "31\",\"slug\":\"china-x-india-military-clash-by-december-31\",\"title\":\"China x India military clash by...?\",\"description\":\"This is a market on the likelihood of a military clash b"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0061",
@@ -542,7 +623,20 @@
    "text": "Polymarket has faced legal issues and has been blocked in several countries.",
    "class": "data",
    "claim": "Polymarket has been blocked in several countries",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "40 countries restricted",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+     "match": ": eu-west-2 Closest Non-Georestricted Region : eu-west-1 ​Blocked Countries The following 40 countries are completely restricted from accessing Polymarket: Country Code Country Name AR Argentina AU Australia "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0087",
@@ -550,7 +644,15 @@
    "text": "As of September 2024, Polymarket operates its election prediction operations offshore, as domestic operations would be regulated in the U.S. by the CFTC.",
    "class": "data",
    "claim": "as of September 2024 election markets operate offshore",
-   "asOf": "2024-09"
+   "asOf": "2024-09",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary source for Sept 2024",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0088",
@@ -582,7 +684,15 @@
    "text": "0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money.",
    "class": "data",
    "claim": "0.1% of accounts net 67% of profits; over 70% of users lose",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0093",
@@ -590,7 +700,15 @@
    "text": "An estimated 3% of traders account for the majority of price discovery on the platform.",
    "class": "data",
    "claim": "about 3% of traders account for most price discovery",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0094",
@@ -616,7 +734,20 @@
    "text": "Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.",
    "class": "data",
    "claim": "legal domicile in Panama",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "terms governed by Panama law",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Domicile inferred from the governing law and the operator's terms.",
+   "receipts": [
+    {
+     "url": "https://polymarket.com/tos",
+     "match": "y action related thereto will be governed by the Panama Arbitration Law and the laws of Panama, without regard to its conflict of laws provisions. Except as otherwise express"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0098",
@@ -642,7 +773,15 @@
    "text": "Polymarket has at some point been banned in a number of countries that regulate gambling and sports betting, including France, Italy, Singapore, South Korea, Spain, Switzerland, Poland, Romania, Australia, Lithuania and the United States.",
    "class": "data",
    "claim": "banned at some point in a list of countries",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "long list; not all regulators read",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0102",
@@ -764,7 +903,20 @@
    "text": "The minimum age for joining Polymarket is 18 years old, despite state-level policy in the United States that permits gambling from the age of 21.",
    "class": "data",
    "claim": "minimum age for joining is 18",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "18 or older",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://polymarket.com/tos",
+     "match": "The Site, any other Interface, and Features are intended only for users who are 18 years of age or older. If you are entering into the Terms on behalf of an entity, such as the company"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polymarket-0122",

@@ -18,7 +18,20 @@
    "text": "Zcash is a privacy-focused cryptocurrency which features an encrypted ledger using zero-knowledge proofs.",
    "class": "data",
    "claim": "Zcash uses zero-knowledge proofs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "protocol spec",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://zips.z.cash/protocol/protocol.pdf",
+     "match": "parent payment scheme used by Bitcoin with a shielded payment scheme secured by zero-knowledge succinct non-interactive arguments of knowledge (zk-SNARKs). It attempted to ad"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0002",
@@ -38,7 +51,20 @@
    "text": "Zcash is modeled on bitcoin, sharing its proof-of-work consensus mechanism.",
    "class": "data",
    "claim": "Zcash uses proof of work",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Equihash proof of work in the protocol spec",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://zips.z.cash/protocol/protocol.pdf",
+     "match": "Ks). It attempted to address the problem of mining centralization by use of the Equihash memory-hard proof-of-work algorithm. This specification defines the Zcash consensus protocol at launch, a"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0005",
@@ -52,7 +78,20 @@
    "text": "Zcash supports two types of addresses: transparent addresses, which function similarly to bitcoin addresses with publicly visible transactions, and shielded addresses, which use zero-knowledge proofs to encrypt transaction data.",
    "class": "data",
    "claim": "two address types, transparent and shielded",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "two main types",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://zcash.readthedocs.io/en/latest/rtd_pages/addresses.html",
+     "match": "ls in Zcash Addresses and Value Pools in Zcash ¶ Addresses Overview ¶ Zcash has two main types of addresses: shielded (z-addresses which start with “z”) and transparent (t-addresses which"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0007",
@@ -66,7 +105,20 @@
    "text": "Users can transact between the two types, allowing funds to move between the transparent and shielded pools.",
    "class": "data",
    "claim": "funds can move between transparent and shielded pools",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "docs on shielded and transparent",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://z.cash/learn/what-is-the-difference-between-shielded-and-transparent-zcash/",
+     "match": "What is the difference between shielded and transparent Zcash? - Z.Cash Skip to content Search Learn Zcash 101 What is Zcash? How is Zc"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0009",
@@ -80,7 +132,20 @@
    "text": "Users also have the option to share private viewing keys, allowing designated third parties to see their transaction details for auditing purposes.",
    "class": "data",
    "claim": "viewing keys can be shared",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "viewing keys",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://zcash.readthedocs.io/en/latest/rtd_pages/basics.html",
+     "match": "ner of a z-address can share its transaction details with trusted third parties via a view key–a key that grants read access but not spend authority over the address. This al"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0011",
@@ -268,7 +333,20 @@
    "text": "The Freedom of the Press Foundation, the Human Rights Foundation, and the Electronic Frontier Foundation have accepted Zcash donations.",
    "class": "data",
    "claim": "FPF, HRF and EFF have accepted Zcash donations",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "FPF lists Zcash; EFF 404; HRF page does not mention it",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://freedom.press/donate/cryptocurrency/",
+     "match": "edom of the Press Foundation supports donations in Bitcoin, Ethereum, Litecoin, Monero, Zcash and Stellar. What your contributions support Your support enables us to protect journalists"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "zcash-0042",

@@ -132,7 +132,15 @@
    "text": "As of 2021, MakerDAO was a prominent lending DeFi platform based on a stablecoin that was established in 2017.",
    "class": "data",
    "claim": "as of 2021 MakerDAO was a prominent lending platform",
-   "asOf": "2021"
+   "asOf": "2021",
+   "verdict": "reclassified",
+   "dated": true,
+   "checkedValue": "",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "\"Prominent\" is evaluative.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "defi-0021",
@@ -164,7 +172,20 @@
    "text": "This token, which is used for running Compound, can also be traded on cryptocurrency exchanges.",
    "class": "data",
    "claim": "COMP is used for running Compound and is traded on exchanges",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Compound governance docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.compound.finance/governance/",
+     "match": "Compound III Docs | Governance Markets Governance Docs Compound III Interest Rates Collateral & Borrowing Liqu"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0026",
@@ -310,7 +331,20 @@
    "text": "For example, MetaMask allows users to interact with Ethereum through a digital wallet.",
    "class": "data",
    "claim": "MetaMask lets users interact with Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "MetaMask",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://metamask.io/",
+     "match": "MetaMask Crypto Wallet. Buy and Sell Bitcoin, Ethereum, Solana Skip to content English English Get Met"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0050",
@@ -342,7 +376,20 @@
    "text": "The Aave protocol popularized \"flash loans\", which are uncollateralized loans of an arbitrary amount that are taken out and paid back within a single blockchain transaction.",
    "class": "data",
    "claim": "Aave flash loans are uncollateralised and repaid in one transaction",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "same transaction",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs/aave-v3/guides/flash-loans",
+     "match": "asset without collateral, as long as the borrowed amount and a fee are returned before the end of the same transaction. They have no real-world equivalent, so using them requires a basic understandi"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0055",
@@ -356,7 +403,20 @@
    "text": "Another DeFi protocol is Uniswap, which is a decentralized exchange (DEX) set up to trade tokens issued on Ethereum.",
    "class": "data",
    "claim": "Uniswap is a DEX for tokens issued on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Uniswap docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "niswapX Protocols Overview Deployments Uniswap v4 Uniswap Labs Hooks Uniswap v3 Uniswap v2 Smart Wallet The Compact Permit2 Universal Router Protocol Fee TJAR SDKs Overvi"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0057",
@@ -364,7 +424,20 @@
    "text": "Rather than using a centralized exchange to fill orders, Uniswap pays users to form liquidity pools in exchange for a percentage of the fees collected from traders swapping tokens in and out of the liquidity pools.",
    "class": "data",
    "claim": "Uniswap LPs earn a share of fees",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "fees go to LPs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "ers work across Uniswap v2, v3, and v4. Every Uniswap swap pays a fee. That fee compensates liquidity providers (LPs) for the capital they deposit into pools, and in some cases a portion goes"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0058",
@@ -372,7 +445,15 @@
    "text": "Because no centralized party runs Uniswap and any development team can use the open-source software, there is no entity to check the identities of the people using the platform and meet KYC/AML regulations.",
    "class": "data",
    "claim": "no centralized party runs Uniswap; no entity to check identities",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary test; Uniswap Labs runs an interface",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "defi-0059",
@@ -428,7 +509,15 @@
    "text": "As of 2018, there were signs that decentralized exchanges had been suffering from low trading volumes and reduced market liquidity.",
    "class": "data",
    "claim": "as of 2018, DEXs suffered low volume",
-   "asOf": "2018"
+   "asOf": "2018",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary series for 2018 saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "defi-0068",
@@ -442,7 +531,28 @@
    "text": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.",
    "class": "data",
    "claim": "as of mid-2025 weekly DEX volume averaged $18.6B, over 9.7M wallets",
-   "asOf": "2025-06"
+   "asOf": "2025-06",
+   "verdict": "wrong",
+   "dated": true,
+   "checkedValue": "June 2025 DEX volume about $78.4B a week (DefiLlama); Q2 2025 spot DEX volume $877B, about $67B a week (CoinGecko via Cointelegraph)",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Second check: two aggregators. Page's figure traces to an SSRN paper. Wallet clause not checked.",
+   "receipts": [
+    {
+     "url": "receipts/dex-volume-2025.json",
+     "match": "rtBreakdown=true\", \"method\": \"mean daily volume x 7\", \"june2025\": { \"days\": 30, \"weeklyUsdBillions\": 78.4 }, \"q2_2025\": { \"days\": 91, \"weeklyUsdBillions\": 75 }, \"coingeckoViaCointelegra"
+    },
+    {
+     "url": "https://api.llama.fi/overview/dexs?excludeTotalDataChart=false&excludeTotalDataChartBreakdown=true",
+     "match": "{\"totalDataChart\":[[1392595200,6.23],[1392681600,0],[1392768000,0],[1392854400,0],[1392940800,0]"
+    },
+    {
+     "url": "https://cointelegraph.com/news/dex-volumes-hit-record-q2-2025-pancakeswap-hyperliquid-lead",
+     "match": "in the crypto spot market, posting $3.9 trillion in trading volume, compared to $877 billion for DEXs. Cryptocurrency traders have been moving away from centralized exchanges (CEXs)"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "defi-0070",
@@ -504,7 +614,15 @@
    "text": "To provide some protection against front running attacks, many DeFi exchanges offer a slippage tolerance option for end-users.",
    "class": "data",
    "claim": "many DeFi exchanges offer a slippage tolerance",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "defi-0080",

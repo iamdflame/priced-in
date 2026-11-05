@@ -18,7 +18,20 @@
    "text": "USDC (USD Coin) is a cryptocurrency stablecoin issued by Circle Internet Group.",
    "class": "data",
    "claim": "USDC is a stablecoin issued by Circle Internet Group",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "issued by Circle",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.circle.com/usdc",
+     "match": "USDC | Powering global finance. Issued by Circle. Home Digital Assets Back USDC The leading digital dollar USDC EURC The leading"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "usdc-0002",
@@ -26,7 +39,20 @@
    "text": "It is pegged to the United States dollar, and is distinct from a central bank digital currency (CBDC).",
    "class": "data",
    "claim": "USDC is pegged to the US dollar",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "redeemable 1:1, $0.9997 on CoinGecko",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.circle.com/usdc",
+     "match": "le wrapped bitcoin cirBTC Reserves Learn how USDC and EURC are fully backed and redeemable 1:1, with reserves reported weekly. Heading Products Back Access and hold Mint Acce"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "usdc-0003",
@@ -34,7 +60,29 @@
    "text": "USDC operates as an Ethereum ERC-20 token and is also available on several other blockchain platforms, such as Base and Polygon.",
    "class": "data",
    "claim": "USDC is an ERC-20 token, also available on Base and Polygon",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Ethereum, Base and Polygon PoS listed; contract returns USDC",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+     "match": "000000000000000000 Avalanche C-Chain 0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E Base 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913 Codex 0xd996633a415985DBd7D6D12f4A4343E31f503"
+    },
+    {
+     "url": "https://developers.circle.com/stablecoins/usdc-contract-addresses",
+     "match": "f5F67F Plume 0x222365EF19F7947e5484218551B56bb3965Aa7aF Polkadot Asset Hub 1337 Polygon PoS 0x3c499c542cEF5E3811e1192ce70d8cC03d5c3359 Sei 0xe15fC38F6D8c56aF07bbCBe3BAf5708A2Bf4239"
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48\",\"data\":\"0x95d89b41\"},\"latest\"]}",
+     "match": "000000000000002000000000000000000000000000000000000000000000000000000000000000045553444300000000000000000000000000000000000000000000000000000000\",\"id\":1} "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "usdc-0004",
@@ -48,7 +96,20 @@
    "text": "As of 2020, USDC reserves were regularly attested (but not audited) by Grant Thornton LLP.",
    "class": "data",
    "claim": "as of 2020 USDC reserves were attested by Grant Thornton",
-   "asOf": "2020"
+   "asOf": "2020",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "Circle: Grant Thornton was its auditor from 2015 until Deloitte",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Attestation detail read at Circle's summary level.",
+   "receipts": [
+    {
+     "url": "https://www.circle.com/transparency",
+     "match": "ditor and has audited Circle’s financials since fiscal 2022. Prior to Deloitte, Grant Thornton LLP served as Circle’s independent auditor from 2015. Home Platform USDC EURC USYC CirBTC "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "usdc-0006",
@@ -146,7 +207,24 @@
    "text": "According to Forbes in December 2024, USDC primarily competes with Tether, which dominates the market by market capitalization.",
    "class": "data",
    "claim": "as of December 2024 USDC competes with Tether, which leads by market cap",
-   "asOf": "2024-12"
+   "asOf": "2024-12",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "1 Dec 2024: USDT $134.5B, USDC $39.9B (DefiLlama)",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://stablecoins.llama.fi/stablecoincharts/all?stablecoin=1",
+     "match": "edUSD\":136271708422},\"totalCirculatingUSD\":{\"peggedUSD\":136407980130}},{\"date\":\"1733011200\",\"totalCirculating\":{\"peggedUSD\":134392441049},\"totalUnreleased\":{\"peggedUSD\":5"
+    },
+    {
+     "url": "https://stablecoins.llama.fi/stablecoincharts/all?stablecoin=2",
+     "match": "ggedUSD\":39746464406},\"totalCirculatingUSD\":{\"peggedUSD\":39735573875}},{\"date\":\"1733011200\",\"totalCirculating\":{\"peggedUSD\":39865840343},\"totalCirculatingUSD\":{\"peggedUSD"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "usdc-0022",

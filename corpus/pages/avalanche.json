@@ -24,7 +24,21 @@
    "text": "The platform's native cryptocurrency is AVAX.",
    "class": "data",
    "claim": "native coin is AVAX",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "P-Chain min stake in nAVAX; CoinGecko series",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.avax.network/ext/bc/P",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"platform.getMinStake\",\"params\":{}}",
+     "match": "{\"jsonrpc\":\"2.0\",\"result\":{\"minValidatorStake\":\"2000000000000\",\"minDelegatorStake\":\"25000000000\"},\"id\":1}"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0003",
@@ -50,7 +64,20 @@
    "text": "The Avalanche network is backed by the non-profit organization, the Avalanche Foundation.",
    "class": "data",
    "claim": "network backed by the Avalanche Foundation",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Avalanche Foundation listed",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.avax.network/about",
+     "match": " 9.16.2026 9.17.2026 NYC Avalanche Summit New York Learn More About About About Avalanche Foundation Blog Contact Us Press Sustainability Featured News Enterprises 9.14.2026 / By A"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0007",
@@ -124,7 +151,20 @@
    "text": "As of January 2026, AVAX trades near $13.8, placing its market cap around $5.9 billion, with daily trading volume often between $400 million and $500 million.",
    "class": "data",
    "claim": "as of January 2026, AVAX near $13.8, cap about $5.9B, daily volume $400-500M",
-   "asOf": "2026-01"
+   "asOf": "2026-01",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "Jan 2026 CoinGecko: price $9.82-$14.83, cap $4.24B-$6.39B, volume $110M-$644M",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Range contains the page's figures.",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/avalanche-2/market_chart/range?vs_currency=usd&from=1767225600&to=1769904000",
+     "match": "{\"prices\":[[1767225600000,12.309496315780976],[1767229200000,12.324512132919276],[176723"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0019",
@@ -150,7 +190,15 @@
    "text": "FRNT is available on multiple blockchains including Avalanche, Solana, Ethereum, Arbitrum, Base, Optimism, and Polygon.",
    "class": "data",
    "claim": "FRNT is on Avalanche, Solana, Ethereum, Arbitrum, Base, Optimism, Polygon",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Wyoming's site unreachable",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0023",
@@ -164,7 +212,20 @@
    "text": "Avalanche is a heterogeneous network of blockchains, in which separate chains can be created for different applications.",
    "class": "data",
    "claim": "separate chains can be created for applications",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Primary Network docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": "ns to be created for different applications. The Primary Network is a special Avalanche L1 that runs three blockchains: The Contract Chain (C-Chain) The Platform Chain (P"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0025",
@@ -172,7 +233,20 @@
    "text": "Its Primary Network is a special Avalanche layer-1 (L1) network that runs three interoperable blockchains: the Exchange Chain (X-Chain), the Contract Chain (C-Chain), and the Platform Chain (P-Chain).",
    "class": "data",
    "claim": "Primary Network runs X, C and P chains",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "three chains",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": " for different applications. The Primary Network is a special Avalanche L1 that runs three blockchains: The Contract Chain (C-Chain) The Platform Chain (P-Chain) The Exchange Chain ("
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0026",
@@ -180,7 +254,20 @@
    "text": "These chains are used for asset transfers, smart-contract execution, and validator coordination, respectively.",
    "class": "data",
    "claim": "chains serve assets, contracts, validator coordination",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "same",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": "ons. The Primary Network is a special Avalanche L1 that runs three blockchains: The Contract Chain (C-Chain) The Platform Chain (P-Chain) The Exchange Chain (X-Chain) Note Avalanche Mainne"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0027",
@@ -188,7 +275,15 @@
    "text": "Each chain runs as an instance of a separate virtual machine, and AVAX can be moved between the three chains through atomic import and export transactions.",
    "class": "data",
    "claim": "each chain is its own VM; AVAX moves via atomic import and export",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "atomic transfer page not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0028",
@@ -196,7 +291,15 @@
    "text": "Chains communicate with each other and with other Avalanche L1s through Avalanche Interchain Messaging (ICM, also known as Avalanche Warp Messaging), in which a threshold of a source chain's validators sign a message and the signatures are aggregated into a single BLS signature.",
    "class": "data",
    "claim": "chains communicate through ICM / Warp messaging",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "ICM page not saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0029",
@@ -204,7 +307,15 @@
    "text": "The X-Chain is an instance of the Avalanche Virtual Machine (AVM).",
    "class": "data",
    "claim": "X-Chain is an instance of the AVM",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "AVM page returned 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0030",
@@ -212,7 +323,15 @@
    "text": "It is used to create and transfer Avalanche Native Tokens, digital assets that can represent real-world resources such as equity or bonds and can carry rules governing their behavior; AVAX itself is traded on the X-Chain.",
    "class": "data",
    "claim": "X-Chain creates and transfers native tokens",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "AVM page returned 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0031",
@@ -220,7 +339,15 @@
    "text": "The X-Chain uses an unspent transaction output (UTXO) model.",
    "class": "data",
    "claim": "X-Chain uses UTXO",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "AVM page returned 404",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0032",
@@ -240,7 +367,20 @@
    "text": "The P-Chain is an instance of the Platform Virtual Machine (PlatformVM) and acts as the network's coordination layer.",
    "class": "data",
    "claim": "P-Chain is the Platform VM and coordination layer",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Platform Chain",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": " special Avalanche L1 that runs three blockchains: The Contract Chain (C-Chain) The Platform Chain (P-Chain) The Exchange Chain (X-Chain) Note Avalanche Mainnet is comprised of the Primary"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0035",
@@ -248,7 +388,20 @@
    "text": "It tracks Primary Network validators and delegators, their uptime and their staking rewards, and is used to create new blockchains and L1s and to maintain their validator sets.",
    "class": "data",
    "claim": "P-Chain tracks validators and creates chains and L1s",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Platform Chain",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": " special Avalanche L1 that runs three blockchains: The Contract Chain (C-Chain) The Platform Chain (P-Chain) The Exchange Chain (X-Chain) Note Avalanche Mainnet is comprised of the Primary"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0036",
@@ -256,7 +409,20 @@
    "text": "Since the Etna upgrade (ACP-77), a Subnet can be converted into a sovereign L1 whose validator set is determined by a validator-manager smart contract on the L1; the P-Chain records validator changes authorized by Warp-signed messages.",
    "class": "data",
    "claim": "since Etna a Subnet can convert to an L1 under ACP-77",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ACP-77",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/avalanche-foundation/ACPs/main/ACPs/77-reinventing-subnets/README.md",
+     "match": "s (ERC-20/ERC-721/Arbitrary Staking, Staking Reward Management) - Introducing a continuous P-Chain fee mechanism for Subnet validators (Continuous Subnet Staking) This ACP supersedes [ACP-13]("
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0037",
@@ -264,7 +430,20 @@
    "text": "L1 validators are not required to validate the Primary Network and instead pay a continuous fee to the P-Chain.",
    "class": "data",
    "claim": "L1 validators need not validate the Primary Network; they pay a continuous fee",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ACP-77",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/avalanche-foundation/ACPs/main/ACPs/77-reinventing-subnets/README.md",
+     "match": "s (ERC-20/ERC-721/Arbitrary Staking, Staking Reward Management) - Introducing a continuous P-Chain fee mechanism for Subnet validators (Continuous Subnet Staking) This ACP supersedes [ACP-13]("
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0038",
@@ -272,7 +451,21 @@
    "text": "The C-Chain is an implementation of the Ethereum Virtual Machine (EVM).",
    "class": "data",
    "claim": "C-Chain implements the EVM",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "C-Chain chain ID answers",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.avax.network/ext/bc/C/rpc",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_chainId\",\"params\":[]}",
+     "match": "{\"result\":\"0xa86a\",\"id\":1,\"jsonrpc\":\"2.0\"}"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0039",
@@ -280,7 +473,21 @@
    "text": "It supports smart contracts written in Solidity, is compatible with the Geth API, and has the mainnet chain ID 43114.",
    "class": "data",
    "claim": "C-Chain supports Solidity, Geth API, chain ID 43114",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "chain ID 0xa86a is 43114",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.avax.network/ext/bc/C/rpc",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_chainId\",\"params\":[]}",
+     "match": "{\"result\":\"0xa86a\",\"id\":1,\"jsonrpc\":\"2.0\"}"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0040",
@@ -288,7 +495,20 @@
    "text": "Ethereum's consensus protocol is replaced by Avalanche's Snowman consensus.",
    "class": "data",
    "claim": "Snowman replaces Ethereum consensus",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Snowman Consensus docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network/avalanche-consensus",
+     "match": "Snowman Consensus | Avalanche Builder Hub Solutions Developers Console Explorer Ecosystem Search "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0041",
@@ -296,7 +516,24 @@
    "text": "C-Chain blocks were executed by Coreth until the Helicon upgrade, after which the chain switched to a Continuous Execution virtual machine that decouples consensus from execution.",
    "class": "data",
    "claim": "Coreth until Helicon, then Continuous Execution VM",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "docs nav: Coreth, Continuous Execution; upgrade.go has Helicon",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://build.avax.network/docs/primary-network",
+     "match": "y Network Snowman Consensus AVAX Token Virtual Machines Helicon Upgrade C-Chain Coreth Architecture Continuous Execution Firewood Contract Verification P-Chain PlatformVM Architecture AVAX Staking for"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/ava-labs/avalanchego/master/upgrade/upgrade.go",
+     "match": "me.November, 19, 16, 0, 0, 0, time.UTC), GraniteEpochDuration: 5 * time.Minute, HeliconTime: time.Date(2026, time.September, 22, 15, 0, 0, 0, time.UTC), IglooTime: UnscheduledActivationTime, } Fuji = Config{"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0042",
@@ -322,7 +559,15 @@
    "text": "The Snow family of protocols used by Avalanche takes a different approach based on repeated random subsampling: rather than communicating with the whole network, a node repeatedly queries a small, randomly selected set of validators.",
    "class": "data",
    "claim": "Snow protocols use repeated random subsampling",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0046",
@@ -330,7 +575,15 @@
    "text": "The protocols are leaderless, and no node processes more than a logarithmic number of bits per decision.",
    "class": "data",
    "claim": "leaderless; logarithmic bits per decision",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0047",
@@ -398,7 +651,15 @@
    "text": "The C-Chain, the P-Chain and Avalanche L1s run Snowman++, which extends Snowman with a ProposerVM layer that schedules block proposers; since Cortina, the X-Chain does as well.",
    "class": "data",
    "claim": "C, P and L1 chains run Snowman++; X-Chain since Cortina",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0058",
@@ -418,7 +679,20 @@
    "text": "The AvalancheGo defaults are k = 20, α = 15 and β = 20.",
    "class": "data",
    "claim": "AvalancheGo defaults k=20, alpha=15, beta=20",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "K 20, alpha 15, beta 20",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/ava-labs/avalanchego/master/snow/consensus/snowball/parameters.go",
+     "match": "_ /\\_______ /\\____|__ /____| \\/ \\/ \\/ ` ) var ( DefaultParameters = Parameters{ K: 20, AlphaPreference: 15, AlphaConfidence: 15, Beta: 20, ConcurrentRepolls: 4, OptimalProcessing: 10, MaxOutstandingItems: 256, MaxItem"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0061",
@@ -456,7 +730,15 @@
    "text": "Unlike in Nakamoto consensus, an accepted block is not later reverted; Ava Labs states an acceptance latency of about one second.",
    "class": "data",
    "claim": "an accepted block is not reverted; about one second acceptance",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0067",
@@ -470,7 +752,15 @@
    "text": "To prevent a single actor from dominating the random samples by running many nodes (a Sybil attack), Avalanche uses proof of stake: the probability of a validator being queried is proportional to the amount of AVAX it has staked.",
    "class": "data",
    "claim": "proof of stake, sampling proportional to stake",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0069",
@@ -478,7 +768,21 @@
    "text": "A node must stake at least 2,000 AVAX to become a Primary Network validator.",
    "class": "data",
    "claim": "minimum 2,000 AVAX to validate the Primary Network",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "minValidatorStake 2,000,000,000,000 nAVAX, live P-Chain call",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.avax.network/ext/bc/P",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"platform.getMinStake\",\"params\":{}}",
+     "match": "{\"jsonrpc\":\"2.0\",\"result\":{\"minValidatorStake\":\"2000000000000\",\"minDelegatorStake\":\"25000000000\"},\"id\":1}"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0070",
@@ -486,7 +790,20 @@
    "text": "AVAX holders can also delegate their tokens to a validator, which may charge delegators a fee.",
    "class": "data",
    "claim": "delegation with a validator fee",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "min delegation fee 2%",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/ava-labs/avalanchego/master/genesis/genesis_mainnet.go",
+     "match": "vax, MaxValidatorStake: 3 * units.MegaAvax, MinDelegatorStake: 25 * units.Avax, MinDelegationFee: 20000, // 2% MinStakeDuration: 2 * 7 * 24 * time.Hour, MaxStakeDuration: 365 * 24 * t"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0071",
@@ -494,7 +811,15 @@
    "text": "Avalanche does not use slashing: a validator that fails to meet the uptime requirement or misbehaves receives no reward but recovers its full stake, and rewards are all-or-nothing.",
    "class": "data",
    "claim": "no slashing; rewards are all or nothing",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no clean quote in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0072",
@@ -502,7 +827,20 @@
    "text": "The maximum staking period is one year.",
    "class": "data",
    "claim": "maximum staking period is one year",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "MaxStakeDuration 365 days",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/ava-labs/avalanchego/master/genesis/genesis_mainnet.go",
+     "match": ".Avax, MinDelegationFee: 20000, // 2% MinStakeDuration: 2 * 7 * 24 * time.Hour, MaxStakeDuration: 365 * 24 * time.Hour, HeliconMinStakeDuration: 48 * time.Hour, RewardConfig: reward.Conf"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0073",
@@ -510,7 +848,20 @@
    "text": "Helicon is a Primary Network upgrade that bundles six Avalanche Community Proposals (ACPs).",
    "class": "data",
    "claim": "Helicon bundles six ACPs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "v1.15.0 release notes list six ACPs: 194, 236, 267, 273, 283, 285",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Was undecidable; changed after the audit found this source.",
+   "receipts": [
+    {
+     "url": "https://api.github.com/repos/ava-labs/avalanchego/releases/tags/v1.15.0",
+     "match": "o `46`. All plugins must update to remain compatible.\\r\\n\\r\\n## Features\\r\\n\\r\\nHelicon activates the following Avalanche Community Proposals (ACPs):\\r\\n\\r\\n- [ACP-194](https://github.com/avalanche-foundation/ACPs/blob/ma"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0074",
@@ -530,7 +881,20 @@
    "text": "Auto-renewed staking (ACP-236): validators can specify a cycle duration instead of a fixed end time; at the end of each cycle rewards are settled and a new cycle begins automatically, with a configurable share of rewards restaked.",
    "class": "data",
    "claim": "auto-renewed staking under ACP-236",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ACP-236 exists",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.github.com/repos/avalanche-foundation/ACPs/contents/ACPs",
+     "match": "valanche-foundation/ACPs/tree/main/ACPs/23-p-chain-native-transfers\"}},{\"name\":\"236-auto-renewed-staking\",\"path\":\"ACPs/236-auto-renewed-staking\",\"sha\":\"229a38f210b5629721fe5bf6da8d7b12"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0077",
@@ -544,7 +908,15 @@
    "text": "Delegations do not auto-renew.",
    "class": "data",
    "claim": "delegations do not auto-renew",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "ACP text not fetched",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0079",
@@ -558,7 +930,20 @@
    "text": "Avalanche L1 validators are unaffected.",
    "class": "data",
    "claim": "L1 validators unaffected by the uptime change",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "ACP text read in summary only",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/avalanche-foundation/ACPs/main/ACPs/267-uptime-requirement-increase/README.md",
+     "match": "| ACP | 267 | | :--- | :--- | | **Title** | Increase Validator Uptime Requirement from 80% to 90% | | **Author(s)** | Martin Eckardt ([@martineckardt](https://github.com/martine"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0081",
@@ -572,7 +957,15 @@
    "text": "The minimum delegation period remains two weeks, so validators staking for less than two weeks cannot receive delegations.",
    "class": "data",
    "claim": "minimum delegation period remains two weeks",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "ACP text not fetched",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "avalanche-0083",
@@ -586,7 +979,24 @@
    "text": "Helicon also includes two C-Chain changes: Continuous Execution (ACP-194), which separates block acceptance by consensus from execution through a queue, and ACP-283, which makes the minimum gas price dynamic, set by stake-weighted validator preference.",
    "class": "data",
    "claim": "Helicon includes ACP-194 and ACP-283",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ACP-194 and ACP-283 exist",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.github.com/repos/avalanche-foundation/ACPs/contents/ACPs",
+     "match": "m/avalanche-foundation/ACPs/tree/main/ACPs/191-seamless-l1-creation\"}},{\"name\":\"194-continuous-execution\",\"path\":\"ACPs/194-continuous-execution\",\"sha\":\"00623ab10520c6d125775fa0dc0e0e80"
+    },
+    {
+     "url": "https://api.github.com/repos/avalanche-foundation/ACPs/contents/ACPs",
+     "match": "-foundation/ACPs/tree/main/ACPs/273-reduce-minimum-staking-duration\"}},{\"name\":\"283-dynamic-minimum-gas-price\",\"path\":\"ACPs/283-dynamic-minimum-gas-price\",\"sha\":\"8070f66d1c8f298ddfe6985de01"
+    }
+   ],
+   "thenReceipts": []
   }
  ]
 }

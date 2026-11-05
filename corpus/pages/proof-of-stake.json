@@ -216,7 +216,20 @@
    "text": "NPoS is utilized by Ouroboros Praos and BABE.",
    "class": "data",
    "claim": "NPoS is used by Ouroboros Praos and BABE",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "BABE confirmed; Ouroboros Praos as NPoS is not a term Cardano's docs use",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-consensus/",
+     "match": "s Table of contents Nominated Proof of Stake Hybrid Consensus Block Production: BABE Multiple Validators per Slot No Validators in Slot Finality Gadget: GRANDPA Pro"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "proof-of-stake-0035",
@@ -224,7 +237,20 @@
    "text": "In addition, Polkadot uses a deterministic variant of NPoS, where the validators are elected using a variant of Phragmen's voting rule.",
    "class": "data",
    "claim": "Polkadot uses a Phragmen-based NPoS variant",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "wiki on Phragmen",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-consensus/",
+     "match": "o Consensus PBFT / Tendermint Casper FFG Bridging: BEEFY Resources Cryptography Phragmen Comparisons Comparisons Rollups & Interoperability Kusama Ethereum Cosmos Avala"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "proof-of-stake-0036",
@@ -250,7 +276,24 @@
    "text": "BFT schemes are used in Tendermint and Casper FFG.",
    "class": "data",
    "claim": "BFT schemes are used in Tendermint and Casper FFG",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CometBFT and Casper FFG",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Tendermint is now called CometBFT.",
+   "receipts": [
+    {
+     "url": "https://docs.cometbft.com/",
+     "match": "CometBFT Documentation - Cosmos Docs Documentation Index Fetch the complete documentatio"
+    },
+    {
+     "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/gasper/",
+     "match": "Copy .md Edit page (opens in a new tab) On this page Gasper is a combination of Casper the Friendly Finality Gadget (Casper-FFG) and the LMD-GHOST fork choice algorit"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "proof-of-stake-0040",
@@ -270,7 +313,25 @@
    "text": "The scheme is used in many chains, including EOS, Lisk, Tron.",
    "class": "data",
    "claim": "DPoS is used by EOS, Lisk, Tron",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "Lisk moved to an Ethereum layer 2 and its chain has since shut down",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "EOS and Tron not separately faulted. Wording from Mar 2023 (rev 1142194812).",
+   "receipts": [
+    {
+     "url": "https://docs.lisk.com/",
+     "match": "e on the Investors page . Frequently asked questions Is Lisk shutting down? No. Only the Lisk Chain, the Ethereum layer 2 network Lisk operated, has shut down. Lisk continues as the modern finance platform for"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://web.archive.org/web/2022/https://lisk.com/documentation/understand-blockchain/index.html",
+     "match": " in the default application, they provide a basic blockchain application with a DPoS blockchain which allows basic token transfers between users: DPoS module , Token module , "
+    }
+   ]
   },
   {
    "id": "proof-of-stake-0043",
@@ -296,7 +357,20 @@
    "text": "LPoS is used in Tezos.",
    "class": "data",
    "claim": "LPoS is used in Tezos",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Tezos docs: bakers and delegates",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://octez.tezos.com/docs/active/proof_of_stake.html",
+     "match": " node monitoring. Hardware Metrics Sourcing: Multi-Exporter Configuration Octez Delegates Dashboard Repository Show source Open issue Proof-of-stake Contents Overview "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "proof-of-stake-0047",
@@ -328,7 +402,15 @@
    "text": "However, as of 2017, PoS cryptocurrencies were still not as widely used as proof-of-work cryptocurrencies.",
    "class": "data",
    "claim": "as of 2017 PoS coins less widely used than PoW coins",
-   "asOf": "2017"
+   "asOf": "2017",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no primary series for 2017 saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "proof-of-stake-0052",

@@ -18,7 +18,24 @@
    "text": "NEAR is a public blockchain platform that uses a proof-of-stake consensus mechanism and provides smart-contract functionality.",
    "class": "data",
    "claim": "NEAR uses proof of stake and provides smart contracts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "NEAR docs: validators use proof of stake; smart contracts documented",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.near.org/protocol/network/validators",
+     "match": "is ensures no one steals funds, double-spend tokens, or manipulates the system. NEAR validators use Proof-of-Stake (PoS) , a consensus mechanism that secures the network through economic incenti"
+    },
+    {
+     "url": "https://docs.near.org/protocol/network/tokens",
+     "match": "lorers NEAR Catalog Search... Navigation Tokens NEAR Native Token Home Protocol Smart Contracts Web3 Apps Multi-Chain Tokens & Primitives Data Infra Integrations RPC Architect"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "near-0002",
@@ -26,7 +43,20 @@
    "text": "Its native cryptocurrency is NEAR.",
    "class": "data",
    "claim": "native token is NEAR",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "NEAR docs title: NEAR Native Token",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.near.org/protocol/network/tokens",
+     "match": "NEAR Native Token - NEAR Docs Documentation Index Fetch the complete documentation index at: /llm"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "near-0003",

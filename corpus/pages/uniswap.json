@@ -18,7 +18,20 @@
    "text": "Uniswap is a decentralized cryptocurrency exchange protocol built on the Ethereum blockchain.",
    "class": "data",
    "claim": "Uniswap is a DEX protocol built on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Uniswap docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "niswapX Protocols Overview Deployments Uniswap v4 Uniswap Labs Hooks Uniswap v3 Uniswap v2 Smart Wallet The Compact Permit2 Universal Router Protocol Fee TJAR SDKs Overvi"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0002",
@@ -26,7 +39,20 @@
    "text": "It enables the automated trading of digital assets through smart contracts, eliminating the need for intermediaries or centralized order books.",
    "class": "data",
    "claim": "trades through smart contracts without order books",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "pools and contracts",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "hat fee compensates liquidity providers (LPs) for the capital they deposit into pools, and in some cases a portion goes to the protocol itself. How fees are set, col"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0003",
@@ -34,7 +60,20 @@
    "text": "Uniswap facilitates cryptocurrency tokens swaps using liquidity pools contributed by users.",
    "class": "data",
    "claim": "swaps use liquidity pools from users",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "LP capital in pools",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "oss Uniswap v2, v3, and v4. Every Uniswap swap pays a fee. That fee compensates liquidity providers (LPs) for the capital they deposit into pools, and in some cases a portion goes to the protocol itsel"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0004",
@@ -48,7 +87,15 @@
    "text": "As of December 2024, Uniswap is estimated to be the largest decentralized exchange and the seventh-largest cryptocurrency exchange overall by daily trading volume.",
    "class": "data",
    "claim": "as of December 2024 largest DEX and 7th-largest exchange overall by daily volume",
-   "asOf": "2024-12"
+   "asOf": "2024-12",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "7th-largest overall is a CoinMarketCap ranking not retrievable for Dec 2024",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0006",
@@ -80,7 +127,20 @@
    "text": "Uniswap operates using open-source software on blockchain networks, and allows users to exchange cryptocurrencies directly from their wallets.",
    "class": "data",
    "claim": "Uniswap runs open-source software and trades directly from wallets",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "v4-core repository is public",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/Uniswap/v4-core",
+     "match": "GitHub - Uniswap/v4-core: 🦄 🦄 🦄 🦄 Core smart contracts of Uniswap v4 · GitHub Skip to content Naviga"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0011",
@@ -88,7 +148,20 @@
    "text": "Governance of the protocol is managed by holders of its native governance token, UNI, which was introduced in 2020 and distributed retroactively to early users.",
    "class": "data",
    "claim": "governance by UNI holders; UNI introduced in 2020",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "UNI contract, supply 1B at launch",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/Uniswap/governance/master/contracts/Uni.sol",
+     "match": " number of tokens in circulation uint public totalSupply = 1_000_000_000e18; // 1 billion Uni /// @notice Address which may mint new tokens address public minter; /// @notic"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0012",
@@ -96,7 +169,20 @@
    "text": "While UNI is used to vote on protocol upgrades and changes, it is not required to use the platform.",
    "class": "data",
    "claim": "UNI is used for voting and not required to use the platform",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "governance docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/concepts/governance/overview",
+     "match": "Governance Overview | Uniswap Developers LLMs.txt: agent-readable Markdown index of this s"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0013",
@@ -128,7 +214,24 @@
    "text": "Uniswap offers products such as a self-custodial mobile wallet, a trading API for professional users, and a web interface.",
    "class": "data",
    "claim": "offers a self-custodial mobile wallet, a trading API and a web interface",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "self-custody wallet, Uniswap API, app",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wallet.uniswap.org/",
+     "match": "Uniswap Wallet | The Self-Custody DeFi Wallet Download Download Uniswap Wallet Uniswap Wallet Uniswap Wallet Simp"
+    },
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": " Participants Liquidity Providers Traders Fees Hooks Glossary Swapping Overview Uniswap API Custom Linking Embed the Uniswap App Liquidity Overview Liquidity Provisioning "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0018",
@@ -136,7 +239,15 @@
    "text": "These tools provide access to liquidity across multiple blockchains, including Ethereum, Polygon, and Optimism.",
    "class": "data",
    "claim": "products reach Ethereum, Polygon and Optimism",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Deployment list did not render in saved docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0019",
@@ -150,7 +261,20 @@
    "text": "The Foundation facilitates community governance of the Uniswap DAO, development of the Uniswap Protocol, and communication among contributors.",
    "class": "data",
    "claim": "the Foundation supports governance and protocol development",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "foundation site: Grants, Governance",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.uniswapfoundation.org/",
+     "match": "Uniswap Foundation Build Grants Governance Impact Blog x Your foundation for test r e s e a r c h d e v e l o p m e n t c "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0021",
@@ -158,7 +282,20 @@
    "text": "Uniswap Foundation's most recent funding proposal, Uniswap Unleashed, outlined a plan to make the Uniswap Protocol the world’s infrastructure for digital value transfer with significant support for Uniswap v4 and Unichain.",
    "class": "data",
    "claim": "Uniswap Unleashed is the Foundation's most recent funding proposal",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "forum search does not prove nothing newer exists",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://gov.uniswap.org/search.json?q=Unleashed",
+     "match": "e}/9640_2.png\",\"created_at\":\"2025-02-14T03:02:43.281Z\",\"like_count\":12,\"blurb\":\"Uniswap Unleashed Onchain vote here: https://www.tally.xyz/gov/uniswap/proposal/83 https://vote.u"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0022",
@@ -178,7 +315,20 @@
    "text": "Individuals and bots—termed \"liquidity providers\"—provide liquidity to the exchange by adding a pair of tokens to a smart contract which can be bought and sold by other users according to the constant-product rule .",
    "class": "data",
    "claim": "LPs add token pairs; constant-product rule",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "v2 pool model in docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "hat fee compensates liquidity providers (LPs) for the capital they deposit into pools, and in some cases a portion goes to the protocol itself. How fees are set, co"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0025",
@@ -186,7 +336,20 @@
    "text": "In return, liquidity providers are given a percentage of the trading fees earned for that trading pair.",
    "class": "data",
    "claim": "LPs earn a percentage of trading fees",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "fee compensates LPs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/contracts/v2/concepts/advanced-topics/fees",
+     "match": "ers work across Uniswap v2, v3, and v4. Every Uniswap swap pays a fee. That fee compensates liquidity providers (LPs) for the capital they deposit into pools, and in some cases a portion goes"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0026",
@@ -200,7 +363,15 @@
    "text": "No fees are required to list tokens.",
    "class": "data",
    "claim": "no fees are required to list tokens",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary statement found",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0028",
@@ -232,7 +403,24 @@
    "text": "UNI is the governance token of the Uniswap protocol, enabling holders to participate in the platform's decentralized governance.",
    "class": "data",
    "claim": "UNI is the governance token",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "UNI governance",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/concepts/governance/overview",
+     "match": "Governance Overview | Uniswap Developers LLMs.txt: agent-readable Markdown index of this s"
+    },
+    {
+     "url": "https://raw.githubusercontent.com/Uniswap/governance/master/contracts/Uni.sol",
+     "match": "ty ^0.5.16; pragma experimental ABIEncoderV2; import \"./SafeMath.sol\"; contract Uni { /// @notice EIP-20 token name for this token string public constant name = \"U"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0033",
@@ -240,7 +428,20 @@
    "text": "The token allows holders to propose and vote on protocol upgrades, changes to fee structures, and other governance-related matters.",
    "class": "data",
    "claim": "UNI holders can propose and vote",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "governance docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.uniswap.org/concepts/governance/overview",
+     "match": "Governance Overview | Uniswap Developers LLMs.txt: agent-readable Markdown index of this s"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0034",
@@ -248,7 +449,21 @@
    "text": "UNI operates on the Ethereum blockchain following the ERC-20 standard, ensuring compatibility with a wide range of decentralized applications.",
    "class": "data",
    "claim": "UNI is an ERC-20 token on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ERC-20 token on Ethereum, supply call answers",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Supply call returned exactly 1,000,000,000.",
+   "receipts": [
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984\",\"data\":\"0x18160ddd\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x0000000000000000000000000000000000000000033b2e3c9fd0803ce8000000\"} "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "uniswap-0035",
@@ -256,7 +471,30 @@
    "text": "Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.",
    "class": "data",
    "claim": "UNI total supply is capped, with scheduled release",
-   "asOf": null
+   "asOf": null,
+   "verdict": "wrong",
+   "dated": false,
+   "checkedValue": "UNI has no hard cap: the contract mints up to 2% a year after a one-year wait, and has a live minter",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Second check: published source and live chain calls, two routes. Live supply is exactly 1B, so no extra mint has happened.",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/Uniswap/governance/master/contracts/Uni.sol",
+     "match": "// @notice Cap on the percentage of totalSupply that can be minted at each mint uint8 public constant mintCap = 2; /// @notice Allowance amounts on behalf of others mapping (address => mapping "
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984\",\"data\":\"0x76c71ca1\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x0000000000000000000000000000000000000000000000000000000000000002\"} "
+    },
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_call\",\"params\":[{\"to\":\"0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984\",\"data\":\"0x07546172\"},\"latest\"]}",
+     "match": "{\"jsonrpc\":\"2.0\",\"id\":1,\"result\":\"0x0000000000000000000000001a9c8182c09f50c8318d769245bea52c32be35bc\"} "
+    }
+   ],
+   "thenReceipts": []
   }
  ]
 }

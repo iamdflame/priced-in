@@ -18,7 +18,20 @@
    "text": "Solana is a public blockchain platform that uses a proof-of-stake consensus mechanism and provides smart contract functionality.",
    "class": "data",
    "claim": "Solana uses proof of stake and provides smart contracts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "solana.com rate limited; whitepaper is about proof of history",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://web.archive.org/web/2026/https://solana.com/solana-whitepaper.pdf",
+     "match": "cture. When used alongside a consensus algorithm such as Proof of Work (PoW) or Proof of Stake (PoS), PoH can reduce messaging overhead in a Byzantine Fault Tol- erant replic"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "solana-0002",
@@ -26,7 +39,20 @@
    "text": "The platform's native cryptocurrency is SOL.",
    "class": "data",
    "claim": "native cryptocurrency is SOL",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CoinGecko symbol sol",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1",
+     "match": "023-03-11T00:02:13.000Z\",\"roi\":null,\"last_updated\":\"2026-11-05T04:35:48.000Z\"},{\"id\":\"solana\",\"symbol\":\"sol\",\"name\":\"Solana\",\"image\":\"https://coin-images.coingecko.com/coins/images/4128/la"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "solana-0003",
@@ -82,7 +108,20 @@
    "text": "According to the company's white paper, Solana runs on a proof of stake model.",
    "class": "data",
    "claim": "Solana runs on a proof of stake model per its whitepaper",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "whitepaper names PoS in general terms only",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://web.archive.org/web/2026/https://solana.com/solana-whitepaper.pdf",
+     "match": "cture. When used alongside a consensus algorithm such as Proof of Work (PoW) or Proof of Stake (PoS), PoH can reduce messaging overhead in a Byzantine Fault Tol- erant replic"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "solana-0012",

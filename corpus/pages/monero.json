@@ -24,7 +24,20 @@
    "text": "The protocol is open source and based on CryptoNote v2, a concept described in a 2013 white paper authored by Nicolas van Saberhagen.",
    "class": "data",
    "claim": "Monero is open source, based on CryptoNote",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "repository tagged cryptonote",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/monero-project/monero",
+     "match": "y getmonero.org Topics blockchain c-plus-plus cmake cryptocurrency cryptography cryptonote monero p2p privacy security Resources Readme License Contributing Contributing "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0003",
@@ -38,7 +51,24 @@
    "text": "The Monero protocol includes various methods to obfuscate transaction details, though users can optionally share view keys for third-party auditing.",
    "class": "data",
    "claim": "protocol obfuscates transactions and supports view keys",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "private by default; view keys",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/what-is-monero/",
+     "match": "tives (e.g. Zcash), Monero is the only major cryptocurrency where every user is anonymous by default. The sender, receiver, and amount of every single transaction are hidden throug"
+    },
+    {
+     "url": "https://www.getmonero.org/resources/moneropedia/viewkey.html",
+     "match": "View Key | Moneropedia | Monero - secure, private, untraceable Get Started What is Moner"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0005",
@@ -46,7 +76,20 @@
    "text": "Transactions are validated through a miner network running RandomX, a proof-of-work algorithm.",
    "class": "data",
    "claim": "transactions validated by miners running RandomX",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "RandomX",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/mining/",
+     "match": " particular algorithm ideated and developed by members of the Monero community: RandomX . This PoW algorithm is ASIC resistant, which means it's impossible to build sp"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0006",
@@ -54,7 +97,20 @@
    "text": "The algorithm issues new coins to miners and was designed to be resistant against application-specific integrated circuit (ASIC) mining.",
    "class": "data",
    "claim": "RandomX issues coins and is designed to resist ASICs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ASIC resistant",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/mining/",
+     "match": "d developed by members of the Monero community: RandomX . This PoW algorithm is ASIC resistant, which means it's impossible to build specialized hardware to mine Monero. Mine"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0007",
@@ -128,7 +184,15 @@
    "text": "Monero has the third-largest community of developers, behind bitcoin and Ethereum.",
    "class": "data",
    "claim": "Monero has the third-largest developer community after bitcoin and Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary ranking of developer communities",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "monero-0019",
@@ -154,7 +218,20 @@
    "text": "Even though it is a public and decentralized ledger, all transaction details are obfuscated.",
    "class": "data",
    "claim": "all transaction details are obfuscated",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "sender, receiver and amount hidden",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/what-is-monero/",
+     "match": " is the only major cryptocurrency where every user is anonymous by default. The sender, receiver, and amount of every single transaction are hidden through the use of three important techn"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0023",
@@ -174,7 +251,20 @@
    "text": "The transaction outputs, or notes, of users sending Monero are obfuscated through ring signatures, which groups a sender's outputs with other decoy outputs.",
    "class": "data",
    "claim": "outputs are obfuscated through ring signatures with decoys",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ring signatures",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Monero's FCMP++ plan would replace rings; not live on the evidence saved.",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/what-is-monero/",
+     "match": "are hidden through the use of three important technologies: Stealth Addresses , Ring Signatures , and RingCT . Because every transaction is private, Monero cannot be traced. T"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0026",
@@ -188,7 +278,20 @@
    "text": "Developers also implemented a zero-knowledge proof method, \"Bulletproofs\", which guarantee a transaction occurred without revealing its value.",
    "class": "data",
    "claim": "Bulletproofs used for amounts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Bulletproofs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/resources/moneropedia/bulletproofs.html",
+     "match": "Bulletproofs | Moneropedia | Monero - secure, private, untraceable Get Started What is Moner"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0028",
@@ -196,7 +299,20 @@
    "text": "Monero recipients are protected through \"stealth addresses\", public keys generated by the sender that are untraceable to the receiver by a network observer.",
    "class": "data",
    "claim": "recipients are protected by stealth addresses",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "stealth addresses",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/resources/moneropedia/stealthaddress.html",
+     "match": "Stealth Address | Moneropedia | Monero - secure, private, untraceable Get Started What is Moner"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0029",
@@ -204,7 +320,20 @@
    "text": "These privacy features are enforced on the network by default.",
    "class": "data",
    "claim": "privacy features are enforced by default",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "by default",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/what-is-monero/",
+     "match": "tives (e.g. Zcash), Monero is the only major cryptocurrency where every user is anonymous by default. The sender, receiver, and amount of every single transaction are hidden throug"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0030",
@@ -212,7 +341,20 @@
    "text": "Monero uses Dandelion++, a protocol which obscures the IP address of devices producing transactions.",
    "class": "data",
    "claim": "Monero uses Dandelion++",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Dandelion++",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/2020/04/18/dandelion-implemented.html",
+     "match": "Another privacy-enhancing technology added to Monero: Dandelion++ | Monero - secure, private, untraceable Get Started What is Monero? Accepting C"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0031",
@@ -280,7 +422,20 @@
    "text": "Monero uses a proof-of-work algorithm, RandomX, to validate transactions.",
    "class": "data",
    "claim": "Monero uses RandomX proof of work",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "RandomX",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.getmonero.org/get-started/mining/",
+     "match": " particular algorithm ideated and developed by members of the Monero community: RandomX . This PoW algorithm is ASIC resistant, which means it's impossible to build sp"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0042",
@@ -300,7 +455,24 @@
    "text": "Monero can be mined somewhat efficiently on consumer-grade hardware such as x86, x86-64, ARM and GPUs, a design decision which was based on Monero project's opposition to mining centralisation which ASIC mining creates, but has also resulted in Monero's popularity among malware-based non-consensual miners.",
    "class": "data",
    "claim": "mining works on x86, x86-64, ARM and GPUs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "x86-64, ARM64, CPUs and GPUs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/tevador/RandomX",
+     "match": "soft 3.5 (4T) - 20 (4T) Note that RandomX currently includes a JIT compiler for x86-64, ARM64 and RISCV64. Other architectures have to use the portable interpreter, which is"
+    },
+    {
+     "url": "https://www.getmonero.org/get-started/mining/",
+     "match": "ers must use consumer-grade hardware and compete fairly. Monero can be mined by both CPUs and GPUs, but the former is much more efficient. Solo or pool mining Miners can decide i"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "monero-0045",
@@ -314,7 +486,15 @@
    "text": "Monero is a common medium of exchange on darknet markets.",
    "class": "data",
    "claim": "Monero is a common medium of exchange on darknet markets",
-   "asOf": null
+   "asOf": null,
+   "verdict": "reclassified",
+   "dated": false,
+   "checkedValue": "",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "\"Common medium\" names no metric and no dataset covers darknet use.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "monero-0047",
@@ -460,7 +640,15 @@
    "text": "Exchanges in South Korea and Australia have delisted Monero and other privacy coins due to regulatory pressure.",
    "class": "data",
    "claim": "exchanges in South Korea and Australia have delisted Monero",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no regulator or exchange notice saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "monero-0071",

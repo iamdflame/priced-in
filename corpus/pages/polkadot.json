@@ -18,7 +18,20 @@
    "text": "Polkadot is a decentralized, nominated proof-of-stake blockchain with smart contract functionality.",
    "class": "data",
    "claim": "Polkadot is nominated proof of stake with smart contract functionality",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "NPoS in Polkadot docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Smart contracts clause read from parachain and Hub docs only at summary level.",
+   "receipts": [
+    {
+     "url": "https://docs.polkadot.com/reference/polkadot-hub/consensus-and-security/pos-consensus/",
+     "match": "ain Proof-of-Stake Consensus Proof-of-Stake Consensus On this page Introduction Nominated Proof of Stake Hybrid Consensus Block Production - BABE Validator Participation Additional Res"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0002",
@@ -26,7 +39,20 @@
    "text": "The cryptocurrency native to the blockchain is the DOT.",
    "class": "data",
    "claim": "native coin is DOT",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "wiki on nominating DOT",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-nominator/",
+     "match": "Nominator - Polkadot Wiki Skip to content Explore Fundamentals Architecture Analytics Guides Initial"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0003",
@@ -58,7 +84,24 @@
    "text": "The Polkadot SDK and other core technology components are being developed by Parity Technologies.",
    "class": "data",
    "claim": "Polkadot SDK is being developed by Parity Technologies",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Parity: driving force behind the network",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.parity.io/about",
+     "match": "the Web3 Foundation, we completed the launch of Polkadot in 2020 and remain the driving force behind the blockchain network’s technical progress. Discover Polkadot Explore our Open"
+    },
+    {
+     "url": "https://github.com/paritytech/polkadot-sdk",
+     "match": "ther tab or window. Reload to refresh your session. Dismiss alert {{ message }} paritytech polkadot-sdk Repository navigation Code Issues 1.8k ( 1.8k ) Pull requests 653 ( 653 ) Discu"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0008",
@@ -78,7 +121,24 @@
    "text": "The Polkadot SDK and other core technology components are being developed by Parity Technologies, a blockchain infrastructure company founded in 2015 by Gavin Wood and Jutta Steiner.",
    "class": "data",
    "claim": "Polkadot SDK is being developed by Parity, founded 2015 by Wood and Steiner",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "same",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://www.parity.io/about",
+     "match": "the Web3 Foundation, we completed the launch of Polkadot in 2020 and remain the driving force behind the blockchain network’s technical progress. Discover Polkadot Explore our Open"
+    },
+    {
+     "url": "https://github.com/paritytech/polkadot-sdk",
+     "match": "ther tab or window. Reload to refresh your session. Dismiss alert {{ message }} paritytech polkadot-sdk Repository navigation Code Issues 1.8k ( 1.8k ) Pull requests 653 ( 653 ) Discu"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0011",
@@ -140,7 +200,20 @@
    "text": "It provides an open-source software development kit called Polkadot SDK that can be used by development teams to build their own blockchains.",
    "class": "data",
    "claim": "Polkadot provides an open-source SDK",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "public SDK repository",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/paritytech/polkadot-sdk",
+     "match": "GitHub - paritytech/polkadot-sdk: The Parity Polkadot Blockchain SDK · GitHub Skip to content Navigation Menu Sign in Products Platform GitHub Repos"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0021",
@@ -184,7 +257,20 @@
    "text": "The Polkadot network has a primary blockchain named the relay chain, which provides security for parachains.",
    "class": "data",
    "claim": "relay chain is the primary chain and secures parachains",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "wiki on relay chain",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-consensus/",
+     "match": "E assigns block production slots to validators according to stake and using the relay chain's randomness cycle . The chain’s runtime is required to provide the BABE author"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0028",
@@ -204,7 +290,20 @@
    "text": "Interoperability is created through a common standard of data exchange, called XCM.",
    "class": "data",
    "claim": "interoperability uses the XCM standard",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "XCM",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-xcm-transport/",
+     "match": "XCM Transport Methods (XCMP, HRMP, VMP) - Polkadot Wiki Skip to content Explore Fun"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0031",
@@ -212,7 +311,15 @@
    "text": "Since parachains have shared security, bridging times between parachains are typically under a minute.",
    "class": "data",
    "claim": "bridging between parachains typically takes under a minute",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary timing data",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0032",
@@ -220,7 +327,20 @@
    "text": "XCMP is Polkadot's protocol for facilitating communication between parachains.",
    "class": "data",
    "claim": "XCMP is the protocol for messages between parachains",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "wiki page on XCMP",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-xcm-transport/",
+     "match": "us Messaging (XCM) XCM XCM Pallet XCM Transport XCM Transport Table of contents XCMP (Cross-Chain Message Passing) VMP (Vertical Message Passing) HRMP (XCMP-Lite) XCMP (Cross Consensus Message P"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0033",
@@ -234,7 +354,15 @@
    "text": "XCMP operates by allowing parachains to send messages to each other through the Relay Chain.",
    "class": "data",
    "claim": "XCMP passes messages through the Relay Chain",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "wiki treats XCMP design and HRMP separately; no clean reading",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0035",
@@ -242,7 +370,20 @@
    "text": "Polkadot implements an on-chain governance system, allowing stakeholders to influence the network's development and decision-making processes.",
    "class": "data",
    "claim": "on-chain governance",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "OpenGov",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/docs/learn-polkadot-opengov",
+     "match": "Polkadot OpenGov - Polkadot Wiki Skip to content Explore Fundamentals Architecture Analytics Gui"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0036",
@@ -256,7 +397,20 @@
    "text": "Polkadot Council members and Relay Chain Validators are selected via Phragmen election method.",
    "class": "data",
    "claim": "Polkadot Council members and validators are selected by Phragmen election",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "wiki lists the Council under Governance V1; OpenGov has no Council",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED on the Council clause: wording dates from Jan 2025 (rev 1269079233), after OpenGov, so not true when written.",
+   "receipts": [
+    {
+     "url": "https://wiki.polkadot.network/docs/learn-polkadot-opengov",
+     "match": "eferendum Voting Without Conviction Voting with Conviction Multirole Delegation Governance V1 vs. Polkadot OpenGov How-to guides Polkadot OpenGov Origins Asset Hub Asset Hub"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0038",
@@ -264,7 +418,20 @@
    "text": "The network uses a nominated proof-of-stake consensus algorithm.",
    "class": "data",
    "claim": "network uses nominated proof of stake",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "NPoS",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.polkadot.com/reference/polkadot-hub/consensus-and-security/pos-consensus/",
+     "match": "ale while maintaining security and decentralization. Nominated Proof of Stake ¶ Polkadot uses Nominated Proof of Stake (NPoS) to select the validator set and secure the network. This model is design"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0039",
@@ -272,7 +439,24 @@
    "text": "The protocol used, Blind Assignment for Blockchain Extension (BABE), is derived from Ouroboros.",
    "class": "data",
    "claim": "block production protocol is BABE, derived from Ouroboros",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "BABE",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.polkadot.com/reference/polkadot-hub/consensus-and-security/pos-consensus/",
+     "match": " page Introduction Nominated Proof of Stake Hybrid Consensus Block Production - BABE Validator Participation Additional Resources Finality Gadget - GRANDPA Probabil"
+    },
+    {
+     "url": "https://wiki.polkadot.network/learn/learn-consensus/",
+     "match": "and determines the authors of new blocks. BABE is comparable as an algorithm to Ouroboros Praos , with some key differences in chain selection rule and slot time adjustm"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "polkadot-0040",
@@ -280,7 +464,20 @@
    "text": "Validators are responsible for block production and validation, while nominators support validators by staking DOT tokens on their behalf.",
    "class": "data",
    "claim": "validators produce blocks; nominators back them with DOT",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "nominators back validators",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.polkadot.com/reference/polkadot-hub/consensus-and-security/pos-consensus/",
+     "match": "d earn rewards based on the validators they support. In Polkadot's NPoS system, nominators can delegate their tokens to trusted validators, giving them voting power in selecting validators while s"
+    }
+   ],
+   "thenReceipts": []
   }
  ]
 }

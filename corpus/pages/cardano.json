@@ -18,7 +18,20 @@
    "text": "Cardano is a public decentralized blockchain platform which uses the cryptocurrency, ADA, to facilitate transactions.",
    "class": "data",
    "claim": "Cardano is a public blockchain using ADA",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "cardano.org",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://cardano.org/",
+     "match": "y for the needs of today and tomorrow. Get Started I want to Use a wallet Stake ada Trade Lend & borrow Vote Visualizing cardano-ledger since 2018 ⓘ Working with C"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0002",
@@ -38,7 +51,20 @@
    "text": "A number of independent entities collaborate on the project, including the Cardano Foundation based in Zug, Switzerland, and led by its chief executive officer Frederik Gregaard.",
    "class": "data",
    "claim": "Cardano Foundation is in Zug, led by CEO Frederik Gregaard",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Foundation about page: Gregaard CEO",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Zug clause not separately read.",
+   "receipts": [
+    {
+     "url": "https://web.archive.org/web/2026/https://cardanofoundation.org/about-us",
+     "match": "dano Foundation team provides support from discovery to integration. Contact us Frederik Gregaard CEO Every day we work to drive adoption and development of Cardano as the public di"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0005",
@@ -106,7 +132,15 @@
    "text": "The Ada sub-unit is the Lovelace; one Ada = 1,000,000 Lovelaces.",
    "class": "data",
    "claim": "1 ADA = 1,000,000 Lovelace",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no Lovelace page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0016",
@@ -132,7 +166,15 @@
    "text": "Atypically, Cardano does not have a foundational white paper.",
    "class": "data",
    "claim": "Cardano has no foundational white paper",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "absence cannot be proved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0020",
@@ -152,7 +194,20 @@
    "text": "Like Bitcoin, Cardano uses a UTXO ledger model, though it is an extended version (EUTXO) to facilitate smart contracts and scripting languages.",
    "class": "data",
    "claim": "Cardano uses an extended UTXO ledger",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Extended UTXO",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.cardano.org/about-cardano/learn/eutxo-explainer",
+     "match": "Extended UTXO model | Cardano Docs Skip to main content About Developer resources Stake pool "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0023",
@@ -160,7 +215,20 @@
    "text": "Cardano uses a proof-of-stake (PoS) protocol named Ouroboros; this was in contrast to Bitcoin and Ethereum, which used proof-of-work protocols (though the latter switched over in 2022).",
    "class": "data",
    "claim": "Cardano uses PoS protocol Ouroboros",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Ouroboros",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.cardano.org/about-cardano/learn/ouroboros-overview",
+     "match": "Ouroboros overview | Cardano Docs Skip to main content About Developer resources Stake pool operat"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0024",
@@ -204,7 +272,20 @@
    "text": "Cardano's native digital wallet is named \"Daedalus\".",
    "class": "data",
    "claim": "native wallet is Daedalus",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Daedalus: the open source wallet for ada",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://daedaluswallet.io/",
+     "match": "me Team Download Monthly Reports Daedalus Wallet Welcome to Daedalus Wallet The open source wallet for ada, built to grow with the Cardano blockchain. Download Get support ADA - The cryp"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0031",
@@ -212,7 +293,15 @@
    "text": "The Daedalus wallet downloads a full copy of the entire transaction history of the Cardano blockchain.",
    "class": "data",
    "claim": "Daedalus downloads a full copy of the history",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Site does not state this in the saved text",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0032",
@@ -226,7 +315,20 @@
    "text": "Development phases of Cardano are named after notable figures in poetry and computer science: Byron, Shelley, Goguen, Basho, and Voltaire.",
    "class": "data",
    "claim": "phases: Byron, Shelley, Goguen, Basho, Voltaire",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "five phases",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.cardano.org/about-cardano/evolution/eras-and-phases",
+     "match": "ck header validation. Development phases ​ Cardano’s development phases include Byron, Shelley, Goguen, Basho, and Voltaire – all named after poets except for Goguen, a computer scientist. Byron . Byron "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0034",
@@ -240,7 +342,20 @@
    "text": "The Basho era focuses on scaling the blockchain.",
    "class": "data",
    "claim": "Basho focuses on scaling",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "roadmap",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://roadmap.cardano.org/en/",
+     "match": "o development, which has been organized into five eras: Byron, Shelley, Goguen, Basho, and Voltaire. Each era is centered around a set of functionalities that will b"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0036",
@@ -248,7 +363,20 @@
    "text": "The Voltaire release adds a treasury model.",
    "class": "data",
    "claim": "Voltaire adds a treasury model",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "roadmap",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://roadmap.cardano.org/en/",
+     "match": "nt, which has been organized into five eras: Byron, Shelley, Goguen, Basho, and Voltaire. Each era is centered around a set of functionalities that will be delivered ac"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0037",
@@ -268,7 +396,20 @@
    "text": "As with other proof-of-stake cryptocurrencies, Cardano offers \"staking\", which allows token holders to set-aside (delegate) tokens to potentially \"validate\" transactions on the same blockchain (Figure 1).",
    "class": "data",
    "claim": "Cardano offers staking by delegation",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "delegation docs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://docs.cardano.org/about-cardano/learn/delegation",
+     "match": "Delegation | Cardano Docs Skip to main content About Developer resources Stake pool operat"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0040",
@@ -282,7 +423,20 @@
    "text": "Through various wallet implementations, users can participate in \"staking pools\" with other token holders.",
    "class": "data",
    "claim": "users can join stake pools",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "stake pools",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://cardano.org/",
+     "match": "rameters, not an auction. Staking without strings Non-custodial, liquid staking Delegating ada to a stake pool never moves it out of your wallet. There is no lock-up period, no minimum amoun"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0042",
@@ -296,7 +450,20 @@
    "text": "Since 2021, Frederik Gregaard has been the CEO of the Cardano Foundation.",
    "class": "data",
    "claim": "Frederik Gregaard has been Foundation CEO since 2021",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Gregaard is CEO",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Start date not checked separately.",
+   "receipts": [
+    {
+     "url": "https://web.archive.org/web/2026/https://cardanofoundation.org/about-us",
+     "match": "specialists Meet the team Executives and board members Executives Board members Frederik Gregaard Chief Executive Officer As CEO of the Cardano Foundation, Frederik Gregaard brings over two decades of "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0044",
@@ -358,7 +525,15 @@
    "text": "World Mobile Token (WMT), a project built on Cardano, offers remote mobile network access in Africa with approximately 150 nodes in East Africa (2022).",
    "class": "data",
    "claim": "World Mobile Token runs about 150 nodes in East Africa (2022)",
-   "asOf": "2022"
+   "asOf": "2022",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "World Mobile site saved no figure",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0054",
@@ -408,7 +583,15 @@
    "text": "The first example of such a chain, named \"Midnight\", will make use of the Polkadot framework in combination with Cardano.",
    "class": "data",
    "claim": "Midnight will use the Polkadot framework with Cardano",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Midnight pages rate limited or empty on this point",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0062",
@@ -416,7 +599,15 @@
    "text": "Cardano also enables creating non-fungible tokens (NFTs).",
    "class": "data",
    "claim": "Cardano enables NFTs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no NFT page saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "cardano-0063",

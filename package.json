@@ -19,7 +19,8 @@
     "ai:unit": "node --test --test-concurrency=1 \"services/ai/test/*.test.mjs\"",
     "ai:e2e": "node services/ai/test/jury-e2e.mjs",
     "ai:smoke": "node --env-file-if-exists=services/ai/.env services/ai/test/live-smoke.mjs",
-    "ai:test": "npm run ai:unit && npm run ai:e2e && npm run ai:smoke"
+    "ai:test": "npm run ai:unit && npm run ai:e2e && npm run ai:smoke",
+    "corpus:check": "node corpus/scripts/check.mjs"
   },
   "devDependencies": {
     "@phala/dcap-qvl": "0.7.1",

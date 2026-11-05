@@ -18,7 +18,20 @@
    "text": "Ethereum is a decentralized blockchain with smart contract functionality.",
    "class": "data",
    "claim": "Ethereum has smart contract functionality",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ethereum.org describes smart contracts on Ethereum",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/what-is-ethereum/",
+     "match": "tcoin lets you send and receive digital cash, Ethereum would build on this with open-source programs called smart contracts . Smart contracts let anyone create their own digital assets and decentralized "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0002",
@@ -26,7 +39,20 @@
    "text": "Ether (abbreviation: ETH) is the native cryptocurrency of the platform.",
    "class": "data",
    "claim": "native coin is ether (ETH)",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ETH is ether",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/eth/",
+     "match": "n a new tab) w (opens in a new tab) m (opens in a new tab) + 1 See contributors Ether, commonly known as ETH, is the fuel that powers the Ethereum blockchain. Unlike bitcoin, which primari"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0003",
@@ -34,7 +60,20 @@
    "text": "Among cryptocurrencies, ether is second only to bitcoin in market capitalization.",
    "class": "data",
    "claim": "ether is 2nd by market cap, behind only bitcoin",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CoinGecko rank 2, cap $296.6B",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=30&page=1",
+     "match": "013-07-05T16:00:00.000Z\",\"roi\":null,\"last_updated\":\"2026-11-05T04:35:48.000Z\"},{\"id\":\"ethereum\",\"symbol\":\"eth\",\"name\":\"Ethereum\",\"image\":\"https://coin-images.coingecko.com/coins/images/279/large/ethereum.png?1696501628\",\"current_price\":2427.21,\"market_cap\":296585717934,\"market_cap_rank\":2,\"fully_diluted_valuation\":296585718289,\"total_volume\":16287979190,\"high_24h\":24"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0004",
@@ -42,7 +81,20 @@
    "text": "It is open-source software.",
    "class": "data",
    "claim": "Ethereum is open-source software",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "go-ethereum published under LGPL-3.0 and GPL-3.0",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/ethereum/go-ethereum",
+     "match": "tocol geth.ethereum.org Topics blockchain ethereum geth go p2p Resources Readme LGPL-3.0, GPL-3.0 licenses found Contributing Contributing Security policy Security policy Activi"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0005",
@@ -68,7 +120,20 @@
    "text": "Ethereum allows anyone to deploy decentralized applications onto it, which anyone can then use.",
    "class": "data",
    "claim": "anyone can deploy applications to Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ethereum.org: smart contracts let anyone create applications",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/what-is-ethereum/",
+     "match": "Ethereum would build on this with open-source programs called smart contracts . Smart contracts let anyone create their own digital assets and decentralized applications (dapps) that run 24/7, "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0009",
@@ -88,7 +153,24 @@
    "text": "Ethereum allows users to create fungible (e.g. ERC-20) and non-fungible tokens (NFTs) with a variety of properties, and to create smart contracts that can receive, hold and send those assets in accordance with the contract's immutable code and a transaction's input data.",
    "class": "data",
    "claim": "users can create ERC-20 tokens, NFTs and smart contracts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ERC-20 and ERC-721 are final standards",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-20",
+     "match": "ERC-20: Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta Informati"
+    },
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-721",
+     "match": "ERC-721: Non-Fungible Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0012",
@@ -228,7 +310,20 @@
    "text": "The Foundation funded multiple teams in different cities building three separate implementations of the protocol: Geth (Go), Pyethereum (Python), a C++ implementation, and also Swarm (decentralized file storage), Mist Browser (A wallet, browser and a user interface for smart contracts, now defunct) among other projects.",
    "class": "data",
    "claim": "Mist browser is defunct",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Mist repository archived and marked deprecated",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://github.com/ethereum/mist",
+     "match": "Reload to refresh your session. Dismiss alert {{ message }} This repository was archived by the owner on Sep 5, 2020. It is now read-only. ethereum mist Repository navigation Code Issues 779 ( 779"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0035",
@@ -278,7 +373,20 @@
    "text": "Protocol upgrades are accomplished by means of a hard fork.",
    "class": "data",
    "claim": "protocol upgrades are done by hard fork",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ethereum.org lists upgrades as forks (Fusaka and earlier)",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/ethereum-forks/",
+     "match": "protocol upgrades? Learn about upcoming upgrades on the Ethereum roadmap . 2025 Fulu-Osaka (\"Fusaka\") Dec 3, 2025, 9:49:11 PM UTC Block number : 23,935,694 (opens in a ne"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0043",
@@ -388,7 +496,15 @@
    "text": "As of 2021, it maintained that relative position.",
    "class": "data",
    "claim": "ether held 2nd place by market cap as of 2021",
-   "asOf": "2021"
+   "asOf": "2021",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "no readable 2021 ranking in the saved archive",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Dated 2021. Archive page saved no ranking table.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0061",
@@ -444,7 +560,20 @@
    "text": "The mechanism causes a portion of the ether paid in transaction fees for each block to be destroyed rather than given to the block proposer, reducing the inflation rate of ether and potentially resulting in periods of deflation.",
    "class": "data",
    "claim": "part of each block's fees is destroyed (EIP-1559)",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "EIP-1559 burns the base fee",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1559",
+     "match": "d Max Block Size/Complexity Transaction Ordering Miners Mining Empty Blocks ETH Burn Precludes Fixed Supply Copyright Simple Summary A transaction pricing mechanism"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0070",
@@ -482,7 +611,20 @@
    "text": "The switch from proof-of-work to proof-of-stake has cut Ethereum's energy usage by over 99%.",
    "class": "data",
    "claim": "switch to PoS cut Ethereum energy use by over 99%",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "CCRI via ethereum.org: over 99.988%",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/energy-consumption/",
+     "match": "timates that The Merge reduced Ethereum's annualized electricity consumption by more than 99.988% . Likewise, Ethereum’s carbon footprint was decreased by approximately 99.992% "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0076",
@@ -508,7 +650,24 @@
    "text": "Because \"Blob\" data is stored only temporarily, it is much cheaper than using normal call data for storage.",
    "class": "data",
    "claim": "blob data is stored only temporarily and is cheaper than calldata",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "blobs kept about 18 days and cheaper than calldata",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-4844",
+     "match": "specific value chosen is MIN_EPOCHS_FOR_BLOB_SIDECARS_REQUESTS epochs, which is around 18 days, a much shorter delay compared to proposed (but yet to be implemented) one-year"
+    },
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-4844",
+     "match": "o blobs. This guarantees availability (which is what rollups need) but would be much cheaper than calldata. Rollups need data to be available once, long enough to ensure honest actors ca"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0080",
@@ -546,7 +705,20 @@
    "text": "Ethereum is a peer-to-peer network that maintains a database containing the storage values of all Ethereum accounts and processes state-altering transactions.",
    "class": "data",
    "claim": "Ethereum is a p2p network maintaining account state and processing transactions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "network of independent computers",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/what-is-ethereum/",
+     "match": "rastructure that anyone can use but nobody can abuse. The network is made up of thousands of independent computers around the world called nodes. These nodes, run by regular people, work "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0086",
@@ -554,7 +726,20 @@
    "text": "Approximately every 12 seconds, a batch of new transactions, known as a \"block\", is processed by the network.",
    "class": "data",
    "claim": "a block about every 12 seconds",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "mean block time 12.033s over 200 sampled blocks, 4-5 Nov 2026",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "receipts/eth-tps-nov2026.json",
+     "match": "firstTime\": \"2026-11-04T04:33:35.000Z\", \"lastTime\": \"2026-11-05T04:37:35.000Z\", \"meanBlockTimeSec\": 12.033, \"meanTxPerBlock\": 300.5, \"meanTps\": 24.972, \"gasLimitLast\": 60000000 } "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0087",
@@ -562,7 +747,20 @@
    "text": "Each block contains a cryptographic hash identifying the series of blocks that must precede it if the block is to be considered valid.",
    "class": "data",
    "claim": "each block carries the hash of its parent",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "block header has parent_hash",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/blocks/",
+     "match": ": The execution_payload_header contains the following fields: Field Description parent_hash hash of the parent block fee_recipient account address for paying transaction fees to state_root root ha"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0088",
@@ -606,7 +804,20 @@
    "text": "Any Ethereum account may \"stake\" (deposit) 32 or more ETH to register a \"validator\".",
    "class": "data",
    "claim": "staking 32 or more ETH registers a validator",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "at least 32 ETH, up to 2048",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/staking/",
+     "match": "rs, and attesting to the correct head of the chain. Your own validator requires at least 32 ETH and can hold up to 2048 ETH. Staking is two things at once. For Ethereum , it is the security mechanism at "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0095",
@@ -614,7 +825,24 @@
    "text": "At the end of each \"epoch\" (32 block slots, each slot lasting 12 seconds), each validator is pseudorandomly assigned to one of the slots of the epoch after the next, either as the block proposer or as an attester.",
    "class": "data",
    "claim": "epoch is 32 slots, slot is 12 seconds, duties assigned for the epoch after next",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "32 slots per epoch, 12s slots, seed lookahead 1",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/",
+     "match": "f-of-stake, the tempo is fixed. Time in proof-of-stake Ethereum is divided into slots (12 seconds) and epochs (32 slots). One validator is randomly selected to be a block proposer in every slot. This "
+    },
+    {
+     "url": "https://raw.githubusercontent.com/ethereum/consensus-specs/master/presets/mainnet/phase0.yaml",
+     "match": "_INCLUSION_DELAY: 1 # 2**5 (= 32) slots SLOTS_PER_EPOCH: 32 # 2**0 (= 1) epochs MIN_SEED_LOOKAHEAD: 1 # 2**2 (= 4) epochs MAX_SEED_LOOKAHEAD: 4 # 2**6 (= 64) epochs EPOCHS_PER_ETH1_"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0096",
@@ -628,7 +856,20 @@
    "text": "If a validator makes self-contradicting proposals or attestations, or if it is inactive, it loses a portion of its stake.",
    "class": "data",
    "claim": "self-contradiction or inactivity loses part of a validator's stake",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "penalties and slashing documented",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/rewards-and-penalties/",
+     "match": "for the same slot or attesting to multiple blocks for the same slot. These are “slashable” behaviors that result in the validator having some amount of ether (up to "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0098",
@@ -636,7 +877,20 @@
    "text": "Any Ethereum account may send ETH to a validator at any time to increase its stake.",
    "class": "data",
    "claim": "any account may add ETH to a validator at any time",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "top-ups exist, routed through the activation queue since Pectra",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-7251",
+     "match": "on and exit churn invariants limiting active weight instead of validator count. Balance top-ups are now handled explicitly, being subject to the same activation queue as full deposits. Fee Overpayment C"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0099",
@@ -644,7 +898,20 @@
    "text": "A validator's attestation is given a weight equal to its stake or 2,048, whichever is less.",
    "class": "data",
    "claim": "attestation weight equals stake capped at 2,048",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "max effective balance 2,048 ETH since Pectra",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/ethereum/consensus-specs/master/presets/mainnet/electra.yaml",
+     "match": " MIN_ACTIVATION_BALANCE: 32000000000 # 2**11 * 10**9 (= 2,048,000,000,000) Gwei MAX_EFFECTIVE_BALANCE_ELECTRA: 2048000000000 # Rewards and penalties # -----------------------------------------------------"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0100",
@@ -652,7 +919,20 @@
    "text": "According to the Ethereum protocol, the blockchain with the highest accumulated weight of attestations at any given time is to be regarded as the canonical chain.",
    "class": "data",
    "claim": "canonical chain is the one with highest accumulated attestation weight",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "LMD-GHOST fork choice by attestation weight",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/gasper/",
+     "match": "er is a combination of Casper the Friendly Finality Gadget (Casper-FFG) and the LMD-GHOST fork choice algorithm. Together these components form the consensus mechanism s"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0101",
@@ -678,7 +958,20 @@
    "text": "Ether (ETH) is the cryptocurrency generated in accordance with the Ethereum protocol as a reward to validators in a proof-of-stake system for adding blocks to the blockchain.",
    "class": "data",
    "claim": "ETH is generated as a reward to validators",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "validators rewarded in ETH",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/consensus-mechanisms/pos/rewards-and-penalties/",
+     "match": "Proof-of-stake rewards and penalties | ethereum.org Skip to main content Overview What is Ethereum? W"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0105",
@@ -686,7 +979,24 @@
    "text": "Ether is represented in the state as an unsigned integer associated with each account, this being the account's ETH balance denominated in wei (1018 wei = 1 ether).",
    "class": "data",
    "claim": "1 ether = 10^18 wei",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "1 gwei is 1e9 wei and 1e-9 ETH, so 1 ETH is 1e18 wei",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "ei' is a contraction of 'giga-wei', meaning 'billion wei'. One gwei is equal to one billion wei. Wei itself (named after Wei Dai (opens in a new tab) , creator of b-money (ope"
+    },
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": " which is a denomination of ETH. Each gwei is equal to one-billionth of an ETH (0.000000001 ETH or 10 -9 ETH). For example, instead of saying that your gas costs 0.000000001 e"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0106",
@@ -694,7 +1004,20 @@
    "text": "At the end of each epoch, new ETH is generated by the addition of protocol-specified amounts to the balances of all validators that made valid block proposals or attestations in the epoch before the last (i.e. the epoch being finalized).",
    "class": "data",
    "claim": "new ETH is added to validator balances at the end of each epoch",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Altair (Oct 2021) pays proposers during block processing, not at epoch end",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED on proposals: the wording dates from Jan 2023 (rev 1135340323), after Altair, so it was not true when written, and it was true under phase0, so it is not \"never true\".",
+   "receipts": [
+    {
+     "url": "https://raw.githubusercontent.com/ethereum/consensus-specs/master/specs/altair/beacon-chain.md",
+     "match": "roposer_reward = Gwei(proposer_reward_numerator // proposer_reward_denominator) increase_balance(state, get_beacon_proposer_index(state), proposer_reward) ``` #### Modified `add_validator_to_registry` *Note*: The function `add_validat"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0107",
@@ -702,7 +1025,20 @@
    "text": "Additionally, ether is the only currency accepted by the protocol as payment for the transaction fee.",
    "class": "data",
    "claim": "ether is the only currency accepted for the transaction fee",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "fees paid in ether",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "eum EVM illustrated (opens in a new tab) Gas fees have to be paid in Ethereum's native currency, ether (ETH). Gas prices are usually quoted in gwei, which is a denomination of ETH. E"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0108",
@@ -710,7 +1046,20 @@
    "text": "The transaction fee is composed of two parts: the base fee and the tip.",
    "class": "data",
    "claim": "fee has two parts, base fee and tip",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "base fee and priority fee",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "tell how much to pay? The total gas you pay is divided into two components: the base fee and the priority fee (tip). The base fee is set by the protocol—you have to pay at least this amount"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0109",
@@ -718,7 +1067,24 @@
    "text": "The base fee is \"burned\" (deleted from existence) and the tip goes to the block proposer.",
    "class": "data",
    "claim": "base fee is burned and tip goes to the block proposer",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "base fee burned, tip to proposer",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1559",
+     "match": "d Max Block Size/Complexity Transaction Ordering Miners Mining Empty Blocks ETH Burn Precludes Fixed Supply Copyright Simple Summary A transaction pricing mechanism"
+    },
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "pay? The total gas you pay is divided into two components: the base fee and the priority fee (tip). The base fee is set by the protocol—you have to pay at least this amount"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0110",
@@ -756,7 +1122,20 @@
    "text": "There are two types of accounts on Ethereum: externally-owned accounts (EOAs) and contract accounts.",
    "class": "data",
    "claim": "two account types, EOAs and contract accounts",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "two account types",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/accounts/",
+     "match": "ou first read through our introduction to Ethereum . Account types Ethereum has two account types: Externally-owned account (EOA) – controlled by anyone with the private keys Co"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0116",
@@ -770,7 +1149,20 @@
    "text": "EOAs are the only type of account that may create transactions.",
    "class": "data",
    "claim": "EOAs are the only type of account that may create transactions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ethereum.org: EOAs initiate; contract accounts respond",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/accounts/",
+     "match": "ontracts Key differences Externally-owned Creating an account costs nothing Can initiate transactions Transactions between externally-owned accounts can only be ETH/to"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0118",
@@ -778,7 +1170,20 @@
    "text": "Each EOA is controlled using its associated 64-character hexadecimal string known as its \"private key\", from which the account's address is derived.",
    "class": "data",
    "claim": "EOA private key is a 64-character hex string",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "64 hex characters",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/accounts/",
+     "match": "t libraries will generate you a random private key. A private key is made up of 64 hex characters and can be encrypted with a password. Example: fffffffffffffffffffffffffffffffe"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0119",
@@ -786,7 +1191,29 @@
    "text": "Contracts are the only type of account that has associated bytecode and storage (to store contract-specific state).",
    "class": "data",
    "claim": "contracts are the only account type with bytecode and storage",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "EIP-7702, live with Pectra on 7 May 2025, lets an EOA set code",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording dates from Jan 2021 (rev 1001323182), when only contracts had code.",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-7702",
+     "match": " Final Standards Track: Core EIP-7702: Set Code for EOAs Add a new tx type that permanently sets the code for an EOA Authors Vitalik Buterin ( @vbuterin ), Sam Wilson ( @SamWilsn ), Ansgar Dietric"
+    },
+    {
+     "url": "https://ethereum.org/en/ethereum-forks/",
+     "match": " : $3,149.00 ethereum.org on waybackmachine (opens in a new tab) More on Fusaka Prague-Electra (\"Pectra\") May 7, 2025, 10:05:11 AM UTC Block number : 22,431,084 (opens in a new tab) Epoch number : "
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-3607",
+     "match": " create a collision between a contract account and an Externally Owned Account (EOA) using an estimated 2**80 computing operations, which is feasible now given a l"
+    }
+   ]
   },
   {
    "id": "ethereum-0120",
@@ -812,7 +1239,20 @@
    "text": "The Ethereum Virtual Machine (EVM) is the runtime environment for transaction execution in Ethereum.",
    "class": "data",
    "claim": "the EVM is the runtime for transaction execution",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "EVM runs transactions",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/evm/",
+     "match": "ct bytecode. Whenever another account makes a message call to that contract, it executes its bytecode. EVM instructions The EVM executes as a stack machine (opens in a new tab) with"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0124",
@@ -820,7 +1260,20 @@
    "text": "The EVM is a stack based virtual machine with an instruction set specifically designed for Ethereum.",
    "class": "data",
    "claim": "the EVM is a stack-based virtual machine",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "stack machine",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/evm/",
+     "match": "that contract, it executes its bytecode. EVM instructions The EVM executes as a stack machine (opens in a new tab) with a depth of 1024 items. Each item is a 256-bit word, w"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0125",
@@ -840,7 +1293,20 @@
    "text": "The formal definition of the EVM is specified in the Ethereum Yellow Paper.",
    "class": "data",
    "claim": "formal definition of the EVM is in the Yellow Paper",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Yellowpaper is the spec",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/evm/",
+     "match": " new tab) EVM implementations All implementations of the EVM must adhere to the specification described in the Ethereum Yellowpaper. Over Ethereum's ten year history, the EVM has undergone several revisions, a"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0128",
@@ -848,7 +1314,20 @@
    "text": "EVMs have been implemented in C++, C#, Go, Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang, and soon WebAssembly.",
    "class": "data",
    "claim": "EVM implemented in C++, C#, Go, Haskell, Java, JavaScript, Python, Ruby, Rust, Elixir, Erlang, and soon WebAssembly",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "several implementations listed; no complete list by language; Ewasm design repo archived May 2026",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "The list has eleven languages plus a \"soon\" that cannot be settled from one source.",
+   "receipts": [
+    {
+     "url": "https://github.com/ewasm/design",
+     "match": "Reload to refresh your session. Dismiss alert {{ message }} This repository was archived by the owner on May 1, 2026. It is now read-only. ewasm design Repository navigation Code Issues 57 ( 57 ) "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0129",
@@ -862,7 +1341,20 @@
    "text": "Each type of operation which may be performed by the EVM is hardcoded with a certain gas cost, which is intended to be roughly proportional to the monetary value of the resources (e.g. computation and storage) a node must expend or dedicate to perform that operation.",
    "class": "data",
    "claim": "each operation has a hardcoded gas cost",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "fee schedule in the Yellow Paper",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.github.io/yellowpaper/paper.pdf",
+     "match": ")Hl ness, all programmable computation in Ethereum is subject 1024 to fees. The fee schedule is specified in units of gas (see Ap- pendix G for the fees associated with var"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0131",
@@ -870,7 +1362,29 @@
    "text": "When a sender is creating a transaction, the sender must specify a gas limit and gas price.",
    "class": "data",
    "claim": "sender must specify a gas limit and gas price",
-   "asOf": null
+   "asOf": null,
+   "verdict": "stale",
+   "dated": false,
+   "checkedValue": "type-2 transactions set max fee and max priority fee; gas price is optional legacy",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Wording dates from Dec 2020 (rev 992079776), before EIP-1559 went live in Aug 2021.",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/transactions/",
+     "match": "saction. The EVM specifies the units of gas required by each computational step maxPriorityFeePerGas - the maximum price of the consumed gas to be included as a tip to the validato"
+    },
+    {
+     "url": "https://ethereum.org/en/developers/docs/transactions/",
+     "match": " the maximum price of the consumed gas to be included as a tip to the validator maxFeePerGas - the maximum fee per unit of gas willing to be paid for the transaction (inclu"
+    }
+   ],
+   "thenReceipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1559",
+     "match": "class , field from abc import ABC , abstractmethod @ dataclass class TransactionLegacy : signer_nonce : int = 0 gas_price : int = 0 gas_limit : int = 0 destination : "
+    }
+   ]
   },
   {
    "id": "ethereum-0132",
@@ -884,7 +1398,20 @@
    "text": "A transaction may only be included in the blockchain at a block slot that has a base gas price less than or equal to the transaction's gas price.",
    "class": "data",
    "claim": "a transaction needs a gas price at or above the block base fee",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "max fee must cover the base fee",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1559",
+     "match": ": int = 0 extra_data : bytes = bytes () proof_of_work : int = 0 nonce : int = 0 base_fee_per_gas : int = 0 @ dataclass class Account : address : int = 0 nonce : int = 0 balance"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0134",
@@ -892,7 +1419,20 @@
    "text": "The portion of the gas price that is in excess of the base gas price, known as a \"priority fee\" (or \"tip\"), goes to the block proposer; the higher the priority fee, the more incentive a block proposer has to include the transaction in their block, and thus the quicker the transaction will be included in the blockchain.",
    "class": "data",
    "claim": "excess over base fee is a priority fee that goes to the proposer",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "tip goes to the proposer",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "pay? The total gas you pay is divided into two components: the base fee and the priority fee (tip). The base fee is set by the protocol—you have to pay at least this amount"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0135",
@@ -900,7 +1440,20 @@
    "text": "The sender buys the full amount of gas (i.e. their ETH balance is debited gas limit × gas price and their gas balance is set to gas limit) up-front, at the start of the execution of the transaction, and is refunded at the end for any unused gas.",
    "class": "data",
    "claim": "gas is bought up front and unused gas refunded",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "EIP-1559 charges up front and refunds",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1559",
+     "match": "format 0x02 || rlp([chain_id, nonce, max_priority_fee_per_gas, max_fee_per_gas, gas_limit, destination, amount, data, access_list, signature_y_parity, signature_r, signa"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0136",
@@ -908,7 +1461,20 @@
    "text": "If at any point the transaction does not have enough gas to perform the next operation, the transaction is reverted but the sender is still only refunded for the unused gas.",
    "class": "data",
    "claim": "out-of-gas reverts the transaction",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "out of gas reverts",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": "ed in a block, and no gas will be consumed. On the other hand, if a transaction runs out of gas during execution (e.g., a smart contract uses up all the gas halfway), the EVM will revert any c"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0137",
@@ -916,7 +1482,20 @@
    "text": "Gas prices can be denominated in Gwei, a subunit of ETH equal to 0.000000001 ETH.",
    "class": "data",
    "claim": "1 gwei = 0.000000001 ETH",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "one gwei is 0.000000001 ETH",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/gas/",
+     "match": " which is a denomination of ETH. Each gwei is equal to one-billionth of an ETH (0.000000001 ETH or 10 -9 ETH). For example, instead of saying that your gas costs 0.000000001 e"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0138",
@@ -930,7 +1509,20 @@
    "text": "The EVM's instruction set is Turing-complete.",
    "class": "data",
    "claim": "EVM instruction set is Turing-complete",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Yellow Paper describes a Turing-complete language",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Yellow Paper qualifies it as bounded by gas.",
+   "receipts": [
+    {
+     "url": "https://ethereum.github.io/yellowpaper/paper.pdf",
+     "match": "of a block- Follow-up systems such as Namecoin adapted this origi- chain with a Turing-complete language and an effectively nal \"currency application\" of the technology into o"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0140",
@@ -944,7 +1536,20 @@
    "text": "Ethereum's smart contracts are written in high-level programming languages and then compiled down to EVM bytecode, which is then deployed to the Ethereum blockchain.",
    "class": "data",
    "claim": "contracts are compiled to EVM bytecode",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "compiled to bytecode",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/evm/",
+     "match": "ts in the creation of a new contract account containing compiled smart contract bytecode. Whenever another account makes a message call to that contract, it executes it"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0142",
@@ -952,7 +1557,20 @@
    "text": "They can be written in Solidity (a language library with similarities to C and JavaScript), as well as others.",
    "class": "data",
    "claim": "contracts can be written in Solidity and others",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Solidity documented",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/smart-contracts/languages/",
+     "match": "anguage with familiar syntax. The two most active and maintained languages are: Solidity Vyper Remix IDE provides a comprehensive development environment for creating a"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0143",
@@ -978,7 +1596,20 @@
    "text": "The ERC-20 (Ethereum Request-for-Comments #20) Token Standard allows for fungible tokens on the Ethereum blockchain.",
    "class": "data",
    "claim": "ERC-20 is the fungible token standard on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ERC-20",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/standards/tokens/erc-20/",
+     "match": "ERC-20 Token Standard | ethereum.org Skip to main content Overview What is Ethereum? W"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0147",
@@ -992,7 +1623,24 @@
    "text": "The standard provides functions that include the transfer of tokens from one account to another, getting the current token balance of an account, and getting the total supply of the token available on the network.",
    "class": "data",
    "claim": "ERC-20 provides transfer, balance and total supply functions",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "transfer, balanceOf, totalSupply",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-20",
+     "match": " these values to be present. function decimals () public view returns ( uint8 ) totalSupply Returns the total token supply. function totalSupply () public view returns ( u"
+    },
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-20",
+     "match": "the total token supply. function totalSupply () public view returns ( uint256 ) balanceOf Returns the account balance of another account with address _owner . function b"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0149",
@@ -1012,7 +1660,20 @@
    "text": "Ethereum also allows for the creation of unique and indivisible tokens, called non-fungible tokens (NFTs).",
    "class": "data",
    "claim": "Ethereum allows NFTs",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "ERC-721",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-721",
+     "match": "ERC-721: Non-Fungible Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0152",
@@ -1026,7 +1687,24 @@
    "text": "ERC-721 is the first official NFT standard for Ethereum and was followed up by ERC-1155 which introduced semi-fungibility; both are widely used, though some fully fungible tokens using ERC-20 have been used for NFTs such as CryptoPunks.",
    "class": "data",
    "claim": "ERC-721 first official NFT standard, followed by ERC-1155",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "both are EIPs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-721",
+     "match": "ERC-721: Non-Fungible Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta "
+    },
+    {
+     "url": "https://eips.ethereum.org/EIPS/eip-1155",
+     "match": "ERC-1155: Multi Token Standard Ethereum Improvement Proposals All Core Networking Interface ERC Meta "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0154",
@@ -1064,7 +1742,20 @@
    "text": "Examples of DeFi platforms include MakerDAO.",
    "class": "data",
    "claim": "MakerDAO is an example DeFi platform",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "platform operates today as Sky",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Not counted as stale: the rename does not make the example false.",
+   "receipts": [
+    {
+     "url": "https://upgrademkrtosky.sky.money/",
+     "match": "KY Upgrade MKR to SKY SKY has been voted in as the sole governance token of the Sky Protocol. Upgrade your MKR to SKY promptly to maintain the ability to participate in Sky"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0160",
@@ -1078,7 +1769,20 @@
    "text": "As of October 2020, over US$11 billion was invested in various DeFi protocols.",
    "class": "data",
    "claim": "over US$11 billion invested in DeFi as of October 2020",
-   "asOf": "2020-10"
+   "asOf": "2020-10",
+   "verdict": "undecidable",
+   "dated": true,
+   "checkedValue": "DefiLlama Oct 2020 TVL peak $10.29B; contemporary DeFi Pulse method differs",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Dated. Retrospective TVL is below \"$11 billion\" by about 7%, and methods differ.",
+   "receipts": [
+    {
+     "url": "https://api.llama.fi/v2/historicalChainTvl",
+     "match": "[{\"date\":1506470400,\"tvl\":0},{\"date\":1506556800,\"tvl\":0},{\"date\":1506643200,\"tvl\":0},{\"date\":1506729600,\""
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0162",
@@ -1092,7 +1796,20 @@
    "text": "Aave is a protocol for microlending using Ethereum.",
    "class": "data",
    "claim": "Aave is a protocol for lending on Ethereum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Aave V3 docs and Ethereum market",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Page says \"microlending\"; the docs call it lending.",
+   "receipts": [
+    {
+     "url": "https://aave.com/docs",
+     "match": "s User Activities Exchange Rates Swap Features Reference React Hooks BigDecimal Aave V3 Overview Getting Started React TypeScript GraphQL Concepts Liquidity Pool Reser"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0164",
@@ -1136,7 +1853,21 @@
    "text": "As of December 2025, the maximum theoretical throughput for Ethereum L1 is 238 TPS (given its current 60M gas limit, 12s blocks, and 21k gas cost for ETH transfers).",
    "class": "data",
    "claim": "max L1 throughput 238 TPS given 60M gas limit, 12s blocks, 21k gas transfers",
-   "asOf": "2025-12"
+   "asOf": "2025-12",
+   "verdict": "current",
+   "dated": true,
+   "checkedValue": "block 24,000,000 on 13 Dec 2025 had a 59,999,886 gas limit; 60M/21k/12 = 238",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum-rpc.publicnode.com",
+     "post": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"eth_getBlockByNumber\",\"params\":[\"0x16E3600\",false]}",
+     "match": "ff78d75f799bbf99ecfbdcb77db77bd7bdfbbf\",\"difficulty\":\"0x0\",\"number\":\"0x16e3600\",\"gasLimit\":\"0x393868e\",\"gasUsed\":\"0x372e08b\",\"timestamp\":\"0x693cadf3\",\"extraData\":\"0x4275696c64657"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0171",
@@ -1144,7 +1875,20 @@
    "text": "Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.",
    "class": "data",
    "claim": "average throughput is much less than the maximum",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "24.97 TPS measured against a 238 TPS theoretical maximum",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "receipts/eth-tps-nov2026.json",
+     "match": "2026-11-05T04:37:35.000Z\", \"meanBlockTimeSec\": 12.033, \"meanTxPerBlock\": 300.5, \"meanTps\": 24.972, \"gasLimitLast\": 60000000 } "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0172",
@@ -1152,7 +1896,28 @@
    "text": "As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.",
    "class": "data",
    "claim": "about 25 TPS as of January 2016, unchanged after proof of stake",
-   "asOf": "2016-01"
+   "asOf": "2016-01",
+   "verdict": "wrong",
+   "dated": true,
+   "checkedValue": "Jan 2016 averaged 0.15 TPS (Etherscan daily counts); RPC sample 0.133 TPS; Sept 2022 13.02 TPS; 4 Nov 2026 23 TPS",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Second check: Etherscan's chart and a direct RPC sample, two routes. The 25 TPS figure is close to today's rate, not January 2016's.",
+   "receipts": [
+    {
+     "url": "receipts/eth-tps-etherscan.json",
+     "match": "ily transaction counts / seconds in the days counted\", \"jan2016\": { \"days\": 31, \"tps\": 0.151 }, \"sep2022\": { \"days\": 30, \"tps\": 13.017 }, \"latestDay\": { \"date\": \"11/4/2026\""
+    },
+    {
+     "url": "https://etherscan.io/chart/tx?output=csv",
+     "match": "00\",\"11358\" \"12/30/2015\",\"1451433600\",\"21767\" \"12/31/2015\",\"1451520000\",\"10301\" \"1/1/2016\",\"1451606400\",\"8233\" \"1/2/2016\",\"1451692800\",\"9164\" \"1/3/2016\",\"1451779200\",\"9258\" \"1/4/2016\",\"14518"
+    },
+    {
+     "url": "receipts/eth-tps-jan2016.json",
+     "match": "2016-02-05T00:34:33.000Z\", \"meanBlockTimeSec\": 17.143, \"meanTxPerBlock\": 2.281, \"meanTps\": 0.133, \"gasLimitLast\": 3141592 } "
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0173",
@@ -1160,7 +1925,20 @@
    "text": "In comparison, the Visa payment platform processes 45,000 payments per second.",
    "class": "data",
    "claim": "Visa processes 45,000 payments per second",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "Visa reports 329B transactions a year, about 10,400 per second on average",
+   "checkedOn": "2026-11-05",
+   "contradicted": true,
+   "note": "CONTRADICTED as an average; capacity figures differ, and \"processes\" does not say which is meant.",
+   "receipts": [
+    {
+     "url": "https://usa.visa.com/about-visa.html",
+     "match": "ls worldwide¹ ~ 14.5 K financial institutions² ~ 14.5 K financial institutions² 329 B total transactions³ 329 B total transactions³ 175 M+ merchant locations⁴ 175 M+ merchant locations"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0174",
@@ -1174,7 +1952,20 @@
    "text": "Ethereum's blockchain uses a Merkle–Patricia Tree to store account state in each block.",
    "class": "data",
    "claim": "Ethereum uses a Merkle-Patricia tree for account state",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "Merkle Patricia Trie",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/data-structures-and-encoding/patricia-merkle-trie/",
+     "match": "Merkle Patricia Trie | ethereum.org Skip to main content Overview What is Ethereum? Why Ethereum exi"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0176",
@@ -1206,7 +1997,20 @@
    "text": "There are different types of L2 chains, including optimistic rollups and zero-knowledge rollups (zk rollups).",
    "class": "data",
    "claim": "L2 types include optimistic and zk rollups",
-   "asOf": null
+   "asOf": null,
+   "verdict": "current",
+   "dated": false,
+   "checkedValue": "optimistic and zero-knowledge rollups",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "",
+   "receipts": [
+    {
+     "url": "https://ethereum.org/en/developers/docs/scaling/",
+     "match": "e Tokens ERC-721: NFTs ERC-1155 Maximal extractable value (MEV) Oracles Scaling Optimistic rollups Zero-knowledge rollups State channels Sidechains Plasma Validium Data availability Blockchain data sto"
+    }
+   ],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0181",
@@ -1214,7 +2018,15 @@
    "text": "Depending on their individual technical details, some L2 chains are capable of processing thousands of transactions per second.",
    "class": "data",
    "claim": "some L2 chains can process thousands of TPS",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "no primary throughput source saved",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Capability varies per chain; no single primary source.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0182",
@@ -1228,7 +2040,15 @@
    "text": "In the United States, regulatory authorities have increasingly signaled that ether should be treated as a commodity under the jurisdiction of the Commodity Futures Trading Commission (CFTC).",
    "class": "data",
    "claim": "US regulators signal ether is a commodity under the CFTC",
-   "asOf": null
+   "asOf": null,
+   "verdict": "reclassified",
+   "dated": false,
+   "checkedValue": "",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "\"Increasingly signaled\" is evaluative, not checkable data.",
+   "receipts": [],
+   "thenReceipts": []
   },
   {
    "id": "ethereum-0184",
@@ -1254,7 +2074,15 @@
    "text": "Under UCC Article 12, ETH is classified as a CER, which provides a comprehensive framework for its commercial circulation.",
    "class": "data",
    "claim": "under UCC Article 12, ETH is a controllable electronic record",
-   "asOf": null
+   "asOf": null,
+   "verdict": "undecidable",
+   "dated": false,
+   "checkedValue": "uniform law page did not state this classification",
+   "checkedOn": "2026-11-05",
+   "contradicted": false,
+   "note": "Legal classification of ETH; no primary source said so.",
+   "receipts": [],
+   "thenReceipts": []
   }
  ]
 }
