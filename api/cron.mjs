@@ -31,7 +31,17 @@ export default async function handler(req, res) {
   const writer = await runJob("cron-writer", async ({ app, layer, started, reanchor, deadline }) => {
     const out = {};
     await started;
-    if (reanchor) out.reanchored = await reanchor().catch((e) => { failures.push(`anchor: ${e.message}`); return 0; });
+    // the writer's own reanchor, bounded by this run's time: a backlog drains over several runs
+    if (reanchor && layer.writer) {
+      out.reanchored = 0;
+      const todo = [];
+      for (const list of layer.writer.store.byKey.values()) for (const r of list) if (r.status === "signed" && r.anchor?.status !== "anchored") todo.push(r);
+      for (const r of todo) {
+        if (deadline - Date.now() < 45_000) { out.anchor_backlog = todo.length - out.reanchored; break; }
+        await layer.writer.anchor(r).catch((e) => failures.push(`anchor ${r.id}: ${e.message}`));
+        out.reanchored++;
+      }
+    }
     const last = newestOutcome(p);
     const newest = Math.max(last.trade, last.rewrite, last.answer);
     if (layer.writer && Date.now() - newest > 20 * 3600_000 && deadline - Date.now() > 60_000 && p.spend.status().open) {
@@ -51,7 +61,7 @@ export default async function handler(req, res) {
     }
     out.compacted = await p.journals.compact().catch((e) => { failures.push(`compact: ${e.message}`); return 0; });
     return out;
-  }, { lock: "writer", agents: false, waitMs: 30_000, budgetMs: 110_000, reanchor: true });
+  }, { lock: "writer", agents: false, waitMs: 20_000, budgetMs: 100_000, reanchor: true });
 
   const agents = await runJob("cron-agents", async ({ app, layer, started, deadline, wanted }) => {
     const out = {};
@@ -93,7 +103,7 @@ export default async function handler(req, res) {
       }
     }
     return out;
-  }, { lock: "ai-job", agents: true, waitMs: 20_000, budgetMs: 150_000 });
+  }, { lock: "ai-job", agents: true, waitMs: 20_000, budgetMs: 110_000 });
 
   // 5. health: outcomes, not liveness
   const last = newestOutcome(p);
