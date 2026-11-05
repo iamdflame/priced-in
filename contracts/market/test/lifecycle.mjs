@@ -78,7 +78,16 @@ async function sweepAndDelete(a) {
   await a.deployContract(EMPTY_WASM);
   await a.deleteAccount(funder.accountId);
 }
+let spawned = null; // { owner, swarmId, agentId } once an agent exists
 async function cleanup() {
+  // a crashed run leaves an agent account behind: it has no full-access key, so only the swarm
+  // can delete it, and only while the swarm exists
+  if (spawned) {
+    for (const m of ["close_agent", "delete_agent"]) {
+      try { await spawned.owner.callFunction({ contractId: spawned.swarmId, methodName: m, args: { agent_id: spawned.agentId }, gas: 60n * TGAS }); }
+      catch (e) { if (!/already closed|already deleted/.test(String(e.message || e))) console.log(`cleanup: ${m}: ${String(e.message || e).slice(0, 120)}`); }
+    }
+  }
   const left = [];
   for (const c of [...created].reverse()) {
     const a = new Account(c.id, provider, new KeyPairSigner(KeyPair.fromString(c.sk)));
@@ -177,6 +186,7 @@ async function main() {
   await refused("spawning with less than 5 NEAR is refused", () => call(stranger, S, "spawn_agent", spawnArgs, { deposit: near(4.9) }), /at least the minimum deposit/);
   await call(stranger, S, "spawn_agent", spawnArgs, { deposit: 5n * NEAR, tgas: 60n });
   const AG = `a0.${S}`;
+  spawned = { owner: stranger, swarmId: S, agentId: AG };
   const agent = await view(S, "get_agent", { agent_id: AG });
   const escrow0 = BigInt(agent.escrow_yocto);
   check("a stranger's agent is spawned in one transaction", agent.owner === stranger.accountId && agent.model === spawnArgs.model && agent.persona_hash === persona && !agent.sleeping, `${AG}, escrow ${(Number(escrow0) / 1e24).toFixed(4)} NEAR`);

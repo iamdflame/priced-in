@@ -49,12 +49,13 @@ const provider = new JsonRpcProvider({ url: env.NEAR_RPC || (network === "mainne
 const acct = (id, kp) => new Account(id, provider, new KeyPairSigner(kp));
 
 async function exists(id) {
-  try { await provider.query({ request_type: "view_account", finality: "final", account_id: id }); return true; }
+  try { await provider.query({ request_type: "view_account", finality: "optimistic", account_id: id }); return true; }
   catch (e) { if (/does not exist|UNKNOWN_ACCOUNT|doesn't exist/i.test(String(e.message || e))) return false; throw e; }
 }
-const codeHash = async (id) => (await provider.query({ request_type: "view_account", finality: "final", account_id: id })).code_hash;
-const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args });
+const codeHash = async (id) => (await provider.query({ request_type: "view_account", finality: "optimistic", account_id: id })).code_hash;
+const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args, blockQuery: { finality: "optimistic" } });
 const call = (a, contractId, methodName, args = {}, deposit = 0n, gas = 60n) => a.callFunction({ contractId, methodName, args, gas: gas * TGAS, deposit });
+
 
 function wasm(name) {
   const file = `${WASM}/${name}.wasm`;
@@ -81,8 +82,25 @@ if (process.argv.includes("--delete")) {
   let left = 0;
   for (const id of [...s.subs, s.root]) {
     if (!(await exists(id))) continue;
-    try { await acct(id, kp).deleteAccount(s.funder); console.log(`deleted ${id}`); }
-    catch (e) { left++; console.log(`could not delete ${id}: ${String(e.message || e).slice(0, 160)}`); }
+    const a = acct(id, kp);
+    try {
+      try { await a.deleteAccount(s.funder); }
+      catch (e) {
+        if (!/large state/i.test(String(e.message || e))) throw e;
+        // NEAR won't delete an account with large state: swap in the sweeper, remove every key,
+        // swap in an empty module, then delete
+        await a.deployContract(wasm("pricedin_sweeper").bytes);
+        for (;;) {
+          const st = await provider.query({ request_type: "view_state", finality: "final", account_id: id, prefix_base64: "" });
+          const keys = (st.values || []).map((v) => v.key);
+          if (!keys.length) break;
+          for (let i = 0; i < keys.length; i += 200) await a.callFunction({ contractId: id, methodName: "clean", args: { keys: keys.slice(i, i + 200) }, gas: 300n * TGAS });
+        }
+        await a.deployContract(new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]));
+        await a.deleteAccount(s.funder);
+      }
+      console.log(`deleted ${id}`);
+    } catch (e) { left++; console.log(`could not delete ${id}: ${String(e.message || e).slice(0, 160)}`); }
   }
   if (!left) fs.rmSync(STATE);
   process.exit(left ? 1 : 0);
