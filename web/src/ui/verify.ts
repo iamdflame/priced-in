@@ -11,7 +11,7 @@ const short = (x: string | null | undefined, a = 10, b = 6) => (x ? (x.length > 
 /** The checks, as a list, from the store's verify state. */
 export function verifyBody(st: AppState, ctx: Ctx, rec: Rewrite | null): Child[] {
   const v = st.page.verify;
-  if (v.running) return [h("p", { class: "loading" }, "Checking the bytes, the hashes, the signature and the market's registered key, here in your browser…")];
+  if (v.running) return [h("p", { class: "loading" }, "Checking the bytes, the fingerprints, the signature and the market’s registered key, here in your browser…")];
   if (v.error) return [h("p", { class: "msg red" }, v.error)];
   const r = v.result;
   if (!r) return [];
@@ -36,7 +36,9 @@ export function verifyBody(st: AppState, ctx: Ctx, rec: Rewrite | null): Child[]
 }
 
 export class VerifyPanel {
-  readonly el = h("div", { class: "panel", role: "dialog", "aria-modal": "false", "aria-labelledby": "vp-title", hidden: true, tabindex: "-1" });
+  readonly el = h("div", { class: "panel", role: "dialog", "aria-modal": "true", "aria-labelledby": "vp-title", hidden: true, tabindex: "-1" });
+  /** the page dims behind the panel; a click on it closes the panel */
+  readonly scrim = h("div", { class: "scrim", hidden: true, "aria-hidden": "true" });
   private body = h("div");
   private opener: HTMLElement | null = null;
   private rec: Rewrite | null = null;
@@ -46,16 +48,18 @@ export class VerifyPanel {
   constructor(private ctx: Ctx) {
     this.el.append(
       h("button", { class: "x", type: "button", "aria-label": "Close", onclick: () => this.close() }, "×"),
-      h("h2", { id: "vp-title" }, "Signed in a TEE"),
-      h("p", { class: "lede" }, "The model's rewrite came with its exact request and response, their hashes and an ed25519 signature. Your browser checks each one, and asks the market contract for the model's registered key."),
+      h("h2", { id: "vp-title" }, "Check the signature yourself"),
+      h("p", { class: "lede" }, "The model wrote this rewrite inside a sealed chip (a TEE) and signed exactly what it got and what it answered. Your browser checks each part below, and asks the NEAR market for the key registered to that model."),
       this.body,
     );
     document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !this.el.hidden) this.close(); });
+    this.scrim.addEventListener("click", () => this.close());
   }
 
   async open(page: string, rewriteId: string, opener?: HTMLElement) {
     this.opener = opener ?? null;
     this.el.hidden = false;
+    this.scrim.hidden = false;
     this.el.focus();
     this.rec = null;
     this.key = "";
@@ -69,9 +73,12 @@ export class VerifyPanel {
 
   close() {
     this.el.hidden = true;
+    this.scrim.hidden = true;
     this.unsub?.();
     this.unsub = null;
-    this.opener?.focus();
+    // the story may have redrawn its link while the panel was open: focus the one on the page now
+    const o = this.opener?.isConnected ? this.opener : document.querySelector<HTMLElement>('[data-chip="signed"]');
+    o?.focus();
   }
 
   private render(st: AppState) {

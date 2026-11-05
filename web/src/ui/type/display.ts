@@ -44,8 +44,6 @@ export function pairExtra(prev: string | undefined, cur: string, size: number): 
   if (prev === "." && /[A-Za-z]/.test(cur)) e += 0.07; // U.S, S.T
   if (up(prev) && cur === ".") e += 0.025;
   if (up(prev) && up(cur)) e += 0.03; // EOS, USDT
-  if (cur === "'" || cur === "’") e += 0.035;
-  if (prev === "'" || prev === "’") e += 0.035;
   if (prev === "$" || cur === "%") e += 0.02;
   return e * size;
 }

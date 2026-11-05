@@ -109,3 +109,38 @@ export function withoutStop(t: string): { text: string; stop: string } {
   const m = /^(.*?)([.!?]+)$/s.exec(t.trim());
   return m ? { text: m[1], stop: m[2] } : { text: t.trim(), stop: "" };
 }
+
+// ---------- typesetting ----------
+
+/** Curly quotes and apostrophes for corpus and model text, at display time (the raw string stays for hashes). */
+export function smartQuotes(t: string): string {
+  return t
+    .replace(/(\w)'(\w)/g, "$1’$2")
+    .replace(/(^|[\s(\[“])'/g, "$1‘")
+    .replace(/'/g, "’")
+    .replace(/(^|[\s(\[])"/g, "$1“")
+    .replace(/"/g, "”");
+}
+
+const MONTHS = "January|February|March|April|May|June|July|August|September|October|November|December";
+/** Numbers stay with their units and dates stay whole: no-break spaces where a break would split them. */
+export function glue(t: string): string {
+  return t
+    .replace(/(\d[\d.,]*)\s+(billion|million|thousand|trillion|percent|per cent)\b/g, "$1 $2")
+    .replace(new RegExp(`\b(\d{1,2})\s+(${MONTHS})\s+(\d{4})\b`, "g"), "$1 $2 $3")
+    .replace(new RegExp(`\b(${MONTHS})\s+(\d{4})\b`, "g"), "$1 $2")
+    .replace(/\bU\.S\.\s+(?=[A-Z])/g, "U.S. ");
+}
+
+/** Display text from the corpus, a post or a model: curly quotes, glued numbers. */
+export const typeset = (t: string) => glue(smartQuotes(t));
+
+/** An identifier (a model id, a host, an account) that must not break at its hyphens. */
+export const ident = (t: string) => h("span", { class: "nowrap" }, t);
+
+/** A long hash that may break only after : / and . */
+export function hashText(t: string): HTMLElement {
+  const el = h("span", { class: "hash" });
+  for (const part of t.split(/(?<=[:/.])/)) { el.append(part); el.append(document.createElement("wbr")); }
+  return el;
+}

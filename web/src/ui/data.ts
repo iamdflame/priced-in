@@ -31,6 +31,9 @@ export function pageTitle(slug: string | null): string {
 export const pageInfo = (slug: string | null) => (slug ? CORPUS.pages[slug] ?? null : null);
 export const sectionOf = (slug: string | null, text: string) => (slug ? CORPUS.sections[slug]?.[text] ?? null : null);
 
+/** The example post for the link trick: change it here, and every mention follows. */
+export const DEMO_POST = { path: "/ilblackdragon/status/2118027843980366222", about: "Illia Polosukhin’s post announcing the NEAR hackathon" };
+
 export const PROOF = `We checked ${CORPUS.headline.denominator} sentences on ${CORPUS.headline.pages} Wikipedia crypto pages against primary sources. ${CORPUS.headline.numerator} were out of date or wrong.`;
 export const RULE = "Models write the pages and give the first ruling. Bonded people have the last word. NEAR checks every step.";
 export const PLAIN = "Every sentence here has a price. AI agents bet real money on whether it is true.";
