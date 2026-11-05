@@ -27,6 +27,7 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createApp } from "../../api/src/app.mjs";
+import { Rpc } from "../../api/src/rpc.mjs";
 import { sse } from "../../api/test/helpers.mjs";
 import { loadAiConfig } from "../src/config.js";
 import { mountAi } from "../src/mount.js";
@@ -46,7 +47,8 @@ const EXPENSIVE = "mock/expensive-1";
 if ((process.env.NEAR_NETWORK || "testnet") !== "testnet") { console.error("crowd-e2e runs on testnet only."); process.exit(1); }
 
 // public testnet RPCs rate-limit bursts: retry with backoff, then fail over to the other
-const provider = new FailoverRpcProvider(RPC_URLS.map((url) => new JsonRpcProvider({ url }, { retries: 6, backoff: 2, wait: 700 })));
+// transactions go through the fastnear hosts only: drpc's free plan times out on waits
+const provider = new FailoverRpcProvider(RPC_URLS.filter((u) => !/drpc/.test(u)).map((url) => new JsonRpcProvider({ url }, { retries: 6, backoff: 2, wait: 700 })));
 const results = [];
 let failures = 0;
 const check = (name, ok, detail = "") => { results.push(`${ok ? "PASS" : "FAIL"} ${name}${detail ? " · " + detail : ""}`); if (!ok) failures++; console.log(results.at(-1)); };
@@ -57,7 +59,9 @@ async function retry(fn) {
     try { return await fn(); } catch (e) { if (i >= 5 || !/fetch failed|ECONNRESET|ETIMEDOUT|socket|network|503|502|429/i.test(short(e))) throw e; await sleep(1500 * (i + 1)); }
   }
 }
-const view = (contractId, method, args = {}) => retry(() => provider.callFunction({ contractId, method, args, blockQuery: { finality: "optimistic" } }));
+// reads go through the API's Rpc: it fails over, and backs off when every node rate-limits
+const reader = new Rpc(RPC_URLS, { timeoutMs: 12000 });
+const view = (contractId, method, args = {}) => retry(() => reader.viewFunction(contractId, method, args));
 const until = async (what, fn, ms = 30000, every = 500) => { const t0 = Date.now(); for (;;) { const v = await fn().catch(() => null); if (v) return v; if (Date.now() - t0 > ms) throw new Error(`timed out waiting for ${what}`); await sleep(every); } };
 
 // ---------- the funder and throwaway accounts ----------
@@ -90,8 +94,8 @@ async function sub(prefix, amount) {
 const EMPTY_WASM = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]);
 async function rpcQuery(params) {
   for (let i = 0; ; i++) {
-    const r = await fetch(RPC_URLS[i % RPC_URLS.length], { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params }) }).then((x) => x.json()).catch(() => ({}));
-    if (r.result || i >= 6) return r.result ?? null;
+    const r = await reader.call("query", params).catch(() => null);
+    if (r || i >= 6) return r;
     await sleep(1500); // a fresh account or key is not final yet
   }
 }
@@ -174,12 +178,12 @@ try {
   // ---------- 2. the house ----------
   const keystoreDir = path.join(DATA, "keystore");
   fs.mkdirSync(DATA, { recursive: true });
-  const op = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(0.1) });
+  const op = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
   const rows = await ensureHouseAgents({ owner: house.account, provider, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
   for (const r of rows) agentsToDelete.push([house.account, r.account]);
   check("house-agents spawns the archivist, the skeptic and the quant through the swarm", rows.length === 3 && rows.every((r) => r.created && !r.error && r.bankroll_micro === "4000000"), rows.map((r) => `${r.key}=${r.account} (${r.model})`).join(", "));
   const again = await ensureHouseAgents({ owner: house.account, provider, swarmId: SW, marketId: M, usdcId: T, keystoreDir, depositYocto: near(0.08), bankrollMicro: 4_000_000n, faucet: true });
-  const op2 = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(0.1) });
+  const op2 = await setupOperator({ owner: house.account, provider, marketId: M, swarmId: SW, keystoreDir, dataDir: DATA, allowanceYocto: near(1) });
   check("running it again changes nothing", again.every((r) => !r.created) && again.map((r) => r.account).join() === rows.map((r) => r.account).join() && !op2.market.created && !op2.swarm.created && !op2.jury.created && (await view(SW, "stats")).agents === 3);
   const keys = (await rpcQuery({ request_type: "view_access_key_list", finality: "optimistic", account_id: rows[0].account })).keys;
   check("a house agent's only key is our runner key, limited to buy, sell and redeem", keys.length === 1 && [...keys[0].access_key.permission.FunctionCall.method_names].sort().join() === "buy,redeem,sell");
@@ -189,7 +193,7 @@ try {
   const CRED = { [MOCK_MODELS[1]]: 0.93, [MOCK_MODELS[0]]: 0.75, [MOCK_MODELS[2]]: 0.62, [EXPENSIVE]: 0.85 };
   for (const [m, p] of Object.entries(CRED)) mock.behave(m, { content: (body) => (/credence/i.test(body.messages?.[0]?.content || "") ? JSON.stringify({ p, rationale: `The fetched source bears on this; I put it at ${p}.`, source_url: JSON.parse(body.messages[1].content).sources[0].url }) : null) });
   const env = {
-    NEAR_NETWORK: "testnet", HOST: "127.0.0.1", PORT: "0", SCAN_INTERVAL_MS: "1500", RPC_URLS: RPC_URLS.join(","), MARKET_CONTRACT_ID: M, USDC_CONTRACT_ID: T,
+    NEAR_NETWORK: "testnet", HOST: "127.0.0.1", PORT: "0", SCAN_INTERVAL_MS: "2000", RPC_URLS: RPC_URLS.join(","), MARKET_CONTRACT_ID: M, USDC_CONTRACT_ID: T,
     NEARAI_API_KEY: mock.apiKey, NEARAI_BASE_URL: mock.url, WRITER_MODEL: MOCK_MODELS[2], SWARM_CONTRACT_ID: SW, HOUSE_OWNER_IDS: H, DATA_DIR: DATA, KEYSTORE_DIR: keystoreDir,
     JURY_KEY_FILE: op.jury.file, JURY_AUTO: "1", JURY_TIMEOUT_MS: "45000", AGENT_WEB_SEARCH: "0", AGENT_SWEEP_MS: "0", AGENT_CYCLE_MS: "4000", AGENT_FRESH_COOLDOWN_MS: "1500",
     AGENT_BILLING: "escrow", AGENT_BILLING_OVERRIDES: "house-quant=balance", INFERENCE_YOCTO_PER_MICRO_USD: String(RATE), ATTESTATIONS_DIR: path.join(tmp, "attestations"),
@@ -198,7 +202,7 @@ try {
   if (errors.length) throw new Error(errors.join("; "));
   const start = async () => {
     app = createApp(api, { log: () => {} });
-    layer = mountAi(app, ai, { quoteVerifier: mock.quoteVerifier, gpuVerifier: mock.gpuVerifier, log: (m) => { if (/billing|fell asleep|woke|anchor|jury:|sold|not placed/.test(m)) console.log(`  [ai] ${m}`); }, overrides: { jury: { signatureDeadlineMs: 1500, graceMs: 2500 } } });
+    layer = mountAi(app, ai, { quoteVerifier: mock.quoteVerifier, gpuVerifier: mock.gpuVerifier, log: (m) => { if (/billing|fell asleep|woke|anchor|jury:|agents|reconcile|ledger:/.test(m)) console.log(`  [ai] ${m}`); }, overrides: { jury: { signatureDeadlineMs: 1500, graceMs: 2500 } } });
     const addr = await app.start();
     const base = `http://127.0.0.1:${addr.port}`;
     stream = await sse(`${base}/events`);

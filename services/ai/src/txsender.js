@@ -81,6 +81,8 @@ export class FunctionCallSender {
         const msg = `${e.message} ${JSON.stringify(e.data || "")}`;
         if (/InvalidNonce|nonce/i.test(msg)) { this.nonce = null; continue; }
         if (/Expired|InvalidChain|block hash/i.test(msg)) { this.hash = null; continue; }
+        // the node refused the transaction itself (allowance, balance, key): it was never included
+        if (/INVALID_TRANSACTION|InvalidTxError|NotEnoughAllowance|NotEnoughBalance|InvalidAccessKeyError/.test(msg)) { this.nonce = null; e.txHash = hash; throw e; }
         // keep counting up: the next transaction must not reuse a nonce that may still be in flight
         if (!e.message) e.message = e.errors?.map((x) => x?.message).filter(Boolean).join("; ") || e.constructor?.name || "the RPC gave no reason";
         e.txHash = hash;

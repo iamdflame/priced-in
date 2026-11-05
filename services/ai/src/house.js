@@ -35,7 +35,7 @@ export async function listAgents(provider, swarmId) {
  * contracts): market anchor_rewrite + charge_inference, swarm sweep_escrow, and a jury key for
  * submit_verdict written to <dataDir>/jury-key.json for the model process (JURY_KEY_FILE).
  */
-export async function setupOperator({ owner, provider, marketId, swarmId, keystoreDir, dataDir, allowanceYocto = 10n ** 23n, log = () => {} }) {
+export async function setupOperator({ owner, provider, marketId, swarmId, keystoreDir, dataDir, allowanceYocto = 2n * 10n ** 24n, log = () => {} }) {
   const out = {};
   for (const [role, receiverId] of [["market", marketId], ["swarm", swarmId]]) {
     const { rec, created } = operatorKey(keystoreDir, role, { accountId: owner.accountId, receiverId, methods: OPERATOR_METHODS[role] });
