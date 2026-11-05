@@ -36,6 +36,8 @@ let prepared = null;
 /** Once per instance: defaults for this runtime, secrets written to /tmp, the store, the spend meter. */
 export function prepare() {
   if (prepared) return prepared;
+  // a background upload that fails is logged and retried by the next flush; it never takes the instance down
+  process.on("unhandledRejection", (e) => log(`unhandled: ${e?.message || e}`));
   const env = process.env;
   const set = (k, v) => { if (env[k] === undefined || env[k] === "") env[k] = v; };
   set("NEAR_NETWORK", "testnet");
@@ -185,7 +187,7 @@ export async function recordEvents(events) {
   const seen = new Set(p.journals.read("events.jsonl").map((e) => e.uid));
   const fresh = events.filter((e) => e.uid && !seen.has(e.uid));
   for (const e of fresh) p.journals.append("events.jsonl", e);
-  if (fresh.length) await Promise.all([p.journals.flush(), p.claims.refresh().catch(() => {})]);
+  if (fresh.length) await Promise.all([p.journals.flush().catch((e) => log(`events: flush: ${e.message}`)), p.claims.refresh().catch(() => {})]);
   return fresh;
 }
 

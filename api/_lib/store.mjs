@@ -47,7 +47,8 @@ export class BlobState {
     if (!r) return null;
     if (r.statusCode === 304) return { notModified: true, etag: r.blob.etag };
     const buf = await readStream(r.stream);
-    return { value: JSON.parse(buf.toString("utf8")), etag: r.blob.etag };
+    // a compressed answer carries a weak ETag (W/"..."): the store compares the strong one
+    return { value: JSON.parse(buf.toString("utf8")), etag: String(r.blob.etag).replace(/^W\//, "") };
   }
 
   /** Write a document: create it (etag null; fails if it exists) or replace the version read. */
