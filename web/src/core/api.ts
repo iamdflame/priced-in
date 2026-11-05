@@ -28,6 +28,170 @@ export type Result<T> = { ok: true; value: T } | { ok: false; error: ApiFailure 
 export const ok = <T>(value: T): Result<T> => ({ ok: true, value });
 export const fail = <T = never>(error: ApiFailure): Result<T> => ({ ok: false, error });
 
+// ---------- the live stream, polled ----------
+
+export interface PollingEventStreamOptions extends EventStreamOptions {
+  /** how often to poll while something happened recently (the page is visible) */
+  fastMs?: number;
+  /** how often once nothing has changed for idleAfterMs */
+  slowMs?: number;
+  idleAfterMs?: number;
+  /** re-read this far back on every poll (results are de-duplicated), so nothing that lands late is missed */
+  overlapMs?: number;
+  /** polls to wait for the server's record of a trade before inferring one from a moved price */
+  inferAfterPolls?: number;
+  /** the page's visibility; a hidden page does not poll. null in tests and outside a browser */
+  visibility?: { hidden: boolean; addEventListener(type: "visibilitychange", f: () => void): void } | null;
+  now?: () => number;
+}
+
+/**
+ * The same events as EventStream, for a server with no long-running process (the hosted site):
+ * every few seconds it reads /events/recent?since= (trades the server has recorded),
+ * /rewrites?since= and /rationales?since= (the writer's and the agents' output) and /claims
+ * (the chain's prices, through a cached view). A price that moved with no recorded trade
+ * becomes a trade event of its own after a few polls (the server records a site's own trades within
+ * seconds), so trades from elsewhere still move the page.
+ * A hidden page stops polling; an idle one slows down.
+ */
+export class PollingEventStream {
+  status: LiveStatus = "connecting";
+  cursor: number;
+  private o: Required<Omit<PollingEventStreamOptions, "onStatus" | "since" | "visibility">> & Pick<PollingEventStreamOptions, "onStatus" | "visibility">;
+  private seen = new Set<string>();
+  private order: string[] = [];
+  private closed = false;
+  private timer: ReturnType<typeof setTimeout> | null = null;
+  private running = false;
+  private rewriteSince: number;
+  private rationaleSince: number;
+  private claims = new Map<number, { trades: number; ppm: number; volume: bigint }>();
+  /** claims whose price moved with no recorded trade: synthesized if still unexplained next poll */
+  private unexplained = new Map<number, { trades: number; ppm: number; volume: bigint; fromPpm: number; fromVolume: bigint; at: number; polls: number }>();
+  private lastChange: number;
+  /** the price each claim's latest recorded trade left: a poll that sees it needs no inferred trade */
+  private recordedPpm = new Map<number, number>();
+
+  constructor(o: PollingEventStreamOptions) {
+    const now = o.now ?? Date.now;
+    const vis = o.visibility !== undefined ? o.visibility : (typeof document !== "undefined" ? document : null);
+    this.o = { pollMs: 2500, minBackoffMs: 1000, maxBackoffMs: 15000, fastMs: 2500, slowMs: 10000, idleAfterMs: 120_000, overlapMs: 15_000, inferAfterPolls: 3, now, ...o, visibility: vis } as any;
+    this.cursor = o.since ?? 0;
+    this.rewriteSince = this.rationaleSince = now() - 120_000;
+    this.lastChange = now();
+  }
+
+  start() {
+    this.o.visibility?.addEventListener("visibilitychange", () => { if (!this.o.visibility?.hidden) this.poke(); });
+    this.schedule(0);
+    return this;
+  }
+
+  close() {
+    this.closed = true;
+    if (this.timer) clearTimeout(this.timer);
+    this.set("closed");
+  }
+
+  /** A trade this page made itself, at this price: not to be inferred as someone else's. */
+  expect(claimId: number, ppm: number) { if (Number.isFinite(claimId) && Number.isFinite(ppm)) this.recordedPpm.set(claimId, ppm); }
+
+  /** Poll now and stay fast for a while (after the page's own trade, say). */
+  poke() { this.lastChange = this.o.now(); this.schedule(0); }
+
+  private set(s: LiveStatus, detail?: string) {
+    if (this.status === s) return;
+    this.status = s;
+    this.o.onStatus?.(s, detail);
+  }
+
+  deliver(e: MarketEvent) {
+    const key = e.uid ?? `seq:${e.seq}`;
+    if (typeof e.seq === "number" && e.seq > this.cursor) this.cursor = e.seq;
+    if (this.seen.has(key)) return false;
+    this.seen.add(key);
+    this.order.push(key);
+    if (this.order.length > 5000) this.seen.delete(this.order.shift()!);
+    this.lastChange = this.o.now();
+    try { this.o.onEvent(e); } catch { /* a view bug never stops the stream */ }
+    return true;
+  }
+
+  private schedule(ms: number) {
+    if (this.closed) return;
+    if (this.timer) clearTimeout(this.timer);
+    this.timer = setTimeout(() => { this.timer = null; void this.tick(); }, ms);
+  }
+
+  /** One round of polls. Public for tests. */
+  async tick(): Promise<void> {
+    if (this.closed || this.running) return;
+    if (this.o.visibility?.hidden) return; // the visibilitychange listener resumes it
+    this.running = true;
+    try {
+      const api = this.o.api;
+      const [ev, rw, ra, cl] = await Promise.all([api.recentEvents(this.cursor), api.rewritesSince(this.rewriteSince), api.rationalesSince(this.rationaleSince), api.allClaims()]);
+      const tradesBy = new Map<number, number>();
+      if (ev.ok) {
+        if (ev.value.lastSeq < this.cursor) this.cursor = 0; // a server whose sequence restarted: read it from its start next time
+        for (const e of ev.value.events) {
+          if (this.deliver(e) && e.event === "trade" && e.source !== "ai") {
+            tradesBy.set(Number(e.data?.claim_id), (tradesBy.get(Number(e.data?.claim_id)) ?? 0) + 1);
+            this.recordedPpm.set(Number(e.data?.claim_id), Number(e.data?.price_yes_ppm));
+          }
+        }
+      }
+      if (rw.ok) {
+        for (const r of [...rw.value.rewrites].sort((a, b) => (a.updatedAt ?? 0) - (b.updatedAt ?? 0))) {
+          this.deliver({ seq: 0, uid: `rewrite:${r.id}:${r.status}:${r.updatedAt ?? 0}`, event: "rewrite", source: "ai", data: r });
+        }
+        this.rewriteSince = Math.max(this.rewriteSince, (rw.value.asOf ?? this.o.now()) - this.o.overlapMs);
+      }
+      if (ra.ok) {
+        for (const r of [...ra.value.rationales].sort((a, b) => a.at - b.at)) {
+          this.deliver({ seq: 0, uid: `rationale:${r.account_id}:${r.claim_id}:${r.at}`, event: "agent_rationale", source: "ai", data: r });
+        }
+        this.rationaleSince = Math.max(this.rationaleSince, (ra.value.asOf ?? this.o.now()) - this.o.overlapMs);
+      }
+      if (cl.ok) this.diffClaims(cl.value, tradesBy);
+      const any = ev.ok || rw.ok || ra.ok || cl.ok;
+      this.set(any ? "live" : "offline", any ? undefined : "the API did not answer");
+    } finally {
+      this.running = false;
+      const quiet = this.o.now() - this.lastChange > this.o.idleAfterMs;
+      this.schedule(this.status === "offline" ? Math.min(this.o.maxBackoffMs, this.o.slowMs) : quiet ? this.o.slowMs : this.o.fastMs);
+    }
+  }
+
+  /** Prices that moved without a recorded trade become trade events, once, a few polls later. */
+  private diffClaims(list: Claim[], recorded: Map<number, number>) {
+    const t = this.o.now();
+    for (const c of list) {
+      const cur = { trades: Number(c.trades ?? 0), ppm: Number(c.price_yes_ppm), volume: BigInt(c.volume_micro ?? "0") };
+      const prev = this.claims.get(c.id);
+      this.claims.set(c.id, cur);
+      const pend = this.unexplained.get(c.id);
+      if (recorded.has(c.id) || this.recordedPpm.get(c.id) === cur.ppm) { this.unexplained.delete(c.id); continue; } // the server's own record covers it
+      if (pend) {
+        if (cur.ppm !== pend.ppm || cur.trades !== pend.trades) { this.unexplained.set(c.id, { ...pend, ...cur, polls: 0 }); continue; } // still moving: wait for it to settle
+        if (++pend.polls < this.o.inferAfterPolls) continue;
+        this.unexplained.delete(c.id);
+        if (pend.ppm !== pend.fromPpm) {
+          this.recordedPpm.set(c.id, pend.ppm);
+          const amount = pend.volume > pend.fromVolume ? pend.volume - pend.fromVolume : 0n;
+          this.deliver({
+            seq: 0, uid: `poll:${c.id}:${pend.trades}:${pend.ppm}`, event: "trade", seenAtMs: pend.at,
+            data: { claim_id: c.id, trader: "", side: pend.ppm > pend.fromPpm ? "yes" : "no", amount_micro: String(amount), shares_micro: "0", price_yes_ppm: pend.ppm, balance_micro: "0", inferred: "from the claim's price; no trade record yet" },
+          });
+        }
+      }
+      if (prev && (cur.trades > prev.trades || cur.ppm !== prev.ppm) && !pend) {
+        this.unexplained.set(c.id, { ...cur, fromPpm: prev.ppm, fromVolume: prev.volume, at: t, polls: 0 });
+      }
+    }
+  }
+}
+
 // ---------- shapes ----------
 
 export type ClaimStatus = "Open" | "Challenged" | "Escalated" | "Settled";
@@ -239,7 +403,11 @@ export interface ApiOptions {
   baseUrl: string;
   fetch?: typeof fetch;
   timeoutMs?: number;
+  /** "sse" follows GET /events; "poll" polls (the hosted site has no long-running process). Default: VITE_LIVE, else "sse". */
+  live?: "sse" | "poll";
 }
+
+const DEFAULT_LIVE: "sse" | "poll" = ((import.meta as any).env?.VITE_LIVE === "poll") ? "poll" : "sse";
 
 const PLAIN: Record<ErrorState, string> = {
   offline: "We can't reach Priced In right now. Check your connection; we'll keep trying.",
@@ -298,6 +466,8 @@ export function networkFailure(err: unknown): ApiFailure {
 
 export class Api {
   readonly base: string;
+  readonly live: "sse" | "poll";
+  private polling: PollingEventStream | null = null;
   private f: typeof fetch;
   private timeoutMs: number;
 
@@ -305,6 +475,7 @@ export class Api {
     this.base = o.baseUrl.replace(/\/+$/, "");
     this.f = o.fetch ?? ((...a: Parameters<typeof fetch>) => globalThis.fetch(...a));
     this.timeoutMs = o.timeoutMs ?? 15000;
+    this.live = o.live ?? DEFAULT_LIVE;
   }
 
   /** One request. `accept` lets a non-2xx status be a designed value (a gone post's 410). */
@@ -398,8 +569,32 @@ export class Api {
   attestation(file: string) { return this.request<any>("GET", `/attestations/${encodeURIComponent(file)}`); }
   jury(challengeId: number) { return this.request<{ run: any; jury: any }>("GET", `/jury?challenge=${challengeId}`); }
 
-  /** The live event stream, with reconnect and backfill. */
-  events(o: Omit<EventStreamOptions, "api">) { return new EventStream({ ...o, api: this }); }
+  /** Rewrites changed after `since` (ms), every page or one. */
+  rewritesSince(since: number, page?: string) {
+    return this.request<{ rewrites: Rewrite[]; asOf: number }>("GET", `/rewrites?since=${since}${page ? `&page=${encodeURIComponent(page)}` : ""}`);
+  }
+
+  /** Agents' rationales posted after `since` (ms). */
+  rationalesSince(since: number) {
+    return this.request<{ rationales: Rationale[]; asOf: number }>("GET", `/rationales?since=${since}`);
+  }
+
+  /**
+   * After a trade is final, ask the hosted runtime to do what its scanner would have: it reads the
+   * transaction on-chain, then the writer and the agents answer. A server with a scanner says 404.
+   */
+  afterTrade(txHash: string, signerId?: string, trade?: { claim_id: number; price_yes_ppm: number } | null) {
+    // the page knows its own trade: the polled stream must not report it again as someone else's
+    if (trade && this.polling) this.polling.expect(trade.claim_id, trade.price_yes_ppm);
+    this.polling?.poke();
+    return this.request<{ status: string }>("POST", "/after-trade", signerId ? { txHash, signerId } : { txHash }, { timeoutMs: 20000 });
+  }
+
+  /** The live event stream, with reconnect and backfill (or polling, where the server has no stream). */
+  events(o: Omit<EventStreamOptions, "api">): EventStream | PollingEventStream {
+    if (this.live !== "poll") return new EventStream({ ...o, api: this });
+    return (this.polling = new PollingEventStream({ ...o, api: this }));
+  }
 
   /** For EventStream: a raw streaming GET. */
   stream(path: string, signal: AbortSignal) { return this.f(this.base + path, { headers: { accept: "text/event-stream" }, signal }); }

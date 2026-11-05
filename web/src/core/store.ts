@@ -9,7 +9,7 @@
 // back if the bet fails.
 
 import type { Api, ApiFailure, Claim, LiveStatus, MarketEvent, Notice, PlannedSentence, PostInfo, Rationale, Rewrite, DiffOp, Provenance } from "./api";
-import { EventStream } from "./api";
+import type { EventStream, PollingEventStream } from "./api";
 import type { Config } from "./config";
 import { laneFailure, type Lane, type LaneFailureReason, type LaneState, type Trade } from "./lane";
 import { costToMove, impliedBMicro, marketFromPrice, marketFromReceipt, quoteBuy, type BuyQuote, type Market, type Side } from "./lmsr";
@@ -320,7 +320,7 @@ export function createStore(deps: StoreDeps) {
   };
   const listeners = new Set<(s: AppState) => void>();
   const recent: MarketEvent[] = []; // for late matching and anchor lookups
-  let stream: EventStream | null = null;
+  let stream: EventStream | PollingEventStream | null = null;
   let loadSeq = 0;
   let refetchTimer: ReturnType<typeof setTimeout> | null = null;
 
@@ -590,6 +590,9 @@ export function createStore(deps: StoreDeps) {
     } else {
       dispatch({ type: "final_late", note: `Executed, but final wasn't confirmed: ${fin.failure.message}` });
     }
+    // a host with no scanner (the hosted site) hears of the trade from here; it checks it on-chain
+    const done = (fin.ok ? (fin.value as Trade | null) : null) ?? trade;
+    void api.afterTrade?.(r.txHash, ready.session.laneAccountId, claimId !== null && done ? { claim_id: claimId, price_yes_ppm: done.price_yes_ppm_after } : null);
     return state.doubt;
   }
 

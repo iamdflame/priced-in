@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { Api, EventStream, mapFailure, parseSse, type MarketEvent, type LiveStatus } from "../src/core/api";
+import { Api, EventStream, PollingEventStream, mapFailure, parseSse, type MarketEvent, type LiveStatus } from "../src/core/api";
 
 const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status, headers: { "content-type": "application/json" } });
 
@@ -163,5 +163,115 @@ describe("api: the live stream", () => {
     const s = new EventStream({ api: new Api({ baseUrl: "http://x", fetch: (async () => json(200, {})) as any }), onEvent: () => { throw new Error("view bug"); } });
     expect(() => s.deliver({ seq: 1, uid: "u", event: "trade", data: {} })).not.toThrow();
     expect(s.cursor).toBe(1);
+  });
+});
+
+describe("api: the polled stream (a host with no long-running process)", () => {
+  const claim = (id: number, ppm: number, trades: number, volume = "0") => ({ id, page: "near", text: `c${id}`, price_yes_ppm: ppm, trades, volume_micro: volume });
+  function host() {
+    const st = {
+      events: [] as any[], rewrites: [] as any[], rationales: [] as any[], claims: [claim(1, 500000, 0)], lastSeq: 0, down: false,
+      calls: [] as string[], posts: [] as any[],
+    };
+    const { f } = fakeFetch((url, init) => {
+      st.calls.push(url);
+      if (st.down) throw new TypeError("fetch failed");
+      const u = new URL(url);
+      const since = Number(u.searchParams.get("since") || 0);
+      if (u.pathname === "/api/events/recent") return json(200, { events: st.events.filter((e) => e.seq > since), lastSeq: st.lastSeq, lastBlockHeight: 1 });
+      if (u.pathname === "/api/rewrites") return json(200, { rewrites: st.rewrites.filter((r) => r.updatedAt > since), asOf: 10_000_000 });
+      if (u.pathname === "/api/rationales") return json(200, { rationales: st.rationales.filter((r) => r.at > since), asOf: 10_000_000 });
+      if (u.pathname === "/api/claims") return json(200, { claims: st.claims });
+      if (u.pathname === "/api/after-trade") { st.posts.push(JSON.parse(String(init!.body))); return json(202, { status: "accepted" }); }
+      return json(404, { error: { code: "not_found", message: "no" } });
+    });
+    return { st, api: new Api({ baseUrl: "http://h/api", fetch: f, live: "poll" }) };
+  }
+  const T = 10_000_000;
+
+  test("live: 'poll' gives a polled stream behind the same events() call", () => {
+    const { api } = host();
+    expect(api.events({ onEvent() {} })).toBeInstanceOf(PollingEventStream);
+    expect(new Api({ baseUrl: "http://h", fetch: (async () => json(200, {})) as any, live: "sse" }).events({ onEvent() {} })).toBeInstanceOf(EventStream);
+  });
+
+  test("recorded trades, rewrites (each status) and rationales arrive once, in order, and the cursor follows", async () => {
+    const { st, api } = host();
+    const got: MarketEvent[] = [];
+    const statuses: LiveStatus[] = [];
+    const s = new PollingEventStream({ api, onEvent: (e) => got.push(e), onStatus: (x) => statuses.push(x), visibility: null, now: () => T });
+    st.events = [{ seq: 1, uid: "a", event: "trade", data: { claim_id: 1, price_yes_ppm: 358265, trader: "lane:x" } }];
+    st.lastSeq = 1;
+    st.rewrites = [{ id: "near:0:v1", status: "template", updatedAt: T - 5000, sentences: [] }];
+    st.rationales = [{ account_id: "h-a.testnet", claim_id: 1, at: T - 4000, text: "agree at 36%" }];
+    await s.tick();
+    st.rewrites = [{ id: "near:0:v1", status: "template", updatedAt: T - 5000, sentences: [] }, { id: "near:0:v1", status: "signed", updatedAt: T - 1000, sentences: [] }];
+    await s.tick();
+    await s.tick();
+    s.close();
+    expect(got.map((e) => `${e.event}:${e.data.status ?? e.data.text ?? e.data.claim_id}`)).toEqual(["trade:1", "rewrite:template", "agent_rationale:agree at 36%", "rewrite:signed"]);
+    expect(got[1].source).toBe("ai");
+    expect(s.cursor).toBe(1);
+    expect(statuses[0]).toBe("live");
+    // later polls ask only for what is newer (less an overlap the de-duplication absorbs)
+    expect(st.calls.filter((u) => u.includes("/events/recent")).at(-1)).toContain("since=1");
+    expect(st.calls.filter((u) => u.includes("/rewrites")).at(-1)).toContain(`since=${T - 15000}`);
+  });
+
+  test("a price that moved with no recorded trade becomes one trade event, a few polls later; a recorded one never doubles", async () => {
+    const { st, api } = host();
+    const got: MarketEvent[] = [];
+    const s = new PollingEventStream({ api, onEvent: (e) => got.push(e), visibility: null, now: () => T, inferAfterPolls: 2 });
+    await s.tick(); // first sight: the baseline
+    st.claims = [claim(1, 600000, 1, "1000000")];
+    await s.tick(); // moved, unexplained
+    await s.tick(); // still unexplained
+    expect(got).toHaveLength(0);
+    await s.tick();
+    expect(got).toHaveLength(1);
+    expect(got[0]).toMatchObject({ event: "trade", data: { claim_id: 1, side: "yes", price_yes_ppm: 600000, amount_micro: "1000000", trader: "" } });
+    // a trade the server records (after-trade) is never inferred as well
+    st.claims = [claim(1, 400000, 2, "2000000")];
+    await s.tick();
+    st.events = [{ seq: 2, uid: "b", event: "trade", data: { claim_id: 1, price_yes_ppm: 400000, trader: "lane:y" } }];
+    st.lastSeq = 2;
+    for (let i = 0; i < 4; i++) await s.tick();
+    expect(got.map((e) => e.uid)).toEqual([got[0].uid, "b"]);
+    s.close();
+  });
+
+  test("the page's own trade: after-trade is posted with the lane account, and the moved price is not inferred as someone else's", async () => {
+    const { st, api } = host();
+    const got: MarketEvent[] = [];
+    const s = api.events({ onEvent: (e) => got.push(e) }) as PollingEventStream;
+    (s as any).o.visibility = null;
+    (s as any).o.inferAfterPolls = 1;
+    s.close(); // driven by hand below
+    (s as any).closed = false;
+    await s.tick();
+    st.claims = [claim(1, 358265, 1, "1000000")];
+    const r = await api.afterTrade("A".repeat(44), "lane.root.testnet", { claim_id: 1, price_yes_ppm: 358265 });
+    expect(r.ok).toBe(true);
+    expect(st.posts).toEqual([{ txHash: "A".repeat(44), signerId: "lane.root.testnet" }]);
+    for (let i = 0; i < 3; i++) await s.tick();
+    expect(got.filter((e) => e.event === "trade")).toHaveLength(0);
+    s.close();
+  });
+
+  test("unreachable: offline, and it keeps trying; a hidden page does not poll", async () => {
+    const { st, api } = host();
+    st.down = true;
+    const statuses: LiveStatus[] = [];
+    const s = new PollingEventStream({ api, onEvent() {}, onStatus: (x) => statuses.push(x), visibility: null });
+    await s.tick();
+    expect(statuses).toEqual(["offline"]);
+    s.close();
+    st.down = false;
+    const vis = { hidden: true, addEventListener: vi.fn() };
+    const h = new PollingEventStream({ api, onEvent() {}, visibility: vis });
+    const before = st.calls.length;
+    await h.tick();
+    expect(st.calls.length).toBe(before);
+    h.close();
   });
 });
