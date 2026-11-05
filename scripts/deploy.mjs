@@ -15,8 +15,14 @@
 //     the judges' function-call keys. The judges' keys already there stay.
 // The default is unlocked. Mainnet also needs CONFIRM_LOCK=yes, given only when the owner says so.
 //
-// Mainnet root: priced-in.near, signed by NEAR_DEPLOYER_ADDRESS / NEAR_DEPLOYER_PRIVATE_KEY
-// from .env. It refuses to run without CONFIRM_MAINNET=yes, before it reads any key.
+// Mainnet root: isitpriced.near (MAINNET_ROOT overrides), created and signed by
+// NEAR_DEPLOYER_ADDRESS / NEAR_DEPLOYER_PRIVATE_KEY from .env. It refuses to run without
+// CONFIRM_MAINNET=yes, before it reads any key. On mainnet:
+//   - the contracts are the reproducible build (tools/judge/lib/repro.mjs), so anyone can rebuild
+//     them from this commit and get the code hash on chain (npm run judge, check 3);
+//   - the deployment is lean: market and lane only. The swarm, whose agents each lock 5 NEAR,
+//     stays on testnet unless --with-swarm is given;
+//   - the public values go to deployments/mainnet.json.
 // Testnet funder: FUNDER_ID / FUNDER_KEY, else the local spike account, else the deployer.
 // Optional: PLANNER_PUBLIC_KEY_HEX, OPERATOR_ACCOUNT, COUNCIL_ACCOUNT (proposed as the owner of
 // both contracts: it takes over by calling accept_owner on each).
@@ -25,6 +31,7 @@
 // to the git-ignored .apex-test/deploy-testnet.json.
 import { Account, JsonRpcProvider, KeyPair, KeyPairSigner, baseEncode } from "near-api-js";
 import { createHash } from "node:crypto";
+import { execSync } from "node:child_process";
 import fs from "node:fs";
 
 const TGAS = 1_000_000_000_000n;
@@ -81,7 +88,7 @@ class RotatingProvider extends JsonRpcProvider {
     }
   }
 }
-const provider = new RotatingProvider((env.NEAR_RPC || (network === "mainnet" ? "https://rpc.fastnear.com" : "https://test.rpc.fastnear.com,https://testnet-rpc.intea.rs")).split(",").map((s) => s.trim()).filter(Boolean));
+const provider = new RotatingProvider((env.NEAR_RPC || (network === "mainnet" ? "https://rpc.fastnear.com,https://near.lava.build,https://rpc.mainnet.near.org" : "https://test.rpc.fastnear.com,https://testnet-rpc.intea.rs")).split(",").map((s) => s.trim()).filter(Boolean));
 const acct = (id, kp) => new Account(id, provider, new KeyPairSigner(kp));
 
 async function exists(id) {
@@ -143,24 +150,40 @@ if (process.argv.includes("--delete")) {
 }
 
 // ---------- the root ----------
-const market = wasm("pricedin_market");
-const swarm = wasm("pricedin_swarm");
+const WITH_SWARM = network === "testnet" || process.argv.includes("--with-swarm");
+let market, swarm, repro = null;
+if (network === "mainnet") {
+  // the reproducible build, so the code hash on chain is one anyone can rebuild from this commit
+  const { reproBuild } = await import("../tools/judge/lib/repro.mjs");
+  console.log("building the contracts reproducibly (tools/judge/lib/repro.mjs)");
+  repro = await reproBuild();
+  if (!repro.ok) { console.error(`reproducible build failed: ${repro.reason}`); process.exit(1); }
+  const fromRepro = (w) => ({ bytes: new Uint8Array(w.bytes), hash: w.hash, sha256: w.sha256, storage: BigInt(w.size) * BYTE_COST });
+  market = fromRepro(repro.wasm.market);
+  swarm = fromRepro(repro.wasm.swarm);
+  console.log(`market ${market.hash} (${repro.wasm.market.size} bytes), ${repro.toolchain}`);
+} else {
+  market = wasm("pricedin_market");
+  swarm = wasm("pricedin_swarm");
+}
 const tusdc = network === "testnet" ? wasm("pricedin_tusdc") : null;
-const margin = network === "mainnet" ? near(1) : near(0.2);
+const margin = network === "mainnet" ? near(0.6) : near(0.2);
 const sizes = {
   market: market.storage + margin,
-  swarm: swarm.storage + margin,
-  lane: network === "mainnet" ? near(5) : near(0.2),
+  ...(WITH_SWARM ? { swarm: swarm.storage + margin } : {}),
+  // the lane pays the judges' gas (about 0.0004 NEAR a bet) and their keys' storage
+  lane: network === "mainnet" ? near(1) : near(0.2),
   ...(tusdc ? { tusdc: tusdc.storage + margin } : {}),
 };
-const total = Object.values(sizes).reduce((a, b) => a + b, 0n) + near(0.5);
+// the root keeps enough for the house agents' accounts and the owner's own calls
+const total = Object.values(sizes).reduce((a, b) => a + b, 0n) + (network === "mainnet" ? near(2) : near(0.5));
 
 let root, kp, rootId, funderId = null;
 const state = fs.existsSync(STATE) ? JSON.parse(fs.readFileSync(STATE, "utf8")) : null;
 if (network === "mainnet") {
   if (!env.NEAR_DEPLOYER_ADDRESS || !env.NEAR_DEPLOYER_PRIVATE_KEY) { console.error("NEAR_DEPLOYER_ADDRESS and NEAR_DEPLOYER_PRIVATE_KEY must be in .env"); process.exit(1); }
   kp = KeyPair.fromString(env.NEAR_DEPLOYER_PRIVATE_KEY);
-  rootId = "priced-in.near";
+  rootId = env.MAINNET_ROOT || "isitpriced.near";
   if (!(await exists(rootId))) {
     const deployer = acct(env.NEAR_DEPLOYER_ADDRESS, kp);
     console.log(`creating ${rootId} from the deployer with ${show(total)} NEAR`);
@@ -186,7 +209,7 @@ if (network === "mainnet") {
 }
 
 // ---------- sub-accounts ----------
-const ids = { market: `market.${rootId}`, swarm: `swarm.${rootId}`, lane: `lane.${rootId}` };
+const ids = { market: `market.${rootId}`, ...(WITH_SWARM ? { swarm: `swarm.${rootId}` } : {}), lane: `lane.${rootId}` };
 if (tusdc) ids.tusdc = `tusdc.${rootId}`;
 const subs = {};
 for (const [k, id] of Object.entries(ids)) {
@@ -216,8 +239,10 @@ if (tusdc) {
 }
 await deploy(subs.market, market);
 if (!(await initialised(ids.market, "stats"))) await call(subs.market, ids.market, "new", { owner: rootId, usdc, lane: ids.lane });
-await deploy(subs.swarm, swarm);
-if (!(await initialised(ids.swarm, "stats"))) await call(subs.swarm, ids.swarm, "new", { owner: rootId, market: ids.market, treasury: rootId });
+if (WITH_SWARM) {
+  await deploy(subs.swarm, swarm);
+  if (!(await initialised(ids.swarm, "stats"))) await call(subs.swarm, ids.swarm, "new", { owner: rootId, market: ids.market, treasury: rootId });
+}
 
 // the market and the owner can hold USDC
 for (const id of [ids.market, rootId]) {
@@ -225,28 +250,59 @@ for (const id of [ids.market, rootId]) {
   else if (!(await view(usdc, "storage_balance_of", { account_id: id }))) await call(root, usdc, "storage_deposit", { account_id: id, registration_only: true }, near(0.00125 * 1000) / 1000n);
 }
 const res = await view(ids.market, "get_resolution");
-if (res.swarm !== ids.swarm) await call(root, ids.market, "set_swarm", { swarm: ids.swarm });
+if (WITH_SWARM && res.swarm !== ids.swarm) await call(root, ids.market, "set_swarm", { swarm: ids.swarm });
 if (env.PLANNER_PUBLIC_KEY_HEX) await call(root, ids.market, "set_planner_key", { key_hex: env.PLANNER_PUBLIC_KEY_HEX });
 if (env.OPERATOR_ACCOUNT) {
   await call(root, ids.market, "set_operator", { account: env.OPERATOR_ACCOUNT, allowed: true });
-  await call(root, ids.swarm, "set_operator", { account: env.OPERATOR_ACCOUNT, allowed: true });
+  if (WITH_SWARM) await call(root, ids.swarm, "set_operator", { account: env.OPERATOR_ACCOUNT, allowed: true });
 }
 if (env.COUNCIL_ACCOUNT) {
   await call(root, ids.market, "propose_owner", { account: env.COUNCIL_ACCOUNT });
-  await call(root, ids.swarm, "propose_owner", { account: env.COUNCIL_ACCOUNT });
+  if (WITH_SWARM) await call(root, ids.swarm, "propose_owner", { account: env.COUNCIL_ACCOUNT });
 }
 
 // ---------- read it back ----------
 const stats = await view(ids.market, "stats");
-const swarmStats = await view(ids.swarm, "stats");
 let bad = 0;
 const verify = (name, ok) => { console.log(`${ok ? "ok  " : "BAD "} ${name}`); if (!ok) bad++; };
-verify("market code hash matches the local build", (await codeHash(ids.market)) === market.hash);
-verify("swarm code hash matches the local build", (await codeHash(ids.swarm)) === swarm.hash);
-verify("the market knows the swarm", (await view(ids.market, "get_resolution")).swarm === ids.swarm);
-verify("the swarm points at the market", swarmStats.market === ids.market);
+verify(`market code hash matches the ${repro ? "reproducible" : "local"} build`, (await codeHash(ids.market)) === market.hash);
+if (WITH_SWARM) {
+  const swarmStats = await view(ids.swarm, "stats");
+  verify("swarm code hash matches the local build", (await codeHash(ids.swarm)) === swarm.hash);
+  verify("the market knows the swarm", (await view(ids.market, "get_resolution")).swarm === ids.swarm);
+  verify("the swarm points at the market", swarmStats.market === ids.market);
+}
 verify("the market answers", stats.paused === false);
-console.log(JSON.stringify({ network, root: rootId, ...ids, usdc, market_code_hash: market.hash, swarm_code_hash: swarm.hash }, null, 1));
+if (!tusdc) verify("the market can hold USDC", !!(await view(usdc, "storage_balance_of", { account_id: ids.market })));
+console.log(JSON.stringify({ network, root: rootId, ...ids, usdc, market_code_hash: market.hash, ...(WITH_SWARM ? { swarm_code_hash: swarm.hash } : {}) }, null, 1));
+if (network === "mainnet" && !bad) {
+  // the public record of the mainnet deployment: no key is written here
+  const file = "deployments/mainnet.json";
+  const prev = fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, "utf8")) : {};
+  const rev = (() => { try { return execSync("git rev-parse --short HEAD", { encoding: "utf8" }).trim(); } catch { return null; } })();
+  const nb = (id) => `https://nearblocks.io/address/${id}`;
+  const rec = {
+    ...prev,
+    note: "The mainnet deployment of Priced In. Public values only: no key is here. Real USDC (native, issued by Circle) on NEAR.",
+    network: "mainnet",
+    rpc: "https://rpc.fastnear.com",
+    root: rootId,
+    accounts: { ...ids, usdc },
+    usdc: { account: usdc, kind: "native USDC on NEAR (Circle), 6 decimals" },
+    code: {
+      ...(prev.code || {}),
+      market: { code_hash: market.hash, sha256: market.sha256, size: Number(market.storage / BYTE_COST), source: "contracts/market", build: "node tools/judge/repro.mjs", source_rev: rev },
+      toolchain: repro ? repro.toolchain : undefined,
+    },
+    swarm: WITH_SWARM ? ids.swarm : "not on mainnet: the open swarm runs on testnet, where each agent's 5 NEAR escrow costs nothing",
+    deployed_at: prev.deployed_at || new Date().toISOString(),
+    verified_at: new Date().toISOString(),
+    explorer: Object.fromEntries(Object.entries({ root: rootId, ...ids }).map(([k, id]) => [k, nb(id)])),
+  };
+  fs.mkdirSync("deployments", { recursive: true });
+  fs.writeFileSync(file, JSON.stringify(rec, null, 1) + "\n");
+  console.log(`recorded in ${file}`);
+}
 
 // ---------- --lock: no key can replace the code ----------
 const keysOf = async (id) => (await provider.query({ request_type: "view_access_key_list", finality: "final", account_id: id })).keys || [];
@@ -262,7 +318,7 @@ if (LOCK) {
     await subs.lane.addFullAccessKey(laneAdmin);
   }
   // market and swarm: every key, the root's last, since it signs the deletions
-  for (const k of ["market", "swarm"]) {
+  for (const k of WITH_SWARM ? ["market", "swarm"] : ["market"]) {
     const keys = (await keysOf(ids[k])).map((x) => x.public_key);
     for (const pk of [...keys.filter((p) => p !== rootPk), ...keys.filter((p) => p === rootPk)]) {
       console.log(`${k}: deleting key ${pk}`);
@@ -274,15 +330,15 @@ if (LOCK) {
     await subs.lane.deleteKey(rootPk);
   }
   const after = {};
-  for (const k of ["market", "swarm", "lane"]) after[k] = await keysOf(ids[k]);
+  for (const k of WITH_SWARM ? ["market", "swarm", "lane"] : ["market", "lane"]) after[k] = await keysOf(ids[k]);
   const lockedOk = (name, ok) => { console.log(`${ok ? "ok  " : "BAD "} ${name}`); if (!ok) bad++; };
   lockedOk("market has no keys: its code can't change", after.market.length === 0);
-  lockedOk("swarm has no keys: its code can't change", after.swarm.length === 0);
+  if (WITH_SWARM) lockedOk("swarm has no keys: its code can't change", after.swarm.length === 0);
   lockedOk("lane: the root's key is gone", !after.lane.some((x) => x.public_key === rootPk));
   lockedOk("lane: one full-access key, the API's, to add the judges' keys", after.lane.filter(full).map((x) => x.public_key).join() === laneAdmin);
   lockedOk("lane: every other key is a function-call key on the market", after.lane.filter((x) => !full(x)).every((x) => x.access_key.permission.FunctionCall?.receiver_id === ids.market));
-  lockedOk("market and swarm still answer", (await view(ids.market, "stats")).claims !== undefined && (await view(ids.swarm, "stats")).market === ids.market);
-  lockedOk("code hashes unchanged", (await codeHash(ids.market)) === market.hash && (await codeHash(ids.swarm)) === swarm.hash);
+  lockedOk("the contracts still answer", (await view(ids.market, "stats")).claims !== undefined && (!WITH_SWARM || (await view(ids.swarm, "stats")).market === ids.market));
+  lockedOk("code hashes unchanged", (await codeHash(ids.market)) === market.hash && (!WITH_SWARM || (await codeHash(ids.swarm)) === swarm.hash));
   console.log(`locked. Operators sign from their own accounts (the owner ${rootId} is one), never as the market; the owner keeps every owner method.`);
 }
 console.log("Next: fund the treasury with ft_transfer_call {\"treasury\":true}, set_limits, set_planner_key and register_model from fresh attestations (npm run ai:attest).");

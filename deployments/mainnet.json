@@ -1,0 +1,102 @@
+{
+ "note": "The mainnet deployment of Priced In. Public values only: no key is here. Real USDC (native, issued by Circle) on NEAR.",
+ "network": "mainnet",
+ "rpc": "https://rpc.fastnear.com",
+ "root": "isitpriced.near",
+ "accounts": {
+  "market": "market.isitpriced.near",
+  "lane": "lane.isitpriced.near",
+  "usdc": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
+ },
+ "usdc": {
+  "account": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1",
+  "kind": "native USDC on NEAR (Circle), 6 decimals"
+ },
+ "code": {
+  "market": {
+   "code_hash": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "sha256": "eb22fe8f93137ff2476bdbe885f9321b3603a65ee948bdeec69f530362f6e7f8",
+   "size": 419728,
+   "source": "contracts/market",
+   "build": "node tools/judge/repro.mjs",
+   "source_rev": "da137c6"
+  },
+  "toolchain": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+ },
+ "swarm": "not on mainnet: the open swarm runs on testnet, where each agent's 5 NEAR escrow costs nothing",
+ "deployed_at": "2026-11-05T22:04:08.114Z",
+ "verified_at": "2026-11-05T22:04:08.114Z",
+ "explorer": {
+  "root": "https://nearblocks.io/address/isitpriced.near",
+  "market": "https://nearblocks.io/address/market.isitpriced.near",
+  "lane": "https://nearblocks.io/address/lane.isitpriced.near"
+ },
+ "keys": {
+  "owner": "isitpriced.near",
+  "operator_public_key": "ed25519:5gSk9FibFUCJXEB8ac1atpfZHWq4EUTeexVgKy4uQjR8",
+  "operator_methods": [
+   "anchor_rewrite",
+   "charge_inference"
+  ],
+  "jury_public_key": "ed25519:BAGu3yKTgtGb89mUnFWFYMkq9A4h2eu8LMZ3RSnhDy9i",
+  "lane_admin_public_key": "ed25519:5wjDrJZCM5twQrzSHWDkdfTs4e93zVxaPjhDKvypS7E2",
+  "planner_public_hex": "5560baeb3cee71df7da0a3cac251be0ded449af2ac819b057617fa83cf0c46cb",
+  "planner": "a mainnet planner key made for this deployment; its private half is not in git",
+  "writer_model": "z-ai/glm-5.3-flash",
+  "writer_public_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation"
+ },
+ "models": [
+  {
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "signing_address_hex": "236f5a6b91dd47dc3b7b36e43d4eb531a042ffb8f8fbf3a1555b78cef4fdda4c",
+   "extras_json": "\"chat_template_kwargs\":{\"thinking\":false}",
+   "tx": "8ggBX7SmvxucJysEh2KyY29QEBYkDTpy3DJToVJDFNPn"
+  },
+  {
+   "model": "Qwen/Qwen3.8-27B",
+   "signing_address_hex": "89154a43a47684742c3d1753252bb6f49f61da9d8c84fc9b1def2df130cb2d93",
+   "extras_json": "\"chat_template_kwargs\":{\"enable_thinking\":false}",
+   "tx": "AE9vscyk3zeoZY5RAJRiRdsLAF6ViZa6svwjSBiUwJ5h"
+  },
+  {
+   "model": "z-ai/glm-5.3-flash",
+   "signing_address_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+   "extras_json": "\"max_tokens\":2048",
+   "tx": "A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV"
+  }
+ ],
+ "transactions": [
+  {
+   "tag": "set_planner_key (first run, same key)",
+   "method": "set_planner_key",
+   "tx": "6VZUdv7PiTbRUEhFxuQa5E9k3xEWaMEHrW19As5HMAKU",
+   "link": "https://nearblocks.io/txns/6VZUdv7PiTbRUEhFxuQa5E9k3xEWaMEHrW19As5HMAKU"
+  },
+  {
+   "tag": "register_model deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "method": "register_model",
+   "tx": "8ggBX7SmvxucJysEh2KyY29QEBYkDTpy3DJToVJDFNPn",
+   "link": "https://nearblocks.io/txns/8ggBX7SmvxucJysEh2KyY29QEBYkDTpy3DJToVJDFNPn"
+  },
+  {
+   "tag": "set_planner_key 5560baeb3cee71df…",
+   "method": "set_planner_key",
+   "tx": "G8ofJn8VExk9M6dPSapPSo8DmGgQWyTvbDj4nrtqbAKV",
+   "link": "https://nearblocks.io/txns/G8ofJn8VExk9M6dPSapPSo8DmGgQWyTvbDj4nrtqbAKV"
+  },
+  {
+   "tag": "register_model Qwen/Qwen3.8-27B",
+   "method": "register_model",
+   "tx": "AE9vscyk3zeoZY5RAJRiRdsLAF6ViZa6svwjSBiUwJ5h",
+   "link": "https://nearblocks.io/txns/AE9vscyk3zeoZY5RAJRiRdsLAF6ViZa6svwjSBiUwJ5h"
+  },
+  {
+   "tag": "register_model z-ai/glm-5.3-flash",
+   "method": "register_model",
+   "tx": "A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV",
+   "link": "https://nearblocks.io/txns/A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV"
+  }
+ ],
+ "keys_set_at": "2026-11-05T22:06:38.206Z"
+}
