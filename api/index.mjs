@@ -37,7 +37,7 @@ export default async function handler(req, res) {
   }
   // the site decides at load whether the API is live from /health (3.5 s): it never waits on the store
   if (req.method === "GET" && route === "/health") {
-    return health(res, withTimeout(readContext().catch(() => null), 1700, null));
+    return health(res, withTimeout(readContext().catch(() => null), 1200, null));
   }
   let ctx;
   try { ctx = await readContext(); } catch (e) {
@@ -137,20 +137,41 @@ function finiteStream(req, res, url, ctx) {
 
 // ---------- GET /health: outcomes, for this runtime ----------
 let bareRpc = null;
+
+/** Every RPC's status, answered as soon as one is good (the rest get a short grace), never past maxMs. */
+function quickProbe(rpc, maxMs = 1200, graceMs = 250) {
+  return new Promise((resolve) => {
+    const out = rpc.urls.map((url) => ({ url, ok: false, error: "no answer in time" }));
+    let done = false, grace = null;
+    const finish = () => { if (!done) { done = true; resolve(out); } };
+    setTimeout(finish, maxMs);
+    rpc.urls.forEach((url, i) => {
+      const t0 = Date.now();
+      rpc.callOn(url, "status", [], { timeoutMs: maxMs }).then((st) => {
+        out[i] = { url, ok: true, latencyMs: Date.now() - t0, chainId: st.chain_id, height: st.sync_info?.latest_block_height };
+        grace ||= setTimeout(finish, graceMs);
+        if (out.every((x) => x.ok)) finish();
+      }, (e) => { out[i] = { url, ok: false, error: String(e.message).slice(0, 120) }; if (out.every((x) => x.error !== "no answer in time")) finish(); });
+    });
+  });
+}
+
 async function health(res, ctxP) {
+  const t0 = Date.now();
   let p;
   try { p = prepare(); } catch (e) { return sendJson(res, 503, { ok: false, failures: [`config: ${e.message}`] }); }
   const rpc = bareRpc ||= new Rpc(p.api.rpcUrls, { timeoutMs: 1500 });
   const config = p.api;
   const failures = [];
-  const [probes, ctx, snapDoc, cronDoc] = await Promise.all([
-    withTimeout(rpc.probe({ timeoutMs: 1300 }), 1600, []),
-    ctxP,
-    withTimeout(p.state.getDoc("snapshots/status.json").catch(() => null), 1500, null),
-    withTimeout(p.state.getDoc("snapshots/health.json").catch(() => null), 1500, null),
+  // the lane's budget is read once the app is up, alongside the rest (a cached view)
+  const ctxLane = ctxP.then(async (c) => [c, c?.app?.lane.enabled ? await withTimeout(c.app.lane.budget().catch((e) => ({ error: e.message })), 800, { error: "the lane budget read timed out" }) : null]);
+  const [probes, [ctx, laneB], snapDoc, cronDoc] = await Promise.all([
+    quickProbe(rpc, 1200),
+    ctxLane,
+    withTimeout(p.state.getDoc("snapshots/status.json").catch(() => null), 1200, null),
+    withTimeout(p.state.getDoc("snapshots/health.json").catch(() => null), 1200, null),
   ]);
   const app = ctx?.app ?? null;
-  const laneB = app?.lane.enabled ? await withTimeout(app.lane.budget().catch((e) => ({ error: e.message })), 900, { error: "the lane budget read timed out" }) : null;
   const reachable = probes.filter((x) => x.ok);
   if (!reachable.length) failures.push(`rpc: no RPC reachable (${probes.map((x) => `${x.url}: ${x.error}`).join("; ") || "probe timed out"})`);
   for (const x of reachable) if (x.chainId && x.chainId !== config.network) failures.push(`rpc: ${x.url} serves chain "${x.chainId}" but NEAR_NETWORK=${config.network}`);
@@ -184,7 +205,7 @@ async function health(res, ctxP) {
       store: ctx ? { ok: !ctx.storeError, hydratedAt: iso(p.journals.hydratedAt) } : { ok: null, note: "this instance is still reading the store (cold start); outcomes are the cron's" },
     },
   };
-  return sendJson(res, failures.length ? 503 : 200, body);
+  return sendJson(res, failures.length ? 503 : 200, body, { "server-timing": `total;dur=${Date.now() - t0}` });
 }
 
 const iso = (t) => (t ? new Date(t).toISOString() : null);

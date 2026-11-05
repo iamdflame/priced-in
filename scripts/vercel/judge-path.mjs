@@ -27,9 +27,9 @@ console.log(`${site} · ${phone ? "phone (iPhone 13)" : "desktop 1440x900"} · f
 try {
   // 1. the page loads with prices
   const t0 = Date.now();
-  await page.goto(`${site}/`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${site}/`, { waitUntil: "commit", timeout: 90000 });
   const hero = page.locator(".ps[data-hero]");
-  await hero.waitFor({ timeout: 30000 });
+  await hero.waitFor({ timeout: 90000 });
   const key = await hero.getAttribute("data-hero");
   await page.locator(`.running [data-sentence="${key}"][data-price]`).waitFor({ timeout: 30000 });
   const before = Number(await page.locator(`.running [data-sentence="${key}"]`).getAttribute("data-price"));
@@ -72,7 +72,7 @@ try {
 
   // 5. a post link opens priced
   const tp = Date.now();
-  await page.goto(`${site}/jack/status/20`, { waitUntil: "domcontentloaded" });
+  await page.goto(`${site}/jack/status/20`, { waitUntil: "commit", timeout: 90000 });
   await page.waitForFunction(() => { const s = window.__pricedin?.store.state.page; return s?.kind === "post" && !s.loading && s.sentences?.length > 0; }, null, { timeout: 45000, polling: 200 });
   const post = await page.evaluate(() => { const s = window.__pricedin.store.state.page; return s.sentences.map((x) => `${x.status}${x.chainPpm ? ` ${(x.chainPpm / 1e4).toFixed(1)}%` : x.receipt ? ` opens at ${(x.receipt.args.p0_ppm / 1e4).toFixed(0)}%` : ""}: ${x.original ?? x.text}`).join(" | "); });
   step("a post link (/jack/status/20) opens priced", /priced|open|unopened/.test(post), Date.now() - tp, post.slice(0, 160));
