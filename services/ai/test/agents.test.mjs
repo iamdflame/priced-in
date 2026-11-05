@@ -370,3 +370,13 @@ test("config: agent keys never in the model process's environment; swarm, owners
   assert.equal(DECISION_FIELDS.includes("privateKey"), false);
   assert.equal(DEFAULT_POLICY.minSellUsd, 0.05);
 });
+
+test("every house model's credence request keeps reasoning short, so the JSON fits in max_tokens", async () => {
+  const { credenceRequest, DEFAULT_AGENTS } = await import("../src/agents.js");
+  const kw = { "deepseek-ai/DeepSeek-V4.1-Flash-1017": { thinking: false }, "Qwen/Qwen3.8-27B": { enable_thinking: false } };
+  for (const a of DEFAULT_AGENTS) {
+    const r = credenceRequest(a.model, { text: "x" }, [{ url: "https://example.org", title: "t", excerpt: "e" }]);
+    assert.ok(r.reasoning_effort === "low" || r.chat_template_kwargs, `${a.model} has no reasoning setting`);
+    if (kw[a.model]) assert.deepEqual(r.chat_template_kwargs, kw[a.model]);
+  }
+});

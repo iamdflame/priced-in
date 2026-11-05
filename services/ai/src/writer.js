@@ -83,8 +83,13 @@ export const WRITER_PROMPT = [
   'Reply with JSON only: {"sentences":[{"claim_id":0,"text":"..."}]}',
 ].join("\n");
 
-/** Per-model request extras that keep reasoning short (from docs.near.ai/cloud/reasoning-models). */
+/**
+ * Per-model request extras that keep reasoning short (from docs.near.ai/cloud/reasoning-models).
+ * Measured live on NEAR AI Cloud: DeepSeek V4.1 Flash thinks by default and spent a 400-token
+ * credence budget on reasoning in 14 of 20 calls, so the reply had no JSON.
+ */
 export const MODEL_EXTRAS = {
+  "deepseek-ai/DeepSeek-V4.1-Flash-1017": { chat_template_kwargs: { thinking: false } },
   "z-ai/glm-5.3-flash": { reasoning_effort: "low" },
   "Qwen/Qwen3.8-27B": { chat_template_kwargs: { enable_thinking: false } },
   "Qwen/Qwen3.6-35B-A3B-FP8": { chat_template_kwargs: { enable_thinking: false } },
