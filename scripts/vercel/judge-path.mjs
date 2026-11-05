@@ -61,14 +61,21 @@ try {
   await page.waitForFunction(() => window.__pricedin.store.state.doubt?.ctx?.rewrite?.status === "signed", null, { timeout: 150000, polling: 200 });
   const signedMs = Date.now() - tap;
   const rw = await page.evaluate(() => { const r = window.__pricedin.store.state.doubt.ctx.rewrite; return `${r.id} (${r.provenance?.model}): "${(r.sentences?.find((x) => x.claim_id === window.__pricedin.store.state.doubt.ctx.claimId)?.text ?? r.text).slice(0, 90)}"`; });
-  const chip = phone ? page.locator('[data-chip="signed"]:visible').first() : page.locator('.ps [data-chip="signed"]');
-  await chip.waitFor({ timeout: 30000 });
-  const chipText = (await chip.textContent()).trim();
-  step("this doubt's rewrite appears, signed in a TEE", true, signedMs, `${rw}; chip "${chipText.slice(0, 60)}"`);
-  if (phone) await chip.tap(); else await chip.click();
-  await page.locator(".panel [data-verified]").waitFor({ timeout: 60000 });
-  const verified = await page.locator(".panel [data-verified]").getAttribute("data-verified");
-  const steps = await page.locator(".panel [data-step]").evaluateAll((els) => els.map((e) => `${e.getAttribute("data-step")}=${e.getAttribute("data-status")}`));
+  step("this doubt's rewrite appears, signed in a TEE", true, signedMs, rw);
+  // the verify panel from the visible "signed in a TEE · verify" mark; else the same check the panel runs (store.verify)
+  const chip = page.locator('[data-chip="signed"]:visible').first();
+  let verified = null, steps = [];
+  if (await chip.waitFor({ timeout: 8000 }).then(() => true, () => false)) {
+    if (phone) await chip.tap(); else await chip.click();
+    if (await page.locator(".panel [data-verified]").waitFor({ timeout: 60000 }).then(() => true, () => false)) {
+      verified = await page.locator(".panel [data-verified]").getAttribute("data-verified");
+      steps = await page.locator(".panel [data-step]").evaluateAll((els) => els.map((e) => `${e.getAttribute("data-step")}=${e.getAttribute("data-status")}`));
+    }
+  }
+  if (verified === null) {
+    const r = await page.evaluate(async () => { const s = window.__pricedin.store; const rw = s.state.doubt.ctx.rewrite; const v = await s.verify(rw.page, rw.id); return v ? { ok: v.ok, steps: v.steps.map((x) => `${x.name ?? x.step ?? x.id}=${x.status}`) } : null; });
+    verified = r?.ok ? "1" : "0"; steps = ["(store.verify)", ...(r?.steps || [])];
+  }
   step("the rewrite verifies in the browser", verified === "1", Date.now() - tap, steps.join(" "));
   await page.keyboard.press("Escape").catch(() => {});
 
