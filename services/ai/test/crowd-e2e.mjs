@@ -48,7 +48,7 @@ if ((process.env.NEAR_NETWORK || "testnet") !== "testnet") { console.error("crow
 
 // public testnet RPCs rate-limit bursts: retry with backoff, then fail over to the other
 // transactions go through the fastnear hosts only: drpc's free plan times out on waits
-const provider = new FailoverRpcProvider(RPC_URLS.filter((u) => !/drpc/.test(u)).map((url) => new JsonRpcProvider({ url }, { retries: 6, backoff: 2, wait: 700 })));
+const provider = new FailoverRpcProvider(RPC_URLS.filter((u) => !/drpc/.test(u)).map((url) => new JsonRpcProvider({ url }, { retries: 8, backoff: 2, wait: 1000 })));
 const results = [];
 let failures = 0;
 const check = (name, ok, detail = "") => { results.push(`${ok ? "PASS" : "FAIL"} ${name}${detail ? " · " + detail : ""}`); if (!ok) failures++; console.log(results.at(-1)); };
@@ -69,11 +69,31 @@ const reads = {
 };
 const until = async (what, fn, ms = 30000, every = 500) => { const t0 = Date.now(); for (;;) { const v = await fn().catch(() => null); if (v) return v; if (Date.now() - t0 > ms) throw new Error(`timed out waiting for ${what}`); await sleep(every); } };
 
+// A 429 means the node refused the request: the transaction was never accepted, so it is safe
+// to send again. near-api-js fails over on a 429 but never waits, so a burst exhausts it.
+const SAFE_TO_RESEND = /-429|Rate limits exceeded|Exceeded d+ providers/;
+const TX_METHODS = new Set(["callFunction", "deployContract", "deleteAccount", "createSubAccount", "transfer", "addFunctionCallAccessKey"]);
+function patient(account) {
+  return new Proxy(account, {
+    get(t, k) {
+      const v = Reflect.get(t, k);
+      if (!TX_METHODS.has(k) || typeof v !== "function") return v;
+      return async (...args) => {
+        for (let i = 0; ; i++) {
+          try { return await v.apply(t, args); }
+          catch (e) { if (i >= 8 || !SAFE_TO_RESEND.test(String(e?.message || e))) throw e; await sleep(4000 * (i + 1)); }
+        }
+      };
+    },
+  });
+}
+const account = (id, kp) => patient(new Account(id, provider, new KeyPairSigner(kp)));
+
 // ---------- the funder and throwaway accounts ----------
 let funder = null;
 const spikeFile = path.join(ROOT, ".apex/spikes/s3-lane/testnet-accounts.json");
-if (process.env.FUNDER_ID && process.env.FUNDER_KEY) funder = new Account(process.env.FUNDER_ID, provider, new KeyPairSigner(KeyPair.fromString(process.env.FUNDER_KEY)));
-else if (fs.existsSync(spikeFile)) { const f = JSON.parse(fs.readFileSync(spikeFile, "utf8")).lane; funder = new Account(f.id, provider, new KeyPairSigner(KeyPair.fromString(f.sk))); }
+if (process.env.FUNDER_ID && process.env.FUNDER_KEY) funder = account(process.env.FUNDER_ID, KeyPair.fromString(process.env.FUNDER_KEY));
+else if (fs.existsSync(spikeFile)) { const f = JSON.parse(fs.readFileSync(spikeFile, "utf8")).lane; funder = account(f.id, KeyPair.fromString(f.sk)); }
 if (!funder) { console.log("SKIP crowd-e2e: no testnet funder. Set FUNDER_ID and FUNDER_KEY."); process.exit(0); }
 if (funder.accountId.endsWith(".near")) { console.error("FUNDER_ID is a mainnet account; crowd-e2e runs on testnet only."); process.exit(1); }
 
@@ -94,7 +114,7 @@ async function sub(prefix, amount) {
   created.push({ id, sk: kp.toString() });
   fs.mkdirSync(path.dirname(recordFile), { recursive: true });
   fs.writeFileSync(recordFile, JSON.stringify(created, null, 1)); // git-ignored, so a crashed run can be reclaimed
-  return { account: new Account(id, provider, new KeyPairSigner(kp)), kp, id };
+  return { account: account(id, kp), kp, id };
 }
 const EMPTY_WASM = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]);
 async function rpcQuery(params) {
@@ -136,7 +156,7 @@ async function cleanup() {
   if (agentsLeft) { console.log(`cleanup: ${agentsLeft} agent(s) left; the swarm and owners are kept so .apex-test/reclaim-crowd.mjs can finish`); return created; }
   const left = [];
   for (const c of [...created].reverse()) {
-    const a = new Account(c.id, provider, new KeyPairSigner(KeyPair.fromString(c.sk)));
+    const a = account(c.id, KeyPair.fromString(c.sk));
     try { await persist(`delete ${c.id}`, async () => { try { await a.deleteAccount(funder.accountId); } catch (e) { if (/large state/i.test(short(e))) throw Object.assign(new Error("large state"), { large: true }); throw e; } }); console.log(`cleanup: deleted ${c.id}`); }
     catch (e0) {
       try { if (!/large state/i.test(short(e0))) throw e0; await sweepAndDelete(a); console.log(`cleanup: swept and deleted ${c.id}`); }
@@ -201,7 +221,7 @@ try {
     NEAR_NETWORK: "testnet", HOST: "127.0.0.1", PORT: "0", SCAN_INTERVAL_MS: "2000", RPC_URLS: RPC_URLS.join(","), MARKET_CONTRACT_ID: M, USDC_CONTRACT_ID: T,
     NEARAI_API_KEY: mock.apiKey, NEARAI_BASE_URL: mock.url, WRITER_MODEL: MOCK_MODELS[2], SWARM_CONTRACT_ID: SW, HOUSE_OWNER_IDS: H, DATA_DIR: DATA, KEYSTORE_DIR: keystoreDir,
     JURY_KEY_FILE: op.jury.file, JURY_AUTO: "1", JURY_TIMEOUT_MS: "45000", AGENT_WEB_SEARCH: "0", AGENT_SWEEP_MS: "0", AGENT_CYCLE_MS: "4000", AGENT_FRESH_COOLDOWN_MS: "1500",
-    AGENT_BILLING: "escrow", AGENT_BILLING_OVERRIDES: "house-quant=balance", INFERENCE_YOCTO_PER_MICRO_USD: String(RATE), ATTESTATIONS_DIR: path.join(tmp, "attestations"),
+    AGENT_BILLING: "escrow", AGENT_BILLING_OVERRIDES: "house-quant=balance", INFERENCE_YOCTO_PER_MICRO_USD: String(RATE), SIGNER_SUPERSEDED_AFTER_MS: "20000", ATTESTATIONS_DIR: path.join(tmp, "attestations"),
   };
   const { api, ai, errors } = loadAiConfig(env);
   if (errors.length) throw new Error(errors.join("; "));
@@ -273,7 +293,7 @@ try {
   const bills = await until("bills for every agent that thought", async () => {
     const b = [...new Set([...rows.map((r) => r.account), SA])].map((a) => layer.ledger.bills(a).filter((x) => x.tx_hash && !x.failed && !x.pending)).flat();
     return b.some((x) => x.route === "escrow" && x.agent !== SA) && b.some((x) => x.route === "balance") && b.some((x) => x.agent === SA) && b;
-  }, 180000);
+  }, 300000);
   const quantBill = bills.find((b) => b.route === "balance");
   const sweep = bills.find((b) => b.route === "escrow" && b.agent !== SA);
   check("inference bills go on-chain: escrow swept by sweep_escrow, the quant charged by charge_inference, each with a usage hash", Boolean(quantBill && sweep), `sweep ${sweep?.amount_micro} micro-USD (${sweep?.paid_yocto} yocto) tx ${sweep?.tx_hash}; charge ${quantBill?.amount_micro} micro-USDC tx ${quantBill?.tx_hash}`);
