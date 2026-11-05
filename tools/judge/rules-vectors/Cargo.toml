@@ -1,0 +1,26 @@
+# Generates tools/judge/vectors/rules.json from the real crates/rules, so the judge's Node port
+# (tools/judge/lib/rules.mjs) is proven equal to the code the market contract runs.
+# Standalone (its own [workspace]) so the repo workspace is untouched.
+#   cargo run --release --manifest-path tools/judge/rules-vectors/Cargo.toml > tools/judge/vectors/rules.json
+[package]
+name = "rules-vectors"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+rules = { path = "../../../crates/rules" }
+
+[workspace]
+
+[profile.release]
+overflow-checks = true
+
+# the market's wasm build gets serde_json with std (through near-sdk); pin the same versions and
+# features as the repo's Cargo.lock so the vectors come from the same parser the contract runs
+[dependencies.serde_json]
+version = "=1.0.154"
+features = ["std"]
+
+[dependencies.serde]
+version = "=1.0.229"
