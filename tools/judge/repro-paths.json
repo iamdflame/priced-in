@@ -1,0 +1,9 @@
+{
+ "note": "Source files whose paths reach the wasm. On Windows each is remapped one by one, because a prefix remap keeps the backslashes after the prefix. Paths are stored relative to CARGO_HOME/registry/src/<index>/ (registry:) or to the repo (repo:).",
+ "windows": [
+  "repo:contracts\\market\\src\\lib.rs",
+  "repo:contracts\\swarm\\src\\lib.rs",
+  "repo:crates\\lmsr\\src\\lib.rs",
+  "repo:crates\\rules\\src\\lib.rs"
+ ]
+}
