@@ -1,0 +1,25 @@
+{
+  "name": "pricedin-mcp",
+  "version": "0.1.0",
+  "description": "Priced In for AI agents: ask how sure to be about a claim, with money behind the answer. MCP server (stdio and streamable HTTP) with ask, get_claim, quote and bet.",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "pricedin-mcp": "bin/pricedin-mcp.mjs"
+  },
+  "files": [
+    "bin",
+    "src"
+  ],
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node bin/pricedin-mcp.mjs",
+    "test": "node --test --test-concurrency=1 \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@fastnear/x402": "2.5.0",
+    "near-api-js": "^7.4.0"
+  }
+}

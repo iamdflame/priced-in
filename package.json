@@ -16,6 +16,8 @@
     "api:post-smoke": "node services/api/test/post-smoke.mjs",
     "api:test": "npm run api:unit && npm run api:e2e",
     "truth:smoke": "node services/api/test/truth-smoke.mjs",
+    "mcp": "node tools/mcp/bin/pricedin-mcp.mjs",
+    "mcp:test": "node --test --test-concurrency=1 \"tools/mcp/test/*.test.mjs\"",
     "ai": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/server.js",
     "ai:attest": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/src/jury.js --attest",
     "ai:unit": "node --test --test-concurrency=1 \"services/ai/test/*.test.mjs\"",
