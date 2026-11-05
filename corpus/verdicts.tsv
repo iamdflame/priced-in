@@ -1,0 +1,360 @@
+# id¦verdict¦dated(0/1)¦checked value¦receipts (key~regex;;key~regex)¦then-receipt for stale¦note. Checked 2026-11-05. `undecidable` notes starting CONTRADICTED mean today's source disagrees with the page but method rule (b) could not be met.
+near-0001¦current¦0¦NEAR docs: validators use proof of stake; smart contracts documented¦near_docs_val~NEAR validators use Proof-of-Stake;;near_docs_tok~Smart Contracts¦¦
+near-0002¦current¦0¦NEAR docs title: NEAR Native Token¦near_docs_tok~NEAR Native Token¦¦
+ethereum-0001¦current¦0¦ethereum.org describes smart contracts on Ethereum¦ethorg_what~open-source programs called smart contracts¦¦
+ethereum-0002¦current¦0¦ETH is ether¦ethorg_ether~Ether, commonly known as ETH¦¦
+ethereum-0003¦current¦0¦CoinGecko rank 2, cap $296.6B¦cg_markets~"id":"ethereum".{0,300}"market_cap_rank":2¦¦
+ethereum-0004¦current¦0¦go-ethereum published under LGPL-3.0 and GPL-3.0¦geth_repo~LGPL-3\.0, GPL-3\.0¦¦
+ethereum-0008¦current¦0¦ethereum.org: smart contracts let anyone create applications¦ethorg_what~Smart contracts let anyone create¦¦
+ethereum-0011¦current¦0¦ERC-20 and ERC-721 are final standards¦eip20~Token Standard;;eip721~Non-Fungible Token¦¦
+ethereum-0034¦current¦0¦Mist repository archived and marked deprecated¦mist_repo~archived by the owner on Sep 5, 2020¦¦
+ethereum-0042¦current¦0¦ethereum.org lists upgrades as forks (Fusaka and earlier)¦ethorg_forks~Fulu-Osaka¦¦
+ethereum-0060¦undecidable¦1¦no readable 2021 ranking in the saved archive¦¦¦Dated 2021. Archive page saved no ranking table.
+ethereum-0069¦current¦0¦EIP-1559 burns the base fee¦eip1559~burn¦¦
+ethereum-0075¦current¦0¦CCRI via ethereum.org: over 99.988%¦ethorg_energy~more than 99\.988%¦¦
+ethereum-0079¦current¦0¦blobs kept about 18 days and cheaper than calldata¦eip4844~around 18 days;;eip4844~much cheaper than calldata¦¦
+ethereum-0085¦current¦0¦network of independent computers¦ethorg_what~thousands of independent co¦¦
+ethereum-0086¦current¦0¦mean block time 12.033s over 200 sampled blocks, 4-5 Nov 2026¦file:receipts/eth-tps-nov2026.json~"meanBlockTimeSec": 12\.033¦¦
+ethereum-0087¦current¦0¦block header has parent_hash¦ethorg_blocks~parent_hash hash of the parent block¦¦
+ethereum-0094¦current¦0¦at least 32 ETH, up to 2048¦ethorg_staking~at least 32 ETH and can hold up to 2048 ETH¦¦
+ethereum-0095¦current¦0¦32 slots per epoch, 12s slots, seed lookahead 1¦ethorg_pos~slots \(12 seconds\) and epochs \(32 slots\);;eth_presets~MIN_SEED_LOOKAHEAD: 1¦¦
+ethereum-0097¦current¦0¦penalties and slashing documented¦ethorg_rewards~slash¦¦
+ethereum-0098¦current¦0¦top-ups exist, routed through the activation queue since Pectra¦eip7251~Balance top-ups are now handled explicitly¦¦
+ethereum-0099¦current¦0¦max effective balance 2,048 ETH since Pectra¦eth_electra_preset~MAX_EFFECTIVE_BALANCE_ELECTRA: 2048000000000¦¦
+ethereum-0100¦current¦0¦LMD-GHOST fork choice by attestation weight¦ethorg_gasper~LMD-GHOST¦¦
+ethereum-0104¦current¦0¦validators rewarded in ETH¦ethorg_rewards~reward¦¦
+ethereum-0105¦current¦0¦1 gwei is 1e9 wei and 1e-9 ETH, so 1 ETH is 1e18 wei¦ethorg_gas~one billion wei;;ethorg_gas~0\.000000001 ETH¦¦
+ethereum-0106¦undecidable¦0¦Altair (Oct 2021) pays proposers during block processing, not at epoch end¦altair_spec~increase_balance\(state, get_beacon_proposer_index\(state\), proposer_reward\)¦¦CONTRADICTED on proposals: the wording dates from Jan 2023 (rev 1135340323), after Altair, so it was not true when written, and it was true under phase0, so it is not "never true".
+ethereum-0107¦current¦0¦fees paid in ether¦ethorg_gas~native currency, ether¦¦
+ethereum-0108¦current¦0¦base fee and priority fee¦ethorg_gas~base fee and the priority fee¦¦
+ethereum-0109¦current¦0¦base fee burned, tip to proposer¦eip1559~burn;;ethorg_gas~priority fee¦¦
+ethereum-0115¦current¦0¦two account types¦ethorg_accounts~two account types¦¦
+ethereum-0117¦current¦0¦ethereum.org: EOAs initiate; contract accounts respond¦ethorg_accounts~initiat¦¦
+ethereum-0118¦current¦0¦64 hex characters¦ethorg_accounts~64 hex characters¦¦
+ethereum-0119¦stale¦0¦EIP-7702, live with Pectra on 7 May 2025, lets an EOA set code¦eip7702~permanently sets the code for an EOA;;ethorg_forks~Prague-Electra \("Pectra"\) May 7, 2025¦eip3607~EOA¦Wording dates from Jan 2021 (rev 1001323182), when only contracts had code.
+ethereum-0123¦current¦0¦EVM runs transactions¦ethorg_evm~executes its bytecode¦¦
+ethereum-0124¦current¦0¦stack machine¦ethorg_evm~stack machine¦¦
+ethereum-0127¦current¦0¦Yellowpaper is the spec¦ethorg_evm~specification described in the Ethereum Yellowpap¦¦
+ethereum-0128¦undecidable¦0¦several implementations listed; no complete list by language; Ewasm design repo archived May 2026¦ewasm~archived by the owner on May 1, 2026¦¦The list has eleven languages plus a "soon" that cannot be settled from one source.
+ethereum-0130¦current¦0¦fee schedule in the Yellow Paper¦yellowpaper~Fee Schedule¦¦
+ethereum-0131¦stale¦0¦type-2 transactions set max fee and max priority fee; gas price is optional legacy¦ethorg_tx~maxPriorityFeePerGas;;ethorg_tx~maxFeePerGas¦eip1559~legacy¦Wording dates from Dec 2020 (rev 992079776), before EIP-1559 went live in Aug 2021.
+ethereum-0133¦current¦0¦max fee must cover the base fee¦eip1559~base_fee_per_gas¦¦
+ethereum-0134¦current¦0¦tip goes to the proposer¦ethorg_gas~priority fee¦¦
+ethereum-0135¦current¦0¦EIP-1559 charges up front and refunds¦eip1559~gas_limit¦¦
+ethereum-0136¦current¦0¦out of gas reverts¦ethorg_gas~runs out of gas during execution¦¦
+ethereum-0137¦current¦0¦one gwei is 0.000000001 ETH¦ethorg_gas~0\.000000001 ETH¦¦
+ethereum-0139¦current¦0¦Yellow Paper describes a Turing-complete language¦yellowpaper~Turing-complete¦¦Yellow Paper qualifies it as bounded by gas.
+ethereum-0141¦current¦0¦compiled to bytecode¦ethorg_evm~bytecode¦¦
+ethereum-0142¦current¦0¦Solidity documented¦ethorg_langs~Solidity¦¦
+ethereum-0146¦current¦0¦ERC-20¦ethorg_erc20~ERC-20¦¦
+ethereum-0148¦current¦0¦transfer, balanceOf, totalSupply¦eip20~totalSupply;;eip20~balanceOf¦¦
+ethereum-0151¦current¦0¦ERC-721¦eip721~Non-Fungible Token¦¦
+ethereum-0153¦current¦0¦both are EIPs¦eip721~Non-Fungible Token;;eip1155~Multi Token¦¦
+ethereum-0159¦current¦0¦platform operates today as Sky¦sky_upgrade~Sky Protocol¦¦Not counted as stale: the rename does not make the example false.
+ethereum-0161¦undecidable¦1¦DefiLlama Oct 2020 TVL peak $10.29B; contemporary DeFi Pulse method differs¦llama_tvl~"tvl"¦¦Dated. Retrospective TVL is below "$11 billion" by about 7%, and methods differ.
+ethereum-0163¦current¦0¦Aave V3 docs and Ethereum market¦aave_docs~Aave V3¦¦Page says "microlending"; the docs call it lending.
+ethereum-0170¦current¦1¦block 24,000,000 on 13 Dec 2025 had a 59,999,886 gas limit; 60M/21k/12 = 238¦eth_block_dec2025~"gasLimit":"0x3938¦¦
+ethereum-0171¦current¦0¦24.97 TPS measured against a 238 TPS theoretical maximum¦file:receipts/eth-tps-nov2026.json~"meanTps": 24\.972¦¦
+ethereum-0172¦wrong¦1¦Jan 2016 averaged 0.15 TPS (Etherscan daily counts); RPC sample 0.133 TPS; Sept 2022 13.02 TPS; 4 Nov 2026 23 TPS¦etherscan_txcsv~"1/1/2016","1451606400","8233";;file:receipts/eth-tps-jan2016.json~"meanTps": 0\.133¦¦Second check: Etherscan's chart and a direct RPC sample, two routes. The 25 TPS figure is close to today's rate, not January 2016's.
+ethereum-0173¦undecidable¦0¦Visa reports 329B transactions a year, about 10,400 per second on average¦visa_fy~329 B total transactions¦¦CONTRADICTED as an average; capacity figures differ, and "processes" does not say which is meant.
+ethereum-0175¦current¦0¦Merkle Patricia Trie¦ethorg_trie~Merkle Patricia Trie¦¦
+ethereum-0180¦current¦0¦optimistic and zero-knowledge rollups¦ethorg_scaling~Optimistic rollups Zero-knowledge rollups¦¦
+ethereum-0181¦undecidable¦0¦no primary throughput source saved¦¦¦Capability varies per chain; no single primary source.
+ethereum-0183¦reclassified¦0¦¦¦¦"Increasingly signaled" is evaluative, not checkable data.
+ethereum-0187¦undecidable¦0¦uniform law page did not state this classification¦¦¦Legal classification of ETH; no primary source said so.
+bitcoin-0007¦current¦0¦public ledger shared by the network¦btc_faq~sharing a public ledger¦¦
+bitcoin-0009¦current¦0¦proof of work¦btc_wp~proof-of-work¦¦
+bitcoin-0019¦undecidable¦0¦no primary data can prove an absence¦¦¦
+bitcoin-0061¦current¦1¦River: 81.7M users, 1% of global population, June 2023¦river3~81\.7 million users as of June 2023¦¦River now estimates 300M owners as of May 2026; dated sentence stands.
+bitcoin-0065¦undecidable¦1¦IMF page not retrievable¦¦¦
+bitcoin-0070¦current¦0¦BTN is Bhutan's code; BTC absent from the ISO list¦iso4217~<Ccy>BTN</Ccy>¦¦
+bitcoin-0071¦undecidable¦0¦XBT absent from ISO list; Bloomberg usage not checked at source¦¦¦
+bitcoin-0074¦current¦0¦COIN = 100,000,000 units¦btc_amount~COIN{100'000'000}¦¦
+bitcoin-0075¦current¦0¦COIN = 100,000,000 units¦btc_amount~COIN{100'000'000}¦¦
+bitcoin-0076¦current¦0¦arithmetic from COIN¦btc_amount~COIN{100'000'000}¦¦
+bitcoin-0080¦current¦0¦double SHA-256 of previous header¦btc_devguide_ref~SHA256\(SHA256\(\)\) hash¦¦
+bitcoin-0082¦current¦0¦all transactions are public¦btc_privacy~All Bitcoin transactions are public¦¦
+bitcoin-0085¦current¦0¦target spacing 10 minutes¦btc_chainparams~nPowTargetSpacing = 10 \* 60¦¦
+bitcoin-0096¦current¦0¦Forth-like script¦btc_devguide_tx~Forth¦¦
+bitcoin-0099¦current¦0¦inputs spend previous outputs¦btc_devguide_tx~paid to a previous output¦¦
+bitcoin-0103¦current¦0¦remainder is the fee¦btc_devguide_tx~fee¦¦
+bitcoin-0106¦undecidable¦0¦estimate; no primary source¦¦¦
+bitcoin-0108¦undecidable¦1¦no primary source saved¦¦¦
+bitcoin-0113¦current¦0¦proof of work against target¦btc_devguide_chain~target¦¦
+bitcoin-0116¦current¦0¦two-week timespan at ten-minute spacing¦btc_chainparams~nPowTargetTimespan = 14 \* 24 \* 60 \* 60¦¦
+bitcoin-0118¦current¦0¦block reward and fees¦btc_mining~block reward and transaction fees¦¦
+bitcoin-0119¦current¦0¦coinbase transaction¦btc_mining~coinbase transaction¦¦
+bitcoin-0120¦current¦0¦new coins arise in the coinbase¦btc_mining~coinbase¦¦
+bitcoin-0121¦current¦0¦halving interval 210,000; max money 21M¦btc_chainparams~nSubsidyHalvingInterval = 210000;;btc_amount~MAX_MONEY{21'000'000¦¦
+bitcoin-0123¦current¦0¦fee rates use virtual size under BIP 141¦xrp_vtx~virtual transaction size¦¦Kept current: virtual bytes are still a per-byte measure.
+bitcoin-0130¦current¦1¦CCAF: 138 TWh, about 0.54% of global electricity¦ccaf3~approximately 0\.54% of global electricity¦¦Emissions clause read in the report summary only.
+bitcoin-0131¦current¦0¦CCAF: 52.4% sustainable, so about half fossil or other¦ccaf3~sustainable energy sources \(52\.4%\)¦¦
+bitcoin-0134¦current¦0¦public and traceable¦btc_privacy~public, traceable¦¦
+bitcoin-0135¦current¦0¦public¦btc_privacy~All Bitcoin transactions are public¦¦
+bitcoin-0149¦current¦0¦Bitcoin Unlimited continues on GitLab¦bu_repo~Bitcoin Unlimited continues on gitlab¦¦
+bitcoin-0155¦current¦0¦Lightning Network site¦ln_org~Lightning Network¦¦
+bitcoin-0157¦current¦0¦whitepaper's majority assumption¦btc_wp~majority of CPU power¦¦
+bitcoin-0171¦current¦0¦Library of Congress survey shows varied status¦loc_ban~absolute ban¦¦
+bitcoin-0177¦current¦1¦Library of Congress, Nov 2021: 9 absolute, 42 implicit¦loc_ban~November 2021 update identifies 9 jurisdictions with an absolute ban and 42 with an implicit ban¦¦
+bitcoin-0186¦undecidable¦1¦NBER page shows no figure in the saved abstract¦¦¦
+bitcoin-0188¦undecidable¦0¦IMF page not retrievable¦¦¦
+bitcoin-0192¦undecidable¦0¦no primary source reached¦¦¦
+bitcoin-0193¦undecidable¦0¦Colorado 403, Lugano and Zug 404¦¦¦
+bitcoin-0194¦undecidable¦1¦no primary source saved¦¦¦
+bitcoin-0195¦undecidable¦1¦no primary source saved¦¦¦
+bitcoin-0196¦undecidable¦0¦no primary source saved¦¦¦
+bitcoin-0198¦undecidable¦1¦NBER abstract did not state the figure¦¦¦
+bitcoin-0199¦undecidable¦1¦El Salvador's bitcoin office unreachable¦¦¦
+bitcoin-0215¦current¦0¦volume recorded on every one of 301 sampled days¦cg_btc_chart~total_volumes¦¦
+bitcoin-0218¦undecidable¦1¦CoinGecko free history reaches Jan 2026 only; Jan-Nov 2026 mean $33.7B¦cg_btc_chart~total_volumes¦¦Dated 2025; the free API window does not cover 2025.
+solana-0001¦undecidable¦0¦solana.com rate limited; whitepaper is about proof of history¦sol_arch~Proof of Stake¦¦
+solana-0002¦current¦0¦CoinGecko symbol sol¦cg_markets~"id":"solana","symbol":"sol"¦¦
+solana-0011¦undecidable¦0¦whitepaper names PoS in general terms only¦sol_arch~Proof of Stake¦¦
+usdc-0001¦current¦0¦issued by Circle¦usdc_home~Issued by Circle¦¦
+usdc-0002¦current¦0¦redeemable 1:1, $0.9997 on CoinGecko¦usdc_home~redeemable 1:1¦¦
+usdc-0003¦current¦0¦Ethereum, Base and Polygon PoS listed; contract returns USDC¦usdc_addr~Base 0x833589;;usdc_addr~Polygon PoS 0x3c499c;;usdc_erc20~55534443¦¦
+usdc-0005¦current¦1¦Circle: Grant Thornton was its auditor from 2015 until Deloitte¦usdc_transparency~Grant Thornton LLP served¦¦Attestation detail read at Circle's summary level.
+usdc-0021¦current¦1¦1 Dec 2024: USDT $134.5B, USDC $39.9B (DefiLlama)¦llama_usdt~1733011200;;llama_usdc~1733011200¦¦
+uniswap-0001¦current¦0¦Uniswap docs¦uni_docs_fees~Uniswap v2¦¦
+uniswap-0002¦current¦0¦pools and contracts¦uni_docs_fees~pools¦¦
+uniswap-0003¦current¦0¦LP capital in pools¦uni_docs_fees~liquidity providers \(LPs\) for the capital¦¦
+uniswap-0005¦undecidable¦1¦7th-largest overall is a CoinMarketCap ranking not retrievable for Dec 2024¦¦¦
+uniswap-0010¦current¦0¦v4-core repository is public¦uni_repo~v4-core¦¦
+uniswap-0011¦current¦0¦UNI contract, supply 1B at launch¦uni_token_src~1 billion Uni¦¦
+uniswap-0012¦current¦0¦governance docs¦uni_docs_gov~Governance¦¦
+uniswap-0017¦current¦0¦self-custody wallet, Uniswap API, app¦uni_wallet~Self-Custody;;uni_docs_fees~Uniswap API¦¦
+uniswap-0018¦undecidable¦0¦Deployment list did not render in saved docs¦¦¦
+uniswap-0020¦current¦0¦foundation site: Grants, Governance¦uni_foundation~Grants Governance¦¦
+uniswap-0021¦undecidable¦0¦forum search does not prove nothing newer exists¦uni_unleash~Uniswap Unleashed¦¦
+uniswap-0024¦current¦0¦v2 pool model in docs¦uni_docs_fees~pool¦¦
+uniswap-0025¦current¦0¦fee compensates LPs¦uni_docs_fees~compensates liquidity providers¦¦
+uniswap-0027¦undecidable¦0¦no primary statement found¦¦¦
+uniswap-0032¦current¦0¦UNI governance¦uni_docs_gov~Governance;;uni_token_src~Uni¦¦
+uniswap-0033¦current¦0¦governance docs¦uni_docs_gov~Governance¦¦
+uniswap-0034¦current¦0¦ERC-20 token on Ethereum, supply call answers¦uni_supply~0x0000000000000000000000000000000000000000033b2e3c9fd0803ce8000000¦¦Supply call returned exactly 1,000,000,000.
+uniswap-0035¦wrong¦0¦UNI has no hard cap: the contract mints up to 2% a year after a one-year wait, and has a live minter¦uni_token_src~uint8 public constant mintCap = 2;;uni_mintcap~0000000000000000000000000000000000000000000000000000000000000002;;uni_minter~1a9c8182c09f50c8318d769245bea52c32be35bc¦¦Second check: published source and live chain calls, two routes. Live supply is exactly 1B, so no extra mint has happened.
+aave-0001¦current¦0¦Aave docs¦aave_docs~Aave V3¦¦
+aave-0005¦current¦0¦Aave governance docs¦aave_gov~Aave Governance¦¦
+aave-0010¦current¦0¦protocol docs¦aave_docs~Aave V3¦¦
+aave-0011¦undecidable¦0¦market list did not render in saved docs¦¦¦
+aave-0013¦undecidable¦0¦rate page not saved¦¦¦
+aave-0014¦undecidable¦0¦Text on overcollateralisation not saved¦¦¦
+aave-0015¦undecidable¦0¦source marks stable rate borrowing deprecated at v3.2.0¦aave_v3_types~DEPRECATED: stable rate borrowing enabled¦¦CONTRADICTED: wording dates from Oct 2025 (rev 1314489208), after v3.2.0 and so not true when written; docs show it was once offered, so not "never true".
+aave-0016¦current¦0¦one transaction, single block¦aave_docs_flash~in one transaction, and therefore in a single block¦¦
+aave-0018¦current¦0¦backed by assets in Aave¦aave_gho_home~backed by multiple different assets¦¦
+aave-0019¦undecidable¦0¦aave-v3-origin is under Business Source License 1.1¦aave_license~Business Source License 1\.1¦¦CONTRADICTED on "open-source" for this repository; wording dates from Oct 2025 and other Aave code differs.
+aave-0020¦current¦0¦Aave governance docs¦aave_gov~Aave Governance¦¦
+chainlink-0001¦current¦0¦Chainlink oracle platform¦link_home~Oracle Platform¦¦
+chainlink-0002¦current¦0¦LINK contract on Ethereum answers¦link_docs~Ethereum Mainnet;;link_ethscan~0x000000000000000000000000000000000000000000000000000000000000002¦¦
+chainlink-0005¦current¦0¦Chainlink oracle education page¦link_education~Oracle in Blockchain¦¦
+chainlink-0008¦undecidable¦0¦Repo points to a Rinkeby test image; Rinkeby is gone; no statement of current service¦link_repo_town~rinkeby¦¦
+chainlink-0020¦current¦0¦same¦link_education~Oracle in Blockchain¦¦
+chainlink-0021¦undecidable¦0¦no primary source describes LINK as governance¦¦¦
+chainlink-0022¦undecidable¦0¦no exact statement saved¦¦¦
+chainlink-0023¦current¦0¦contract imports ERC677Token¦link_token_src~ERC677Token¦¦
+chainlink-0024¦current¦0¦Chainlink Staking page¦link_staking~Chainlink Staking¦¦
+zcash-0001¦current¦0¦protocol spec¦zec_pow~zero-knowledge¦¦
+zcash-0004¦current¦0¦Equihash proof of work in the protocol spec¦zec_pow~Equihash memory-hard proof-of-work¦¦
+zcash-0006¦current¦0¦two main types¦zec_docs~two main types of addresses¦¦
+zcash-0008¦current¦0¦docs on shielded and transparent¦zec_what~shielded and transparent¦¦
+zcash-0010¦current¦0¦viewing keys¦zec_docs_keys~via a view key¦¦
+zcash-0041¦undecidable¦0¦FPF lists Zcash; EFF 404; HRF page does not mention it¦fpf_donate~Monero, Zcash and Stellar¦¦
+monero-0002¦current¦0¦repository tagged cryptonote¦xmr_repo~cryptonote¦¦
+monero-0004¦current¦0¦private by default; view keys¦xmr_about~anonymous by default;;xmr_view~View Key¦¦
+monero-0005¦current¦0¦RandomX¦xmr_mine~RandomX¦¦
+monero-0006¦current¦0¦ASIC resistant¦xmr_mine~ASIC resistant¦¦
+monero-0018¦undecidable¦0¦no primary ranking of developer communities¦¦¦
+monero-0022¦current¦0¦sender, receiver and amount hidden¦xmr_about~sender, receiver, and amount¦¦
+monero-0025¦current¦0¦ring signatures¦xmr_about~Ring Signatures¦¦Monero's FCMP++ plan would replace rings; not live on the evidence saved.
+monero-0027¦current¦0¦Bulletproofs¦xmr_bulletproofs~Bulletproofs¦¦
+monero-0028¦current¦0¦stealth addresses¦xmr_stealth~Stealth Address¦¦
+monero-0029¦current¦0¦by default¦xmr_about~anonymous by default¦¦
+monero-0030¦current¦0¦Dandelion++¦xmr_dandelion~Dandelion\+\+¦¦
+monero-0041¦current¦0¦RandomX¦xmr_mine~RandomX¦¦
+monero-0044¦current¦0¦x86-64, ARM64, CPUs and GPUs¦xmr_randomx~x86-64, ARM64;;xmr_mine~both CPUs and GPUs¦¦
+monero-0046¦reclassified¦0¦¦¦¦"Common medium" names no metric and no dataset covers darknet use.
+monero-0070¦undecidable¦0¦no regulator or exchange notice saved¦¦¦
+polkadot-0001¦current¦0¦NPoS in Polkadot docs¦dot_consensus_new~Nominated Proof of Stake¦¦Smart contracts clause read from parachain and Hub docs only at summary level.
+polkadot-0002¦current¦0¦wiki on nominating DOT¦dot_wiki_nom~DOT¦¦
+polkadot-0007¦current¦0¦Parity: driving force behind the network¦parity_about~driving force behind;;dot_sdk_repo~paritytech polkadot-sdk¦¦
+polkadot-0010¦current¦0¦same¦parity_about~driving force behind;;dot_sdk_repo~paritytech polkadot-sdk¦¦
+polkadot-0020¦current¦0¦public SDK repository¦dot_sdk_repo~Polkadot Blockchain SDK¦¦
+polkadot-0027¦current¦0¦wiki on relay chain¦dot_wiki_consensus~relay chain¦¦
+polkadot-0030¦current¦0¦XCM¦dot_xcmp~XCM¦¦
+polkadot-0031¦undecidable¦0¦no primary timing data¦¦¦
+polkadot-0032¦current¦0¦wiki page on XCMP¦dot_xcmp~XCMP \(Cross-Chain Message Passing\)¦¦
+polkadot-0034¦undecidable¦0¦wiki treats XCMP design and HRMP separately; no clean reading¦¦¦
+polkadot-0035¦current¦0¦OpenGov¦dot_wiki_gov~Polkadot OpenGov¦¦
+polkadot-0037¦undecidable¦0¦wiki lists the Council under Governance V1; OpenGov has no Council¦dot_wiki_gov~Governance V1¦¦CONTRADICTED on the Council clause: wording dates from Jan 2025 (rev 1269079233), after OpenGov, so not true when written.
+polkadot-0038¦current¦0¦NPoS¦dot_consensus_new~Polkadot uses Nominated Proof of Stake¦¦
+polkadot-0039¦current¦0¦BABE¦dot_consensus_new~BABE;;dot_wiki_consensus~Ouroboros¦¦
+polkadot-0040¦current¦0¦nominators back validators¦dot_consensus_new~nominators can delegate their tokens¦¦
+proof-of-stake-0034¦undecidable¦0¦BABE confirmed; Ouroboros Praos as NPoS is not a term Cardano's docs use¦dot_wiki_consensus~BABE¦¦
+proof-of-stake-0035¦current¦0¦wiki on Phragmen¦dot_wiki_consensus~Phragmen¦¦
+proof-of-stake-0039¦current¦0¦CometBFT and Casper FFG¦cometbft~CometBFT;;ethorg_gasper~Casper¦¦Tendermint is now called CometBFT.
+proof-of-stake-0042¦stale¦0¦Lisk moved to an Ethereum layer 2 and its chain has since shut down¦lisk_docs~Only the Lisk Chain, the Ethereum layer 2 network¦lisk_arch5~DPoS blockchain¦EOS and Tron not separately faulted. Wording from Mar 2023 (rev 1142194812).
+proof-of-stake-0046¦current¦0¦Tezos docs: bakers and delegates¦tezos_docs~delegat¦¦
+proof-of-stake-0051¦undecidable¦1¦no primary series for 2017 saved¦¦¦
+dai-0001¦current¦0¦totalSupply call answers; $4.73B on DefiLlama, crypto-backed¦dai_sym~"result":"0x0;;llama_stables~"symbol":"DAI".{0,120}"pegMechanism":"crypto-backed"¦¦
+dai-0002¦stale¦0¦SKY is now the sole governance token of the protocol¦sky_upgrade~SKY has been voted in as the sole governance token¦maker_arch2~facilitate MKR voting¦Wording from Dec 2020 (rev 994092139).
+dai-0008¦undecidable¦0¦no primary collateral breakdown saved¦¦¦
+dai-0009¦undecidable¦0¦no primary test of "controlled by one entity"¦¦¦
+dai-0024¦undecidable¦0¦current mint flow page not saved¦¦¦
+dai-0026¦current¦0¦ETH-A 145%, ETH-B 130%, ETH-C 170% read from the Spot contract¦spot_eth_a~"result":"0x;;spot_eth_b~"result":"0x;;spot_eth_c~"result":"0x¦¦Three collateral types sampled, not all.
+dai-0032¦stale¦0¦SKY is the sole governance token¦sky_upgrade~SKY has been voted in as the sole governance token¦maker_arch2~facilitate MKR voting¦Wording from Jan 2021 (rev 1000259394).
+dai-0033¦current¦0¦voting portal: vote with or delegate SKY¦sky_gov~delegate your SKY tokens¦¦The sentence says "the governance token", which is now SKY.
+dai-0035¦undecidable¦0¦no primary page on the current buyback saved¦sky_upgrade~SKY has been voted in¦¦CONTRADICTED by implication only; MKR is not the governance token, but the burn flow was not read at source.
+cardano-0001¦current¦0¦cardano.org¦card_home~ada¦¦
+cardano-0004¦current¦0¦Foundation about page: Gregaard CEO¦card_found_arch~Frederik Gregaard CEO¦¦Zug clause not separately read.
+cardano-0015¦undecidable¦0¦no Lovelace page saved¦¦¦
+cardano-0019¦undecidable¦0¦absence cannot be proved¦¦¦
+cardano-0022¦current¦0¦Extended UTXO¦card_docs_ledger~Extended UTXO¦¦
+cardano-0023¦current¦0¦Ouroboros¦cardano_ouroboros~Ouroboros overview¦¦
+cardano-0030¦current¦0¦Daedalus: the open source wallet for ada¦card_wallet~open source wallet for ada¦¦
+cardano-0031¦undecidable¦0¦Site does not state this in the saved text¦¦¦
+cardano-0033¦current¦0¦five phases¦card_docs_eras~Byron, Shelley, Goguen, Basho, and Voltaire¦¦
+cardano-0035¦current¦0¦roadmap¦card_roadmap~Basho¦¦
+cardano-0036¦current¦0¦roadmap¦card_roadmap~Voltaire¦¦
+cardano-0039¦current¦0¦delegation docs¦card_docs_stake~Delegation¦¦
+cardano-0041¦current¦0¦stake pools¦card_home~Delegating ada to a stake pool¦¦
+cardano-0043¦current¦0¦Gregaard is CEO¦card_found_arch~Frederik Gregaard Chief Executive Officer¦¦Start date not checked separately.
+cardano-0053¦undecidable¦1¦World Mobile site saved no figure¦¦¦
+cardano-0061¦undecidable¦0¦Midnight pages rate limited or empty on this point¦¦¦
+cardano-0062¦undecidable¦0¦no NFT page saved¦¦¦
+avalanche-0002¦current¦0¦P-Chain min stake in nAVAX; CoinGecko series¦avax_pchain_minstake~minValidatorStake¦¦
+avalanche-0006¦current¦0¦Avalanche Foundation listed¦avax_found2~Avalanche Foundation¦¦
+avalanche-0018¦current¦1¦Jan 2026 CoinGecko: price $9.82-$14.83, cap $4.24B-$6.39B, volume $110M-$644M¦cg_avax_chart~prices¦¦Range contains the page's figures.
+avalanche-0022¦undecidable¦0¦Wyoming's site unreachable¦¦¦
+avalanche-0024¦current¦0¦Primary Network docs¦avax_primary~alanche L1¦¦
+avalanche-0025¦current¦0¦three chains¦avax_primary~runs three blockchains¦¦
+avalanche-0026¦current¦0¦same¦avax_primary~The Contract Chain \(C-Chain\)¦¦
+avalanche-0027¦undecidable¦0¦atomic transfer page not saved¦¦¦
+avalanche-0028¦undecidable¦0¦ICM page not saved¦¦¦
+avalanche-0029¦undecidable¦0¦AVM page returned 404¦¦¦
+avalanche-0030¦undecidable¦0¦AVM page returned 404¦¦¦
+avalanche-0031¦undecidable¦0¦AVM page returned 404¦¦¦
+avalanche-0034¦current¦0¦Platform Chain¦avax_primary~The Platform Chain \(P-Chain\)¦¦
+avalanche-0035¦current¦0¦Platform Chain¦avax_primary~The Platform Chain \(P-Chain\)¦¦
+avalanche-0036¦current¦0¦ACP-77¦avax_acp77~continuous P-Chain fee mechanism¦¦
+avalanche-0037¦current¦0¦ACP-77¦avax_acp77~continuous P-Chain fee mechanism¦¦
+avalanche-0038¦current¦0¦C-Chain chain ID answers¦avax_cchain~0xa86a¦¦
+avalanche-0039¦current¦0¦chain ID 0xa86a is 43114¦avax_cchain~0xa86a¦¦
+avalanche-0040¦current¦0¦Snowman Consensus docs¦avax_consensus~Snowman Consensus¦¦
+avalanche-0041¦current¦0¦docs nav: Coreth, Continuous Execution; upgrade.go has Helicon¦avax_primary~Coreth Architecture Continuous Execution;;avax_go_upgrade~HeliconTime: time\.Date\(2026, time\.September, 22¦¦
+avalanche-0045¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0046¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0057¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0060¦current¦0¦K 20, alpha 15, beta 20¦avax_go_snow~K: 20, AlphaPreference: 15, AlphaConfidence: 15, Beta: 20¦¦
+avalanche-0066¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0068¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0069¦current¦0¦minValidatorStake 2,000,000,000,000 nAVAX, live P-Chain call¦avax_pchain_minstake~"minValidatorStake":"2000000000000"¦¦
+avalanche-0070¦current¦0¦min delegation fee 2%¦avax_go_genesis~MinDelegationFee: 20000¦¦
+avalanche-0071¦undecidable¦0¦no clean quote in saved docs¦¦¦
+avalanche-0072¦current¦0¦MaxStakeDuration 365 days¦avax_go_genesis~MaxStakeDuration: 365 \* 24¦¦
+avalanche-0073¦undecidable¦0¦count of ACPs not stated in saved files¦¦¦
+avalanche-0076¦current¦0¦ACP-236 exists¦acps_list~236-auto-renewed-staking¦¦
+avalanche-0078¦undecidable¦0¦ACP text not fetched¦¦¦
+avalanche-0080¦undecidable¦0¦ACP text read in summary only¦avax_acp267~Increase Validator Uptime Requirement from 80% to 90%¦¦
+avalanche-0082¦undecidable¦0¦ACP text not fetched¦¦¦
+avalanche-0084¦current¦0¦ACP-194 and ACP-283 exist¦acps_list~194-continuous-execution;;acps_list~283-dynamic-minimum-gas-price¦¦
+defi-0020¦reclassified¦1¦¦¦¦"Prominent" is evaluative.
+defi-0025¦current¦0¦Compound governance docs¦compound_gov~Governance¦¦
+defi-0049¦current¦0¦MetaMask¦metamask~MetaMask Crypto Wallet¦¦
+defi-0054¦current¦0¦same transaction¦aave_docs_flash~before the end of the same transaction¦¦
+defi-0056¦current¦0¦Uniswap docs¦uni_docs_fees~Uniswap v2¦¦
+defi-0057¦current¦0¦fees go to LPs¦uni_docs_fees~compensates liquidity providers¦¦
+defi-0058¦undecidable¦0¦no primary test; Uniswap Labs runs an interface¦¦¦
+defi-0067¦undecidable¦1¦no primary series for 2018 saved¦¦¦
+defi-0069¦wrong¦1¦June 2025 DEX volume about $78.4B a week (DefiLlama); Q2 2025 spot DEX volume $877B, about $67B a week (CoinGecko via Cointelegraph)¦llama_dexs_chart~totalDataChart;;cointele_q2~\$877 billion for DEXs¦¦Second check: two aggregators. Page's figure traces to an SSRN paper. Wallet clause not checked.
+defi-0079¦undecidable¦0¦no primary page saved¦¦¦
+tether-0002¦current¦0¦CoinGecko symbol usdt¦cg_markets~"id":"tether","symbol":"usdt"¦¦
+tether-0003¦current¦0¦CoinGecko rank 3; $178B; issuer says largest¦cg_markets~"id":"tether".{0,300}"market_cap_rank":3;;tether_home~world's largest stablecoin¦¦
+tether-0005¦undecidable¦1¦no 2024 primary source saved¦¦¦
+tether-0006¦undecidable¦1¦CEO estimate; primary statement not saved¦¦¦
+tether-0007¦undecidable¦0¦no primary ownership filing¦¦¦
+tether-0022¦current¦1¦terms: redomiciled to El Salvador¦tether_legal~redomiciled from the British Virgin Islands to the Republic of El Salvador¦¦
+tether-0027¦undecidable¦0¦terms show Tether Limited assigned its contracts on 27 Jan 2025; ownership not stated¦tether_legal~Tether Limited assigned¦¦
+tether-0030¦stale¦0¦no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand¦tether_protocols~no longer issuing or obligated to redeem Tether Tokens on the Kusama, Bitcoin Cash SLP, Omni Layer, EOS and Algorand¦tether_arch_prot~ceased minting USD₮-Omni, USD₮-Kusama, and USD₮.BCHSLP from 17th August 2023¦Wording from Apr 2021 (rev 1017210611).
+tether-0031¦stale¦0¦EUR₮ wound down; Omni discontinued; many more chains now¦tether_protocols~wound down and is no longer obligated to redeem EUR₮¦tether_arch_prot~ceased minting USD₮-Omni¦Wording from Jan 2021 (rev 1002798994).
+tether-0041¦undecidable¦1¦no primary source¦¦¦
+tether-0069¦undecidable¦1¦Tether news URL returned 404¦¦¦
+tether-0091¦undecidable¦0¦USAT site names the issuer, not the custodian¦¦¦
+tether-0095¦current¦0¦issuer is Anchorage Digital Bank, N.A.¦usat_home~The issuer of USA₮ is Anchorage Digital Bank¦¦
+tether-0104¦current¦1¦BDO report: assets 187,751; liabilities 183,642; equity 4,110 ($M)¦tether_q2_pdf~6,338 187,751 \(183,642\) 4,110¦¦
+tether-0114¦undecidable¦0¦gold.tether.io unreachable¦¦¦
+tether-0115¦undecidable¦0¦gold.tether.io unreachable¦¦¦
+tether-0132¦undecidable¦0¦terms read; the exact wording on US customers not isolated¦¦¦
+tether-0134¦current¦0¦audit not made public; 100% backed claim stands¦kpmg_star~not made publ;;tether_faq~100% backed¦¦
+tether-0154¦current¦0¦audit not published¦kpmg_star~not made publ;;kpmg_defiant~Without Publishing the Statements¦¦
+tether-0161¦stale¦0¦$122.84B in US T-bills at 30 Sep 2026 (BDO report); $114.96B at 30 Jun 2026¦tether_q3_pdf~U\.S\. Treasury Bills4 122,839,738,995¦tether_bb_arch~accounting for \$72\.6 billion¦Undated sentence, wording from Feb 2024 (rev 1210461759), citing a Bloomberg story of 31 Oct 2023.
+tether-0163¦undecidable¦0¦$122.84B to $132.4B ranks 19th on the Aug 2026 TIC table if territories count¦treasury_tic~Korea, South 134\.2¦¦Rank depends on whether territories count as nations.
+polymarket-0001¦current¦0¦prediction market docs¦poly_docs_res~Prediction markets use the UMA¦¦
+polymarket-0002¦current¦0¦ERC-20 on Polygon¦poly_pusd~standard ERC-20 token on Polygon¦¦
+polymarket-0003¦undecidable¦0¦terms: Panama law; New York headquarters not at source¦poly_tos~laws of Panama¦¦
+polymarket-0005¦undecidable¦0¦no primary sports share saved¦¦¦
+polymarket-0006¦undecidable¦0¦no primary sports share saved¦¦¦
+polymarket-0008¦undecidable¦0¦Polymarket's list blocks FR, BR and IT; Gibraltar absent, government orders not read¦poly_help_geo~FR France¦¦
+polymarket-0060¦current¦0¦live geopolitics events from Polymarket's API¦polyapi~military clash¦¦
+polymarket-0086¦current¦0¦40 countries restricted¦poly_help_geo~following 40 countries are completely restricted¦¦
+polymarket-0087¦undecidable¦1¦no primary source for Sept 2024¦¦¦
+polymarket-0092¦undecidable¦0¦no primary source saved¦¦¦
+polymarket-0093¦undecidable¦0¦no primary source saved¦¦¦
+polymarket-0097¦current¦0¦terms governed by Panama law¦poly_tos~laws of Panama¦¦Domicile inferred from the governing law and the operator's terms.
+polymarket-0101¦undecidable¦0¦long list; not all regulators read¦¦¦
+polymarket-0121¦current¦0¦18 or older¦poly_tos~18 years of age or older¦¦
+stablecoin-0008¦reclassified¦0¦¦¦¦"Mainly used" names no metric.
+stablecoin-0011¦undecidable¦0¦DefiLlama: fiat-backed 91.8% of about $295B; taxonomy differs from the source¦llama_stables~fiat-backed¦¦
+stablecoin-0016¦undecidable¦1¦Oct 2025 breakdown by source not retrievable (FATF 403)¦¦¦
+stablecoin-0017¦current¦0¦USDT $177.7B, USDC $71.1B, both fiat-backed USD¦llama_stables~"symbol":"USDT"¦¦
+stablecoin-0018¦undecidable¦0¦EUR₮ wound down; EURC and EURS exist¦tether_protocols~wound down and is no longer obligated to redeem EUR₮;;eurc~Euro-Backed Stablecoin¦¦CONTRADICTED on EUR Tether. Wording dates from Aug 2025; wind-down date not pinned against it.
+stablecoin-0023¦current¦0¦PAXG and XAU₮ exist¦paxos_gold~Pax Gold;;tether_home~XAU₮¦¦
+stablecoin-0027¦undecidable¦0¦DefiLlama lists USDD as crypto-backed; wording from Aug 2025¦llama_stables~"symbol":"USDD".{0,120}"pegMechanism":"crypto-backed"¦¦CONTRADICTED on USDD; true-when-written evidence not found.
+stablecoin-0079¦current¦0¦CoinGecko: USDT above USDC¦cg_markets~"id":"tether".{0,300}"market_cap_rank":3¦¦
+stablecoin-0085¦wrong¦1¦Tether, 13 Aug 2026: KPMG U.S. completed a full audit of Tether International 2025 statements, unqualified opinion. Audit report not published¦tether_kpmg~KPMG;;kpmg_star~said KPMG U.S. had performed;;kpmg_defiant~Without Publishing the Statements¦¦Second check: Reuters copy and The Defiant. Evidence is Tether plus press; the signed report is not public. Wording added 3 Nov 2026 (rev 1383595351); the Tether page in this corpus records the audit.
+stablecoin-0104¦current¦1¦ECB: assuming legislation is adopted during 2026¦ecb_de~assuming the necessary EU legislation is adopted in the course of 2026¦¦
+stablecoin-0108¦undecidable¦0¦Congress.gov 403¦¦¦
+stablecoin-0109¦current¦0¦ASIC INFO 225¦asic_info225~INFO 225¦¦Passage read at summary level.
+stablecoin-0115¦undecidable¦0¦no regulator text saved¦¦¦
+stablecoin-0126¦current¦0¦ASIC INFO 225 covers stablecoins¦asic_info225~stablecoins¦¦
+stablecoin-0128¦undecidable¦0¦ASIC text not read at clause level¦¦¦
+stablecoin-0131¦undecidable¦0¦Central Bank of Bahrain page 403¦¦¦
+stablecoin-0132¦undecidable¦0¦Central Bank of Bahrain page 403¦¦¦
+stablecoin-0137¦undecidable¦0¦no primary page saved¦¦¦
+stablecoin-0151¦undecidable¦0¦Japan FSA page 404¦¦¦
+stablecoin-0152¦undecidable¦0¦Japan FSA page 404¦¦¦
+stablecoin-0156¦undecidable¦0¦Cabinet order No. 639-t of 20 Aug 2026 ends the USDKG project; who the issuer is was not re-read¦usdkg~the USDKG project is ceasing its operations¦¦Not contradicted: ending the project does not change the named issuer. The page omits the termination.
+stablecoin-0157¦undecidable¦0¦USDKG project ceasing; holders may exchange for fiat or USDT; current backing not published on the site¦usdkg~exchange their tokens for fiat currency or USDT¦¦Not contradicted: the notice does not say the backing has gone. The page omits the termination.
+stablecoin-0160¦undecidable¦0¦MAS page empty when saved¦¦¦
+stablecoin-0164¦undecidable¦0¦no primary page saved¦¦¦
+stablecoin-0168¦undecidable¦0¦no primary page saved¦¦¦
+stablecoin-0170¦undecidable¦0¦no primary page saved¦¦¦
+stablecoin-0172¦undecidable¦0¦UAE rulebook 403¦¦¦
+prediction-market-0022¦undecidable¦0¦no primary source¦¦¦
+prediction-market-0028¦undecidable¦0¦tick sizes vary by venue; not read at source¦¦¦
+prediction-market-0034¦reclassified¦0¦¦¦¦"Dominant structure" names no metric.
+prediction-market-0035¦current¦0¦subject to CFTC oversight¦kalshi_regulated~U\.S\. regulatory oversight by the CFTC¦¦
+prediction-market-0036¦current¦0¦trade settles on-chain; pUSD on Polygon¦poly_docs_clob~settles on-chain;;poly_pusd~token on Polygon¦¦
+prediction-market-0062¦undecidable¦0¦Kalshi rulebook page rate limited¦¦¦
+prediction-market-0064¦current¦0¦CFTC oversight¦kalshi_regulated~CFTC¦¦
+prediction-market-0066¦current¦0¦UMA Optimistic Oracle¦poly_docs_res~UMA Optimistic Oracle¦¦
+prediction-market-0067¦current¦0¦24-hour commit and 24-hour reveal¦uma_voting~24-hour commit period¦¦
+prediction-market-0068¦current¦0¦65% of staked UMA¦uma_voting~minimum 65% majority of staked UMA;;uma_faq~currently 65% of staked UMA¦¦
+prediction-market-0069¦current¦0¦slashed and redistributed¦uma_voting~are slashed, with the slashed amount redistributed¦¦
+prediction-market-0070¦undecidable¦0¦UMA pages saved do not state 99.8%¦¦¦
+prediction-market-0164¦undecidable¦0¦Gambling Commission page 404¦¦¦
+prediction-market-0165¦undecidable¦0¦absence cannot be proved¦¦¦
+prediction-market-0166¦undecidable¦0¦Polymarket blocks BE, FR, IT, PL; Romania absent; regulator orders not read¦poly_help_geo~PL Poland¦¦
+prediction-market-0167¦wrong¦0¦MiCA came into force 29 June 2023; CASP regime Dec 2024¦mica_ec~came into force;;mica_eurlex~entered into force in June 2023¦¦Second check: European Commission and ESMA. July 2026 was the end of a transitional period. The clause on prediction markets was not settled.
+prediction-market-0178¦undecidable¦1¦no primary docket index saved¦¦¦
+prediction-market-0179¦undecidable¦0¦CFTC page saved no reading of the claim¦¦¦
+prediction-market-0186¦stale¦0¦Polymarket blocks Alberta, British Columbia, Ontario and Quebec¦poly_help_geo~Canada \(CA\) Alberta AB Canada \(CA\) British Columbia BC Canada \(CA\) Ontario ON Canada \(CA\) Quebec QC¦poly_arch_help~Canada \(CA\) Ontario ON Ukraine¦Wording from Mar 2026 (rev 1344309636); archived help page from 2026 shows Ontario alone.
+prediction-market-0191¦undecidable¦0¦no primary source¦¦¦
+prediction-market-0207¦undecidable¦0¦augur.net: Augur is back, restarted in 2025, forked Aug 2026¦augur_home~Augur is back\. Restarted in 2025, forked in August 2026¦¦CONTRADICTED: wording dates from Nov 2025 (rev 1325029896), after the stated 2025 restart, so not shown true when written.
+prediction-market-0208¦current¦0¦GJ Open site¦gjo_arch~scored for accuracy¦¦
+prediction-market-0209¦current¦0¦invest real money $5 to $500¦iem_what~\(\$5\.00-\$500\.00\)¦¦
+prediction-market-0211¦stale¦0¦Kalshi help: yes, you can trade from many countries; 140+ countries since Oct 2025¦kalshi_intl~Yes, you can trade on Kalshi from many countries¦kalshi_140b~For the first time, Kalshi is available to users¦Wording from Nov 2024 (rev 1257516603).
+prediction-market-0212¦undecidable¦0¦Robinhood page does not name Kalshi in saved text¦¦¦
+prediction-market-0213¦current¦0¦play-money currency¦manifold_home~play-money currency¦¦
+prediction-market-0214¦current¦0¦forecasting platform¦metaculus_arch~online forecasting platform¦¦Date-range question detail not separately read.
+prediction-market-0215¦stale¦0¦pUSD is the collateral for all trading, backed by USDC; replaced USDC.e in 2026¦poly_pusd~collateral token used for all trading on Polymarket;;poly_defiant~Polymarket USD replaces bridged USDC¦poly_arch_usdc~USDC¦Wording from Jul 2025 (rev 1300504183). Polygon clause still holds.
+prediction-market-0216¦undecidable¦0¦PredictIt site is script-only when saved¦¦¦

@@ -1,0 +1,12 @@
+{
+ "rpc": "https://ethereum-rpc.publicnode.com",
+ "sampledBlocks": 160,
+ "from": 778483,
+ "to": 955000,
+ "firstTime": "2016-01-01T00:00:04.000Z",
+ "lastTime": "2016-02-05T00:34:33.000Z",
+ "meanBlockTimeSec": 17.143,
+ "meanTxPerBlock": 2.281,
+ "meanTps": 0.133,
+ "gasLimitLast": 3141592
+}
