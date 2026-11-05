@@ -69,7 +69,7 @@ export class JuryRunner {
       const judged = judgeSignature(signature, completion, preflight);
       set({ signing_address: signature.signing_address, signature_kind: signature.signature_kind, signature: signature.signature, outcome: parseVerdict(completion.responseBytes) });
       if (judged.status !== "signed") return set({ status: "unverified", error: judged.reason });
-      const r = await this.sender.call("submit_verdict", { challenge_id: challengeId, model, response: completion.responseBytes.toString("base64"), signature_hex: signature.signature }, { gasTgas: 60 });
+      const r = await this.sender.call("submit_verdict", { challenge_id: challengeId, model, response: completion.responseBytes.toString("base64"), signature_hex: signature.signature }, { gasTgas: 30 });
       set({ status: "submitted", tx_hash: r.txHash, outcome: r.value?.outcome ?? rec.outcome, request_hash: r.value?.request_hash, response_hash: r.value?.response_hash });
       onDone();
     } catch (e) {

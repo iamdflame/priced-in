@@ -42,7 +42,7 @@ else if (fs.existsSync(spikeFile)) { const f = JSON.parse(fs.readFileSync(spikeF
 if (!funder) { console.log("SKIP jury-e2e: no testnet funder. Set FUNDER_ID and FUNDER_KEY."); process.exit(0); }
 if (funder.accountId.endsWith(".near")) { console.error("FUNDER_ID is a mainnet account; jury-e2e runs on testnet only."); process.exit(1); }
 
-const NEED = { market: 3.3, token: 2.0, runner: 0.12, challenger: 0.2, agent: 0.2 };
+const NEED = { market: 3.3, token: 2.0, runner: 0.3, challenger: 0.2, agent: 0.2 };
 const need = Object.values(NEED).reduce((a, b) => a + b, 0) + 0.12;
 const available = Number(BigInt((await funder.getState()).balance.available) / 10n ** 21n) / 1000;
 if (available < need) { console.error(`FAIL funder ${funder.accountId} has ${available} NEAR available; jury-e2e needs ${need.toFixed(2)}.`); process.exit(1); }
@@ -165,13 +165,13 @@ try {
   check("the challenge event starts the jury runner", Boolean(run), run ? `${run.ms} ms, ended ${run.ended}` : "no run");
   await new Promise((r) => setTimeout(r, 1500));
   const ch = await view(M, "get_challenge", { challenge_id: chId });
-  check("two verdicts verified on-chain", ch.verdicts.length === 2 && ch.verdicts.every((v) => v.outcome === "TRUE"), ch.verdicts.map((v) => `${v.model}=${v.outcome}`).join(", "));
+  check("two verdicts verified on-chain", ch.verdicts.length === 2 && ch.verdicts.every((v) => v.outcome === "TRUE"), `${ch.verdicts.map((v) => `${v.model}=${v.outcome}`).join(", ")} | jurors: ${run?.jurors.map((j) => `${j.status}${j.error ? ` (${j.error.slice(0, 200)})` : ""}`).join("; ")}`);
   const third = run?.jurors.find((j) => j.model === MOCK_MODELS[2]);
   check("the third juror is reported, not faked", ["failed", "timed_out"].includes(third?.status), `${third?.status}: ${third?.error}`);
   const c = await view(M, "get_claim", { claim_id: 0 });
   check("a provisional outcome is set; the claim is not settled", c.provisional === true && c.status === "Challenged" && c.outcome === null, `provisional ${c.provisional}, status ${c.status}`);
   try {
-    await runner.account.callFunction({ contractId: M, methodName: "submit_verdict", args: { challenge_id: chId, model: MOCK_MODELS[2], response: Buffer.from("VERDICT: FALSE").toString("base64"), signature_hex: run.jurors[0].signature ?? "00".repeat(64) }, gas: 60n * TGAS });
+    await runner.account.callFunction({ contractId: M, methodName: "submit_verdict", args: { challenge_id: chId, model: MOCK_MODELS[2], response: Buffer.from("VERDICT: FALSE").toString("base64"), signature_hex: run.jurors[0].signature ?? "00".repeat(64) }, gas: 30n * TGAS });
     check("a forged verdict is refused on-chain", false);
   } catch (e) { check("a forged verdict is refused on-chain", /signature does not verify/.test(short(e)), short(e).slice(0, 90)); }
   const bundle = JSON.parse(fs.readFileSync(path.join(env.ATTESTATIONS_DIR, "z-ai__glm-5.3-flash.json"), "utf8"));
