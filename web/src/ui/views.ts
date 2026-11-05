@@ -37,7 +37,10 @@ export function pickHero(list: Sentence[], ctx: Ctx, todayKnown: (s: Sentence) =
     // the line as written, not a rewrite that may load a moment later: the pick never depends on timing
     const n = s.original.length;
     if (/[^\u0000-\u024f\u2010-\u203a\u20ac]/.test(s.original)) continue; // a glyph the display face doesn't have
-    let score = (n >= 30 && n <= 90 ? 70 : n <= 120 ? 45 : n <= 150 ? 0 : -60) + (todayKnown(s) ? 40 : 0) + (s.trades > 1 ? 25 : s.trades === 1 ? 10 : 0) + (p < 0.5 ? 10 : 0);
+    // a price between 10% and 70% shows in the ink and the bowl; a 1% line is a thread and an empty bowl.
+    // Bets count as yes or no only: the live stream can raise the number between two loads.
+    let score = (n >= 30 && n <= 90 ? 70 : n <= 120 ? 45 : n <= 150 ? 0 : -60) + (todayKnown(s) ? 40 : 0) + (s.trades > 0 ? 25 : 0)
+      + (p >= 0.1 && p <= 0.7 ? 30 : p < 0.05 || p > 0.9 ? -50 : 0);
     if (s.status === "challenged") score += 5;
     if (!best || score > best.score) best = { k: s.key, score };
   }

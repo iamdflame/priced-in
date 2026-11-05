@@ -28,6 +28,8 @@ export interface Trade { claimId: number; trader: string; side: string; amountUs
 export class TradeHistory {
   private by = new Map<number, Trade[]>();
   private seen = new Set<string>();
+  /** every distinct trade per sentence, counted once by its transaction: the one source for "N bets" */
+  private tally = new Map<number, { n: number; usd: number }>();
   private loaded = false;
   async load(api: Api, mineTrader: () => string) {
     if (this.loaded) return;
@@ -48,12 +50,16 @@ export class TradeHistory {
     const k = t.txHash ? `${t.txHash}:${t.claimId}` : `${t.claimId}:${t.trader}:${t.priceAfter}:${t.at}`;
     if (this.seen.has(k)) return false;
     this.seen.add(k);
+    const c = this.tally.get(t.claimId) || { n: 0, usd: 0 };
+    this.tally.set(t.claimId, { n: c.n + 1, usd: c.usd + t.amountUsd });
     const list = this.by.get(t.claimId) || [];
     if (t.priceBefore === null && list.length) t.priceBefore = list[0].priceAfter;
     list.unshift(t);
     this.by.set(t.claimId, list.slice(0, 20));
     return true;
   }
+  /** How many distinct bets this sentence has had, and their dollars. */
+  count(claimId: number | null) { return claimId === null ? { n: 0, usd: 0 } : this.tally.get(claimId) || { n: 0, usd: 0 }; }
   /** Newest first. */
   of(claimId: number | null): Trade[] { return claimId === null ? [] : this.by.get(claimId) || []; }
   /** Take in live trades the store has seen on this page's sentences. Returns the new ones. */
@@ -103,11 +109,11 @@ export function tradeWords(t: Trade, agents: AgentBook): string {
 
 /** The market is never shown empty: who bet and how it moved, the tally of bets, or what it opened at. */
 export function livingProof(s: Sentence, ctx: Ctx): Child[] {
+  // one source for the count everywhere: the trades seen, each counted once by its transaction
   const hist = ctx.history.of(s.claimId);
-  const n = Math.max(s.trades, hist.length);
-  const tally = n > 1 ? ` ${n} bets so far, ${usd(Math.max(s.volumeUsd, hist.reduce((a, t) => a + t.amountUsd, 0)))} in all.` : "";
+  const { n, usd: vol } = ctx.history.count(s.claimId);
+  const tally = n > 1 ? ` ${n} bets so far, ${usd(vol)} in all.` : "";
   if (hist.length) return [tradeWords(hist[0], ctx.agents) + tally];
-  if (s.trades > 0) return [`${s.trades} ${s.trades === 1 ? "bet" : "bets"} so far, ${usd(s.volumeUsd)} in all.`];
   const p = ctx.store.derived.price(s);
   const b = s.bMicro ? Number(s.bMicro) / 1e6 : null;
   return [`It opened at ${pct(p)}${b ? `, with ${usd(b)} of liquidity behind it` : ""}. The first bet moves it.`];
@@ -142,7 +148,7 @@ export function doubtWords(d: DoubtState, s: Sentence, ctx: Ctx, onRetry: () => 
     case "answered": {
       const moved = before !== null && now !== null ? `from ${pct(before)} to ${pct(now)}` : `to ${pct(now)}`;
       const out: Child[] = rec
-        ? [`Your $1 would move this line ${moved}. Nothing was sent: this is recorded data.`]
+        ? [`Your $1 would move this line ${moved}. Rehearsed on recorded data, nothing sent.`, d.stage === "rewritten" || d.stage === "answered" ? " The rewrite is the one NEAR AI Cloud signed on testnet." : ""]
         : [`You moved this line ${moved}. `, tx, tx ? "." : null];
       if (d.stage === "rewritten" || d.stage === "answered") out.push(h("span", { class: "note rw-note" }, "The page rewrote the line to match its new price."));
       if (c.answer) {

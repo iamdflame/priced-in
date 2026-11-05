@@ -46,6 +46,7 @@ export class Hero {
   private unsub: (() => void) | null = null;
   private dead = false;
   private failedShown = false;
+  private baseRewrite = "";
   /** the after-state of a rewrite: the old words struck and the new ones in, at hero size */
   private merged: DiffPart[] | null = null;
   private delSlots: number[] = [];
@@ -54,17 +55,17 @@ export class Hero {
   private expanded = false;
   private reveal = h("button", { class: "reveal link-btn", type: "button", hidden: true }, "Read the full line");
   private trick = h("p", { class: "trick" });
-  /** on phones the one plain line sits under the image, on the ground */
+  /** on phones the one plain line has its own tier under the trade line */
   private plain = h("p", { class: "plainline phone-only-block" }, PLAIN);
 
   constructor(private ctx: Ctx, private o: { short?: boolean; label: () => Child[] }) {
     this.el = h("section", { class: `ps${o.short ? " short" : ""}`, "aria-label": "The sentence, its price and the doubt" },
-      this.canvas, this.labelEl, this.srText, this.poster, this.reveal, this.bowl, this.fx, this.readout, this.plain);
+      this.canvas, this.labelEl, this.srText, this.poster, this.reveal, this.bowl, this.fx, this.readout);
     this.reveal.addEventListener("click", () => { this.expanded = !this.expanded; this.reveal.textContent = this.expanded ? "Set it large again" : "Read the full line"; this.relayout(); });
     this.poster.append(this.marks);
     this.priceEl.append(h("span", { class: "pa" }, "priced at"), this.pnum, h("span", { class: "pc" }, "%"));
     this.trick.append("Any post on X opens priced here: change x.com to ", h("b", {}, typeof location !== "undefined" ? location.host : "this site"), " in its link.");
-    this.readout.append(h("div", { class: "row" }, this.priceEl, this.btn), this.statusEl, this.chipWrap, this.trick);
+    this.readout.append(h("div", { class: "row" }, this.priceEl, this.btn), this.statusEl, this.chipWrap, this.trick, this.plain);
     // nothing shows until it has its place: no shift on first paint
     for (const el of [this.labelEl, this.readout, this.bowl]) el.style.visibility = "hidden";
     this.btn.addEventListener("click", () => this.onDoubt());
@@ -105,7 +106,9 @@ export class Hero {
     this.lastSize = `${this.el.clientWidth}x${this.el.clientHeight}`;
     const p = this.ctx.store.derived.price(sen);
     this.grey = !priceable(sen) || p === null;
-    this.shownText = sen.text;
+    // the line as written; a rewrite shows when it happens in front of the visitor
+    this.shownText = sen.original;
+    this.baseRewrite = sen.rewrite ? `${sen.rewrite.id}:${sen.rewrite.version}` : "";
     this.render(sen.text);
     this.deferField();
     if (!document.fonts.check('1000 64px "Amstelvar"')) void document.fonts.load('1000 64px "Amstelvar"').then(() => { if (!this.dead) this.relayout(); });
@@ -183,17 +186,17 @@ export class Hero {
       const lead = PHONE_LEAD;
       const r = 22, u = r * 0.46;
       const rowH = r * 2 + u * 6.7;
-      const below = 18 + rowH + 14 + 84; // the row, then up to three lines of words
-      const ground = Math.min(H - 236, 610);
-      const clear = ground - 40;
+      const below = 18 + rowH + 14 + 84 + 74; // the row, up to three lines of words, then the promise's own tier
+      const ground = Math.min(H - 200, 650);
+      const clear = ground - 24;
       const boxH = Math.max(120, clear - top - below);
       let fit = fitFat(shown, { w: W - pad * 2, h: boxH }, { max: 58, min: this.expanded ? 22 : 38, leading: lead });
       let clamped = false;
-      if (!this.expanded && fit.lines.length * fit.size * lead > boxH - 40) {
+      if (!this.expanded && fit.lines.length * fit.size * lead > boxH) {
         // too long to set large: the first lines large, and the whole line one tap away
         const size = 40;
         const all = wrapFat(shown, W - pad * 2, size);
-        const n = Math.max(2, Math.floor((boxH - 40) / (size * lead)));
+        const n = Math.max(2, Math.floor(boxH / (size * lead)));
         if (all.lines.length > n) {
           const lines = all.lines.slice(0, n);
           lines[n - 1] = lines[n - 1].replace(/\s*\S+$/, "") + "\u2026";
@@ -201,10 +204,10 @@ export class Hero {
           clamped = true;
         } else fit = { size, ...all, room: false };
       }
-      const ph = fit.lines.length * fit.size * lead + (clamped || this.expanded ? 40 : 0);
+      const ph = fit.lines.length * fit.size * lead + (this.expanded ? 40 : 0);
       const rowTop = top + ph + 18;
       const bowl = { cx: pad + r, cy: rowTop + rowH - r, r, u };
-      return { lead, clamped, W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 14 + 84 + 40), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
+      return { lead, clamped, W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 14 + 84 + 74 + 24), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
     }
     const lead = LEAD;
     const groundTop = Math.round(H * (card ? 0.86 : 0.8));
@@ -218,7 +221,7 @@ export class Hero {
     const reserve = (size: number) => size * 0.17 * 2 + size * 0.42 + 40 + readW;
     const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: lead, reserve });
     // below the sentence: the numeral, the action, two lines of words and the mark must stand clear of the ground
-    const belowH = card ? 110 : (W < 1200 ? 96 : 128) * 0.82 + 22 + 18 + 92 + 56;
+    const belowH = card ? 110 : 29 + (W < 1200 ? 96 : 128) * 0.82 + 22 + 18 + 92 + 56;
     const b = fitFat(shown, { w: bw, h: Math.min(hFull, groundTop - 8 - top - belowH) }, { max, min: card ? 30 : 36, leading: lead });
     // beside the last line only when the numeral (72 px at least) fits inside that line's height
     const beside = !card && a.room && a.size >= 68 && a.size >= b.size * 0.86;
@@ -254,12 +257,15 @@ export class Hero {
       // the hook stays inside its own line, clear of the line above
       const u = Math.min(r * 0.78, (base - r - fit.size * 0.06) / 6.7);
       // a proper sidebearing: the gauge never touches the last word, at any weight
-      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + r + fit.size * 0.16, cy: box.y + (last ? last.y : 0) + base - r, r, u };
+      const sw = Math.max(3, u * 0.5);
+      L.bowl = { cx: box.x + (last ? last.x + last.w : 0) + fit.size * 0.16 + Math.max(r, 2.05 * u + sw / 2), cy: box.y + (last ? last.y : 0) + base - r, r, u };
       if (L.beside) {
         L.readout = { x: L.bowl.cx + r + Math.max(28, fit.size * 0.3), y: L.bowl.cy + r - priceSize * 0.82 + priceSize * 0.085, w: L.readout.w };
+        this.el.classList.add("beside");
       } else {
-        // below the sentence, kept right of the foreground dish that rises at the left edge
-        const x = this.ctx.card ? box.x : Math.max(box.x, Math.round(L.W * 0.22));
+        // below the sentence, on one column of a 12-column grid (the fourth), clear of the dish that rises at the left edge
+        this.el.classList.remove("beside");
+        const x = this.ctx.card ? box.x : box.x + Math.round((box.w / 12) * 3);
         L.readout = { x, y: box.y + this.d.height() + 22, w: Math.min(L.W - L.pad - x, 760) };
       }
     }
@@ -271,7 +277,8 @@ export class Hero {
     if (L.phone) {
       // the row: the bowl, then the price beside it; the action and the words below
       // one row: the bowl, the price on the bowl's baseline, the action on the same line
-      this.readout.style.top = L.bowl.cy + L.bowl.r - priceSize * 0.82 + priceSize * 0.085 + "px";
+      // the label's own line (15 px and 10 px of air) sits above the numeral
+      this.readout.style.top = L.bowl.cy + L.bowl.r - priceSize * 0.82 + priceSize * 0.085 - 25 + "px";
       this.priceEl.style.marginLeft = L.bowl.r * 2 + 14 + "px";
       this.priceEl.style.marginTop = "";
     } else {
@@ -280,9 +287,8 @@ export class Hero {
     }
     // the clamp's reveal sits under the clamped line
     this.reveal.hidden = !(L.clamped || (L.phone && this.expanded));
-    if (!this.reveal.hidden) { this.reveal.style.left = L.box.x + "px"; this.reveal.style.top = L.box.y + this.d.height() + 2 + "px"; }
+    if (!this.reveal.hidden) { this.reveal.style.left = "auto"; this.reveal.style.right = L.pad + "px"; this.reveal.style.top = L.box.y + this.d.height() + "px"; }
     this.markDiff(setText);
-    if (L.phone) { this.plain.style.top = L.groundTop - 58 + "px"; this.plain.style.bottom = "auto"; }
     this.layoutField();
     requestAnimationFrame(() => this.fitReadout());
   }
@@ -420,8 +426,7 @@ export class Hero {
     const Wp = L.box.w, Hp = d.height() + L.fit.size * 0.4;
     const cx = L.bowl.cx - L.box.x, cy = L.bowl.cy - L.box.y;
     const maxR = Math.hypot(Math.max(cx, Wp - cx) + 40, Math.max(cy, Hp - cy) + 40);
-    const ring = s("circle", { cx: L.bowl.cx, cy: L.bowl.cy, r: 0, fill: "none", stroke: red ? "var(--red)" : "var(--ink-9)", "stroke-width": 1.5 });
-    this.fx.append(ring);
+    void red;
     const t0 = performance.now(), dur = 2 * BEAT;
     return new Promise((res) => {
       const step = (t: number) => {
@@ -431,13 +436,10 @@ export class Hero {
           this.paint(next);
           d.base.style.clipPath = "";
           top.remove();
-          ring.remove();
           return res();
         }
         top.style.clipPath = `circle(${r}px at ${cx}px ${cy}px)`;
         d.base.style.clipPath = `path(evenodd, "M-400 -400H${Wp + 400}V${Hp + 400}H-400Z M${cx - r} ${cy}a${r} ${r} 0 1 0 ${2 * r} 0a${r} ${r} 0 1 0 ${-2 * r} 0Z")`;
-        ring.setAttribute("r", String(r));
-        ring.setAttribute("opacity", String(1 - k));
         requestAnimationFrame(step);
       };
       requestAnimationFrame(step);
@@ -516,7 +518,8 @@ export class Hero {
     const mine = d.ctx?.key === sen.key;
     // a rewrite: struck in red pen, then the new words at their own weight
     const rewriteHere = mine && (d.stage === "rewritten" || d.stage === "answered") ? d.ctx!.rewrite?.sentences.find((x) => x.claim_id === sen.claimId)?.text ?? null : null;
-    const otherRewrite = !mine || d.stage === "idle" || d.stage === "failed" ? (sen.text !== this.shownText ? sen.text : null) : null;
+    const freshRewrite = sen.rewrite && `${sen.rewrite.id}:${sen.rewrite.version}` !== this.baseRewrite && sen.rewrite.status !== "template";
+    const otherRewrite = (!mine || d.stage === "idle" || d.stage === "failed") && freshRewrite ? (sen.text !== this.shownText ? sen.text : null) : null;
     const nextText = rewriteHere ?? otherRewrite;
     const rkey = `${sen.rewrite?.id}:${nextText}`;
     if (nextText && nextText !== this.shownText && rkey !== this.rewriteSeen) {

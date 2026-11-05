@@ -56,6 +56,19 @@ async function boot() {
   router.subscribe((r) => void store.open(r));
   mountApp(root, { store, api, config, router, mode, card, recordedDate, history: new TradeHistory(), agents: new AgentBook() });
   void store.open(router.route);
+  if (mode === "recorded") {
+    // a rehearsed doubt on a line of the recorded paragraph plays the rewrite NEAR AI Cloud really signed for it on testnet
+    const rec = await import("./ui/recorded");
+    const rw = rec.RECORDED.rewrite;
+    let played = "";
+    store.subscribe((s) => {
+      const c = s.doubt.ctx;
+      if (s.doubt.stage !== "final" || !c || c.claimId === null || s.page.slug !== rw.page) return;
+      if (!rw.sentences.some((x: { claim_id: number }) => x.claim_id === c.claimId) || played === c.key + c.startedAt) return;
+      played = c.key + c.startedAt;
+      setTimeout(() => store.ingest({ seq: 1e9, uid: `recorded-rewrite-${played}`, event: "rewrite", source: "ai", data: { ...rw, createdAt: Date.now() } }), 400);
+    });
+  }
   (window as any).__pricedin = { store, router, lane, config, mode };
 }
 

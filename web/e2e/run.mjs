@@ -67,7 +67,8 @@ try {
   const before = await priceOf("c0");
   const label = await page.locator(".ps .sr-text").textContent();
   // the page shows each line's latest wording: the writer may already have rewritten it
-  const c0Text = await page.evaluate(() => window.__pricedin.store.state.page.sentences.find((x) => x.key === "c0").text);
+  // the first screen shows the line as written
+  const c0Text = await page.evaluate(() => window.__pricedin.store.state.page.sentences.find((x) => x.key === "c0").original);
   check("the front page opens on the sentence, priced, with the page below", (await page.locator(".running [data-sentence]").count()) === 3 && before === 0.5 && /NEAR Intents has processed/i.test(label) && label.startsWith(c0Text),
     `hero c0 "${label.slice(0, 60)}…", 3 sentences, the first at ${before * 100}% in ${Date.now() - t0} ms`);
   await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 15000 });

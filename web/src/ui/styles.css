@@ -46,8 +46,8 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .phone-only,.phone-only-block{display:none}
 @media (max-width:720px){.phone-only{display:inline}.phone-only-block{display:block}.desk-only{display:none}
   .ps .chipwrap{display:none}
-  .ps .status{min-height:0;max-height:5em;overflow:hidden}
-  .ps .plainline{font-size:17px;color:var(--ink-7)}}
+  .ps .status{min-height:0;max-height:6.3em;overflow:hidden}
+  .ps .plainline{position:static;margin:22px 0 0;padding-top:16px;border-top:1px solid var(--ink-1);font-size:17px;color:var(--ink-7);max-width:none}}
 .ps .label .lbl-plain{display:none;font-style:normal;color:var(--ink-8)}
 @media (max-width:720px){.ps .label .lbl-plain{display:block;margin-bottom:6px}}
 .foot-nav a{color:var(--paper);padding:10px 0}
@@ -84,11 +84,13 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .readout{position:absolute;z-index:6}
 .readout .row{display:flex;align-items:flex-end;gap:26px;flex-wrap:nowrap}
 .readout .row .doubt{margin-bottom:calc(var(--price,128px) * .085)}
-.price{display:inline-flex;align-items:baseline;position:relative;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
+.price{display:inline-grid;grid-template-columns:auto auto;grid-template-areas:"pa pa" "pn pc";align-items:start;justify-content:start;position:relative;font-family:var(--font-display);font-size:var(--price,128px);line-height:.82;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;font-variation-settings:"opsz" 144,"wght" 190,"wdth" 110;color:var(--ink-9);text-decoration:none}
 .price .pn{display:inline-block}
-@media (min-width:721px){.price{min-width:calc(var(--price,128px) * 1.72 + 96px)}}
-.price .pa{margin-right:14px;font-size:18px;font-style:italic;line-height:1;letter-spacing:0;color:var(--ink-6);font-variation-settings:"opsz" 18;align-self:baseline}
-.price .pc{align-self:flex-start;font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
+@media (min-width:721px){.price{min-width:calc(var(--price,128px) * 1.72)}}
+.price .pa{grid-area:pa;margin:0 0 12px .05em;font-size:17px;font-style:italic;line-height:1;letter-spacing:0;color:var(--ink-6);font-variation-settings:"opsz" 18}
+.price .pn{grid-area:pn}
+.ps.beside .price .pa{display:none}
+.price .pc{grid-area:pc;align-self:start;font-size:.42em;margin:.08em 0 0 .06em;font-variation-settings:"opsz" 72,"wght" 260}
 .price.none{visibility:hidden}
 .status{margin:18px 0 0;max-width:30em;font-size:19px;line-height:1.42;color:var(--ink-7);font-variation-settings:"opsz" 20;min-height:2.84em}
 .status b{font-weight:inherit;color:var(--ink-9);font-variation-settings:"opsz" 20,"GRAD" 200}
@@ -125,6 +127,10 @@ main:focus,.panel:focus,.card:focus{outline:none}
 .ps .reveal{position:absolute;z-index:6;min-height:40px;font-size:16px;font-style:italic;color:var(--ink-7)}
 .ps .trick{margin:10px 0 0;font-size:16px;font-style:italic;color:var(--ink-6);max-width:34em}
 .ps .trick b{font-style:normal;font-weight:inherit;color:var(--ink-8)}
+/* the copy under the image is one paper knockout: a beam passes behind it, never across a word; the bowl stays on top */
+.ps .readout{background:var(--paper);box-shadow:0 0 0 16px var(--paper)}
+.ps .label,.ps .reveal{background:var(--paper);box-shadow:0 0 0 6px var(--paper)}
+.ps .bowl{z-index:7}
 .link-btn{min-height:44px;font-size:18px;color:var(--ink-9);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:.2em}
 
 .plainline{position:absolute;z-index:6;left:var(--pad);right:var(--pad);bottom:26px;margin:0;font-size:20px;line-height:1.35;color:var(--night-text);font-variation-settings:"opsz" 20;max-width:46em}
@@ -256,8 +262,10 @@ main:focus,.panel:focus,.card:focus{outline:none}
   .status{font-size:17px;margin-top:12px;min-height:0}
   .doubt{height:52px;font-size:24px;padding:0 22px}
   .readout .row{gap:14px}
-  .readout .row .doubt{margin-left:auto;padding:0 18px;height:54px}
-  .price .pa{position:absolute;left:2px;top:-1.6em;font-size:15px;margin:0}
+  .readout .row .doubt{margin-left:auto;padding:0 10px;height:54px;width:178px;flex:none}
+  .readout .row .doubt.busy{font-size:19px}
+  .ps .reveal{min-height:32px;font-size:15px}
+  .price .pa{font-size:15px;margin:0 0 10px .05em}
   .ps .trick{display:none}
   .plainline{font-size:16px;bottom:16px}
   .sec{padding-top:88px}

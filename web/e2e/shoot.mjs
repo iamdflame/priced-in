@@ -58,6 +58,12 @@ const shots = [
     await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
     await p.waitForTimeout(650);
   } },
+  // recorded mode: a rehearsed doubt on a line of the recorded paragraph plays NEAR AI Cloud's signed rewrite
+  { name: "rewrite-recorded", path: "/c/5", wait: 5000, act: async (p) => {
+    await p.locator(".ps .doubt").click();
+    await p.waitForFunction(() => ["rewritten", "answered", "failed"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000 }).catch(() => {});
+    await p.waitForTimeout(2400);
+  } },
   { name: "card-open", path: "/", wait: 4000, act: async (p) => {
     await p.evaluate(() => document.getElementById("the-page")?.scrollIntoView());
     const s = p.locator(".running .s[role=button]").nth(1);
