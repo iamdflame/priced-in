@@ -1,0 +1,77 @@
+#!/usr/bin/env node
+// Priced In, judge run: one command, no secrets, every claim checked or a plain reason why not.
+//
+//   npm run judge                  all checks, testnet live (about 3 to 6 minutes)
+//   npm run judge -- --offline     no network: chain, 1Click and hosted checks SKIP with the reason
+//   npm run judge -- --json        machine-readable output
+//   SITE_URL=https://... npm run judge   also checks the hosted demo
+//   npm run judge -- --no-build    skip the Rust rebuild (check 3)
+//
+// Node 22.18 or later (it imports the browser's TypeScript LMSR directly). Needs no Rust and no
+// keys; Rust 1.99.1 adds the reproducible-build check. Reads only: it never sends a transaction.
+import { spawnSync } from "node:child_process";
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+
+const argv = process.argv.slice(2);
+const OFFLINE = argv.includes("--offline"), JSON_OUT = argv.includes("--json"), NO_BUILD = argv.includes("--no-build");
+const SITE = (argv.find((a) => a.startsWith("--site="))?.slice(7) || process.env.SITE_URL || "").trim();
+
+// TypeScript type stripping is on by default from Node 22.18 / 23.6; earlier 22.x needs the flag
+if (!process.features?.typescript && !process.env.PRICEDIN_JUDGE_CHILD) {
+  const [maj, min] = process.versions.node.split(".").map(Number);
+  if (maj < 22 || (maj === 22 && min < 6)) { console.error(`Node ${process.versions.node} is too old: the judge needs Node 22.18 or later.`); process.exit(2); }
+  const r = spawnSync(process.execPath, ["--experimental-strip-types", "--no-warnings", fileURLToPath(import.meta.url), ...argv], { stdio: "inherit", env: { ...process.env, PRICEDIN_JUDGE_CHILD: "1" } });
+  process.exit(r.status ?? 1);
+}
+
+const REPO = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
+const { checkLmsr } = await import("./checks/lmsr.mjs");
+const { checkRules } = await import("./checks/rules.mjs");
+const { checkRepro, checkBooks, checkRewrite, reproBuild } = await import("./checks/chain.mjs");
+const { checkOneClick, checkCorpus, checkSuites, checkSite } = await import("./checks/offchain.mjs");
+const { Rpc } = await import("./lib/near.mjs");
+
+const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
+const rpc = new Rpc();
+const t0 = Date.now();
+
+// slow work starts at once and runs while the quick checks do
+const build = NO_BUILD ? Promise.resolve({ ok: false, reason: "not built (--no-build)" }) : reproBuild({}).catch((e) => ({ ok: false, reason: e.message }));
+const suites = checkSuites(REPO);
+
+const offlineSkip = (what) => async () => ({ status: "SKIP", detail: `--offline: ${what} not read`, see: "npm run judge (without --offline)" });
+const CHECKS = [
+  [1, "LMSR properties", () => checkLmsr(REPO), "node tools/judge/judge.mjs, or npm run web:test (lmsr.test.ts); cargo test -p lmsr --release"],
+  [2, "verdict rule and bond split", () => checkRules(REPO), "cargo run --release --manifest-path tools/judge/rules-vectors/Cargo.toml (regenerates the vectors); cargo test -p rules --release"],
+  [3, "reproducible contracts", async () => { const r = await checkRepro(REPO, dep, rpc, { offline: OFFLINE, build }); if (r.status === "SKIP" && NO_BUILD) r.see = "npm run judge (without --no-build)"; return r; }],
+  [4, "testnet deployment live, books close", OFFLINE ? offlineSkip("testnet") : () => checkBooks(dep, rpc)],
+  [5, "signed rewrite verifies, anchored", () => checkRewrite(REPO, dep, rpc, { offline: OFFLINE })],
+  [6, "1Click dry quote, Base USDC -> NEAR USDC", OFFLINE ? offlineSkip("the 1Click API (mainnet)") : () => checkOneClick()],
+  [7, "the measured number", () => checkCorpus(REPO, "16 of 232")],
+  [8, "unit suites: AI, API, web", () => suites],
+  [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set (the hosted demo's URL is not public yet)", see: "SITE_URL=<live url> npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
+];
+
+const results = [];
+// each check starts after the one before it, so lines print in order, as they finish
+for (const [id, name, fn, see] of CHECKS) {
+  const s = Date.now();
+  let r;
+  try { r = await fn(); }
+  catch (e) {
+    const net = /fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|timeout|aborted|EAI_AGAIN/i.test(String(e.message) + String(e.cause?.code || ""));
+    r = net ? { status: "SKIP", detail: `offline or the RPC is unreachable: ${String(e.cause?.code || e.message).slice(0, 120)}`, see: "npm run judge -- --offline" } : { status: "FAIL", detail: `the check itself crashed: ${String(e.stack || e).split("\n").slice(0, 2).join(" ")}` };
+  }
+  const row = { id, name, status: r.status, detail: r.detail, see: r.see || see || "", seconds: Number(((Date.now() - s) / 1000).toFixed(1)) };
+  results.push(row);
+  if (!JSON_OUT) console.log(`${row.status.padEnd(4)} ${id}. ${name}: ${row.detail}${row.see ? ` · see: ${row.see}` : ""}`);
+}
+
+const count = (st) => results.filter((r) => r.status === st).length;
+const secs = (Date.now() - t0) / 1000;
+const summary = { pass: count("PASS"), fail: count("FAIL"), skip: count("SKIP"), seconds: Number(secs.toFixed(1)), offline: OFFLINE, node: process.versions.node, platform: process.platform, deployment: dep.accounts.market, commit: (spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: REPO, encoding: "utf8" }).stdout || "").trim() || null };
+if (JSON_OUT) console.log(JSON.stringify({ checks: results, summary }, null, 1));
+else console.log(`\n${results.length} checks: ${summary.pass} PASS, ${summary.fail} FAIL, ${summary.skip} SKIP in ${Math.floor(secs / 60)}m${String(Math.round(secs % 60)).padStart(2, "0")}s${OFFLINE ? " (offline)" : ""} · testnet market ${dep.accounts.market} · commit ${summary.commit}`);
+setTimeout(() => process.exit(summary.fail ? 1 : 0), 20).unref();

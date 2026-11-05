@@ -24,6 +24,7 @@
     "pnl": "node --env-file-if-exists=services/api/.env --env-file-if-exists=services/ai/.env services/ai/scripts/pnl.mjs",
     "ai:smoke": "node --env-file-if-exists=services/ai/.env services/ai/test/live-smoke.mjs",
     "ai:test": "npm run ai:unit && npm run ai:e2e && npm run ai:smoke",
+    "judge": "node tools/judge/judge.mjs",
     "corpus:check": "node corpus/scripts/check.mjs",
     "web:install": "npm --prefix web ci",
     "web:dev": "npm --prefix web run dev",

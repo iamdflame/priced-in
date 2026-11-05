@@ -1,0 +1,10 @@
+{
+  "name": "pricedin-judge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Priced In judge run: one command, no secrets, every claim checked or a plain reason why not. Run it from a clone of the repo: npm run judge.",
+  "type": "module",
+  "bin": { "pricedin-judge": "judge.mjs" },
+  "engines": { "node": ">=22.18" },
+  "license": "MIT"
+}
