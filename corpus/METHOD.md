@@ -132,3 +132,12 @@ Also reported:
 ## Tone
 
 Volunteers wrote these pages and a stale figure is not a scandal. The output states what the page says, what the source says, and the date it was checked.
+
+## Deviations
+
+All dated 2026-11-05. Nothing above this heading was edited. None of these changes the headline formula, the sentence classes, the verdict definitions or the article list.
+
+1. **Where the classes are stored.** The method named `corpus/class-overrides.json`. Instead, every `data` call and its checkable claim went into `corpus/claims.tsv`, committed before any verdict. The `sourced` and `opinion` labels on the remaining 1,507 sentences come from a rule in `corpus/scripts/classify.mjs`, after all sentences had been read. They were not overridden one by one, so that split is rougher than the `data` call. It does not enter the headline.
+2. **Corrections after the audit.** The method did not say what happens when the audit finds a source the first pass missed. Two rows, `avalanche-0073` and `tether-0091`, moved from `undecidable` to `current`. The agreement rate is computed against the first verdicts in commit `fe013b9`. The headline uses the corrected rows, which adds 2 to its denominator and nothing to its numerator.
+3. **One added sensitivity.** The `contradicted` flag marks `undecidable` rows where today's source disagrees with the page, but the wording was added after the fact lapsed, so rule (b) cannot be met and the fact was once true, so "never true" cannot be shown. Those rows stay `undecidable` as the method requires. The figure that counts them as out of date is reported beside the headline and does not replace it.
+4. **Evidence tooling.** Raw evidence is gitignored and `corpus/receipts/extracts.json` keeps the matched text. Eight PDFs were first saved by `curl` and `pdftotext` rather than `ev.mjs`, which now handles PDFs itself. Web search was used only to find URLs. Each URL then went through the same fetch and match as every other source.
