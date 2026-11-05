@@ -10,6 +10,7 @@ crate-type = ["cdylib", "rlib"]
 [dependencies]
 near-sdk = "5"
 lmsr = { path = "../../crates/lmsr" }
+rules = { path = "../../crates/rules" }
 
 [dev-dependencies]
 near-sdk = { version = "5", features = ["unit-testing"] }
