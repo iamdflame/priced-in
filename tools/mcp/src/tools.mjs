@@ -14,7 +14,7 @@ export function claimLines(c) {
   L.push(`Claim ${c.claim_id} (page ${c.page}): "${c.text}"`);
   if (c.match) L.push(`Match: ${c.match.kind}${c.match.kind === "close" ? `, score ${c.match.score}` : ""}`);
   L.push(`Credence: ${pct(c.credence)} true · ${usd(c.open_interest_usd)} open interest · +10 pts costs ${usd(c.cost_to_move_10_points.up_usd)}, -10 pts ${usd(c.cost_to_move_10_points.down_usd)}`);
-  L.push(`Resolution: ${c.resolution.state}. ${c.resolution.note}`);
+  L.push(`Resolution: ${c.resolution.note}`);
   if (c.rationales?.length) {
     L.push("Rationales:");
     for (const r of c.rationales) L.push(`  - ${r.agent || r.account_id || "agent"}${r.model ? ` (${r.model})` : ""}${r.side ? `, ${r.side.toUpperCase()}` : ""}${r.credence !== null && r.credence !== undefined ? ` at ${pct(r.credence)}` : ""}: ${r.rationale}${r.source_url ? ` Source: ${r.source_url}` : ""}`);
