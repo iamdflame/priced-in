@@ -91,7 +91,8 @@ export class Rpc {
     if (body.error) {
       const e = body.error;
       const transport = e.code === -429 || status === 429 || (status >= 500 && !e.cause);
-      const err = new RpcError(rpcMessage(e), { name: e.name, cause: e.cause, data: e.data, url, transport });
+      const err = new RpcError(rpcMessage(e) || `${e.message || "RPC error"} (${e.code ?? status}) from ${hostOf(url)}`, { name: e.name, cause: e.cause, data: e.data, url, transport });
+      err.rateLimited = e.code === -429 || status === 429;
       // a node that answers with a real error is still reachable
       this.mark(url, !transport, transport ? err.message : null, Date.now() - t0);
       throw err;
@@ -118,13 +119,20 @@ export class Rpc {
   /** A call with failover across URLs. */
   async call(method, params, opts = {}) {
     let last;
-    for (const url of this.order()) {
-      try {
-        return await this.callOn(url, method, params, opts);
-      } catch (e) {
-        last = e;
-        if (!isRetryable(e)) throw e;
+    // when every node is rate-limiting us, back off and go round again (twice at most)
+    for (let round = 0; round < 3; round++) {
+      let limited = 0;
+      for (const url of this.order()) {
+        try {
+          return await this.callOn(url, method, params, opts);
+        } catch (e) {
+          last = e;
+          if (!isRetryable(e)) throw e;
+          if (e.rateLimited) limited++;
+        }
       }
+      if (limited < this.urls.length) break;
+      await sleep(600 * 3 ** round);
     }
     throw last;
   }
