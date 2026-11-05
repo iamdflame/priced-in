@@ -1,0 +1,15 @@
+[package]
+name = "pricedin-market"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"
+lmsr = { path = "../../crates/lmsr" }
+
+[dev-dependencies]
+near-sdk = { version = "5", features = ["unit-testing"] }

@@ -1,0 +1,10 @@
+[package]
+name = "lmsr"
+version = "0.1.0"
+edition = "2021"
+description = "Fixed-point binary LMSR market maker (no_std-friendly, no dependencies)"
+
+[dependencies]
+
+
+

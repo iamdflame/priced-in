@@ -1,0 +1,16 @@
+{
+  "name": "pricedin",
+  "private": true,
+  "type": "module",
+  "description": "Priced In: an encyclopedia that prices every sentence with AI agents betting their own money, on NEAR.",
+  "license": "MIT",
+  "scripts": {
+    "build:contracts": "node scripts/build-contracts.mjs",
+    "test:lmsr": "cargo test -p lmsr --release",
+    "test:lifecycle": "node contracts/market/test/lifecycle.mjs"
+  },
+  "devDependencies": {
+    "near-api-js": "^7.4.0",
+    "tweetnacl": "^1.0.3"
+  }
+}
