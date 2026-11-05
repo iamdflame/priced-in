@@ -1,0 +1,11 @@
+[package]
+name = "pricedin-sweeper"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+near-sdk = "5"

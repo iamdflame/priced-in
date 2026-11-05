@@ -10,7 +10,9 @@
 //   a failed withdraw refunded; pause.
 // After each stage it checks the books: the USDC the market holds equals every bucket, and every
 // bucket equals the sum of the items in it. At the end it rebuilds every balance and position
-// from the events alone. It deletes its accounts back to the funder. No secrets needed.
+// from the events alone. It deletes its accounts back to the funder, sweeping the market's
+// state first (contracts/sweeper) because NEAR won't delete an account with large state.
+// No secrets needed.
 //
 // The swarm runs first, on purpose: a real 5 NEAR spawn and the market's storage don't both fit
 // in the test funder, and sweeping the escrow to the treasury (the funder) pays for the market.
@@ -30,9 +32,16 @@ const hex = (u8) => Buffer.from(u8).toString("hex");
 const results = [];
 let failures = 0;
 const check = (name, ok, detail = "") => { results.push(`${ok ? "PASS" : "FAIL"} ${name}${detail ? " · " + detail : ""}`); if (!ok) failures++; console.log(results.at(-1)); };
-const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args });
-const rpc = async (method, params) => { const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) }); return (await r.json()).result; };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+// reads retry on network errors (a public RPC drops a request now and then); writes never do
+async function retry(fn) {
+  for (let i = 0; ; i++) {
+    try { return await fn(); }
+    catch (e) { if (i >= 5 || !/fetch failed|ECONNRESET|ETIMEDOUT|socket|network|503|502|429/i.test(String(e.message || e))) throw e; await sleep(1500 * (i + 1)); }
+  }
+}
+const view = (contractId, method, args = {}) => retry(() => provider.callFunction({ contractId, method, args }));
+const rpc = (method, params) => retry(async () => { const r = await fetch(RPC, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) }); if (!r.ok) throw new Error(`rpc ${r.status}`); return (await r.json()).result; });
 const WASM = "target/wasm32-unknown-unknown/release";
 const wasm = (n) => new Uint8Array(fs.readFileSync(`${WASM}/${n}.wasm`));
 
@@ -55,15 +64,32 @@ async function sub(prefix, nearAmount) {
   fs.writeFileSync(recordFile, JSON.stringify(created, null, 1)); // git-ignored, so a crashed run can be reclaimed
   return new Account(id, provider, new KeyPairSigner(kp));
 }
+// An account with large state can't be deleted. Testnet only: swap its code for the sweeper,
+// remove every key, swap in an empty module, then delete it.
+const EMPTY_WASM = new Uint8Array([0, 97, 115, 109, 1, 0, 0, 0]);
+async function sweepAndDelete(a) {
+  await a.deployContract(wasm("pricedin_sweeper"));
+  for (;;) {
+    const st = await rpc("query", { request_type: "view_state", finality: "final", account_id: a.accountId, prefix_base64: "" });
+    const keys = (st?.values || []).map((v) => v.key);
+    if (!keys.length) break;
+    for (let i = 0; i < keys.length; i += 200) await a.callFunction({ contractId: a.accountId, methodName: "clean", args: { keys: keys.slice(i, i + 200) }, gas: 300n * TGAS });
+  }
+  await a.deployContract(EMPTY_WASM);
+  await a.deleteAccount(funder.accountId);
+}
 async function cleanup() {
   const left = [];
   for (const c of [...created].reverse()) {
     const a = new Account(c.id, provider, new KeyPairSigner(KeyPair.fromString(c.sk)));
     try { await a.deleteAccount(funder.accountId); }
-    catch (e) {
+    catch (e0) {
+      try { if (!/large state/i.test(String(e0.message || e0))) throw e0; await sweepAndDelete(a); console.log(`cleanup: swept and deleted ${c.id}`); continue; }
+      catch (e) {
       left.push(c);
       console.log(`cleanup: could not delete ${c.id}: ${String(e.message || e).slice(0, 120)}`);
       try { const st = await a.getState(); const amt = BigInt(st.balance.available) - near(0.01); if (amt > 0n) await a.transfer({ receiverId: funder.accountId, amount: amt }); } catch { /* reported above */ }
+      }
     }
   }
   fs.writeFileSync(recordFile, JSON.stringify(left, null, 1));
@@ -193,7 +219,7 @@ async function main() {
   check("default resolution: 1 hour jury, 10 min < $50, 1 h < $500, 24 h at $5,000", r0.jury_deadline_secs === 3600 && r0.dispute_tiers[0][0] === "50000000" && r0.dispute_tiers[0][1] === 600 && r0.dispute_tiers[1][0] === "500000000" && r0.dispute_tiers[1][1] === 3600 && r0.dispute_tiers[2][0] === "5000000000" && r0.dispute_top_secs === 86400, JSON.stringify(r0.dispute_tiers));
   await refused("only the owner sets the dispute table", () => call(alice, M, "set_resolution", { jury_deadline_secs: 1, dispute_tiers: [], dispute_top_secs: 1, bounty_ttl_secs: 1 }), /owner only/);
   await refused("a table whose windows shrink as money grows is refused", () => call(council, M, "set_resolution", { jury_deadline_secs: 60, dispute_tiers: [["1000000", 50], ["2000000", 10]], dispute_top_secs: 60, bounty_ttl_secs: 60 }), /bad dispute table/);
-  const JURY = 300, LOW = 75, TOP = 120, TTL = 40;
+  const JURY = 300, LOW = 120, TOP = 180, TTL = 40;
   const setTimes = (jury) => call(council, M, "set_resolution", { jury_deadline_secs: jury, dispute_tiers: [["2000000", LOW]], dispute_top_secs: TOP, bounty_ttl_secs: TTL });
   await setTimes(JURY);
   await call(council, M, "set_limits", { reserve_cap_micro: "50000000", lane_budget_micro: "5000000", lane_credit_micro: "1000000", challenge_bond_micro: "1000000" });
@@ -292,15 +318,15 @@ async function main() {
   await verdict(ch0, 1, "FALSE");
   let cl = await view(M, "get_claim", { claim_id: c0 });
   check("two matching verdicts give a provisional outcome, not a settlement", cl.provisional === false && cl.status === "Challenged" && cl.outcome === null);
-  await verdict(ch0, 2, "TRUE");
-  check("a later verdict can't move the provisional outcome", (await view(M, "get_claim", { claim_id: c0 })).provisional === false);
-  await refused("finalize waits for the window", () => call(carol, M, "finalize", { challenge_id: ch0 }), /window is still open/);
-  await refused("the lane can't dispute", () => call(lane, M, "dispute", { challenge_id: ch0, evidence: "x" }), /lane keys can't dispute/);
   const firstEnd = BigInt(await view(M, "dispute_ends_ns", { challenge_id: ch0 }));
   const round = await call(bob, M, "dispute", { challenge_id: ch0, evidence: "The primary source says TRUE: https://example.org/filing" });
   cl = await view(M, "get_claim", { claim_id: c0 });
   const ends = BigInt(await view(M, "dispute_ends_ns", { challenge_id: ch0 }));
   check("a dispute posts twice the bond, flips the outcome and restarts the window", round === 1 && cl.provisional === true && ends > firstEnd && (await bal(B)) < bobAt - 1_900_000n, `window end +${Number(ends - firstEnd) / 1e9}s`);
+  await verdict(ch0, 2, "FALSE");
+  check("a later verdict can't move the outcome: only a bond can", (await view(M, "get_claim", { claim_id: c0 })).provisional === true);
+  await refused("finalize waits for the window", () => call(carol, M, "finalize", { challenge_id: ch0 }), /window is still open/);
+  await refused("the lane can't dispute", () => call(lane, M, "dispute", { challenge_id: ch0, evidence: "x" }), /lane keys can't dispute/);
   await waitPast(ends);
   await refused("after the window nobody can dispute", () => call(alice, M, "dispute", { challenge_id: ch0, evidence: "too late" }), /window has closed/);
   const bobPre = await bal(B);
