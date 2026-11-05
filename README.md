@@ -140,6 +140,11 @@ npm run mcp:test       # offline: the four tools, stdio and HTTP, against a loca
 | `web/` | The browser engine: LMSR port, no-wallet bet, rewrite verification. |
 | `corpus/` | The measured Wikipedia corpus. |
 | `tools/judge/` | This judge run. `deployments/` holds the testnet deployment. |
+| [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The system on one page, then each part: what runs where, who holds which key, what is on-chain. |
+| [`docs/SPEC.md`](docs/SPEC.md) | The market's rules exactly: LMSR, claims, trading, the lane, rulings, bounties, events and views. |
+| [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md) | Each attack, the defence in code, and the risk that is left. |
+| [`docs/API.md`](docs/API.md) | Every HTTP endpoint and MCP tool, with real responses from the testnet deployment. |
+| [`docs/TRUST.md`](docs/TRUST.md) | What you must trust today, and what is demo. |
 
 ## Libraries and AI-written code
 
