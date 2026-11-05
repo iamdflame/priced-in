@@ -1,0 +1,494 @@
+{
+ "note": "The persistent testnet deployment the judge checks (npm run judge). Public values only: no key is here. Built reproducibly by tools/judge/lib/repro.mjs and deployed by scripts/deploy.mjs testnet through tools/judge/deploy-testnet.mjs; seeded by tools/judge/seed.mjs.",
+ "network": "testnet",
+ "rpc": "https://test.rpc.fastnear.com",
+ "root": "pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+ "accounts": {
+  "market": "market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "swarm": "swarm.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "lane": "lane.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "usdc": "tusdc.pimw3dxfzp.basalt-lane-mw2skhdc.testnet"
+ },
+ "usdc": {
+  "account": "tusdc.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "kind": "test USDC (contracts/tusdc): 6 decimals, anyone can call faucet() for 10 tUSDC",
+  "mainnet_usdc": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
+ },
+ "code": {
+  "market": {
+   "code_hash": "CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2",
+   "sha256": "a8de8d70b87fe730d6e35bb2113e353363367ce9180e4f7de03b8c06f8f0e30b",
+   "source": "contracts/market",
+   "build": "node tools/judge/repro.mjs"
+  },
+  "swarm": {
+   "code_hash": "FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q",
+   "sha256": "dd4d63be455ba867dc6d8e099d73d98faa38be04a1f1ea524f6c1681780e24ba",
+   "source": "contracts/swarm (embeds contracts/swarm/res/agent.wasm)",
+   "build": "node tools/judge/repro.mjs"
+  },
+  "agent_wallet": {
+   "code_hash": "14AB93Dn5Ec2JTQr3fjR8ksWbEEkTaeE9sAy9Y4tbKri",
+   "source": "contracts/agent-wallet"
+  },
+  "tusdc": {
+   "code_hash": "DfwMgwwFtnV5iJLxT7EVJz4KVjGsxyj2DcscYVjSSHh3",
+   "source": "contracts/tusdc",
+   "build": "npm run build:contracts (not part of the reproducibility claim)"
+  },
+  "toolchain": "rustc 1.99.1, wasm32-unknown-unknown, RUSTFLAGS --cfg near -C target-cpu=mvp -C link-arg=-s plus path remaps"
+ },
+ "keys": {
+  "planner_public_hex": "8003b93781d016f7e432ab14b1e7b903d00fd03f091bff94f08a3ab8266473c0",
+  "planner": "TEST planner key, made for this deployment; its private half is not in git",
+  "writer_model": "z-ai/glm-5.3-flash",
+  "writer_public_hex": "49468af2afbf0e3465d00601db4bdc666d5187b78fed060c8222f008397e512c",
+  "writer": "TEST writer key of services/ai's offline NEAR AI stand-in; NOT a NEAR AI Cloud key"
+ },
+ "seed": {
+  "page": "tether",
+  "source": "corpus/pages/tether.json, https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995",
+  "opening": "every line opened at 50% with b = $3: no model planner ran on testnet, so no opening estimate is claimed",
+  "claims": [
+   {
+    "claim_id": 0,
+    "corpus_id": "tether-0002",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 653479
+   },
+   {
+    "claim_id": 1,
+    "corpus_id": "tether-0003",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 653479
+   },
+   {
+    "claim_id": 2,
+    "corpus_id": "tether-0005",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 3,
+    "corpus_id": "tether-0007",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 4,
+    "corpus_id": "tether-0022",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 653479
+   },
+   {
+    "claim_id": 5,
+    "corpus_id": "tether-0027",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 6,
+    "corpus_id": "tether-0030",
+    "corpus_verdict": "stale",
+    "price_yes_ppm": 189970
+   },
+   {
+    "claim_id": 7,
+    "corpus_id": "tether-0031",
+    "corpus_verdict": "stale",
+    "price_yes_ppm": 265124
+   },
+   {
+    "claim_id": 8,
+    "corpus_id": "tether-0041",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 9,
+    "corpus_id": "tether-0069",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 10,
+    "corpus_id": "tether-0091",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 11,
+    "corpus_id": "tether-0095",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 12,
+    "corpus_id": "tether-0104",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 13,
+    "corpus_id": "tether-0114",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 14,
+    "corpus_id": "tether-0115",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 15,
+    "corpus_id": "tether-0132",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 16,
+    "corpus_id": "tether-0134",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 17,
+    "corpus_id": "tether-0154",
+    "corpus_verdict": "current",
+    "price_yes_ppm": 516391
+   },
+   {
+    "claim_id": 18,
+    "corpus_id": "tether-0161",
+    "corpus_verdict": "stale",
+    "price_yes_ppm": 265124
+   },
+   {
+    "claim_id": 19,
+    "corpus_id": "tether-0163",
+    "corpus_verdict": "undecidable",
+    "price_yes_ppm": 516391
+   }
+  ],
+  "traders": [
+   "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "seed-b.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "seed-c.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "lane:ed25519:6237QdS6SP63oys9apSKnmMN9bkcF3MBNyV7dUHr16eT"
+  ],
+  "trades": [
+   {
+    "what": "NO on a line the corpus found stale (tether-0030)",
+    "tx": "3EH1spKUpmANXUezEmtKL4PkMeWhsw7MBnjgArAfBxG2",
+    "block": 276329018,
+    "link": "https://testnet.nearblocks.io/txns/3EH1spKUpmANXUezEmtKL4PkMeWhsw7MBnjgArAfBxG2"
+   },
+   {
+    "what": "NO on a line the corpus found stale (tether-0031)",
+    "tx": "DUjuB5EVndFLg9CTWvTcvpjmr1SCbn7iSzwcZE5bM917",
+    "block": 276329025,
+    "link": "https://testnet.nearblocks.io/txns/DUjuB5EVndFLg9CTWvTcvpjmr1SCbn7iSzwcZE5bM917"
+   },
+   {
+    "what": "NO on a line the corpus found stale (tether-0161)",
+    "tx": "ArSpw5Ca2V1VZPSL3kGZkD5HZA4zRFghbc8EuodjKEUe",
+    "block": 276329032,
+    "link": "https://testnet.nearblocks.io/txns/ArSpw5Ca2V1VZPSL3kGZkD5HZA4zRFghbc8EuodjKEUe"
+   },
+   {
+    "what": "YES on a line the corpus found current (tether-0002)",
+    "tx": "DEjJVYZ5TsHF3JQDx97PqSpuhspnKJ6i9sLqfdEVeibn",
+    "block": 276329039,
+    "link": "https://testnet.nearblocks.io/txns/DEjJVYZ5TsHF3JQDx97PqSpuhspnKJ6i9sLqfdEVeibn"
+   },
+   {
+    "what": "YES on a line the corpus found current (tether-0003)",
+    "tx": "Hc6UXKH1vrvJoe4D12mzQQ4REctVdpCQ4hnbvtuknN5f",
+    "block": 276329046,
+    "link": "https://testnet.nearblocks.io/txns/Hc6UXKH1vrvJoe4D12mzQQ4REctVdpCQ4hnbvtuknN5f"
+   },
+   {
+    "what": "YES on a line the corpus found current (tether-0022)",
+    "tx": "Hqs6in35YZDAnCNL5aZCz5makynMegvZaqkrxrkJYGfS",
+    "block": 276329108,
+    "link": "https://testnet.nearblocks.io/txns/Hqs6in35YZDAnCNL5aZCz5makynMegvZaqkrxrkJYGfS"
+   },
+   {
+    "what": "a no-wallet $1 lane bet, NO (tether-0030)",
+    "tx": "55GJAbUYwxgHXtDA4JRQpcTgUzUP3AsaUArNYiqLfuiK",
+    "block": 276329138,
+    "link": "https://testnet.nearblocks.io/txns/55GJAbUYwxgHXtDA4JRQpcTgUzUP3AsaUArNYiqLfuiK"
+   }
+  ],
+  "transactions": [
+   {
+    "tag": "set_limits",
+    "method": "set_limits",
+    "signer": "pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "6LDhiEiwfSiheYcD3MbmKreMYrgtXCJ8D9p8pE8G6iru",
+    "block": 276327832
+   },
+   {
+    "tag": "fund the treasury",
+    "method": "ft_transfer_call",
+    "signer": "pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "7TAwML7RJoBkK7PBRLH9AVjwRNBFvvXeYKRhbwHNYFYA",
+    "block": 276327934
+   },
+   {
+    "tag": "deposit",
+    "method": "ft_transfer_call",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "DRurPvbVrZcEtvUDiXwgyQP46FBWpjwCnrh9aJhiW8tH",
+    "block": 276327958
+   },
+   {
+    "tag": "deposit",
+    "method": "ft_transfer_call",
+    "signer": "seed-b.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "Csir5MH31F8oqvnmKZNGE4t8zPe5gg1nLK7X62AjN3R5",
+    "block": 276328363
+   },
+   {
+    "tag": "deposit",
+    "method": "ft_transfer_call",
+    "signer": "seed-c.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "7KtGYm3aavCNZmUfeegregRzCTShEnUfT9EKPrKKAEVM",
+    "block": 276328557
+   },
+   {
+    "tag": "open tether-0002",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "HQP2465EWzoFRY55nrzUd6apsXrBLix3GmxGDDkUrCGp",
+    "block": 276328567
+   },
+   {
+    "tag": "open tether-0003",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "BTrdeayFxTz5s6Byt8X2AZHH6MEDPL1kDfYM8ZXcDSLb",
+    "block": 276328574
+   },
+   {
+    "tag": "open tether-0005",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "GEKfW2oSjprzkJnvb6xej1JbHNVTGEwx2x7nM1nSX9qT",
+    "block": 276328581
+   },
+   {
+    "tag": "open tether-0007",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "EHCovBjT1PDPF3VdV7aXt98PV3aCy6oWWmSRN6ZcNisn",
+    "block": 276328588
+   },
+   {
+    "tag": "open tether-0022",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "G1q8uZjgZzGn9YahK2Ne7C4MrMKAuqxPvjZgdqZstQb5",
+    "block": 276328595
+   },
+   {
+    "tag": "open tether-0027",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "615gYygsnUbB8h9bhcDBgNf3ErrwQ4Z7XZR8fG8Q3AfP",
+    "block": 276328602
+   },
+   {
+    "tag": "open tether-0030",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "GgegKUdVbqbSnG1tnRYpAah6nQd9nUXJPcX4XtuXwMfV",
+    "block": 276328609
+   },
+   {
+    "tag": "open tether-0031",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "DS6qiohHfyMTUEni4BmDgxM3tASjhSvEqcbF5f3L1wg5",
+    "block": 276328721
+   },
+   {
+    "tag": "open tether-0041",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "3nwFRAJYWQpCtQWUwhgjdAtiMnhtxH9NVcvWRD6zzEAL",
+    "block": 276328728
+   },
+   {
+    "tag": "open tether-0069",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "EPa8519aXrVrQuEhxT4hH2aY1e89E8heYFMX3tHRPmh",
+    "block": 276328735
+   },
+   {
+    "tag": "open tether-0091",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "5c9wf6CjWF2nKSnkiDty6cCK1sa6ef7LPpiZtnse6pkb",
+    "block": 276328742
+   },
+   {
+    "tag": "open tether-0095",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "AUQrmgLDVzttkMMUMyrmyBeX5qkGFHDh53Z8NqB5Q1FY",
+    "block": 276328767
+   },
+   {
+    "tag": "open tether-0104",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "CzYQ3PoaEihA92rYYxFmSbzjD37WP73B6mJYddhBFdM",
+    "block": 276328774
+   },
+   {
+    "tag": "open tether-0114",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "BTJgjwHjErG2Es9XwH2nS69VDzjR3rbsPtAASkvwDMKZ",
+    "block": 276328781
+   },
+   {
+    "tag": "open tether-0115",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "8goKYeQ66uLGM6adxoUsxqyE9a1nG8mWeBJEvPvnQXV4",
+    "block": 276328788
+   },
+   {
+    "tag": "open tether-0132",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "BTP1p7LcKBGyqD6TBNuuijkkAWBpmEaQUoLWXmyJsTnB",
+    "block": 276328815
+   },
+   {
+    "tag": "open tether-0134",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "6evdwooLknHBiF9Rzsn8E6GK6DZRSQnm2wAy1uPhn6W",
+    "block": 276328840
+   },
+   {
+    "tag": "open tether-0154",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "6wBT5CNkKZA1XRjUPCF6SKM6AuR7FWdgoYt1V3ZtAR1w",
+    "block": 276328847
+   },
+   {
+    "tag": "open tether-0161",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "5pVafXRtNtyiXyaFujdC4tiMFcMUyBweDkhTGa6c9U3r",
+    "block": 276328854
+   },
+   {
+    "tag": "open tether-0163",
+    "method": "open_and_buy",
+    "signer": "seed-a.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "AdzXC7RNJVd6mN7VFM9rrjYCiz7vCbibAzbgCFKr3aBj",
+    "block": 276329011
+   },
+   {
+    "tag": "trade: NO on a line the corpus found stale (tether-0030)",
+    "method": "buy",
+    "signer": "seed-b.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "3EH1spKUpmANXUezEmtKL4PkMeWhsw7MBnjgArAfBxG2",
+    "block": 276329018
+   },
+   {
+    "tag": "trade: NO on a line the corpus found stale (tether-0031)",
+    "method": "buy",
+    "signer": "seed-b.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "DUjuB5EVndFLg9CTWvTcvpjmr1SCbn7iSzwcZE5bM917",
+    "block": 276329025
+   },
+   {
+    "tag": "trade: NO on a line the corpus found stale (tether-0161)",
+    "method": "buy",
+    "signer": "seed-b.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "ArSpw5Ca2V1VZPSL3kGZkD5HZA4zRFghbc8EuodjKEUe",
+    "block": 276329032
+   },
+   {
+    "tag": "trade: YES on a line the corpus found current (tether-0002)",
+    "method": "buy",
+    "signer": "seed-c.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "DEjJVYZ5TsHF3JQDx97PqSpuhspnKJ6i9sLqfdEVeibn",
+    "block": 276329039
+   },
+   {
+    "tag": "trade: YES on a line the corpus found current (tether-0003)",
+    "method": "buy",
+    "signer": "seed-c.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "Hc6UXKH1vrvJoe4D12mzQQ4REctVdpCQ4hnbvtuknN5f",
+    "block": 276329046
+   },
+   {
+    "tag": "trade: YES on a line the corpus found current (tether-0022)",
+    "method": "buy",
+    "signer": "seed-c.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "Hqs6in35YZDAnCNL5aZCz5makynMegvZaqkrxrkJYGfS",
+    "block": 276329108
+   },
+   {
+    "tag": "trade: a no-wallet $1 lane bet, NO (tether-0030)",
+    "method": "buy",
+    "signer": "lane.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "55GJAbUYwxgHXtDA4JRQpcTgUzUP3AsaUArNYiqLfuiK",
+    "block": 276329138
+   },
+   {
+    "tag": "register the TEST writer key",
+    "method": "register_model",
+    "signer": "pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "7Xe4xZaRzSqrZgAUFUEwtX7FA9aLXnV6BWp8gVw4oqZ2",
+    "block": 276329145
+   },
+   {
+    "tag": "anchor_rewrite",
+    "method": "anchor_rewrite",
+    "signer": "pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+    "tx": "BUYNo54M17r5eamtm6g1k2b8ihJRWvhnVFwefx816qse",
+    "block": 276329152
+   }
+  ]
+ },
+ "rewrite": {
+  "evidence": "tools/judge/evidence/rewrite.json",
+  "anchor_tx": "BUYNo54M17r5eamtm6g1k2b8ihJRWvhnVFwefx816qse"
+ },
+ "stats_at_record": {
+  "claims": 20,
+  "challenges": 0,
+  "treasury_micro": "37411160",
+  "reserved_micro": "41588840",
+  "lane_budget_micro": "19000000",
+  "lane_credit_micro": "1000000",
+  "paused": false,
+  "held_micro": "140000000",
+  "balances_micro": "49000000",
+  "collected_micro": "12000000",
+  "payouts_micro": "0",
+  "bonds_micro": "0",
+  "bounties_micro": "0",
+  "rewrites_anchored": 1
+ },
+ "recorded_at_block": 276329154,
+ "recorded_at": "2026-11-05T10:28:48.341Z",
+ "explorer": {
+  "market": "https://testnet.nearblocks.io/address/market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "swarm": "https://testnet.nearblocks.io/address/swarm.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "lane": "https://testnet.nearblocks.io/address/lane.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "usdc": "https://testnet.nearblocks.io/address/tusdc.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "root": "https://testnet.nearblocks.io/address/pimw3dxfzp.basalt-lane-mw2skhdc.testnet"
+ }
+}
