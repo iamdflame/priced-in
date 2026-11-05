@@ -104,6 +104,33 @@ export function parsePlannerReply(content, n) {
   return out;
 }
 
+/**
+ * Per-model settings that turn reasoning off. Reasoning counts against max_tokens, so without
+ * them a reasoning model spends the whole budget thinking and returns no labels (seen live on
+ * NEAR AI Cloud with z-ai/glm-5.3-flash: finish_reason "length", empty content).
+ */
+export const PLANNER_EXTRAS = {
+  "deepseek-ai/DeepSeek-V4.1-Flash-1017": { chat_template_kwargs: { thinking: false } },
+  "Qwen/Qwen3.8-27B": { chat_template_kwargs: { enable_thinking: false } },
+  "Qwen/Qwen3.6-35B-A3B-FP8": { chat_template_kwargs: { enable_thinking: false } },
+  "z-ai/glm-5.3-flash": { reasoning_effort: "low" },
+};
+
+/** The planner's request body for these sentences. */
+export function plannerRequest(model, sentences) {
+  return {
+    model,
+    temperature: 0,
+    max_tokens: 80 + 40 * sentences.length,
+    stream: false,
+    messages: [
+      { role: "system", content: SYSTEM_PROMPT },
+      { role: "user", content: JSON.stringify(sentences.map((s, i) => ({ i, sentence: s }))) },
+    ],
+    ...(PLANNER_EXTRAS[model] || {}),
+  };
+}
+
 /** Ask the model for labels. Throws on any failure; the caller degrades honestly. */
 export async function labelSentences({ apiKey, baseUrl, model, timeoutMs }, sentences, fetchImpl = globalThis.fetch) {
   const ac = new AbortController();
@@ -112,16 +139,7 @@ export async function labelSentences({ apiKey, baseUrl, model, timeoutMs }, sent
     const res = await fetchImpl(`${baseUrl}/chat/completions`, {
       method: "POST",
       headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}` },
-      body: JSON.stringify({
-        model,
-        temperature: 0,
-        max_tokens: 80 + 40 * sentences.length,
-        stream: false,
-        messages: [
-          { role: "system", content: SYSTEM_PROMPT },
-          { role: "user", content: JSON.stringify(sentences.map((s, i) => ({ i, sentence: s }))) },
-        ],
-      }),
+      body: JSON.stringify(plannerRequest(model, sentences)),
       signal: ac.signal,
     });
     if (!res.ok) throw new Error(`NEAR AI Cloud answered HTTP ${res.status}`);

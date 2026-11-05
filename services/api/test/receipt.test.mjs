@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import nacl from "tweetnacl";
 import { createHash } from "node:crypto";
 import { KeyPair } from "near-api-js";
-import { parseSigningKey, receiptMessage, signReceipt, toP0Ppm, parsePlannerReply, pasteSlug, validPage } from "../src/planner.mjs";
+import { parseSigningKey, receiptMessage, signReceipt, toP0Ppm, parsePlannerReply, pasteSlug, validPage, plannerRequest, PLANNER_EXTRAS } from "../src/planner.mjs";
 
 // The contract's format, rebuilt independently from contracts/market/src/lib.rs (open_and_buy):
 // format!("open:{}:{}:{}:{}:{}", page, hex(&env::sha256(text.as_bytes())), kind, p0_ppm, b_micro.0)
@@ -82,4 +82,15 @@ test("page slugs: stable for the same sentences and safe for the receipt's ':' s
   assert.ok(validPage(pasteSlug(["A."])));
   assert.equal(validPage("near-intents"), true);
   for (const bad of ["Near", "a:b", "-x", "x-", "", "a".repeat(65), "a b"]) assert.equal(validPage(bad), false, bad);
+});
+
+test("planner requests turn reasoning off per model and keep the fixed fields", () => {
+  const glm = plannerRequest("z-ai/glm-5.3-flash", ["a", "b"]);
+  assert.equal(glm.reasoning_effort, "low");
+  assert.equal(glm.max_tokens, 160);
+  assert.equal(glm.stream, false);
+  assert.equal(glm.temperature, 0);
+  assert.deepEqual(plannerRequest("deepseek-ai/DeepSeek-V4.1-Flash-1017", ["a"]).chat_template_kwargs, { thinking: false });
+  assert.equal(plannerRequest("some/other-model", ["a"]).chat_template_kwargs, undefined);
+  for (const x of Object.values(PLANNER_EXTRAS)) for (const k of ["model", "messages", "max_tokens", "stream", "temperature"]) assert.ok(!(k in x));
 });
