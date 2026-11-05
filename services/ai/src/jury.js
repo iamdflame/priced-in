@@ -5,8 +5,9 @@
 //   3. fetch the provider_tee signature and verify it locally against the attested key;
 //   4. call submit_verdict from a runner account. The contract rebuilds the request, checks both
 //      hashes and verifies the signature itself against the model's registered key.
-// Two of three matching TRUE/FALSE verdicts give a provisional outcome. Anyone can run this:
-// the runner can drop a verdict but cannot forge one. A person still settles.
+// Two of three matching TRUE/FALSE verdicts give a provisional outcome and open the dispute
+// window. Anyone can run this: the runner can drop a verdict but cannot forge one. Bonded
+// people have the last word: the outcome stands only if nobody disputes it in the window.
 //
 // CLI: node services/ai/src/jury.js <challenge_id>
 //      node services/ai/src/jury.js --attest     (needs no NEAR AI key)
@@ -16,11 +17,19 @@ import { judgeSignature } from "./nearai.js";
 
 export const DEFAULT_JURY_MODELS = ["deepseek-ai/DeepSeek-V4.1-Flash-1017", "Qwen/Qwen3.8-27B", "z-ai/glm-5.3-flash"];
 
-/** The same order of checks as the contract's submit_verdict. */
+/**
+ * The contract's reading of a completion (crates/rules): the first non-empty line of
+ * choices[0].message.content, exactly. reasoning_content never counts. The contract also
+ * refuses a body that is not a completion or that names another model; here those read as
+ * UNPARSEABLE and the refusal comes back from submit_verdict.
+ */
 export function parseVerdict(bytes) {
-  const s = Buffer.from(bytes).toString("utf8");
-  for (const v of ["TRUE", "FALSE", "INSUFFICIENT"]) if (s.includes(`VERDICT: ${v}`)) return v;
-  return "UNPARSEABLE";
+  let content;
+  try { content = JSON.parse(Buffer.from(bytes).toString("utf8"))?.choices?.[0]?.message?.content; } catch { return "UNPARSEABLE"; }
+  if (typeof content !== "string") return "UNPARSEABLE";
+  const line = content.split("\n").map((l) => l.trim()).find((l) => l) ?? "";
+  const m = /^VERDICT: (TRUE|FALSE|INSUFFICIENT)$/.exec(line);
+  return m ? m[1] : "UNPARSEABLE";
 }
 
 export class JuryRunner {
@@ -112,8 +121,8 @@ export class JuryRunner {
         provisional: claim?.provisional ?? null,
         status: claim?.provisional === true || claim?.provisional === false ? "provisional" : "no_quorum",
         message: claim?.provisional === null || claim?.provisional === undefined
-          ? `No ${this.quorum}-of-${this.models.length} agreement. The claim stays challenged and keeps trading; the contract has no challenge expiry yet, so a person must settle it (and the bond).`
-          : `Provisional outcome ${claim.provisional ? "TRUE" : "FALSE"}. A person still settles it.`,
+          ? `No ${this.quorum}-of-${this.models.length} agreement. The claim stays challenged and keeps trading. After the jury deadline anyone can call expire_challenge: the bond is refunded and the claim reopens.`
+          : `Provisional outcome ${claim.provisional ? "TRUE" : "FALSE"}. Anyone can dispute it with a bond until the window closes, then finalize settles it.`,
       };
       this.runs.set(challengeId, result);
       this.hub?.publish({ uid: `jury:${challengeId}:${t0}`, event: "jury_run", source: "ai", data: { ...result, jurors: jurors.map(({ signature, ...j }) => j) } });

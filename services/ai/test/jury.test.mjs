@@ -101,7 +101,7 @@ test("tampered answers, unattested models and split verdicts never give a provis
     assert.equal(r.jurors[1].status, "unverified");
     assert.match(r.jurors[1].error, /attestation did not verify/);
     assert.deepEqual(market.c.submitted, [MOCK_MODELS[2]], "only the verified juror reaches the contract");
-    assert.match(r.message, /a person must settle/);
+    assert.match(r.message, /expire_challenge/);
   } finally { await mock.close(); }
 });
 
@@ -147,9 +147,14 @@ test("already ruled models are skipped, unlisted models too, and a challenge eve
   } finally { jury.stop(); await mock.close(); }
 });
 
-test("verdict parsing matches the contract's order", () => {
-  assert.equal(parseVerdict(Buffer.from('{"content":"VERDICT: TRUE\\nx"}')), "TRUE");
-  assert.equal(parseVerdict(Buffer.from("VERDICT: FALSE")), "FALSE");
-  assert.equal(parseVerdict(Buffer.from("VERDICT: INSUFFICIENT")), "INSUFFICIENT");
-  assert.equal(parseVerdict(Buffer.from("no idea")), "UNPARSEABLE");
+test("verdict parsing matches the contract: the first non-empty line of the answer, exactly", () => {
+  const body = (message) => Buffer.from(JSON.stringify({ model: "m", choices: [{ message }] }));
+  assert.equal(parseVerdict(body({ content: "VERDICT: TRUE\nx" })), "TRUE");
+  assert.equal(parseVerdict(body({ content: "\n  VERDICT: FALSE \r\nx" })), "FALSE");
+  assert.equal(parseVerdict(body({ content: "VERDICT: INSUFFICIENT" })), "INSUFFICIENT");
+  assert.equal(parseVerdict(body({ content: "I think\nVERDICT: TRUE" })), "UNPARSEABLE");
+  assert.equal(parseVerdict(body({ content: "**VERDICT: TRUE**" })), "UNPARSEABLE");
+  assert.equal(parseVerdict(body({ content: null, reasoning_content: "VERDICT: TRUE" })), "UNPARSEABLE", "thinking never counts");
+  assert.equal(parseVerdict(body({ content: "VERDICT: FALSE", reasoning_content: "VERDICT: TRUE" })), "FALSE");
+  assert.equal(parseVerdict(Buffer.from("VERDICT: TRUE")), "UNPARSEABLE", "bytes outside a completion never count");
 });

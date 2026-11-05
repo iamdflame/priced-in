@@ -24,7 +24,7 @@ import { FunctionCallSender } from "./txsender.js";
 
 export const HARD_MAX_BET_MICRO = 2_000_000n; // $2: the policy cap, enforced again here
 export const DECISION_FIELDS = ["agent", "claim_id", "side", "amount_micro", "min_shares_micro"];
-const ALLOWED_METHODS = new Set(["buy", "sell"]);
+const ALLOWED_METHODS = new Set(["buy", "sell", "redeem"]);
 const SELF = fileURLToPath(import.meta.url);
 
 /** Strict check of a decision object; returns the cleaned decision or throws. */
@@ -44,7 +44,7 @@ export function validateDecision(d, { maxBetMicro = HARD_MAX_BET_MICRO } = {}) {
   return { agent: d.agent, claim_id: d.claim_id, side: d.side, amount_micro: d.amount_micro, min_shares_micro: d.min_shares_micro };
 }
 
-/** Is this access key a function-call key on the market limited to buy/sell? */
+/** Is this access key a function-call key on the market limited to buy, sell and redeem? */
 export function checkPermission(ak, marketId) {
   const p = ak?.permission;
   if (p === "FullAccess" || p?.FullAccess !== undefined) return "a full-access key: refused (agents get function-call keys only)";
@@ -52,9 +52,9 @@ export function checkPermission(ak, marketId) {
   if (!fc) return "not a function-call key";
   if (fc.receiver_id !== marketId) return `the key is for ${fc.receiver_id}, not the market ${marketId}`;
   const methods = fc.method_names || [];
-  if (!methods.length) return "the key allows every method of the market: refused (buy and sell only)";
+  if (!methods.length) return "the key allows every method of the market: refused (buy, sell and redeem only)";
   const bad = methods.filter((m) => !ALLOWED_METHODS.has(m));
-  if (bad.length) return `the key allows ${bad.join(", ")}: refused (buy and sell only)`;
+  if (bad.length) return `the key allows ${bad.join(", ")}: refused (buy, sell and redeem only)`;
   return null;
 }
 

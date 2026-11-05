@@ -56,7 +56,7 @@ export function loadConfig(env = process.env) {
     lane: {
       accountId: (env.LANE_ACCOUNT_ID || "").trim() || null,
       privateKey: (env.LANE_PRIVATE_KEY || "").trim() || null,
-      methods: ["buy", "sell", "open_and_buy", "redeem"],
+      methods: ["buy", "sell", "open_and_buy", "redeem", "claim_lane"],
       allowanceYocto: laneAllowanceYocto,
       perIpPerDay: num("LANE_KEYS_PER_IP_PER_DAY", 3),
       perDay: num("LANE_KEYS_PER_DAY", 1000),

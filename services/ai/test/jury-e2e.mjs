@@ -118,7 +118,7 @@ try {
   for (const m of MOCK_MODELS) {
     const pre = await layer.attestor.preflight(m);
     if (!pre.ok) throw new Error(`${m}: ${pre.failures.join("; ")}`);
-    await call(market.account, M, "register_model_key", { model: m, signing_address_hex: pre.verifiedSigners[0].signing_address });
+    await call(market.account, M, "register_model", { model: m, signing_address_hex: pre.verifiedSigners[0].signing_address, extras_json: "" });
   }
   check("three model keys registered from verified attestation reports", true, MOCK_MODELS.map((m) => mock.signerHex(m).slice(0, 10)).join(", "));
   mock.behave(MOCK_MODELS[2], { signatureDelayMs: 0 });

@@ -127,6 +127,7 @@ test("signer checks: strict decisions and function-call keys only", () => {
   assert.throws(() => validateDecision(ok, { maxBetMicro: 100n }), /per-bet cap/);
   const fc = (receiver_id, method_names) => ({ permission: { FunctionCall: { receiver_id, method_names, allowance: "1" } } });
   assert.equal(checkPermission(fc("m.testnet", ["buy", "sell"]), "m.testnet"), null);
+  assert.equal(checkPermission(fc("m.testnet", ["buy", "sell", "redeem"]), "m.testnet"), null, "a swarm agent's key");
   assert.match(checkPermission({ permission: "FullAccess" }, "m.testnet"), /full-access/);
   assert.match(checkPermission(fc("other.testnet", ["buy"]), "m.testnet"), /not the market/);
   assert.match(checkPermission(fc("m.testnet", []), "m.testnet"), /every method/);
