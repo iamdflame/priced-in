@@ -69,6 +69,7 @@ abstract class SentenceView implements View {
     if (key) {
       this.hero = new Hero(this.ctx, { short: this.short, label: () => this.label(this.ctx.store.state) });
       this.hero.mount(this.el);
+      if ((window as any).__pricedin) (window as any).__pricedin.hero = this.hero;
       void this.hero.show(key, history);
     }
     if (this.ctx.card) return;

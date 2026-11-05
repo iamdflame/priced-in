@@ -170,18 +170,20 @@ export class Hero {
       const bowl = { cx: pad + r, cy: rowTop + rowH - r, r, u };
       return { W, H, phone, pad, groundTop: Math.max(ground, rowTop + rowH + 18 + 52 + 12 + 50 + 64), fit, box: { x: pad, y: top, w: W - pad * 2 }, beside: false, bowl, readout: { x: pad, y: rowTop, w: W - pad * 2 } };
     }
-    const groundTop = Math.round(H * (card ? 0.86 : 0.78));
+    const groundTop = Math.round(H * (card ? 0.86 : 0.8));
     // keep the sentence clear of the foreground dishes that rise at the edges; the readout's words sit lower, in the clear middle
-    const clear = card ? Math.round(H * 0.6) : groundTop - Math.max(118, H * 0.15, W * 0.15);
+    const clear = card ? Math.round(H * 0.64) : groundTop - Math.max(118, H * 0.15, W * 0.17);
+    // the card's foreground dishes stand at its edges: the sentence keeps to the middle
+    const bx = card ? 210 : pad, bw = card ? W - 420 : W - pad * 2;
     const hFull = clear - top;
-    const readW = card ? 260 : 470;
+    const readW = card ? 180 : 470;
     const max = card ? 112 : Math.min(150, Math.round(W / 9.6));
     const reserve = (size: number) => size * 0.17 * 2 + size * 0.32 + 40 + readW;
-    const a = fitFat(shown, { w: W - pad * 2, h: hFull }, { max, min: 48, leading: LEAD, reserve });
-    const b = card ? a : fitFat(shown, { w: W - pad * 2, h: hFull - 200 }, { max, min: 40, leading: LEAD });
+    const a = fitFat(shown, { w: bw, h: hFull }, { max, min: card ? 30 : 48, leading: LEAD, reserve });
+    const b = card ? a : fitFat(shown, { w: bw, h: hFull - 200 }, { max, min: 40, leading: LEAD });
     const beside = card || (a.room && a.size >= b.size * 0.86);
     const fit = beside ? a : b;
-    return { W, H, phone, pad, groundTop, fit, box: { x: pad, y: top, w: W - pad * 2 }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
+    return { W, H, phone, pad, groundTop, fit, box: { x: bx, y: top, w: bw }, beside, bowl: { cx: 0, cy: 0, r: 0, u: 0 }, readout: { x: 0, y: 0, w: readW } };
   }
 
   private render(text: string) {
