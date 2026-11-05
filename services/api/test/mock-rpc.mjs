@@ -16,6 +16,7 @@ export async function startMockRpc({ chainId = "testnet", blockMs = 200, startHe
     keys: new Map(), // `${account}|${pk}` -> access key view
     stats: { claims: 0, treasury_micro: "10000000", reserved_micro: "0", lane_budget_micro: "10000000", lane_credit_micro: "1000000", paused: false },
     claims: [],
+    views: new Map(), // extra view methods: name -> (args, accountId) => value
     calls: [],
     down: false,
   };
@@ -55,6 +56,7 @@ export async function startMockRpc({ chainId = "testnet", blockMs = 200, startHe
           if (params.method_name === "stats") v = { ...st.stats, claims: st.claims.length };
           else if (params.method_name === "get_claims") v = st.claims.slice(args.from, args.from + args.limit);
           else if (params.method_name === "get_claim") v = st.claims[args.claim_id] ?? null;
+          else if (st.views.has(params.method_name)) v = st.views.get(params.method_name)(args, params.account_id);
           else return err("HANDLER_ERROR", "CONTRACT_EXECUTION_ERROR", { vm_error: "MethodNotFound" });
           return { result: { result: [...Buffer.from(JSON.stringify(v))], logs: [], block_height: st.height, block_hash: b58(`block${st.height}`) } };
         }
@@ -86,7 +88,17 @@ export async function startMockRpc({ chainId = "testnet", blockMs = 200, startHe
           added.push([`${signer}|${pk}`, { nonce: String(st.height * 1_000_000), permission: { FunctionCall: { allowance: fc.allowance.toString(), receiver_id: fc.receiverId, method_names: fc.methodNames } } }]);
         });
         if (!failure) for (const [k, v] of added) st.keys.set(k, v);
-        const outcome = { status: failure ? { Failure: failure } : { SuccessValue: "" }, transaction: { hash: txHash, signer_id: signer }, transaction_outcome: { id: txHash }, receipts_outcome: [], final_execution_status: "EXECUTED_OPTIMISTIC" };
+        // optional contract behaviour for function calls: st.onCall({ method, args, signer, receiver }) -> { value } | { failure: "panic message" }
+        let success = "";
+        const fcall = t.actions.find((a) => a.functionCall)?.functionCall;
+        if (!failure && fcall && st.onCall) {
+          let args = {};
+          try { args = JSON.parse(Buffer.from(fcall.args).toString("utf8") || "{}"); } catch { /* raw args */ }
+          const r = st.onCall({ method: fcall.methodName, args, signer, receiver: t.receiverId, publicKey: t.publicKey.toString() }) || {};
+          if (r.failure) failure = { ActionError: { index: 0, kind: { FunctionCallError: { ExecutionError: `Smart contract panicked: ${r.failure}` } } } };
+          else if (r.value !== undefined) success = Buffer.from(JSON.stringify(r.value)).toString("base64");
+        }
+        const outcome = { status: failure ? { Failure: failure } : { SuccessValue: success }, transaction: { hash: txHash, signer_id: signer }, transaction_outcome: { id: txHash }, receipts_outcome: [], final_execution_status: "EXECUTED_OPTIMISTIC" };
         st.outcomes.set(txHash, outcome);
         return { result: method === "send_tx" ? outcome : txHash };
       }

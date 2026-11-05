@@ -85,6 +85,18 @@ test("the hub keeps the last N events, drops duplicates and fans out", () => {
   assert.equal(got.length, 250);
 });
 
+test("AI events keep their own ring: a burst of rewrites never pushes market events out of the replay", () => {
+  const hub = new EventHub({ size: 5, aiSize: 3 });
+  for (let i = 0; i < 4; i++) hub.publish({ uid: `t${i}`, event: "trade" });
+  for (let i = 0; i < 50; i++) hub.publish({ uid: `r${i}`, event: "rewrite", source: "ai" });
+  hub.publish({ uid: "t4", event: "trade" });
+  assert.equal(hub.buf.length, 5, "every market event survives");
+  assert.equal(hub.aiBuf.length, 3);
+  const all = hub.since(0);
+  assert.deepEqual(all.map((e) => e.seq), [1, 2, 3, 4, 52, 53, 54, 55], "one sequence, in order, across both rings");
+  assert.deepEqual(hub.since(53).map((e) => e.event), ["rewrite", "trade"]);
+});
+
 test("the scanner reads new blocks' chunks and publishes the market's events, skipping missing heights", async (t) => {
   const mock = await startMockRpc({ blockMs: 100, skipHeights: [1001, 1002] });
   t.after(() => mock.close());

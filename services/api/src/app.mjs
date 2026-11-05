@@ -362,6 +362,7 @@ export function createApp(config, deps = {}) {
     const extra = extraRoutes.get(`${req.method} ${path}`) || [...extraRoutes.entries()].find(([k]) => k.endsWith("/*") && `${req.method} ${path}`.startsWith(k.slice(0, -1)))?.[1];
     if (extra) {
       const r = await extra({ req, url, path, ip, readJson: (limit = 64 * 1024) => readJson(req, limit) });
+      if (typeof r?.raw === "string") { res.writeHead(r.status || 200, { "content-type": "application/json; charset=utf-8", "cache-control": "no-store", ...(r.headers || {}) }); return res.end(r.raw); } // exact bytes, e.g. a hashed record
       return send(res, r?.status || 200, r?.body ?? r, r?.headers || {});
     }
     if (path === "/health" && req.method === "GET") {

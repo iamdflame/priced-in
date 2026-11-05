@@ -74,12 +74,19 @@ export function txReachesMarket(tx, marketId, usdcId = null) {
   return actionsReach(tx.receiver_id, tx.actions, marketId, usdcId);
 }
 
-/** Ring buffer, de-duplication and fan-out to subscribers. */
+/**
+ * Ring buffers, de-duplication and fan-out to subscribers. Market events (from the chain) and
+ * the AI layer's events (source "ai": rewrites, rationales, jury runs) keep separate rings, so a
+ * burst of rewrites never pushes market events out of a reconnecting client's replay. Sequence
+ * numbers are shared, so Last-Event-ID still works across both.
+ */
 export class EventHub {
-  constructor({ size = 200, now = Date.now } = {}) {
+  constructor({ size = 200, aiSize = 600, now = Date.now } = {}) {
     this.size = size;
+    this.aiSize = aiSize;
     this.now = now;
     this.buf = [];
+    this.aiBuf = [];
     this.seq = 0;
     this.seen = new Set();
     this.seenOrder = [];
@@ -92,11 +99,12 @@ export class EventHub {
       if (this.seen.has(evt.uid)) return null;
       this.seen.add(evt.uid);
       this.seenOrder.push(evt.uid);
-      if (this.seenOrder.length > this.size * 10) this.seen.delete(this.seenOrder.shift());
+      if (this.seenOrder.length > (this.size + this.aiSize) * 10) this.seen.delete(this.seenOrder.shift());
     }
     const rec = { seq: ++this.seq, ...evt };
-    this.buf.push(rec);
-    if (this.buf.length > this.size) this.buf.shift();
+    const ring = evt.source === "ai" ? this.aiBuf : this.buf;
+    ring.push(rec);
+    if (ring.length > (ring === this.aiBuf ? this.aiSize : this.size)) ring.shift();
     this.lastEventAt = this.now();
     for (const fn of this.subs) {
       try { fn(rec); } catch { /* a broken subscriber never stops the others */ }
@@ -104,8 +112,14 @@ export class EventHub {
     return rec;
   }
 
+  /** Everything after seq, from both rings, in sequence order. */
   since(seq = 0) {
-    return this.buf.filter((e) => e.seq > seq);
+    const a = this.buf.filter((e) => e.seq > seq), b = this.aiBuf.filter((e) => e.seq > seq);
+    if (!b.length) return a;
+    const out = [];
+    let i = 0, j = 0;
+    while (i < a.length || j < b.length) out.push(j >= b.length || (i < a.length && a[i].seq < b[j].seq) ? a[i++] : b[j++]);
+    return out;
   }
 
   subscribe(fn) {
