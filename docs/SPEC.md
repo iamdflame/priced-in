@@ -41,9 +41,10 @@ s = b * ln(1 + (e^(m/b) - 1) / p)
 ```
 
 Then:
-1. `s` is capped by the room left before the price cap: `(D_CAP - d) * b` for YES, `(D_CAP + d) * b` for NO. If the room is 4 units or less, the quote is zero shares.
-2. 4 units are shaved off for rounding.
-3. The charge is `C(after) - C(before) + 1`. While it exceeds the spend, the shares step back by `(charge - spend) / p_after + 1`.
+1. The room left before the price cap is `(D_CAP - d) * b` for YES, `(D_CAP + d) * b` for NO. If it is 4 units or less, the quote is zero shares.
+2. **The cap comes first.** `to_cap = C(with room shares) - C(before) + 1` is what every share up to the cap costs. If the spend is at least `to_cap`, `s` is the room and the closed form is not evaluated. Otherwise `s` is the closed form, clamped to [0, room]. So the closed form only sees a spend below `to_cap`, which is at most `b ln(9999)` plus rounding (about 9.3 b), and `e^(m/b)` stays far inside i128.
+3. 4 units are shaved off for rounding.
+4. The charge is `C(after) - C(before) + 1`. While it exceeds the spend, the shares step back by `(charge - spend) / p_after + 1`.
 
 It returns `(shares, charged)` with `charged <= spend`.
 
@@ -55,7 +56,7 @@ Proceeds for `s` shares are `C(before) - C(after) - 1`, never below zero. You ca
 
 - **Opening clamp:** `Market::open` clamps `p0` to [0.2, 0.8] (`P_MIN`, `P_MAX`) before computing `d0`. The contract does not refuse a `p0_ppm` outside that range: it opens at the clamped price. The planner never signs one outside it (`services/api/src/planner.mjs`, `P_MIN`/`P_MAX`; test "opening probabilities clamp to 0.2..0.8 and round to 0.1 point").
 - **Price cap:** `|d| <= D_CAP = ln(9999)` (9,210,240,366,976 at SCALE), so prices stay in [0.0001, 0.9999]. A buy that reaches the cap buys up to it and is charged only for what it bought. At the cap, `buy` panics with "the price is at its cap".
-- **Known overflow:** a spend above about 33 times `b` overflows i128 inside `quote_buy` (`div(expm1(spend / b), p)`). The release build has `overflow-checks = true` (`Cargo.toml`), so the call panics instead of buying up to the cap. The $1 lane bet is safe for `b >= $0.10`. Found by the web stream (`.apex/streams/webcore-result.md`, finding 1). Not fixed.
+- **Large buys (fixed):** a spend above about 33 times `b` used to overflow i128 inside `quote_buy` (`div(expm1(spend / b), p)`), and with `overflow-checks = true` the call panicked. Since the cap check comes first (step 2 above), any spend, up to `i128::MAX` at SCALE, buys at most up to the cap and is charged only for those shares; the rest of the order stays in the trader's balance. Example: $5 on `b = $0.10` at 50% buys to 99.99% and is charged $0.851720 (`b ln(0.5 / 0.0001)`). Tests: crates/lmsr `a_spend_far_above_the_liquidity_buys_to_the_cap_and_keeps_the_rest` and `property_extreme_spends_and_liquidity_never_overflow` (20,000 markets, `b` from $0.01 to $10^9, spends from 1e-9 b to 1e12 b and `i128::MAX`, release build with overflow checks); web/test/lmsr.test.ts on regenerated vectors with orders up to $10^9; lifecycle "a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing".
 
 ## Claims
 
@@ -113,9 +114,9 @@ After `Settled`. The trader's winning shares pay 1 micro-USDC per micro-share, o
 
 ## Money in and out
 
-- **`ft_on_transfer(sender_id, amount, msg)`**: only from the configured USDC token. `msg` containing `"treasury":true` funds the treasury. `{"for":"<account>"}` credits that account. Anything else credits the sender. The lane account can't be credited.
+- **`ft_on_transfer(sender_id, amount, msg)`**: only from the configured USDC token, and not paused: during a pause it panics, so the token returns the deposit (check "a deposit during a pause is refused and returned by the token"). `msg` containing `"treasury":true` funds the treasury. `{"for":"<account>"}` credits that account. Anything else credits the sender. The lane account can't be credited.
 - **`withdraw(amount_micro)`**: your own balance, as USDC. Refused for the lane account. If the transfer fails, `on_withdraw` credits the balance back (check "a failed withdraw is refunded to the ledger").
-- **`withdraw_treasury(amount_micro)`**: owner only, from `treasury_micro` only. `on_treasury_withdraw` restores it on failure.
+- **`withdraw_treasury(amount_micro)`**: owner only, not paused, from `treasury_micro` only. `on_treasury_withdraw` restores it on failure. Check "a pause holds the owner's treasury withdrawal too".
 - **`release_agent(agent, to, amount_micro)`**: callable only by the swarm, for a swarm sub-account, never to the lane. `None` moves everything.
 
 ## The lane (no-wallet bets)
@@ -188,7 +189,7 @@ Permissionless. The claim must be `Challenged` on this challenge with a provisio
 
 ### Escalation: `council_settle(challenge_id, outcome)`
 
-Owner only (the council). The claim must be `Escalated`. `Some(o)` settles on `o`. `None` voids: every bond goes back to its poster, and the claim returns to `Open` with no provisional and no challenge (`void` event). Checks: "only the council rules", "the council settles the claim", "a council void returns every bond and reopens the claim". An escalated claim keeps trading.
+Owner only (the council), not paused. The claim must be `Escalated`. `Some(o)` settles on `o`. `None` voids: every bond goes back to its poster, and the claim returns to `Open` with no provisional and no challenge (`void` event). Checks: "only the council rules", "the council settles the claim", "a council void returns every bond and reopens the claim", "a pause holds the council's settlement too". An escalated claim keeps trading.
 
 ### Bonds (`rules::split_bonds`)
 
@@ -215,7 +216,18 @@ Operators only. The claim must exist, the three hashes must be 64 lowercase hex 
 
 ## Inference charges: `charge_inference(agent, amount_micro, usage_hash)`
 
-Operators only, not paused. `agent` must be a swarm agent (a direct one-label sub-account of the swarm, `is_swarm_agent`) or an owner-listed house agent (`set_house_agent`). `usage_hash` is 64 lowercase hex. It moves `amount_micro` from the agent's balance to the treasury. Checks: "an operator can't charge an ordinary trader", "charge_inference moves the agent's balance to the treasury, on-chain".
+Operators only, not paused. `agent` must be a swarm agent (a direct one-label sub-account of the swarm, `is_swarm_agent`: its owner consented by spawning it), or a house agent that the owner proposed **and that accepted** (below). `usage_hash` is 64 lowercase hex. It moves `amount_micro` from the agent's balance to the treasury. Checks: "an operator can't charge an ordinary trader", "charge_inference moves the agent's balance to the treasury, on-chain".
+
+### House agents opt in
+
+An account that is not a swarm agent becomes chargeable only with its own consent:
+
+1. **`set_house_agent(account, true)`** (owner) records a proposal in `house_agents`. A proposal alone makes nothing chargeable. The lane account can't be proposed.
+2. **`accept_house_agent()`**, signed by the account itself, after a proposal, writes its consent (storage key `b"A" + account id`, outside the state struct, so the state layout stayed as v2 deployed it).
+3. **`leave_house_agent()`**, signed by the account, at any time, also during a pause, removes both the proposal and the consent. Its balance and positions are untouched.
+4. **`set_house_agent(account, false)`** (owner) removes the proposal and any consent. A new proposal needs a new acceptance.
+
+Chargeable means proposed and accepted. View `get_house_agent(account)` returns `proposed`, `accepted` and `chargeable` (true for swarm agents). Each step emits `house_agent`. Checks: "the owner's proposal alone doesn't make an account chargeable", "a proposed house agent can't be charged before it accepts", "the account accepts with its own key and becomes chargeable", "a house agent leaves at any time, its balance intact", "a fresh proposal needs fresh consent", "the owner withdrawing a proposal also ends the consent", "a house agent can leave during a pause, balance intact". A listing made under v2 becomes a proposal after the upgrade: not chargeable until the account accepts (tools/judge/upgrade-rehearsal.mjs).
 
 The swarm's NEAR-side meter is `sweep_escrow` (below). The operator must use one meter per agent.
 
@@ -227,11 +239,12 @@ The swarm's NEAR-side meter is `sweep_escrow` (below). The operator must use one
 | `propose_owner(account)`, `accept_owner()` | owner, then the proposed account | Two-step handover. `accept_owner` emits `owner`. |
 | `set_operator(account, allowed)` | owner | |
 | `set_swarm(swarm)` | owner | Its direct sub-accounts are agents. |
-| `set_house_agent(account, allowed)` | owner | Makes an account chargeable by `charge_inference`. |
+| `set_house_agent(account, allowed)` | owner | Proposes an account as a house agent, or withdraws the proposal and its consent. Chargeable only after `accept_house_agent` (see Inference charges). |
+| `accept_house_agent()`, `leave_house_agent()` | the account itself | Consent to inference charges after a proposal; leave at any time, balance intact. |
 | `set_planner_key(key_hex)` | owner | 32-byte ed25519 key |
 | `set_limits(reserve_cap_micro, lane_budget_micro, lane_credit_micro, challenge_bond_micro)` | owner | The bond must be positive. |
 | `set_resolution(jury_deadline_secs, dispute_tiers, dispute_top_secs, bounty_ttl_secs)` | owner | `tiers_ok`; times positive. Running windows keep their stored end. |
-| `pause(paused)` | owner | Stops `buy`, `sell`, `open_*`, `reopen`, `withdraw`, `claim_lane`, `release_agent`, `charge_inference`, `fund_question`, `refund_bounty`, `challenge`, `submit_verdict`, `finalize`, `expire_challenge`, `redeem` and `anchor_rewrite`. **Not stopped:** `dispute` (on purpose), `council_settle`, `withdraw_treasury`, deposits and admin methods. |
+| `pause(paused)` | owner | Freezes the ledger. Stops deposits (`ft_on_transfer` panics and the token returns them), `withdraw`, `withdraw_treasury`, `buy`, `sell`, `open_*`, `reopen`, `claim_lane`, `release_agent`, `charge_inference`, `fund_question`, `refund_bounty`, `challenge`, `submit_verdict`, `finalize`, `council_settle`, `expire_challenge`, `redeem` and `anchor_rewrite`. **Still runs:** `dispute`, on purpose (it only moves a balance into a bond, so a window can't run out on someone locked out of it); the callbacks `on_withdraw` and `on_treasury_withdraw`, which put back a transfer sent before the pause that failed; admin methods, the owner handover, `accept_house_agent`, `leave_house_agent` and views. So while paused no USDC leaves the contract. |
 | `register_model(model, signing_address_hex, extras_json)` | owner | Model name 1 to 128 bytes, a 32-byte key, and extras that pass `rules::extras_ok`: at most 512 bytes, valid JSON object members, and none of `model`, `messages`, `temperature`, `stream`, `n`. |
 
 ## Events
@@ -250,6 +263,7 @@ Every market event is `EVENT_JSON:{"standard":"pricedin","version":"2.0.0","even
 | `lane_claim` | `trader`, `to`, `amount_micro`, `balance_micro` (the credit left behind), `to_balance_micro` | `claim_lane` |
 | `agent_release` | `trader`, `to`, `amount_micro`, `balance_micro`, `to_balance_micro` | `release_agent` |
 | `charge` | `trader`, `amount_micro`, `usage_hash`, `balance_micro` | `charge_inference` |
+| `house_agent` | `account`, `proposed`, `accepted` | `set_house_agent`, `accept_house_agent`, `leave_house_agent` |
 | `open` | `claim_id`, `p0_ppm`, `b_micro`, `reserve_micro` | `open` |
 | `reopen` | `claim_id` (the new one), `prev` | `reopen` |
 | `trade` | `claim_id`, `trader`, `side` (`yes`, `no`, `sell_yes`, `sell_no`), `shares_micro`, `amount_micro`, `price_yes_ppm` (after), `balance_micro` | `buy`, `sell` |
@@ -293,6 +307,7 @@ EVENT_JSON:{"standard":"pricedin","version":"2.0.0","event":"trade","data":[{"cl
 | `get_model(model)` | `signing_address_hex`, `extras_json` |
 | `get_bounty(claim_id, funder)` | `amount_micro`, `expires_ns` |
 | `lane_claimable(trader)` | Balance above the credit |
+| `get_house_agent(account)` | `proposed`, `accepted`, `chargeable` |
 | `get_resolution()` | Bond, jury deadline, tiers, top window, bounty TTL, swarm |
 | `stats()` | `claims`, `challenges`, `treasury_micro`, `reserved_micro`, `lane_budget_micro`, `lane_credit_micro`, `paused`, `held_micro`, `balances_micro`, `collected_micro`, `payouts_micro`, `bonds_micro`, `bounties_micro`, `rewrites_anchored` |
 

@@ -4,9 +4,20 @@ Short and plain. Each item says why, and how to check it.
 
 ## 1. The owner key controls the deployment
 
-- On testnet one key is the owner of the market and the swarm, the council, the only operator, and the **full-access key on the market, swarm, lane and tusdc accounts**. Check: `view_access_key_list` on `market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet` returns one `FullAccess` key, `ed25519:3FCKSLSy3pb9zMCwoRnphSjFohPHCqcejHe9xgbWynBY`, the same key as the root account (read 2026-11-05).
-- A full-access key can deploy different code to the market. So today the code you rebuild with `node tools/judge/repro.mjs` is the code that runs, but nothing on-chain stops it from being replaced. `scripts/deploy.mjs` never removes that key. Removing it (or moving it to a multisig with a delay) is not done yet.
-- Through owner methods alone, the owner can: pause trading and withdrawals for as long as it likes (`pause`), while `withdraw_treasury` and `council_settle` keep working; set the bond, lane budget and dispute table (`set_limits`, `set_resolution`); register any key as a model's key (`register_model`); set the planner key; and list any account as a house agent (`set_house_agent`), which lets an operator charge that account's balance to the treasury (`charge_inference`).
+On testnet one key is the owner of the market and the swarm, the council, the only operator, and a **full-access key on the market, swarm, lane and tusdc accounts**. Every key that exists, read with `view_access_key_list` on 2026-11-05:
+
+| Account | Keys today (testnet) | What each key can do | After `deploy.mjs --lock` |
+|---|---|---|---|
+| root `pimw3dxfzp.basalt-lane-mw2skhdc.testnet`: owner, council, operator | `ed25519:3FCKSLSy3pb9zMCwoRnphSjFohPHCqcejHe9xgbWynBY`, FullAccess | Every owner method of both contracts (below), every operator method, and anything the root account can do. | Unchanged. The owner key is the governance key; on mainnet it should become a multisig (`COUNCIL_ACCOUNT`, `propose_owner`/`accept_owner`). |
+| market `market.pimw3dxfzp...` | the root's key, FullAccess | **Replace the market's code** (`DeployContract`), delete the account, and sign as the market itself, which passes `#[private]` on `on_withdraw` and `on_treasury_withdraw`. | **No keys.** The code can never change, and nobody can sign as the market. |
+| swarm `swarm.pimw3dxfzp...` | the root's key, FullAccess | Replace the swarm's code, delete it, sign as the swarm (which the market trusts for `release_agent`). | **No keys.** |
+| lane `lane.pimw3dxfzp...` | the root's key, FullAccess (it is also the API's `LANE_PRIVATE_KEY` on testnet), and one judge's function-call key `ed25519:6237Qd...` (market only; `buy`, `sell`, `open_and_buy`, `redeem`, `claim_lane`; NEAR allowance) | FullAccess: add and delete keys (the API adds each judge's key this way), spend the lane's NEAR on gas, replace the lane account's code, delete it. A judge's key: bet and claim winnings as `lane:<that key>` only. | The root's key is gone. One FullAccess key stays, `LANE_ADMIN_PUBLIC_KEY`: the API's own lane key, because only a full-access key can add the judges' keys. It can do what FullAccess does above, on the lane account only; it can't move any other lane identity's credit or winnings, since each is keyed by its own public key. Judges' keys stay. |
+| tusdc `tusdc.pimw3dxfzp...` (testnet only) | the root's key, FullAccess | Replace the test token's code. | Not touched (test money). |
+| agents `aN.<swarm>` | only the runner's function-call key: market; `buy`, `sell`, `redeem`; 0.25 NEAR | Trade the agent's own balance; nothing can withdraw it except the swarm to the agent's owner. | Unchanged. |
+
+- **Today the code can be replaced.** The code you rebuild with `node tools/judge/repro.mjs` is the code that runs, but the root's full-access key on the market and swarm can deploy different code. `scripts/deploy.mjs <network> --lock` (added 2026-11-05) removes it after deploy and verification, and checks the result: no key on the market or swarm, the API's key alone on the lane. Operators keep working, because they sign from their own accounts with function-call keys there, never as the market. Rehearsed on a throwaway testnet deployment (`node tools/judge/upgrade-rehearsal.mjs --lock`; output in `.apex/streams/harden-result.md`). The persistent testnet deployment is **not locked**, so it can still be upgraded in place. Mainnet: unlocked by default; `--lock` there also needs `CONFIRM_LOCK=yes`, given only when the owner decides. A locked contract can't be upgraded or fixed, ever; the alternative is an owner multisig with a delay, not built.
+- Through owner methods alone, the owner can: pause the market for as long as it likes (`pause`; while paused no USDC leaves, its own `withdraw_treasury` included, and nothing settles, `council_settle` included); set the bond, lane budget and dispute table (`set_limits`, `set_resolution`); register any key as a model's key (`register_model`); set the planner key; and propose any account as a house agent (`set_house_agent`). A proposal alone charges nothing: an account becomes chargeable by `charge_inference` only when it accepts with its own key (`accept_house_agent`), and it can leave at any time with its balance intact (`leave_house_agent`).
+- The two rules above (the pause and house-agent consent) are in the code from 2026-11-05. The persistent testnet market still runs the v2 build recorded in `deployments/testnet.json` until `node tools/judge/upgrade-testnet.mjs` upgrades it in place (same state layout; the code hash it records is the reproducible build's).
 
 ## 2. `register_model` is a trust step
 
@@ -41,7 +52,7 @@ Short and plain. Each item says why, and how to check it.
 | Part | Status |
 |---|---|
 | Market and swarm contracts | Real, on NEAR testnet. Code rebuilds byte for byte (judge check 3). |
-| Mainnet | Not live yet. `scripts/deploy.mjs mainnet` refuses without `CONFIRM_MAINNET=yes`. |
+| Mainnet | Not live yet. `scripts/deploy.mjs mainnet` refuses without `CONFIRM_MAINNET=yes`, and `--lock` there also needs `CONFIRM_LOCK=yes`. |
 | Money | Test USDC with a public faucet (`contracts/tusdc`). |
 | Prices, trades, books | Real contract state and real transactions on testnet. The books close to the micro (judge check 4). |
 | Seed trades | Seven trades, six by our own test accounts and one by a lane key, following the corpus verdicts (`deployments/testnet.json`, `seed.trades`). Not users. |

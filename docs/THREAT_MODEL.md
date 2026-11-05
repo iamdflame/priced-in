@@ -58,16 +58,16 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 
 **What the operator key can touch.**
 - `open_claim`: opens markets, each moving a reserve from the treasury to `reserved_micro`, up to `reserve_cap_micro` (default $2,000).
-- `charge_inference`: moves a swarm agent's or a house agent's market balance to the treasury, any amount up to that balance, with any well-formed `usage_hash`.
+- `charge_inference`: moves a swarm agent's market balance, or that of a house agent that accepted (`accept_house_agent`), to the treasury, any amount up to that balance, with any well-formed `usage_hash`.
 - `anchor_rewrite`: emits events. It needs a valid model signature.
 - `sweep_escrow` (swarm): sends any agent's NEAR escrow, up to all of it, to the owner-set treasury account.
 
-**What it cannot touch.** An ordinary trader's balance or positions (check "an operator can't charge an ordinary trader"), bonds, bounties, the treasury's payout to anyone but the owner (`withdraw_treasury` is owner only), settlement, model keys, the planner key, or where sweeps go (`set_treasury` is owner only). In services/ai the signer only holds operator keys that are function-call keys limited to `anchor_rewrite`, `charge_inference` and `sweep_escrow` (`OPERATOR_METHODS` in `services/ai/src/signer.js`).
+**What it cannot touch.** An ordinary trader's balance or positions (check "an operator can't charge an ordinary trader"), including an account the owner proposed as a house agent that has not accepted or has left (checks "a proposed house agent can't be charged before it accepts", "after leaving it can't be charged"), bonds, bounties, the treasury's payout to anyone but the owner (`withdraw_treasury` is owner only), settlement, model keys, the planner key, or where sweeps go (`set_treasury` is owner only). In services/ai the signer only holds operator keys that are function-call keys limited to `anchor_rewrite`, `charge_inference` and `sweep_escrow` (`OPERATOR_METHODS` in `services/ai/src/signer.js`).
 
 **Residual.**
 - The contract does not check that a charge matches real usage. The defence is public: every bill's usage record is served at `GET /ai/usage/<hash>` and its hash is in the `charge` or `sweep` event (`services/ai/src/billing.js`). An agent owner can audit, but not block, an over-charge.
 - Opening many markets can lock the treasury into reserves up to the cap. A claim that never settles keeps its reserve: there is no path to close an unsettled claim.
-- The owner can make any account a house agent (`set_house_agent`). Owner plus operator together can therefore charge any account's balance to the treasury and then withdraw it. See [TRUST.md](TRUST.md).
+- An account that accepted being a house agent can be charged any amount up to its balance until it leaves; it should hold only what it means to spend on inference. Leaving is one call, works during a pause, and leaves the balance intact. Before 2026-11-05 the owner alone could make any account chargeable (`set_house_agent`); that is fixed in code ([SPEC.md](SPEC.md), House agents opt in), and the persistent testnet market keeps the old rule until it is upgraded (`tools/judge/upgrade-testnet.mjs`). It has no house agents (`view_state` prefix `a` is empty, read 2026-11-05).
 
 ## 5. Subsidy farming and receipt replay
 
@@ -150,10 +150,11 @@ These are copied from each stream's own result file in `.apex/streams/`, and che
 - v2 changed the state layout; there is no migration from v1. Nothing of v1 is on mainnet.
 - About 1.5 NEAR is locked for good in testnet agent accounts from runs before `delete_agent` existed.
 
-**Code checked while writing this file**
-- `pause` does not stop `withdraw_treasury` or `council_settle`, so the owner can still move treasury money and rule escalated claims while users are frozen.
-- A large buy (about 33 times `b`) panics on i128 overflow instead of buying up to the price cap ([SPEC.md](SPEC.md), price cap).
-- The market, swarm, lane and tusdc accounts on testnet each hold one full-access key, the owner's (`view_access_key_list`, read 2026-11-05). `scripts/deploy.mjs` never removes it. That key can deploy different code.
+**Found while writing this file, fixed on 2026-11-05** (`.apex/streams/harden-result.md`; the persistent testnet market runs v2 until `tools/judge/upgrade-testnet.mjs` upgrades it)
+- `pause` did not stop `withdraw_treasury` or `council_settle`. Now a pause freezes the ledger: no USDC leaves, the owner's included, nothing settles, and deposits are returned; only `dispute` (into a bond) and the refund callbacks of earlier transfers run ([SPEC.md](SPEC.md), Administration). Checks "a pause holds the owner's treasury withdrawal too", "a pause holds the council's settlement too", "a deposit during a pause is refused and returned by the token".
+- A large buy (about 33 times `b`) panicked on i128 overflow. Now `quote_buy` checks the cap first and buys up to it; the rest is never charged ([SPEC.md](SPEC.md), price cap). Property test over `b` up to $10^9 and spends up to `i128::MAX`.
+- The owner alone could make any account chargeable (`set_house_agent`). Now the account must accept and can leave (threat 4).
+- The market, swarm, lane and tusdc accounts on testnet each hold one full-access key, the owner's, which can deploy different code. Still true on testnet, on purpose, so it can be upgraded. `scripts/deploy.mjs --lock` removes it ([TRUST.md](TRUST.md), section 1); the remaining limit is that a locked contract can never be fixed.
 
 **services/ai** (`ai-result.md`)
 - No real model call has gone through the code; signatures from NEAR AI Cloud are unproven here (`npm run ai:smoke` skips without a key).
