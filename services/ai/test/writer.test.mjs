@@ -1,7 +1,8 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { NearAI, Attestor, verifyProvenance } from "../src/nearai.js";
-import { Writer, band, templateSentence, wordDiff, parseRewriteReply, paragraphsOf } from "../src/writer.js";
+import { Writer, band, templateSentence, wordDiff, parseRewriteReply, paragraphsOf, rewriteRequest } from "../src/writer.js";
+import { corpusEvidence } from "../src/evidence.js";
 import { Ledger } from "../src/ledger.js";
 import { EventHub } from "../../api/src/events.mjs";
 import { RewriteStore } from "../../api/src/rewrites.mjs";
@@ -217,4 +218,21 @@ test("the API serves GET /rewrites?page= and says when no writer is attached", a
     api.app.addRoute("GET", "/hello", async () => ({ body: { hi: true } }));
     assert.deepEqual((await api.req("GET", "/hello")).json, { hi: true });
   } finally { await api.close(); }
+});
+
+test("evidence: a sentence our measurement found stale is corrected to the source's value, below assert only", () => {
+  const claim = "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.";
+  const ev = corpusEvidence(claim.replace("'", "\u2019"));
+  assert.ok(ev, "the corpus has evidence for the T-Bills line, curly apostrophe or not");
+  assert.equal(ev.corpus_id, "tether-0161");
+  assert.match(ev.value_today, /122\.84 billion/);
+  assert.equal(ev.source_name, "Tether's attestation report");
+  assert.equal(corpusEvidence("Tether is a stablecoin."), null);
+  assert.equal(templateSentence(claim, 0.9, ev), claim, "assert ignores the evidence");
+  assert.equal(templateSentence(claim, 0.2, ev), "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion; Tether's attestation report gives $122.84 billion at 30 September 2026 (checked 2026-11-05).");
+  const body = rewriteRequest("z-ai/glm-5.3-flash", "tether", [{ claim_id: 18, claim, current: claim, probability: 0.2, band: "negate", evidence: ev }, { claim_id: 19, claim: "X is Y.", current: "X is Y.", probability: 0.6, band: "hedge" }]);
+  const sent = JSON.parse(body.messages[1].content).sentences;
+  assert.deepEqual(sent[0].evidence, { source: "Tether's attestation report", value_today: ev.value_today, value_on_page: ev.value_on_page, checked_on: "2026-11-05" });
+  assert.equal(sent[1].evidence, undefined, "no evidence, no field");
+  assert.match(body.messages[0].content, /Use only the evidence given/);
 });
