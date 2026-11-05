@@ -159,7 +159,7 @@ let T;
 async function main() {
   // ---------- swarm: a stranger's agent, one transaction, 5 NEAR ----------
   const token = await sub("pt", 2.0);
-  const swarm = await sub("ps", 2.2);
+  const swarm = await sub("ps", 2.3);
   const council = await sub("pc", 0.3);
   const stranger = await sub("px", 5.2);
   const market = await sub("pm", 0.05);
