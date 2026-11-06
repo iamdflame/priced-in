@@ -24,4 +24,5 @@ The monograms for Polymarket (Pm), Kalshi (Ka), Augur (Au), NEAR (N) and DeFi (D
 
 - Topic art: generated for this kit with FLUX.2 [pro] through fal.ai, one prompt template per direction (see _pr/gen-art.mjs), then graded in _pr/post-art.py. Abstract objects only: no people, no logos, no text.
 - Pulse dial and app-icon render: modelled and rendered in Blender 5.2 from the logo's own geometry (_pr/blender-pulse.py).
+- Light set (art/light): the same objects and the same dial geometry, modelled and rendered in Blender 5.2 on a white sweep (_pr/blender-topics-light.py, _pr/blender-pulse.py dial-light), graded in _pr/post-art-light.py. Abstract objects only: no people, no logos, no text.
 - Everything else (marks, wordmarks, icons, UI) is drawn by hand in SVG and CSS for this kit.
