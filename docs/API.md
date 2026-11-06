@@ -375,7 +375,7 @@ $ curl -s https://isitpriced.com/api/rulings
 | `waiting_for_bets` | number | How many of those are short of `CHECKER_MIN_BETS`. |
 | `checker` | object or null | `account`, `balance_usd`, `lines_left` (the same as `queue`), and `note`: the operator's reason it did or didn't act on the last run. null before the keeper's first run. |
 | `keeper_ran_at` | ISO time or null | The keeper's last run. |
-| `rulings`, `count`, `asOf` | | Every challenge, how many, and the claims snapshot's time. |
+| `rulings`, `count`, `asOf` | | Every challenge, how many, and the claims snapshot's time. Each ruling carries `receipt_check` and `sentinel`, below. |
 
 The clock's states, first match wins. `queue`, `waiting_for_bets` and `rulings_today` are read at request time, so a bet shows at once. The rest comes from the keeper's last run.
 
@@ -394,6 +394,70 @@ The clock's states, first match wins. `queue`, `waiting_for_bets` and `rulings_t
 | The sitting is due | the next cron run | The jury sits within the next 10 minutes |
 
 The signer's daily caps stay above this as a safety net: `SIGNER_DAILY_CHALLENGES` (default 6) and `SIGNER_DAILY_OPENS` (default 12, enough for a full day of corrected lines and a day's backlog). The keeper asks where they stand before it acts. Reaching a cap, or having nothing eligible, leaves `/health`'s cron check ok with no failure strings, and a corrected line held by the cap opens on a later run. Any other refusal is a failure.
+
+#### Each ruling's `receipt_check` and `sentinel`
+
+Every ruling in `rulings` has both fields. Both are null on a ruling nothing has checked yet, such as a past challenge whose evidence can't be checked without a live fetch. The field names are stable. Measured results are in `deployments/sentinel-test.json`, and the threat they answer is in [THREAT_MODEL.md](THREAT_MODEL.md), threats 1 and 2. Code: `services/ai/src/receipts.js`, `services/ai/src/support.js`, `services/ai/src/sentinel.js`. Tests: `services/ai/test/receipts.test.mjs`, `services/ai/test/support.test.mjs`, `services/ai/test/sentinel.test.mjs`, and `services/api/test/engine.test.mjs`, "GET /rulings: each ruling says what its receipts were".
+
+```
+"receipt_check": {
+  "result": "quote_not_found",
+  "reason": "The quoted words \"Tether Holdings Limited, a company...\" are not at https://tether.to/en/legal/ (HTTP 200, fetched 2026-11-06T15:00:02Z).",
+  "checked_at": "2026-11-06T15:00:02.512Z",
+  "via": "source",
+  "record": null,
+  "quotes": [{ "text": "Tether Holdings Limited, a company incorporated and headquartered in Zug, Switzerland", "found": false, "url": null }],
+  "sources": [{ "url": "https://tether.to/en/legal/", "via": "source", "status": 200, "sha256": "4f2a...", "bytes": 147739, "content_type": "text/html; charset=UTF-8", "fetched_at": "2026-11-06T15:00:02.301Z", "error": null }],
+  "support": null
+},
+"sentinel": {
+  "status": "disputed",
+  "note": "The receipts failed (quote not found): the Sentinel disputed in round 1 with a $2.00 bond.",
+  "last_look_at": "2026-11-06T15:03:01.100Z",
+  "disputes": [{ "round": 1, "bond_usd": 2, "tx": "8fQ...", "at": "2026-11-06T15:03:01.100Z" }]
+}
+```
+
+`receipt_check`, or null:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `result` | string | One of the results below. |
+| `reason` | string | One plain sentence saying why. |
+| `checked_at` | ISO time | When the check ran. |
+| `via` | `corpus`, `source` or null | `corpus`: settled against our committed record with no live fetch, as our Checker's are. `source`: settled by fetching. null: nothing to check. |
+| `record` | object or null | The corpus record the evidence names: `id`, `found`, `hash_matches`, `sentence_matches`, `sha256_claimed`, `sha256_committed`. |
+| `quotes` | array | Each quoted passage: `text`, `found`, and `url`, the source it was found at, or null. |
+| `sources` | array | Each source: `url`, `via`, `status` (HTTP, or null with no answer), `sha256` of the bytes fetched, `bytes`, `content_type`, `fetched_at`, `error`. With `via: "corpus"` these are the corpus's own fetch, from `corpus/receipts/evidence-index.json`. |
+| `support` | object or null | Set when the quotes verified at a live source: does that source support the challenge? `verdict` (`supported`, `unsupported`, `unclear` or `unanswered`), `unanimous` (two or more said the same and no model disagreed), `asked_at`, `url`, and `answers`: each model's `model`, `answer` (`YES`, `NO`, `UNCLEAR`, `UNPARSEABLE` or `ERROR`), `verified` (its signature checked against its attested key; only those count), `reason`, `request_hash`, `response_hash`, `signature`, `signing_address`. Never set on our corpus records. |
+
+| `result` | Meaning | Our jury | The Sentinel |
+|---|---|---|---|
+| `verified` | Every quote is at its source, or the corpus record matches and holds them. | Called | Never disputes |
+| `quote_not_found` | A quote is not at the sources fetched, or nothing quoted can be checked: a source with no quote from it, or a quote with no source. | Not called | Disputes a ruling for the challenger |
+| `unfetchable` | A source could not be read: an HTTP error, a time-out, too large, not HTTPS, a private address, or nothing readable in it. | Not called; tried again after 10 minutes | Disputes a ruling for the challenger, after checking again |
+| `record_mismatch` | The corpus record named doesn't exist, has no hash or another hash, is about another sentence, or says the opposite of the challenge. | Not called | Disputes a ruling for the challenger |
+| `no_receipt` | No URL, no quote and no record: a bare accusation. | Not called | Records it and does not dispute: the jury refuses those |
+| `unsupported` | Every quote is at its source, and at least two of the three attested models reading that source found it does not support the challenge: a real quote with a lie told around it. | Not called | Disputes a ruling for the challenger only if no model disagreed (`support.unanimous`) |
+
+With `support.verdict` `unanswered` (fewer than two signed answers) the result stays `verified`, but our jury waits, because it needs the same models, and the question is asked again. The Sentinel doesn't dispute while it is unanswered. `unclear` is a pass: the source is raw data the excerpt can't settle.
+
+Quotes are compared after normalising whitespace, case, quote marks, dashes, markdown and number formatting, so `122,839,738,995` and `122 839 738 995` match. A quote may skip words with an ellipsis. HTML, JSON, plain text and PDF are read. Fetching is HTTPS only, port 443, public addresses only (every address a name resolves to is checked, and every redirect is checked again), 10 s and 6 MB a source, at most six sources.
+
+`sentinel`, or null:
+
+| Field | Type | Meaning |
+|---|---|---|
+| `status` | string | `watching`: live, and it will act if the outcome comes to side with a challenger whose receipts failed. `disputed`: it has posted at least one dispute here. `no_dispute`: it won't dispute, and `note` says why. `blocked`: it would dispute and can't, because of a cap, its balance, no key, the window closing, or a failed transaction. |
+| `note` | string | One plain sentence for this ruling. |
+| `last_look_at` | ISO time | The last time its decision here changed. A quiet minute writes nothing. |
+| `disputes` | array | Its disputes on this challenge: `round`, `bond_usd`, `tx`, `at`. |
+
+A challenge our jury refused stays `jury` until its deadline, unless someone else's jury rules. The clock says "Our jury isn't sitting on this challenge: its receipts did not verify", gives the deadline as `next_ruling_at`, and the challenge doesn't hold up the daily sitting. `GET /api/jury?challenge=<id>` shows the run with `status: "refused"`.
+
+### `GET /api/sentinel`
+
+The Sentinel's minute (`vercel.json`, `* * * * *`). Only Vercel's cron can call it: it needs `Authorization: Bearer <CRON_SECRET>`, and anything else gets 401. With no bond held on the market it costs one `stats` view call and answers `{"ok":true,"idle":true,...}`. Otherwise it looks at every live challenge and answers `{ok, at, live, disputed, blocked, errors, sentinel, ms}`. Its record goes to the store's `sentinel/ledger.json`, which `GET /api/rulings` reads.
 
 ## services/ai (mounted on services/api by `services/ai/src/mount.js`)
 
