@@ -1,0 +1,227 @@
+// Results: every doubted fact, decided by three AI judges on real money. The first real one (the
+// Tether T-Bills fact, ruled FALSE) is the hero, told as a story: the doubt and its bond, the three
+// signed verdicts in the judges' own words with a one-tap verify, the window, the payout and the
+// corrected fact as a new market. Then what's being decided now, what's next, and the full record.
+import "../styles/pages.css";
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { TopicIcon } from "@/components/Brand";
+import { Dial } from "@/components/Dial";
+import { FactCard } from "@/components/FactCard";
+import { Icon } from "@/components/Icon";
+import { Countdown } from "@/components/Live";
+import { ReplayRuling } from "@/components/ReplayRuling";
+import { RulingBlock } from "@/components/Ruling";
+import { ErrorState } from "@/components/States";
+import { Kpis, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
+import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
+import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
+import type { Fact } from "@/lib/model";
+import type { Ruling } from "@/lib/server/api";
+import { judgeWords, verdictTx } from "@/lib/server/more";
+import { agentsByClaim, getSite } from "@/lib/server/site";
+
+export const revalidate = 15;
+export const metadata: Metadata = {
+  title: "Results: facts decided by three AI judges",
+  description: "Every doubted fact on Priced In, decided by three attested AI models that sign their verdicts on NEAR. The first: Tether’s T-Bills fact, ruled false in 20 minutes, $4.93 paid.",
+};
+
+const median = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
+
+export default async function RulingsPage({ searchParams }: { searchParams: Promise<{ recorded?: string }> }) {
+  const { recorded } = await searchParams;
+  const replay = recorded === "1";
+  const site = await getSite();
+  const R = site.rulings;
+  if (!site.ok || !R) {
+    return <main id="main" className="wrap"><Head next={null} note={null} checker={null} /><div style={{ marginTop: 16 }}><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
+  }
+  const byId = new Map(site.facts.map((f) => [f.id, f]));
+  const all = [...R.rulings].sort((a, b) => b.opened_at - a.opened_at);
+  const settled = all.filter((r) => r.status === "settled");
+  const hero = settled.find((r) => r.claim_id === 18) ?? settled[0] ?? null;
+  const live = R.ruling_now ?? all.find((r) => r.status === "jury" || r.status === "window") ?? null;
+  const times = settled.filter((r) => r.settled_at).map((r) => r.settled_at! - r.opened_at);
+  const paid = settled.reduce((n, r) => n + (r.payout_usd ?? 0), 0);
+  const agreed = settled.filter((r) => r.verdicts.length >= 3 && new Set(r.verdicts.map((v) => v.verdict)).size === 1).length;
+  const ruledIds = new Set(all.map((r) => r.claim_id));
+  const queue = site.facts.filter((f) => f.caught && f.status === "open" && !ruledIds.has(f.id)).sort((a, b) => b.trades - a.trades || a.id - b.id);
+  const byClaim = agentsByClaim(site.bets);
+  const reopened = all.flatMap((r) => (r.correction ? [r.correction.claim_id] : []));
+
+  return (
+    <main id="main" className="wrap">
+      <Head next={R.next_ruling_at} note={R.next_ruling_note ?? null} checker={R.checker ?? null} live={live} />
+      <Kpis label="The record so far" items={[
+        { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled and paid" },
+        { v: times.length ? span(median(times)!) : "—", l: "from doubt to paid", s: times.length > 1 ? "median" : "the one so far" },
+        { v: money(paid), l: "paid to the winners", s: "in USDC, on-chain" },
+        { v: <>{agreed}<i> of {settled.length}</i></>, l: "with all three judges agreeing", s: "each verdict signed separately" },
+        { v: queue.length, l: "facts Wikipedia may have wrong", s: "queued for the Checker" },
+      ]} />
+
+      {hero && <Case r={hero} f={byId.get(hero.claim_id) ?? null} corrected={hero.correction ? byId.get(hero.correction.claim_id) ?? null : null} />}
+
+      {hero && (
+        <>
+          <SHead id="judges" title="The three AI judges, in their own words" sub="Each model read the Checker’s evidence and the sentence, answered inside a secure chip, and signed its answer. The market checked each signature against the model’s registered key before it counted. Check one yourself: it takes a second." />
+          <Judges r={hero} />
+          <SHead id="timeline" title="How it unfolded" sub="Every step is a transaction on NEAR. Tap a time to open it in the explorer." />
+          {replay ? <ReplayRuling r={hero} correctedQuestion={hero.correction ? byId.get(hero.correction.claim_id)?.question ?? null : null} /> : <RulingBlock r={hero} correctedQuestion={hero.correction ? byId.get(hero.correction.claim_id)?.question ?? null : null} />}
+        </>
+      )}
+
+      <SHead id="now" title="Being decided now" sub="A ruling runs in three stages: the AI judges read (minutes), 10 minutes for objections, then settlement." />
+      {live ? <RulingBlock r={live} /> : (
+        <div className="panel quiet">
+          <Icon name="clock" />
+          <div>
+            <b>Nothing is being decided this minute.</b>
+            <p>{R.next_ruling_at ? <>The next ruling starts at {clockUtc(R.next_challenge_at ?? R.next_ruling_at)}: the Checker bets a bond against the next fact Wikipedia may have wrong, and the AI judges rule within minutes. This page updates by itself.</> : <>No ruling is scheduled. A ruling starts whenever anyone bonds a challenge against a fact.</>}</p>
+          </div>
+        </div>
+      )}
+
+      {queue.length > 0 && (
+        <>
+          <SHead id="next" title="Up next: facts Wikipedia may have wrong" sub="Our check found a newer source that disagrees with each of these sentences. You can bet before the AI judges decide." right={plural(queue.length, "fact")} />
+          <div className="grid">
+            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} agents={byClaim[f.id] ?? []} reopened={reopened.includes(f.id)} />)}
+          </div>
+        </>
+      )}
+
+      <SHead id="record" title="The full record" sub="Every challenge ever filed on the market, newest first." right={plural(all.length, "ruling")} />
+      <div className="panel rlist">
+        {all.length ? all.map((r) => <RecordRow key={r.challenge_id} r={r} f={byId.get(r.claim_id) ?? null} />) : (
+          <div className="quiet"><Icon name="gavel" /><div><b>No rulings yet.</b><p>The first one will appear here the moment a challenge is filed.</p></div></div>
+        )}
+      </div>
+      <p className="fine" style={{ marginTop: 10 }}>
+        Read live from the market’s log{site.rulings?.asOf ? <> at {clockUtc(site.rulings.asOf)}</> : null}. The Checker is <a className="link" href={explorerAccount(R.checker?.account ?? "checker.isitpriced.near")} target="_blank" rel="noopener">{R.checker?.account ?? "checker.isitpriced.near"}</a>; anyone can file a challenge with a bond.
+      </p>
+    </main>
+  );
+}
+
+function Head({ next, note, checker, live }: { next: number | null; note: string | null; checker: { account: string; balance_usd: number; lines_left: number; note?: string } | null; live?: Ruling | null }) {
+  return (
+    <PageHero
+      kick="Results · decided by three AI judges"
+      title="Doubt a fact. Three AI judges decide it within minutes."
+      lede={<>When a fact looks wrong, a Checker bets a bond against it. <b>Three AI models</b> read the sources and sign their verdicts on-chain<span className="long">, anyone can object for 10 minutes, then the winners are paid and the corrected fact opens as a new market</span>.</>}
+      side={
+        <div className="clockc" aria-live="off">
+          {live ? (
+            <>
+              <span className="k"><span className="dot" aria-hidden="true" />Being decided right now</span>
+              <div className="big">{live.window_ends_at ? <Countdown to={live.window_ends_at} done="settling" /> : "Live"}</div>
+              <p>{live.window_ends_at ? "left for objections, then it settles." : "The AI judges are reading the sources."}</p>
+            </>
+          ) : next ? (
+            <>
+              <span className="k"><Icon name="clock" />Next ruling in</span>
+              <div className="big"><Countdown to={next} done="starting now" /></div>
+              <p>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges rule within minutes, then 10 minutes for objections.</p>
+            </>
+          ) : (
+            <>
+              <span className="k"><Icon name="clock" />Next ruling</span>
+              <div className="big">—</div>
+              <p>Nothing is scheduled right now. A ruling starts whenever someone bonds a challenge.</p>
+            </>
+          )}
+        </div>
+      }
+    />
+  );
+}
+
+function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact | null }) {
+  const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
+  const took = r.settled_at ? span(r.settled_at - r.opened_at) : null;
+  const lastJudge = r.verdicts.length ? span(Math.max(...r.verdicts.map((v) => v.at)) - r.opened_at) : null;
+  return (
+    <section className="panel case" aria-labelledby="case-h">
+      <div>
+        <div className="chips">
+          <span className={`verdict-big ${verdict === "TRUE" ? "true" : ""}`}><Icon name="gavel" />Ruled {verdict}</span>
+          {f && <span className="chip"><TopicIcon icon={f.icon} />{f.topic}</span>}
+          <span className="chip">The first ruling on real money · {dayTimeUtc(r.opened_at)}</span>
+        </div>
+        <h2 id="case-h">{f ? <Link href={`/c/${r.claim_id}`}>{f.question}</Link> : r.claim}</h2>
+        <div className="ba">
+          <span>Wikipedia</span><del>{r.claim}</del>
+          {f?.caught && <><span>Newer source</span><ins>{f.caught.today}</ins></>}
+        </div>
+        {f?.caught && <a className="src" href={f.caught.source} target="_blank" rel="noopener">{f.caught.label}<Icon name="ext" /></a>}
+        <div className="facts3">
+          <div><b>{lastJudge ?? "—"}</b>for all three judges to rule</div>
+          <div><b>{took ?? "—"}</b>from doubt to paid</div>
+          <div><b>{r.payout_usd ? money(r.payout_usd) : "—"}</b>paid to {verdict === "FALSE" ? "No" : "Yes"}</div>
+        </div>
+        {corrected && (
+          <div className="corrected">
+            <p><b>Corrected → new market.</b> <span>{corrected.question}</span></p>
+            <Link className="btn primary" href={`/c/${corrected.id}`}>Bet on the corrected fact<Icon name="arrow" /></Link>
+          </div>
+        )}
+      </div>
+      {f && (
+        <div className="case-side">
+          <div className="feature-dial"><Dial p={f.price} label="chance it’s true" sizes="230px" /></div>
+          <p className="dialcap"><b>What the market said</b>{plural(f.trades, "bet")}, before the judges ruled it {verdict.toLowerCase()}</p>
+        </div>
+      )}
+    </section>
+  );
+}
+
+async function Judges({ r }: { r: Ruling }) {
+  const txs = await Promise.all(r.verdicts.map((v) => verdictTx(v.tx)));
+  return (
+    <div className="judges3">
+      {r.verdicts.map((v, i) => {
+        const m = modelMaker(v.model);
+        const t = txs[i];
+        const words = t.ok ? judgeWords(t.value.text) : null;
+        return (
+          <article key={v.tx} className="panel jcard" aria-label={`${m.short}: ${v.verdict}`}>
+            <div className="top">
+              <div className="who"><span className="mk" aria-hidden="true">{m.mark}</span><div><b title={v.model}>{m.short}</b><small>{m.maker} · judge {i + 1} of 3</small></div></div>
+              <span className={`verdict ${v.verdict === "TRUE" ? "true" : "false"}`}>{v.verdict}</span>
+            </div>
+            {words ? <blockquote>{words}</blockquote> : <p className="fine">The judge’s words are in its transaction; open it below.</p>}
+            <div className="meta2">
+              <span>Ruled in {span(v.at - r.opened_at)}</span>
+              <span>{v.runner?.attestation?.ok ? "Attested secure chip" : "Signed"}</span>
+              <a href={explorerTx(v.tx)} target="_blank" rel="noopener">See the verdict<Icon name="ext" /></a>
+              <Link href="/trust#judges" style={{ color: "var(--brand-text)" }}>Its proof</Link>
+            </div>
+            {v.request_hash && v.response_hash && <VerifyVerdict tx={v.tx} model={v.model} requestHash={v.request_hash} responseHash={v.response_hash} sender={t.ok ? t.value.signer : undefined} />}
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
+  const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
+  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)}${r.payout_usd ? ` · ${money(r.payout_usd)} paid` : ""}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
+  return (
+    <div className="rrow">
+      {f ? <span className="ti" aria-hidden="true"><Image src={`/art/${f.art}.webp`} alt="" width={72} height={72} style={{ objectFit: "cover" }} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
+      <div style={{ minWidth: 0 }}>
+        <Link className="q" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>
+        <p className="s">Challenged by {r.challenger_name.replace(/^the /, "the ")} with a {money(r.bond_usd)} bond · {dayTimeUtc(r.opened_at)} · {status}</p>
+      </div>
+      <div className="r">
+        {verdict && <span className={`verdict ${verdict === "TRUE" ? "true" : "false"}`}>{verdict}</span>}
+        {r.correction && <Link className="btn soft" href={`/c/${r.correction.claim_id}`}>Corrected<Icon name="arrow" /></Link>}
+      </div>
+    </div>
+  );
+}
