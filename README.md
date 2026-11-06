@@ -4,7 +4,7 @@
 
 **Models write the pages and give the first ruling. Bonded people have the last word. NEAR checks every step.**
 
-- **Live, on NEAR mainnet with real USDC:** https://isitpriced.com. Until its DNS lands, the same deployment is at https://pricedin-fawn.vercel.app.
+- **Live, on NEAR mainnet with real USDC:** https://isitpriced.com
 - **Any post on X, priced:** change `x.com` to `isitpriced.com` in a post's link. Example: https://isitpriced.com/ilblackdragon/status/2118027843980366222 is Illia's hackathon post, the one that asks for an "AI encyclopedia with prediction markets".
 
 ## The problem
