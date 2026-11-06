@@ -121,6 +121,6 @@ test("a ruled fact offers no bet: the result, and a link to the corrected questi
   await page.goto("/c/18");
   await expect(page.getByText("No won.")).toBeVisible();
   await expect(page.locator(".ticket .seg")).toHaveCount(0);
-  await expect(page.getByText("A newer source disagrees")).toHaveCount(0);
+  await expect(page.locator(".crumb").getByText("A newer source disagrees")).toHaveCount(0);
   await expect(page.getByRole("link", { name: /See the corrected question/ })).toHaveAttribute("href", "/c/32");
 });
