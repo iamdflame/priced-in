@@ -29,11 +29,13 @@
     "ai:test": "npm run ai:unit && npm run ai:e2e && npm run ai:smoke",
     "judge": "node tools/judge/judge.mjs",
     "corpus:check": "node corpus/scripts/check.mjs",
-    "web:install": "npm --prefix web ci",
-    "web:dev": "npm --prefix web run dev",
-    "web:build": "npm --prefix web run build",
-    "web:test": "npm --prefix web test",
-    "web:e2e": "npm --prefix web run e2e"
+    "site:install": "npm --prefix site ci",
+    "site:dev": "npm --prefix site run dev",
+    "site:build": "npm --prefix site run build",
+    "site:test": "npm --prefix site test",
+    "site:e2e": "npm --prefix site run build && npm --prefix site run e2e",
+    "sync:site-data": "node scripts/sync-site-data.mjs",
+    "vectors:lmsr": "node tools/judge/lmsr-vectors/generate.mjs"
   },
   "devDependencies": {
     "@fastnear/x402": "2.5.0",

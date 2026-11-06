@@ -70,7 +70,7 @@ export async function checkSuites(repo) {
   const suites = [
     ["AI", "ai:unit", have("node_modules/near-api-js") && have("node_modules/tweetnacl"), "npm ci", nodeTest],
     ["API", "api:unit", have("node_modules/near-api-js"), "npm ci", nodeTest],
-    ["web", "web:test", have("web/node_modules/vitest"), "npm run web:install", (out) => {
+    ["site", "site:test", have("site/node_modules/vitest"), "npm run site:install", (out) => {
       const m = out.match(/Tests\s+(?:(\d+) failed \| )?(\d+) passed \((\d+)\)/);
       return m ? { tests: Number(m[3]), pass: Number(m[2]), fail: Number(m[1] || 0) } : { tests: NaN, pass: NaN, fail: NaN };
     }],
@@ -86,9 +86,9 @@ export async function checkSuites(repo) {
   }
   const txt = parts.map((p) => `${p.name} ${p.pass}/${p.tests} in ${p.s} s`).join(", ");
   const bad = parts.filter((p) => p.code !== 0 || !(p.tests > 0) || p.fail > 0 || p.pass !== p.tests);
-  if (bad.length) return { status: "FAIL", detail: `${txt}; failing: ${bad.map((p) => `${p.name} (${p.fail} failed${p.failedNames.length ? ": " + p.failedNames.join("; ") : ""})`).join(", ")}`, see: bad.map((p) => `npm run ${p.name === "AI" ? "ai:unit" : p.name === "API" ? "api:unit" : "web:test"}`).join(" && ") };
-  if (missing.length) return { status: "SKIP", detail: `not installed: ${missing.join(", ")}${parts.length ? `; ran ${txt}, all passing` : ""}`, see: "npm ci && npm run web:install, then npm run judge" };
-  return { status: "PASS", detail: `${txt}, all passing, no network`, see: "npm run ai:unit · npm run api:unit · npm run web:test" };
+  if (bad.length) return { status: "FAIL", detail: `${txt}; failing: ${bad.map((p) => `${p.name} (${p.fail} failed${p.failedNames.length ? ": " + p.failedNames.join("; ") : ""})`).join(", ")}`, see: bad.map((p) => `npm run ${p.name === "AI" ? "ai:unit" : p.name === "API" ? "api:unit" : "site:test"}`).join(" && ") };
+  if (missing.length) return { status: "SKIP", detail: `not installed: ${missing.join(", ")}${parts.length ? `; ran ${txt}, all passing` : ""}`, see: "npm ci && npm run site:install, then npm run judge" };
+  return { status: "PASS", detail: `${txt}, all passing, no network`, see: "npm run ai:unit · npm run api:unit · npm run site:test" };
 }
 
 // ---------- 9. the hosted demo ----------

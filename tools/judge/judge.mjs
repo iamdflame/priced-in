@@ -47,15 +47,15 @@ const suites = checkSuites(REPO);
 
 const offlineSkip = (what) => async () => ({ status: "SKIP", detail: `--offline: ${what} not read`, see: "npm run judge (without --offline)" });
 const CHECKS = [
-  [1, "LMSR properties", () => checkLmsr(REPO), "node tools/judge/judge.mjs, or npm run web:test (lmsr.test.ts); cargo test -p lmsr --release"],
+  [1, "LMSR properties", () => checkLmsr(REPO), "npm run site:test (tests/unit/core/lmsr.test.ts); npm run vectors:lmsr regenerates the vectors; cargo test -p lmsr --release"],
   [2, "verdict rule and bond split", () => checkRules(REPO), "cargo run --release --manifest-path tools/judge/rules-vectors/Cargo.toml (regenerates the vectors); cargo test -p rules --release"],
   [3, "reproducible contracts", async () => { const r = await checkRepro(REPO, dep, rpc, { offline: OFFLINE, build, mainnet }); if (r.status === "SKIP" && NO_BUILD) r.see = "npm run judge (without --no-build)"; return r; }],
   [4, "testnet deployment live, books close", OFFLINE ? offlineSkip("testnet") : () => checkBooks(dep, rpc)],
   [5, "signed rewrite verifies, anchored", () => checkRewrite(REPO, dep, rpc, { offline: OFFLINE })],
   [6, "1Click dry quote, Base USDC -> NEAR USDC", OFFLINE ? offlineSkip("the 1Click API (mainnet)") : () => checkOneClick()],
   [7, "the measured number", () => checkCorpus(REPO, "16 of 232")],
-  [8, "unit suites: AI, API, web", () => suites],
-  [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set (the hosted demo's URL is not public yet)", see: "SITE_URL=<live url> npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
+  [8, "unit suites: AI, API, site", () => suites],
+  [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set; the hosted demo is https://isitpriced.com", see: "SITE_URL=https://isitpriced.com npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
   [10, "attested models, verified offline, registered on mainnet", () => checkAttestations(REPO, { mainnet, offline: OFFLINE })],
 ];
 

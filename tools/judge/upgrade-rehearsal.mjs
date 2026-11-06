@@ -35,7 +35,7 @@ import { codeHash, REPO } from "./lib/repro.mjs";
 import { RotatingProvider, TESTNET } from "./lib/provider.mjs";
 
 // the browser's own quoting code, unchanged
-const lmsr = await import(pathToFileURL(path.join(REPO, "web/src/core/lmsr.ts")).href);
+const lmsr = await import(pathToFileURL(path.join(REPO, "site/lib/core/lmsr.ts")).href);
 
 const arg = (name) => { const i = process.argv.indexOf(name); return i > 0 ? process.argv[i + 1] : null; };
 const OLD = arg("--old-wasm"), FROM = arg("--from-rev");

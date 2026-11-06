@@ -95,7 +95,7 @@ const ED_SPKI = Buffer.from("302a300506032b6570032100", "hex");
 const sha256 = (b) => createHash("sha256").update(b).digest("hex");
 const clean = (h) => String(h || "").toLowerCase().replace(/^0x/, "");
 
-/** The sentence texts in a writer response (web/src/core/verify.ts signedSentences). */
+/** The sentence texts in a writer response (site/lib/core/verify.ts signedSentences). */
 function signedSentences(bytes) {
   try {
     const content = JSON.parse(bytes.toString("utf8"))?.choices?.[0]?.message?.content;

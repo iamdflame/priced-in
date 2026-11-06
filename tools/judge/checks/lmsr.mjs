@@ -1,4 +1,4 @@
-// Check 1: the browser's LMSR (web/src/core/lmsr.ts) is bit-exact with crates/lmsr on the
+// Check 1: the site's LMSR (site/lib/core/lmsr.ts, what every Yes/No button quotes) is bit-exact with crates/lmsr on the
 // crate's own vectors, and holds the market's properties over 10,000 random trade sequences:
 // the same sequences, from the same generator and seed, as the crate's property test.
 import fs from "node:fs";
@@ -6,8 +6,8 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 export async function checkLmsr(repo) {
-  const L = await import(pathToFileURL(path.join(repo, "web/src/core/lmsr.ts")).href);
-  const v = JSON.parse(fs.readFileSync(path.join(repo, "web/test/vectors/lmsr.json"), "utf8"));
+  const L = await import(pathToFileURL(path.join(repo, "site/lib/core/lmsr.ts")).href);
+  const v = JSON.parse(fs.readFileSync(path.join(repo, "site/tests/vectors/lmsr.json"), "utf8"));
   const B = (s) => BigInt(s);
   const same = (m, j) => m.b === B(j.b) && m.d0 === B(j.d0) && m.qYes === B(j.q_yes) && m.qNo === B(j.q_no);
   let rows = 0;
@@ -132,6 +132,6 @@ export async function checkLmsr(repo) {
   if (bad.length) return { status: "FAIL", detail: bad.slice(0, 3).join("; ") };
   return {
     status: "PASS",
-    detail: `web/src/core/lmsr.ts is bit-exact with crates/lmsr on ${rows} vector values (${trades} trades at fees from 0 to 300 bps, ${fills} edge fills, ${overflows} refused overflows); 10,000 random sequences, ${nTrades} trades: prices sum to one within ${worstSum}e-12, cost path-independent (collected - [C(end) - C(open)] <= ${worstSlack}e-12, always in the market's favour), maker's loss <= b ln(1/p0) in both outcomes`,
+    detail: `site/lib/core/lmsr.ts is bit-exact with crates/lmsr on ${rows} vector values (${trades} trades at fees from 0 to 300 bps, ${fills} edge fills, ${overflows} refused overflows); 10,000 random sequences, ${nTrades} trades: prices sum to one within ${worstSum}e-12, cost path-independent (collected - [C(end) - C(open)] <= ${worstSlack}e-12, always in the market's favour), maker's loss <= b ln(1/p0) in both outcomes`,
   };
 }

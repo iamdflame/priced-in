@@ -12,7 +12,7 @@
 //   a failed withdraw refunded; pause, which also holds the treasury, the council and deposits;
 //   the taker fee on buys, sales and the lane's credit, at every rate from 0 to its cap;
 //   set_swarm, which takes one name, once, from swarm.<owner> or swarm.<the market's parent>;
-//   every quote against its fill: the browser's port (web/src/core/lmsr.ts) from get_claim alone,
+//   every quote against its fill: the browser's port (site/lib/core/lmsr.ts) from get_claim alone,
 //   and the contract's own quote_buy and quote_sell views, to the micro.
 // After each stage it checks the books: the USDC the market holds equals every bucket, and every
 // bucket equals the sum of the items in it. At the end it rebuilds every balance, every position,
@@ -31,7 +31,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 // the browser's own quoting code, unchanged: Node runs its TypeScript directly
-const lmsr = await import(pathToFileURL(path.resolve("web/src/core/lmsr.ts")).href);
+const lmsr = await import(pathToFileURL(path.resolve("site/lib/core/lmsr.ts")).href);
 
 const TGAS = 1_000_000_000_000n;
 const NEAR = 1_000_000_000_000_000_000_000_000n;

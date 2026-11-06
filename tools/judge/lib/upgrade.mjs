@@ -298,7 +298,7 @@ export async function upgradeMarket(network) {
   const untilFinal = async (test) => { for (let i = 0; i < 30; i++) { if (await test()) return true; await sleep(1500); } return false; };
   const stuck = (why) => { console.error(`${why}${paused ? `\nTHE MARKET IS STILL PAUSED, on purpose: no USDC can leave it. Fix the cause, then run again with --finish, or call pause {"paused":false} as ${d.owner}.` : ""}`); process.exit(1); };
   let paused = FINISH && before.stats.paused, txHash = null; // whether this run lifts the pause
-  const L = await import(pathToFileURL(path.join(REPO, "web/src/core/lmsr.ts")).href);
+  const L = await import(pathToFileURL(path.join(REPO, "site/lib/core/lmsr.ts")).href);
   // what the new views say, against raw storage and against the browser's port: run after a
   // deploy, and again by --finish, which has no snapshot from before it
   const checkViews = async (claims, raw) => {
