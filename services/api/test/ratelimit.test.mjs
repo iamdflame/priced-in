@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DailyLimiter, clientIp, normalizeIp, DAY_MS } from "../src/ratelimit.mjs";
+import { DailyLimiter, clientIp, normalizeIp, visitorIp, DAY_MS } from "../src/ratelimit.mjs";
 
 test("allows the limit per key per day, then refuses with a retry time", () => {
   let t = 5 * DAY_MS + 1000;
@@ -49,4 +49,14 @@ test("IPv6 addresses share a bucket per /64", () => {
   assert.equal(normalizeIp("2001:db8:1:2:bbbb:cccc:dddd:eeee"), "2001:db8:1:2::/64");
   assert.equal(normalizeIp("::1"), "0:0:0:0::/64");
   assert.equal(normalizeIp("8.8.8.8"), "8.8.8.8");
+});
+
+test("visitorIp: the site's forwarded address counts only with the shared secret", () => {
+  const secret = "s3cret-s3cret";
+  assert.equal(visitorIp({ "x-real-ip": "9.9.9.9" }, secret), "9.9.9.9", "the edge's address, with no forwarding");
+  assert.equal(visitorIp({ "x-real-ip": "9.9.9.9", "x-visitor-ip": "1.2.3.4", "x-proxy-secret": secret }, secret), "1.2.3.4", "the site vouches for its visitor");
+  assert.equal(visitorIp({ "x-real-ip": "9.9.9.9", "x-visitor-ip": "1.2.3.4", "x-proxy-secret": "wrong-secret!" }, secret), "9.9.9.9", "a wrong secret is ignored");
+  assert.equal(visitorIp({ "x-real-ip": "9.9.9.9", "x-visitor-ip": "1.2.3.4" }, secret), "9.9.9.9", "no secret is ignored");
+  assert.equal(visitorIp({ "x-real-ip": "9.9.9.9", "x-visitor-ip": "1.2.3.4", "x-proxy-secret": "" }, ""), "9.9.9.9", "no configured secret trusts nobody");
+  assert.equal(visitorIp({}, secret), null);
 });

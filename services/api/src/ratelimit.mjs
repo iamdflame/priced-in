@@ -1,5 +1,6 @@
 // Fixed-window daily counters keyed by UTC day. In memory: a restart resets them, which is
 // safe because the contract's lane budget is the hard limit and this is the soft one.
+import { timingSafeEqual } from "node:crypto";
 
 export const DAY_MS = 86_400_000;
 
@@ -49,6 +50,24 @@ export class DailyLimiter {
     this.roll();
     return this.counts.get(key) || 0;
   }
+}
+
+const sameSecret = (a, b) => {
+  const x = Buffer.from(String(a ?? "")), y = Buffer.from(String(b ?? ""));
+  return x.length === y.length && timingSafeEqual(x, y);
+};
+
+/**
+ * The visitor's address on the hosting edge, or null. The edge sets x-real-ip to whoever connected.
+ * When the product site forwards a request, that is the site, so it passes the visitor's own address
+ * in x-visitor-ip with PROXY_SECRET in x-proxy-secret. Without the secret the header is ignored, so
+ * nobody can spend another address's allowance by claiming it.
+ */
+export function visitorIp(headers, proxySecret = process.env.PROXY_SECRET) {
+  const forwarded = headers["x-visitor-ip"];
+  if (proxySecret && typeof forwarded === "string" && forwarded.trim() && sameSecret(headers["x-proxy-secret"], proxySecret)) return forwarded.trim();
+  const real = headers["x-real-ip"];
+  return typeof real === "string" && real.trim() ? real.trim() : null;
 }
 
 /** The client IP: the socket address, or the last X-Forwarded-For hop behind a trusted proxy. */

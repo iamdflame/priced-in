@@ -7,7 +7,7 @@
 import { waitUntil } from "@vercel/functions";
 import { prepare, readBody, sendJson, txEvents, recordEvents, runJob, log } from "./_lib/runtime.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
-import { clientIp } from "../services/api/src/ratelimit.mjs";
+import { clientIp, visitorIp } from "../services/api/src/ratelimit.mjs";
 
 const TX = /^[1-9A-HJ-NP-Za-km-z]{43,44}$/;
 const ACCOUNT = /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
@@ -20,7 +20,7 @@ export default async function handler(req, res) {
   const txHash = String(body.txHash || "");
   const signerId = String(body.signerId || p.laneAccountId || "");
   if (!TX.test(txHash) || !ACCOUNT.test(signerId)) return sendJson(res, 400, { error: { code: "invalid_tx", message: "Send {txHash, signerId}: the challenge transaction and the account that signed it." } });
-  const ip = clientIp({ headers: { "x-forwarded-for": req.headers["x-real-ip"] || req.headers["x-forwarded-for"] }, socket: req.socket }, true);
+  const ip = clientIp({ headers: { "x-forwarded-for": visitorIp(req.headers) || req.headers["x-forwarded-for"] }, socket: req.socket }, true);
   // the Checker's challenges come from the cron, with its secret: they never use a visitor's allowance
   const fromCron = Boolean(process.env.CRON_SECRET) && req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`;
   const lim = fromCron ? { ok: true } : await p.state.take("after-challenge", ip, 10).catch(() => ({ ok: true }));

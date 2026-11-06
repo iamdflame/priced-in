@@ -7,7 +7,7 @@
 import { readContext, prepare, sendJson, log } from "./_lib/runtime.mjs";
 import { activityRoute, attestationsRoute, clockOf, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "./_lib/routes.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
-import { clientIp } from "../services/api/src/ratelimit.mjs";
+import { clientIp, visitorIp } from "../services/api/src/ratelimit.mjs";
 import { parseSigningKey } from "../services/api/src/planner.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
 
@@ -30,10 +30,10 @@ const since = (url) => Number(url.searchParams.get("since") || 0) || 0;
 const withTimeout = (p, ms, fallback) => Promise.race([p, new Promise((r) => setTimeout(() => r(fallback), ms))]);
 
 export default async function handler(req, res) {
-  // Vercel's edge sets x-real-ip to the visitor's address; the services' limiter reads the last
-  // x-forwarded-for hop, so hand it exactly that one address
-  const realIp = req.headers["x-real-ip"];
-  if (typeof realIp === "string" && realIp.trim()) req.headers["x-forwarded-for"] = realIp.trim();
+  // the services' limiter reads the last x-forwarded-for hop, so hand it exactly the visitor's one
+  // address: the edge's x-real-ip, or the address the product site vouches for with PROXY_SECRET
+  const visitor = visitorIp(req.headers);
+  if (visitor) req.headers["x-forwarded-for"] = visitor;
   const url = new URL(req.url, "http://x");
   const route = (url.searchParams.get("__p") ?? url.pathname.replace(/^\/api(?=\/|$)/, "")).replace(/\/+$/, "") || "/";
   url.searchParams.delete("__p");
