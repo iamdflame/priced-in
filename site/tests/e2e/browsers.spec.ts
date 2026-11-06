@@ -24,7 +24,7 @@ test("land, click across pages and back, and every stop is sound", async ({ page
     await expect(page).toHaveURL(url);
     await clean(name);
   }
-  await page.locator(".foot").getByRole("link", { name: "Trust", exact: true }).click();
+  await page.locator(".foot").getByRole("link", { name: "Trust", exact: true }).first().click();
   await expect(page).toHaveURL(/\/trust$/);
   await clean("trust");
   await page.locator(isMobile ? ".pbar .logo" : "header.nav .logo").click();
@@ -53,7 +53,7 @@ test("the footer, the wallet sheet, a ? and the theme work", async ({ page, isMo
   await expect(see).toBeHidden();
 
   await page.locator(".foot").scrollIntoViewIfNeeded();
-  await expect(page.locator(".foot")).toContainText("© 2026 Priced In.");
+  await expect(page.locator(".foot")).toContainText("© 2026 Priced In");
 
   await page.locator("[data-testid='connect-wallet']:visible").first().click();
   const sheet = page.getByRole("dialog");

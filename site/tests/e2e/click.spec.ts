@@ -47,7 +47,7 @@ test("no public page shows an API status code or a raw error", async ({ page }) 
   }
 });
 
-test("every page has the company footer, with its columns, line and copyright", async ({ page }) => {
+test("every page has the company footer: brand, topics with real counts, link groups, base bar, fine print", async ({ page }) => {
   test.setTimeout(180_000);
   await guard(page);
   await page.setViewportSize({ width: 1508, height: 800 });
@@ -57,9 +57,12 @@ test("every page has the company footer, with its columns, line and copyright", 
     await foot.scrollIntoViewIfNeeded();
     await expect(foot.locator("svg[aria-label='Priced In']"), route).toBeVisible();
     await expect(foot, route).toContainText("Is it true? Bet on it.");
-    for (const title of ["Product", "Proof", "Developers", "Legal"]) await expect(foot.getByRole("heading", { name: title }), route).toBeVisible();
+    for (const title of ["Facts by topic", "Product", "Help & proof", "Developers"]) await expect(foot.getByRole("heading", { name: title, exact: true }), route).toBeVisible();
+    await expect(foot.locator(".ft-topics"), route).toContainText(/\d+ facts? & odds/);
     await expect(foot, route).toContainText("Runs on NEAR. Paid in USDC.");
-    await expect(foot, route).toContainText("© 2026 Priced In.");
+    await expect(foot, route).toContainText("© 2026 Priced In");
+    await expect(foot, route).toContainText("CC BY-SA 4.0");
+    for (const name of ["Source code on GitHub", "pricedin-mcp on npm"]) await expect(foot.getByRole("link", { name }), route).toBeVisible();
   }
 });
 
@@ -100,7 +103,7 @@ test("on a phone, the docked ticket and the bottom bar never cover the footer", 
     await page.goto(route);
     await settle(page);
     await page.evaluate(() => scrollTo(0, document.documentElement.scrollHeight));
-    const end = (await page.locator(".foot-base").boundingBox())!;
+    const end = (await page.locator(".foot .ft-fine").last().boundingBox())!;
     const dock = await page.locator(".ticket.dock").boundingBox().catch(() => null);
     const bar = (await page.locator(".pnav").boundingBox())!;
     expect(end.y + end.height, `${route}: the footer's last line is under the bottom bar`).toBeLessThanOrEqual(bar.y + 1);
