@@ -265,7 +265,8 @@ export async function keeperRound(d) {
     else if (left() < 8000) chk.note = "out of time this run";
     else {
       const pick = candidates[0];
-      const r = await d.signer.challenge(`checker:${pick.claim.id}:${pick.tries}:${day(now())}`, { claim_id: pick.claim.id, claimed_outcome: false, evidence: checkerEvidence(pick.evidence) });
+      // a refused challenge is tried again next hour, never twice in one: once it lands the line is no longer Open
+      const r = await d.signer.challenge(`checker:${pick.claim.id}:${pick.tries}:${day(now())}:${new Date(now()).getUTCHours()}`, { claim_id: pick.claim.id, claimed_outcome: false, evidence: checkerEvidence(pick.evidence) });
       if (r.ok) {
         const challenge_id = Number(r.value);
         out.challenged = { claim_id: pick.claim.id, corpus_id: pick.evidence.corpus_id, challenge_id, tx: r.txHash };
