@@ -16,6 +16,7 @@ export function Footer() {
           <Link href={REPLAY_HREF}>Watch a replay</Link>
           <Link href="/stats">The numbers</Link>
           <Link href="/trust">Trust</Link>
+          <Link href="/terms">Terms</Link>
           <Link href="/p">Encyclopedia</Link>
           <Link href="/new">Price a claim</Link>
           <Link href="/developers">Developers</Link>

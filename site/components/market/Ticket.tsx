@@ -4,6 +4,7 @@
 import Link from "next/link";
 import { useRef } from "react";
 import { Icon } from "../Icon";
+import { WalletEntry } from "../money/WalletEntry";
 import { BetProgress } from "./BetProgress";
 import { Receipt } from "./Receipt";
 import { SettledTicket, type SettledInfo } from "./SettledTicket";
@@ -93,7 +94,8 @@ function BetTicket(p: TicketProps) {
       )}
       {done && !flow.receiptOpen && <button type="button" className="btn soft" onClick={flow.openReceipt}>See your receipt</button>}
       {!p.recorded && flow.lane.state === "preparing" && !busy && <p className="fine hide-dock">Preparing your free $1 in this browser…</p>}
-      <p className="fine hide-dock">{p.recorded ? "This is a replay of the real free $1 bet on this fact. Nothing is sent." : "Your free $1’s winnings count as score, not cash. Betting real USDC needs a NEAR wallet."}</p>
+      <p className="fine hide-dock">{p.recorded ? "This is a replay of the real free $1 bet on this fact. Nothing is sent." : "Your free $1’s winnings count as score, not cash."}</p>
+      {!p.recorded && <WalletEntry claimId={p.id} question={p.question} status={p.claim.status} outcome={p.claim.outcome} side={side} />}
       {flow.receiptOpen && flow.store && bet.ctx && (
         <Receipt bet={bet} store={flow.store} question={p.question} sentence={p.sentence} recorded={p.recorded} replayBlock={p.replayBlock} onClose={() => { flow.closeReceipt(); ref.current?.querySelector("button")?.focus(); }} />
       )}
@@ -102,5 +104,5 @@ function BetTicket(p: TicketProps) {
 }
 
 export function Ticket(p: TicketProps) {
-  return p.settled ? <SettledTicket s={p.settled} /> : <BetTicket {...p} />;
+  return p.settled ? <SettledTicket s={p.settled} wallet={<WalletEntry claimId={p.id} question={p.question} status={p.claim.status} outcome={p.claim.outcome} side={null} />} /> : <BetTicket {...p} />;
 }

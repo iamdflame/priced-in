@@ -189,6 +189,11 @@
 .pf-pending span { display: block; font-size: 13px; color: var(--ink3); }
 .score-note { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 999px; background: var(--brand-soft); color: var(--brand-text); font-size: 12.5px; font-weight: 600; }
 
+.pf-note { margin-top: 10px; }
+.pf-gap { margin-top: 12px; }
+.pf-gap-lg { margin-top: 28px; }
+.pf-stats-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
 /* ---------- terms ---------- */
 .legal { max-width: 760px; margin: 0 auto; padding: 40px 0 64px; }
 .legal h1 { font: 700 40px/1.05 var(--disp); letter-spacing: -.025em; }

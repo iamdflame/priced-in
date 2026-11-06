@@ -1,31 +1,13 @@
 "use client";
-// The nav's wallet: "Connect wallet" until connected, then the balance and the account menu. MoneyLayer
-// renders whichever money sheet is open, once for the whole site.
+// The nav's wallet: "Connect wallet" until connected, then the balance and the account menu.
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "../Icon";
-import { ConnectSheet } from "./Connect";
-import { CollectSheet } from "./Collect";
-import { DepositSheet } from "./Deposit";
-import { TradeSheet } from "./Trade";
 import "@/app/styles/money.css";
-import { WithdrawSheet } from "./Withdraw";
 import { canAddMoney } from "@/lib/money/geo";
-import { closeSheet, openSheet, useAccount, useGeo, useSheet, useWallet } from "@/lib/money/hooks";
+import { openSheet, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
 import { fmtMicro } from "@/lib/money/units";
 import { wallet } from "@/lib/money/wallet";
-
-export function MoneyLayer() {
-  const s = useSheet();
-  if (!s) return null;
-  switch (s.kind) {
-    case "connect": return <ConnectSheet then={s.then} onClose={closeSheet} />;
-    case "deposit": return <DepositSheet tab={s.tab} onClose={closeSheet} />;
-    case "withdraw": return <WithdrawSheet tab={s.tab} onClose={closeSheet} />;
-    case "trade": return <TradeSheet claimId={s.claimId} question={s.question} mode={s.mode} side={s.side} onClose={closeSheet} />;
-    case "collect": return <CollectSheet claimId={s.claimId} question={s.question} winMicro={s.winMicro} onClose={closeSheet} />;
-  }
-}
 
 export function WalletButton() {
   const w = useWallet();

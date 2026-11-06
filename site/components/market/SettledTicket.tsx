@@ -1,5 +1,6 @@
 // Where the ticket stood on a settled fact: who won, what was paid, and the corrected fact to bet on.
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { Icon } from "../Icon";
 import { money } from "@/lib/format";
 import { REPLAY_HREF } from "@/lib/nav";
@@ -12,7 +13,7 @@ export interface SettledInfo {
   correctedQuestion: string | null;
 }
 
-export function SettledTicket({ s }: { s: SettledInfo }) {
+export function SettledTicket({ s, wallet }: { s: SettledInfo; wallet: ReactNode }) {
   const side = winningSide(s.verdict);
   return (
     <aside className={`panel ticket ${s.correctedId !== null ? "dock" : ""}`} aria-label="Result">
@@ -28,6 +29,7 @@ export function SettledTicket({ s }: { s: SettledInfo }) {
         )}
         <Link className="btn soft hide-dock" href={REPLAY_HREF}>Watch a replay of a ruling</Link>
       </div>
+      {wallet}
     </aside>
   );
 }

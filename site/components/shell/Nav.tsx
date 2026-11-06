@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { Lockup } from "../Brand";
 import { Icon } from "../Icon";
+import { MoneyLayer } from "../money/MoneyLayer";
+import { WalletButton } from "../money/WalletButton";
 import { Search } from "./Search";
 import { ThemeToggle } from "./ThemeToggle";
 import { NAV, REPLAY_HREF } from "@/lib/nav";
@@ -37,6 +39,7 @@ export function Nav() {
           </nav>
           <div className="nav-actions">
             <ThemeToggle />
+            <WalletButton />
             <Link className="btn primary" href={cta}>Bet $1 free</Link>
           </div>
         </div>
@@ -46,9 +49,11 @@ export function Nav() {
         <div className="r">
           <ThemeToggle />
           <Link className="iconbtn" href="/#facts" aria-label="Search facts"><Icon name="search" /></Link>
+          <WalletButton />
           <Link className="btn primary" href={cta}>Free $1</Link>
         </div>
       </div>
+      <MoneyLayer />
     </>
   );
 }
