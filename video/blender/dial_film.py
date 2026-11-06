@@ -59,8 +59,8 @@ def path(sec, keys, dur=1.25, ease=NEEDLE):
     return p
 
 
-def digits(sec, keys, dur=0.9):
-    # the printed number follows the price without the overshoot
+def digits(sec, keys, dur=0.22):
+    # the printed number snaps to each real price (a quick roll, no invented in-between values held on screen)
     return round(path(sec, keys, dur, OUTC))
 
 
@@ -448,6 +448,8 @@ def apply(frame):
     p = path(sec, S['keys']) / 100
     needle.rotation_euler = (0, 0, -math.radians(-120 + 240 * p))
     v = digits(sec, S['keys'])
+    if SHOT == 'wake':
+        v = round(S['keys'][-1][1])  # the face lights up on the live price only
     num.data.body = str(int(v))
     # the wake: everything printed and lit fades up with the light
     w = 1.0
@@ -460,8 +462,11 @@ def apply(frame):
     st(tick2, 0.16 * w)
     st(needle_m, 2.2 * (0.06 + 0.94 * w))
     st(core_m, 3.0 * (0.06 + 0.94 * w))
-    st(ink, 1.05 * clamp((w - 0.6) / 0.4))
-    st(ink2, 0.72 * clamp((w - 0.6) / 0.4))
+    lit = clamp((w - 0.6) / 0.4)
+    if SHOT == 'wake':
+        lit = OUTC(clamp((sec - 1.55) / 0.5))  # the number appears once the needle has settled on 23%
+    st(ink, 1.05 * lit)
+    st(ink2, 0.72 * lit)
     for l, base in ((key, 300), (top, 90), (fill, 60), (rim, 130)):
         l.data.energy = base * (0.05 + 0.95 * w) if 'wake' in S else base
     if SHOT == 'stamps':

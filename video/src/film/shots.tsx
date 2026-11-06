@@ -133,12 +133,12 @@ const Tap: React.FC<P> = ({shot, t, T}) => {
   const ripple = T >= tap ? clamp01((T - tap) / 0.5) : 0;
   const chip = shot.chip ? ease(T, shot.chip, 0.4, EASE.spring) : 0;
   const pose = tall ? {ry: mix(-16, -6, k), rx: mix(10, 3, k), rz: 1.5, s: mix(0.94, 1.02, k)} : {ry: mix(-30, -17, k), rx: mix(14, 6, k), rz: mix(5, 2.5, k), s: mix(0.92, 1.0, k)};
-  const before = ft < FLOW_TAP + 0.02;
+  const before = ft < 2.3; // the replay's caption reads "$0.00 bet so far": only the true "5 bets" is shown
   return (
     <Ground glow={tall ? '50% 60%' : '68% 50%'}>
-      <AbsoluteFill style={{flexDirection: tall ? 'column' : 'row', alignItems: 'center', justifyContent: tall ? 'flex-start' : 'space-between', padding: tall ? '150px 70px 0' : '0 150px 40px 130px', gap: tall ? 40 : 40}}>
+      <AbsoluteFill style={{flexDirection: tall ? 'column' : 'row', alignItems: 'center', justifyContent: tall ? 'flex-start' : 'space-between', padding: tall ? '110px 70px 0' : '0 150px 40px 130px', gap: tall ? 30 : 40}}>
         <div style={{flex: tall ? 'none' : 1, alignSelf: tall ? 'flex-start' : 'center'}}>
-          <Spoken t={T} words={words} size={tall ? 92 : 118} />
+          <Spoken t={T} words={words} size={tall ? 78 : 118} />
           <div style={{marginTop: 34, opacity: ease(t, 0.3, 0.4)}}>
             <Chip size={tall ? 1.7 : 1.7}>Your first $1 is free · no sign-up, no wallet</Chip>
           </div>
@@ -150,10 +150,10 @@ const Tap: React.FC<P> = ({shot, t, T}) => {
             </div>
           ) : null}
         </div>
-        <div style={{flex: 'none', transform: tall ? 'scale(0.86)' : undefined, transformOrigin: '50% 0'}}>
-          <Phone3D src={src} width={tall ? 560 : 400} pose={pose} sheen={clamp01(t / 1.6)}>
+        <div style={{flex: 'none'}}>
+          <Phone3D src={src} width={tall ? 450 : 400} pose={pose} sheen={clamp01(t / 1.6)}>
             {before ? (
-              <div style={{position: 'absolute', left: '7%', top: '52.5%', width: '45%', height: '3.2%', background: '#10161B', display: 'flex', alignItems: 'center', font: `400 ${tall ? 22 : 16}px ${FONT.text}`, color: C.ink2}}>5 bets</div>
+              <div style={{position: 'absolute', left: '7.5%', top: '53.6%', width: '44%', height: '2.6%', background: '#13181D', display: 'flex', alignItems: 'center', font: `400 ${tall ? 19 : 16}px ${FONT.text}`, color: C.ink2}}>5 bets</div>
             ) : null}
             {ripple > 0 && ripple < 1 ? (
               <div style={{position: 'absolute', left: '74%', top: '86%', width: 70, height: 70, margin: '-35px 0 0 -35px', borderRadius: '50%', background: 'rgba(255,255,255,0.4)', opacity: 1 - ripple, transform: `scale(${1 + ripple * 3})`}} />
@@ -237,7 +237,7 @@ const Steps: React.FC<P> = ({shot, t, T}) => {
   const cut = useCut();
   // the plate starts 0.5 s in, so the seven steps fall on "Seven bets took this one from fifty percent to ten"
   const skip = tall ? 0.15 : 0.5;
-  const rate = tall ? 5.1 / shot.dur : 1;
+  const rate = tall ? 4.8 / shot.dur : 1;
   const local = skip + t * rate;
   const title = ease(t, 0, 0.5);
   const done = LEDGER.filter((l) => local >= l.at);
@@ -269,8 +269,8 @@ const Steps: React.FC<P> = ({shot, t, T}) => {
   }
   return (
     <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="steps" local={local} bloom={0.5} />
-      <AbsoluteFill style={{left: 1130, width: 700, justifyContent: 'center', paddingBottom: 30}}>
+      <Plate shot="steps" local={local} bloom={0.5} style={{transform: 'scale(1.07)', transformOrigin: '100% 50%'}} />
+      <AbsoluteFill style={{left: 1215, width: 620, justifyContent: 'center', paddingBottom: 30}}>
         <div style={{opacity: title, transform: `translateY(${(1 - title) * 18}px)`}}>
           <div style={{...big(108)}}>7 bets</div>
           <div style={{...big(70, C.ink2), marginTop: 10}}>50% → 10%</div>
@@ -279,7 +279,7 @@ const Steps: React.FC<P> = ({shot, t, T}) => {
         {LEDGER.map((l) => {
           const k = ease(local, l.at, 0.3, EASE.spring);
           return (
-            <div key={l.at} style={{display: 'grid', gridTemplateColumns: '150px 1fr 90px', alignItems: 'center', height: 54, borderTop: `1px solid ${C.line}`, opacity: k, transform: `translateX(${(1 - k) * 24}px)`, visibility: k > 0 ? 'visible' : 'hidden'}}>
+            <div key={l.at} style={{display: 'grid', gridTemplateColumns: '128px 1fr 80px', alignItems: 'center', height: 54, borderTop: `1px solid ${C.line}`, opacity: k, transform: `translateX(${(1 - k) * 24}px)`, visibility: k > 0 ? 'visible' : 'hidden'}}>
               <span style={{font: `600 22px ${FONT.text}`, color: l.yes ? C.yes : C.no}}>{l.yes ? 'Yes, true' : 'No, false'}</span>
               <span style={{font: `500 24px ${FONT.text}`, color: C.ink2}}>{l.who}</span>
               <span style={{font: `700 30px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.ink, textAlign: 'right', fontFeatureSettings: "'tnum'"}}>{l.p}%</span>
@@ -299,8 +299,8 @@ const Traders: React.FC<P> = ({shot, t, T}) => {
   return (
     <Ground glow="62% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: 'translate(-340px, 10px)'}}>
-          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(3090, 3160, k)} pose={{rx: mix(14, 9, k), ry: mix(24, 19, k), rz: -2}} lifts={[{x: 60, y: 3440, w: 1960, h: 330, z: lift * 170, ring: true}]} dim={0.38 * lift} />
+        <div style={{transform: 'translate(-300px, 50px)'}}>
+          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(3120, 3170, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: -1.5}} lifts={[{x: 60, y: 3440, w: 1960, h: 330, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(11,15,19,0.97) 0%, rgba(11,15,19,0.8) 28%, transparent 46%)'}} />
@@ -334,8 +334,8 @@ const Challenge: React.FC<P> = ({shot, t, T}) => {
   return (
     <Ground glow="62% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: 'translate(-340px, 10px)'}}>
-          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(1200, 1270, k)} pose={{rx: mix(13, 8, k), ry: mix(23, 18, k), rz: 1.5}} lifts={[{x: 90, y: 1425, w: 1890, h: 150, z: lift * 160, ring: true}]} dim={0.4 * lift} />
+        <div style={{transform: 'translate(-300px, 50px)'}}>
+          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(1140, 1200, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: 1.5}} lifts={[{x: 90, y: 1425, w: 1890, h: 150, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(11,15,19,0.97) 0%, rgba(11,15,19,0.8) 28%, transparent 46%)'}} />
@@ -379,15 +379,25 @@ const Judges: React.FC<P> = ({shot, t, T}) => {
 };
 
 // ----- FALSE. FALSE. FALSE. ---------------------------------------------------------------------------------
-const Stamps: React.FC<P> = ({shot, t}) => {
+const Stamps: React.FC<P> = ({shot, t, T}) => {
+  const tall = useTall();
+  const cut = useCut();
   const rate = shot.rate ?? 1;
   const local = t * rate;
   const inK = ease(t, 0, 0.18);
+  // in the short cuts the signature detail lands on the stamps themselves
+  const c4 = cut.cues.find((q) => q.id === 'C4');
+  const sig = c4 ? ease(T, c4.at + 0.15, 0.35, EASE.spring) : 0;
   return (
     <AbsoluteFill style={{background: '#000'}}>
-      <AbsoluteFill style={{opacity: inK}}>
-        <Plate shot="stamps" local={local} bloom={0.6} />
+      <AbsoluteFill style={{opacity: inK, transform: c4 ? `scale(${tall ? 0.9 : 0.84})` : undefined, transformOrigin: '50% 8%'}}>
+        <Plate shot="stamps" local={local} bloom={0.6} style={{filter: 'contrast(1.16) brightness(0.9)'}} />
       </AbsoluteFill>
+      {c4 ? (
+        <AbsoluteFill style={{alignItems: 'center', justifyContent: 'flex-end', paddingBottom: tall ? 470 : 112}}>
+          <div style={{opacity: clamp01(sig), transform: `scale(${mix(0.92, 1, sig)})`, padding: '16px 30px', borderRadius: 999, background: 'rgba(11,15,19,0.82)', boxShadow: `0 0 0 1px ${C.lineStrong}`, font: `600 ${tall ? 52 : 46}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.yes}}>✓ Signature checked by NEAR</div>
+        </AbsoluteFill>
+      ) : null}
     </AbsoluteFill>
   );
 };
@@ -403,7 +413,7 @@ const Signed: React.FC<P> = ({shot, t, T}) => {
   void tall;
   return (
     <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="stamps" local={5.59} bloom={0.3} style={{filter: 'blur(14px) brightness(0.42)'}} />
+      <Plate shot="stamps" local={5.59} bloom={0} style={{filter: 'blur(22px) brightness(0.22)', transform: 'scale(1.08)'}} />
       <AbsoluteFill style={{justifyContent: 'center', padding: '0 150px 30px'}}>
         <div style={{...big(84, C.ink2)}}>
           <WordIn t={T} at={shot.at - 0.05}>
@@ -411,14 +421,14 @@ const Signed: React.FC<P> = ({shot, t, T}) => {
           </WordIn>
         </div>
         <div style={{...big(186), marginTop: 8, opacity: T >= seven ? 1 : 0, transformOrigin: '0 100%', transform: `scale(${mix(1.06, 1, k)})`}}>under 17 seconds</div>
-        <div style={{marginTop: 54, display: 'flex', flexDirection: 'column', gap: 8, width: 1240}}>
+        <div style={{marginTop: 54, display: 'flex', flexDirection: 'column', gap: 8, width: 1560}}>
           {JUDGES.map((j, i) => {
             const c = ease(T, check + i * 0.3, 0.32, EASE.spring);
             return (
-              <div key={j.name} style={{display: 'grid', gridTemplateColumns: '300px 260px 1fr', alignItems: 'center', height: 66, borderTop: `1px solid ${C.line}`, opacity: T >= check - 0.6 ? 1 : 0}}>
-                <span style={{font: `600 32px ${FONT.disp}`, color: C.ink}}>{j.name}</span>
-                <span style={{font: `500 26px ${FONT.mono}`, color: C.ink3}}>{j.tx}</span>
-                <span style={{font: `600 34px ${FONT.disp}`, color: C.yes, opacity: c, transform: `translateX(${(1 - c) * 16}px) scale(${mix(0.94, 1, c)})`, transformOrigin: '0 50%'}}>✓ Signature checked by NEAR</span>
+              <div key={j.name} style={{display: 'grid', gridTemplateColumns: '360px 300px 1fr', alignItems: 'center', height: 84, borderTop: `1px solid ${C.line}`, opacity: T >= check - 0.6 ? 1 : 0}}>
+                <span style={{font: `600 42px ${FONT.disp}`, color: C.ink}}>{j.name}</span>
+                <span style={{font: `500 30px ${FONT.mono}`, color: C.ink3}}>{j.tx}</span>
+                <span style={{font: `600 42px ${FONT.disp}`, color: C.yes, opacity: c, transform: `translateX(${(1 - c) * 16}px) scale(${mix(0.94, 1, c)})`, transformOrigin: '0 50%'}}>✓ Signature checked by NEAR</span>
               </div>
             );
           })}
@@ -607,7 +617,9 @@ const End: React.FC<P> = ({shot, t, T}) => {
   );
 };
 
-const FixShot: React.FC<P & {short?: boolean}> = ({short}) => (short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix delay={0.65} />);
+const FixShot: React.FC<P & {short?: boolean}> = ({short}) => (
+  <AbsoluteFill style={{transform: 'scale(1.12)', transformOrigin: '20% 50%'}}>{short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix delay={0.65} />}</AbsoluteFill>
+);
 
 export const SHOTS: Record<string, React.FC<P>> = {
   hook: Hook,

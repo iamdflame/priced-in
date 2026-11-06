@@ -107,7 +107,7 @@ def main_cut():
           ('whoosh_short', near - 0.15, 0.5), ('bloom', near + 0.7, 0.9), ('receipt', near + 0.75, 0.8),
           ('whoosh', 11.05, 0.35), ('whoosh', 13.3, 0.4), ('whoosh_short', 15.6, 0.4),
           ('whoosh', 20.05, 0.4), ('whoosh_short', 23.1, 0.35), ('whoosh', 25.3, 0.35), ('tap', 26.6, 0.5),
-          ('stamp1', 35.1, 1.0), ('stamp2', 36.1, 1.0), ('stamp3', 38.2, 1.0),
+          ('stamp1', 35.1, 1.9), ('stamp2', 36.1, 1.9), ('stamp3', 38.2, 2.2),
           ('ping', word_at('L07e', 39.6, 'checked'), 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.3, 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.6, 0.8),
           ('clock', 44.5, 0.5), ('whoosh_short', 47.8, 0.35),
           ('strike', 49.0, 0.8), ('morph', 49.8, 0.75),
@@ -135,7 +135,7 @@ def short_cut():
         dict(id='end', at=11.8, dur=3.2, fast=True),
     ]
     sx = [('whoosh', 3.55, 0.35), ('tap', 4.55, 0.9), ('receipt', 5.0, 0.7), ('whoosh_short', 5.7, 0.4),
-          ('stamp1', 6.22, 0.9), ('stamp2', 6.85, 0.95), ('stamp3', 8.16, 1.0), ('ping', 9.6, 0.7),
+          ('stamp1', 6.22, 1.7), ('stamp2', 6.85, 1.8), ('stamp3', 8.16, 2.1), ('ping', 9.6, 0.7),
           ('whoosh_short', 10.15, 0.35), ('count', 10.45, 0.55), ('settle', 11.1, 0.8),
           ('bloom', 12.1, 0.9), ('sting', 12.1, 0.75)]
     music = dict(track=135.0, gain=[(0, -6), (1, -2), (5.3, -3), (6.1, -60), (9.5, -60), (10.3, -2), (13, -3), (15, -24)])
@@ -158,7 +158,7 @@ def vertical_cut():
     ]
     sx = [('whoosh', 3.55, 0.35), ('tap', 5.2, 0.9), ('whoosh_short', 5.85, 0.4), ('bloom', 6.7, 0.9), ('receipt', 6.75, 0.8),
           ('whoosh_short', 9.55, 0.4), ('whoosh', 13.3, 0.3),
-          ('stamp1', 17.1, 1.0), ('stamp2', 18.1, 1.0), ('stamp3', 20.2, 1.0), ('ping', 21.9, 0.8),
+          ('stamp1', 17.1, 1.9), ('stamp2', 18.1, 1.9), ('stamp3', 20.2, 2.2), ('ping', 21.9, 0.8),
           ('strike', 22.9, 0.8), ('morph', 23.3, 0.6), ('whoosh_short', 24.6, 0.3), ('count', 24.95, 0.55), ('settle', 25.7, 0.8),
           ('bloom', 26.95, 0.9), ('sting', 26.95, 0.75)]
     for i, t in enumerate([0.15, 0.6, 1.05, 1.5, 1.95, 2.4, 2.85]):

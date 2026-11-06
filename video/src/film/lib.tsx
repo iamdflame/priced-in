@@ -174,6 +174,8 @@ export const Captions: React.FC = () => {
     }
   }
   if (!cur) return null;
+  // the end card already says every word on screen
+  if (cut.shots.some((s) => s.id === 'end' && t >= s.at)) return null;
   const k = ease(t, cur.s - 0.05, 0.14);
   return (
     <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: tall ? 400 : 44, pointerEvents: 'none'}}>
@@ -307,6 +309,10 @@ export const Browser3D: React.FC<{src: string; url: string; width?: number; heig
             {img(false)}
             {dof > 0 ? img(true) : null}
             {dim > 0 ? <div style={{position: 'absolute', inset: 0, background: `rgba(11,15,19,${dim})`}} /> : null}
+            {lifts.map((l, i) => (
+              // the place the lifted card came from, so it is never seen twice
+              <div key={i} style={{position: 'absolute', left: l.x * k, top: (l.y - top) * k, width: l.w * k, height: l.h * k, borderRadius: 18, background: '#090C10', opacity: clamp01(l.z / 50)}} />
+            ))}
           </div>
           <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: bar, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg, borderBottom: `1px solid ${C.line}`}}>
             <span style={{display: 'inline-flex', alignItems: 'center', gap: 10, height: 28, padding: '0 16px', borderRadius: 999, background: C.surface2, font: `500 15px ${FONT.text}`, color: C.ink2}}>{url}</span>
