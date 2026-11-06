@@ -26,7 +26,7 @@ function Sheet({ f, onClose }: { f: Fact; onClose: () => void }) {
         <button ref={close} type="button" className="iconbtn sx" aria-label="Close" onClick={onClose}><Icon name="x" /></button>
         <h2 id="sheet-q">{f.question}</h2>
         <PctBlock f={f} />
-        {ruled ? <p className={`verdict ${f.outcome ? "true" : "false"} sheet-verdict`}>Ruled {f.outcome ? "TRUE" : "FALSE"}</p> : <BetLinks id={f.id} quotes={f.quotes} question={f.question} size="feature" />}
+        {ruled ? <p className={`verdict ${f.outcome ? "true" : "false"} sheet-verdict`}>Ruled {f.outcome ? "TRUE" : "FALSE"}</p> : <BetLinks id={f.id} quotes={f.quotes} question={f.question} />}
         <Link className="btn soft" href={`/c/${f.id}`}>Open market<Icon name="arrow" /></Link>
       </div>
     </div>

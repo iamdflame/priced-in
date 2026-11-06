@@ -32,8 +32,8 @@ export interface Fact {
   article: string;
   icon: string;
   art: string;
-  /** "Tether's T-Bills fact", for live sentences */
-  name: string;
+  /** "Tether · T-Bills $72.6B": a label that reads on its own */
+  short: string;
   caught: Caught | null;
   status: FactStatus;
   /** chain status: Open, Challenged, Escalated, Settled */

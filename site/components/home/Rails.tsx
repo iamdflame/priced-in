@@ -1,73 +1,61 @@
-// The two rails beside the lead. "Being decided": a ruling in progress or, honestly, when the next one
-// starts. "Results": the ruling record, every count from /api/rulings.
+// Beside the lead: the ruling with the most real bets ("Just ruled"), and what is before the judges now
+// (or, honestly, when the next ruling starts). Every count comes from /api/rulings.
 import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "../Icon";
 import { Countdown } from "../Live";
-import { explorerTx, money, plural, span } from "@/lib/format";
+import { money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
+import { verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling, Rulings } from "@/lib/server/api";
 
-const RESULTS_SHOWN = 3;
+const DAY_MS = 86_400_000;
 
-function Timer({ now, nextAt }: { now: Ruling | null; nextAt: number | null }) {
-  if (now) {
-    const inWindow = now.status === "window" && now.window_ends_at;
-    return <><div className="sm">{inWindow ? "Objections close in" : "AI judges rule in"}</div><div className="big"><Countdown to={inWindow ? now.window_ends_at! : now.jury_deadline_at} /></div></>;
-  }
-  if (nextAt) return <><div className="sm">The next fact goes to the judges in</div><div className="big"><Countdown to={nextAt} done="a moment" /></div></>;
-  return <div className="big sm-big">Nothing being decided</div>;
-}
-
-export function DecidingRail({ rulings, facts }: { rulings: Rulings | null; facts: Map<number, Fact> }) {
-  const now = rulings?.ruling_now ?? null;
-  const f = now ? facts.get(now.claim_id) : undefined;
+export function RuledCard({ r, ruled, corrected, settledCount, now }: { r: Ruling; ruled: Fact | undefined; corrected: Fact | undefined; settledCount: number; now: number }) {
+  const verdict = verdictOf(r);
+  const recent = r.settled_at !== null && now - r.settled_at < DAY_MS;
   return (
-    <section className="railcard" id="deciding" aria-labelledby="deciding-h">
-      <Link className="art" href={f ? `/c/${f.id}` : "/rulings"} tabIndex={-1} aria-hidden="true">
-        <Image src={`/art/${f?.art ?? "reserves"}.webp`} alt="" width={560} height={320} sizes="(max-width: 760px) 100vw, 392px" priority />
-        <div className="timer"><Timer now={now} nextAt={rulings?.next_challenge_at ?? null} /></div>
+    <section className="railcard ruled" aria-labelledby="ruled-h">
+      <Link className="art" href={`/c/${r.claim_id}`} tabIndex={-1} aria-hidden="true">
+        <Image src={`/art/${ruled?.art ?? "reserves"}.webp`} alt="" width={560} height={320} sizes="120px" />
       </Link>
       <div className="rbody">
-        <h2 id="deciding-h"><Icon name="clock" />Being decided</h2>
-        {!rulings ? (
-          <p>We couldn’t read the rulings just now. They’re on-chain either way; try again in a moment.</p>
-        ) : now && f ? (
-          <>
-            <Link className="rq" href={`/c/${f.id}`}>{f.question}</Link>
-            <p>{now.challenger_name.replace(/^the /, "The ")} says it’s {now.claimed.toLowerCase()} and put up {money(now.bond_usd)}. {now.verdicts.length} of 3 judges have ruled.</p>
-          </>
-        ) : (
-          <p>Nothing is before the judges right now. Our Checker challenges facts a newer source contradicts, one at a time{rulings.checker ? <> ({plural(rulings.checker.lines_left, "fact")} queued)</> : null}. Three AI judges rule within minutes, then anyone can object for 10 minutes.</p>
-        )}
+        <h2 id="ruled-h"><span className={`verdict ${verdict.toLowerCase()}`}>{recent ? "Just ruled" : "Ruled"}: {verdict}</span></h2>
+        <Link className="rq" href={`/c/${r.claim_id}`}>{ruled?.question ?? r.claim}</Link>
+        <p className="rs">{r.verdicts.length} AI judges · in {r.settled_at ? span(r.settled_at - r.opened_at) : "—"}{r.payout_usd ? ` · ${money(r.payout_usd)} paid to ${winningSide(verdict)}` : ""}{ruled?.trades ? ` · ${plural(ruled.trades, "bet")}` : ""}</p>
+        <p className="rlinks">
+          {corrected && <Link className="link" href={`/c/${corrected.id}`}>See the new question</Link>}
+          <Link className="link" href="/rulings">All {plural(settledCount, "result")}</Link>
+        </p>
       </div>
     </section>
   );
 }
 
-function ResultRow({ r, f }: { r: Ruling; f: Fact | undefined }) {
-  const word = (r.outcome ?? "").toLowerCase();
-  return (
-    <div className="resrow">
-      <Link className="rq" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>
-      <span className={`verdict ${word}`}>{word.toUpperCase()}</span>
-      <span className="rs">
-        Ruled {word} by {r.verdicts.length} AI judges · settled in {r.settled_at ? span(r.settled_at - r.opened_at) : "—"}{r.payout_usd ? ` · ${money(r.payout_usd)} paid` : ""}
-        {r.correction ? <> · <Link className="link" href={`/c/${r.correction.claim_id}`}>corrected</Link></> : null}
-        {r.settle_tx ? <> · <a className="link" href={explorerTx(r.settle_tx)} target="_blank" rel="noopener">tx</a></> : null}
-      </span>
-    </div>
-  );
+function Timer({ now, nextAt }: { now: Ruling | null; nextAt: number | null }) {
+  if (now) {
+    const inWindow = now.status === "window" && now.window_ends_at;
+    return <><span className="sm">{inWindow ? "Objections close in" : "AI judges rule in"}</span><span className="big"><Countdown to={inWindow ? now.window_ends_at! : now.jury_deadline_at} /></span></>;
+  }
+  if (nextAt) return <><span className="sm">Next fact to the judges in</span><span className="big"><Countdown to={nextAt} done="a moment" /></span></>;
+  return <span className="sm">Nothing is before the judges</span>;
 }
 
-export function ResultsRail({ settled, read, facts }: { settled: Ruling[]; read: boolean; facts: Map<number, Fact> }) {
+export function DecidingCard({ rulings, facts }: { rulings: Rulings | null; facts: Map<number, Fact> }) {
+  const now = rulings?.ruling_now ?? null;
+  const f = now ? facts.get(now.claim_id) : undefined;
   return (
-    <section className="railcard" id="results" aria-labelledby="results-h">
+    <section className="railcard deciding" id="deciding" aria-labelledby="deciding-h">
       <div className="rbody">
-        <h2 id="results-h"><Icon name="gavel" />Results{settled.length ? ` · ${plural(settled.length, "fact")} ruled` : ""}</h2>
-        {settled.slice(0, RESULTS_SHOWN).map((r) => <ResultRow key={r.challenge_id} r={r} f={facts.get(r.claim_id)} />)}
-        {settled.length > 0 && <Link className="link all" href="/rulings">See every result</Link>}
-        {!settled.length && <p>{read ? "No fact has been ruled on yet. The first result will show here, with the judges’ signed verdicts." : "We couldn’t read the results just now."}</p>}
+        <h2 id="deciding-h"><Icon name="clock" />Being decided</h2>
+        <div className="timer"><Timer now={now} nextAt={rulings?.next_challenge_at ?? null} /></div>
+        {!rulings ? (
+          <p>We couldn’t read the rulings just now. They’re on-chain either way.</p>
+        ) : now && f ? (
+          <Link className="rq" href={`/c/${f.id}`}>{f.question}</Link>
+        ) : (
+          <p>{rulings.checker ? `${plural(rulings.checker.lines_left, "doubted fact")} queued. ` : ""}Three AI judges rule within minutes.</p>
+        )}
       </div>
     </section>
   );

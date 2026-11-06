@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TopicIcon } from "../Brand";
 import { Chart } from "../Chart";
 import { Dial } from "../Dial";
-import { WhyEstimate } from "../Explain";
+import { WhyEstimate, WrongExplain } from "../Explain";
 import { Icon } from "../Icon";
 import { ReplayRuling } from "../ReplayRuling";
 import { RulingBlock } from "../Ruling";
@@ -23,7 +23,7 @@ export function MarketHead({ f }: { f: Fact }) {
     <header className="mk-head">
       <div className="crumb">
         <TopicIcon icon={f.icon} /><span>{f.topic}</span>
-        {f.caught && <span className="chip warn"><Icon name="flag" />Wikipedia may be wrong</span>}
+        {f.caught && <span className="chip warn"><Icon name="flag" />Wikipedia may be wrong<WrongExplain /></span>}
         {f.status === "settled" && <span className={`chip ${f.outcome ? "yes" : "no"}`}><Icon name="gavel" />Ruled {f.outcome ? "TRUE" : "FALSE"}</span>}
         {f.status === "deciding" && <span className="chip warn"><Icon name="clock" />Being decided</span>}
       </div>
@@ -45,7 +45,14 @@ function PricePanel({ m, recorded }: { m: Market; recorded: boolean }) {
       </div>
       <div>
         <div className="hd"><span>Chance it’s true, after each bet</span><span>{f.trades ? `${money(f.volumeUsd)} bet so far · ${plural(f.trades, "bet")}` : "No bets yet"}</span></div>
-        <Chart points={m.points} bets={m.bets} now={f.price} nowAt={m.nowAt} ruled={ruled} openLabel={m.corrects ? "Reopened at" : "At the start"} />
+        {f.trades > 0 ? (
+          <Chart points={m.points} bets={m.bets} now={f.price} nowAt={m.nowAt} ruled={ruled} openLabel={m.corrects ? "Reopened at" : "At the start"} />
+        ) : (
+          <div className="chartempty">
+            <b>No bets yet</b>
+            <span>{f.status === "settled" ? "Nobody bet on it before the judges ruled." : `The first bet draws the line. It opens at ${Math.round((f.openPrice ?? f.price) * 100)}%, ${m.corrects ? "the reopening price" : "our AI’s starting estimate"}.`}</span>
+          </div>
+        )}
       </div>
     </div>
   );

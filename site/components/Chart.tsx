@@ -102,22 +102,28 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
   );
 }
 
-/** A small step sparkline from the same log, for cards and rails. */
-export function Spark({ points, w = 132, h = 44 }: { points: [number, number][]; w?: number; h?: number }) {
-  const pts = points.map(([, ppm]) => ppm / 1e6);
-  if (pts.length < 2) pts.push(pts[0] ?? 0.5);
-  const n = pts.length - 1, pad = 3;
+/**
+ * A small step chart from the same log, for cards and the lead: the opening price, one step per real
+ * bet (each marked), then a level line to now. A fact nobody has bet on gets words, not a flat line.
+ */
+export function Spark({ points, w = 132, h = 44, label }: { points: [number, number][]; w?: number; h?: number; label?: string }) {
+  // a move under a tenth of a point is the history's "now" point, not a bet
+  const steps: number[] = [];
+  for (const [, ppm] of points) { const p = ppm / 1e6; if (!steps.length || Math.abs(p - steps[steps.length - 1]) >= 0.001) steps.push(p); }
+  if (steps.length < 2) return <span className="nobets">No bets yet</span>;
+  const pts = [...steps, steps[steps.length - 1]];
+  const n = pts.length - 1, pad = 4;
   const lo0 = Math.min(...pts), hi0 = Math.max(...pts);
   const span = Math.max(hi0 - lo0, 0.14), mid = (hi0 + lo0) / 2;
-  const lo = mid - span / 2 - span * 0.1, hi = mid + span / 2 + span * 0.1;
-  const X = (i: number) => pad + (i / n) * (w - pad * 2 - 3);
+  const lo = mid - span / 2 - span * 0.12, hi = mid + span / 2 + span * 0.12;
+  const X = (i: number) => pad + (i / n) * (w - pad * 2);
   const Y = (p: number) => pad + (1 - (p - lo) / (hi - lo)) * (h - pad * 2);
   let d = `M${X(0).toFixed(1)} ${Y(pts[0]).toFixed(1)}`;
   for (let i = 1; i <= n; i++) d += `H${X(i).toFixed(1)}V${Y(pts[i]).toFixed(1)}`;
-  const flat = new Set(pts.map((p) => Math.round(p * 1000))).size === 1;
   return (
-    <svg className={`spark ${flat ? "flat" : ""}`} width={w} height={h} viewBox={`0 0 ${w} ${h}`} aria-hidden="true">
+    <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
       <path className="ln" d={d} />
+      {pts.slice(1, -1).map((p, i) => <circle key={i} className="bt" cx={X(i + 1)} cy={Y(p)} r={2.6} />)}
       <circle className="hd" cx={X(n)} cy={Y(pts[n])} r={3} />
       <circle className="hl" cx={X(n)} cy={Y(pts[n])} r={3} />
     </svg>

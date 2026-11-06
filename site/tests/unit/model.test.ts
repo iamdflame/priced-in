@@ -31,7 +31,7 @@ describe("facts", () => {
     const look = catalogFor(9999, "ethereum", 20);
     expect(look.art).toBe(catalogFor(20, "ethereum").art);
     expect(look.caught).toBeNull();
-    expect(look.name).toMatch(/^the corrected /);
+    expect(look.short).toBe(`${catalogFor(20, "ethereum").short} (corrected)`);
   });
   test("a challenged fact can still be bet on, as the contract allows; a settled one can't", () => {
     expect(liveNumbers({ ...byId(24), status: "Challenged" }).quotes).not.toBeNull();

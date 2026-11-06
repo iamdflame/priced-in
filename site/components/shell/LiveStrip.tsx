@@ -1,33 +1,43 @@
 "use client";
-// The live strip: the real bets, newest first, as sentences, from the market contract's own log. It
-// renders from the server's read and refreshes while the tab is visible. The scrolling second copy is
-// decorative; the first copy is the readable, focusable one.
+// The live strip: the real bets, newest first, from the market contract's own log. Each item reads on its
+// own ("The Skeptic · $0.22 on False · Tether · T-Bills $72.6B") and the strip never cuts one in half:
+// only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
+// for the next. It renders from the server's read and refreshes while the tab is visible.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TopicIcon } from "../Brand";
 import { betsFrom, type Bet } from "@/lib/bets";
 import { money, type AgentNames } from "@/lib/format";
 
-export interface StripFact { name: string; icon: string }
+export interface StripFact { short: string; icon: string }
 
 const REFRESH_MS = 30_000;
 const SHOWN = 16;
+const ROTATE_MS = 5_000;
 
-function BetSentence({ b, f, hidden }: { b: Bet; f: StripFact | undefined; hidden: boolean }) {
+/** Step the list round every few seconds, unless the visitor asked for less motion or is reading it. */
+function useRotation<T>(items: T[]) {
+  const [start, setStart] = useState(0);
+  const [held, setHeld] = useState(false);
+  useEffect(() => {
+    if (held || items.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("still")) return;
+    const t = setInterval(() => setStart((s) => (s + 1) % items.length), ROTATE_MS);
+    return () => clearInterval(t);
+  }, [held, items.length]);
+  const shown = [...items.slice(start % Math.max(1, items.length)), ...items.slice(0, start % Math.max(1, items.length))];
+  return { shown, hold: () => setHeld(true), release: () => setHeld(false) };
+}
+
+function BetSentence({ b, f }: { b: Bet; f: StripFact | undefined }) {
   return (
-    <Link className="tk" href={`/c/${b.claimId}`} tabIndex={hidden ? -1 : undefined} prefetch={false}>
+    <Link className="tk" href={`/c/${b.claimId}`} prefetch={false}>
       {f && <TopicIcon icon={f.icon} />}
-      <span>{b.free ? <>Someone bet their <b>free $1</b></> : <>{b.who} bet <b>{money(b.usd)}</b></>} that {f?.name ?? `fact ${b.claimId}`} is <b className={b.side}>{b.side === "yes" ? "true" : "false"}</b></span>
+      <span><b>{b.free ? "Someone" : b.who}</b> · {b.free ? "free $1" : money(b.usd)} on <b className={b.side}>{b.side === "yes" ? "True" : "False"}</b> · {f?.short ?? `fact ${b.claimId}`}</span>
     </Link>
   );
 }
 
-export function LiveStrip({ initial, facts, agents, totals }: {
-  initial: Bet[];
-  facts: Record<number, StripFact>;
-  agents: AgentNames;
-  totals: { facts: number; trades: number; volumeUsd: number };
-}) {
+export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: Record<number, StripFact>; agents: AgentNames }) {
   const [bets, setBets] = useState(initial);
   const [live, setLive] = useState(true);
   useEffect(() => {
@@ -44,17 +54,14 @@ export function LiveStrip({ initial, facts, agents, totals }: {
     const t = setInterval(tick, REFRESH_MS);
     return () => { stop = true; clearInterval(t); };
   }, [agents]);
+  const rot = useRotation(bets);
   return (
     <div className="ticker" aria-label="Live bets">
       <div className="wrap">
-        <span className={`live ${live ? "" : "off"}`}><span className="dot" />{live ? "Live · real money" : "Reconnecting…"}</span>
-        <span className="net">{totals.facts} facts open · {totals.trades} bets · {money(totals.volumeUsd)} bet so far</span>
+        <span className={`live ${live ? "" : "off"}`}><span className="dot" />{live ? <>Live<span className="hide-phone"> · real money</span></> : "Reconnecting…"}</span>
         {bets.length ? (
-          <div className="tape">
-            <div className="tape-in">
-              {bets.map((b, i) => <BetSentence key={`${b.tx}${i}`} b={b} f={facts[b.claimId]} hidden={false} />)}
-              <span aria-hidden="true" className="contents">{bets.map((b, i) => <BetSentence key={`${b.tx}${i}`} b={b} f={facts[b.claimId]} hidden />)}</span>
-            </div>
+          <div className="tape" onMouseEnter={rot.hold} onMouseLeave={rot.release} onFocus={rot.hold} onBlur={rot.release}>
+            {rot.shown.map((b) => <BetSentence key={`${b.tx}:${b.claimId}:${b.at}`} b={b} f={facts[b.claimId]} />)}
           </div>
         ) : (
           <span className="net">No bets yet today. Yours could be the first.</span>

@@ -46,10 +46,9 @@ function useSearchTerm() {
   return [q, setQ] as const;
 }
 
-export function HomeGrid({ initial, points, agents, reopened }: {
+export function HomeGrid({ initial, points, reopened }: {
   initial: Fact[];
   points: Record<string, [number, number][]>;
-  agents: Record<number, string[]>;
   reopened: number[];
 }) {
   const facts = useLiveFacts(initial);
@@ -65,18 +64,17 @@ export function HomeGrid({ initial, points, agents, reopened }: {
   return (
     <section id="facts" aria-labelledby="facts-h">
       <div className="sec">
-        <h2 id="facts-h">{q ? `Facts matching “${q}”` : tab === ALL ? "Every fact" : tab}</h2>
-        <span className="n">{shown.length} of {facts.length} facts · {topics.length} topics</span>
-      </div>
-      <div className="tabs" role="group" aria-label="Filter by topic">
+        <h2 id="facts-h">{q ? `Facts matching “${q}”` : tab === ALL ? "Most bet on" : tab}</h2>
+        <div className="tabs" role="group" aria-label="Filter by topic">
         {filters.map((t) => (
           <button key={t.topic} type="button" className="tab" aria-pressed={tab === t.topic} onClick={() => setTab(t.topic)}>
             {t.topic === WRONG && <Icon name="flag" />}{t.topic}{t.topic !== ALL && <span className="n">{t.n}</span>}
           </button>
         ))}
+        </div>
       </div>
       <div className="grid">
-        {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} agents={agents[f.id] ?? []} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} />)}
+        {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} />)}
       </div>
       {!shown.length && (
         <StateBox icon="search" title="No facts match" actions={<button type="button" className="btn soft" onClick={() => { setQ(""); setTab(ALL); }}>Show every fact</button>}>

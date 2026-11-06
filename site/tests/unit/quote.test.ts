@@ -5,7 +5,7 @@ import { describe, expect, test } from "vitest";
 import vectors from "../../../web/test/vectors/lmsr.json";
 import claimsSnap from "./fixtures/claims.json";
 import { feeBpsOf, fillBuy, marketFromClaim, priceYes } from "@/lib/core/lmsr";
-import { backUsd, quoteClaim, quoteSide } from "@/lib/quote";
+import { backUsd, payoutWords, quoteClaim, quoteSide } from "@/lib/quote";
 import type { ClaimView } from "@/lib/model";
 import { preBetClaim, REPLAY } from "@/lib/replay/record";
 
@@ -67,6 +67,10 @@ describe("live mainnet claim views (v3, 1% fee)", () => {
       n++;
     }
     expect(n).toBeGreaterThan(30);
+  });
+  test("the payout is said in plain money: what you get if right, the stake lost if wrong", () => {
+    const q = { back: 1.5799, sharesMicro: "1579900", paid: 1, fee: 0.01, priceAfter: 0.6, exact: true };
+    expect(payoutWords(q)).toEqual({ get: "$1.57", right: "Right: you get $1.57", wrong: "Wrong: you lose $1" });
   });
   test("backUsd rounds down, never promising more than the chain pays", () => {
     expect(backUsd({ back: 1.8199, sharesMicro: "1819900", paid: 1, fee: 0.01, priceAfter: 0.5, exact: true })).toBe("$1.81");

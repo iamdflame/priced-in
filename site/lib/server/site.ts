@@ -60,15 +60,3 @@ export const getSite = cache(async (): Promise<Site> => {
     asOf: Date.now(),
   };
 });
-
-/** The AI traders who bet on each claim, by persona, from the log. */
-export function agentsByClaim(bets: Bet[]): Record<number, string[]> {
-  const out: Record<number, string[]> = {};
-  for (const b of bets) {
-    if (b.kind !== "agent") continue;
-    const name = b.who.replace(/^The /, "");
-    const l = (out[b.claimId] ||= []);
-    if (!l.includes(name)) l.push(name);
-  }
-  return out;
-}

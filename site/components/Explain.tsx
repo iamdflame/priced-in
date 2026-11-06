@@ -54,3 +54,11 @@ export function WhyEstimate({ pct }: { pct: number }) {
     </Explain>
   );
 }
+
+export function WrongExplain() {
+  return (
+    <Explain label="Why might Wikipedia be wrong?">
+      <b>Our check found a newer source that says otherwise.</b> It doesn’t decide the bet: three AI judges do, reading the sources, and their verdicts are signed on-chain.
+    </Explain>
+  );
+}

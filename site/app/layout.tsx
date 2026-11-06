@@ -43,9 +43,8 @@ async function LiveBets() {
   return (
     <LiveStrip
       initial={[...site.bets].reverse().slice(0, 16)}
-      facts={Object.fromEntries(site.facts.map((f) => [f.id, { name: f.name, icon: f.icon }]))}
+      facts={Object.fromEntries(site.facts.map((f) => [f.id, { short: f.short, icon: f.icon }]))}
       agents={site.agents}
-      totals={{ facts: site.totals.facts, trades: site.totals.trades, volumeUsd: site.totals.volumeUsd }}
     />
   );
 }

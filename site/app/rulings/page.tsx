@@ -22,7 +22,7 @@ import type { Fact } from "@/lib/model";
 import { rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling } from "@/lib/server/api";
 import { judgeWords, verdictTx } from "@/lib/server/proof";
-import { agentsByClaim, getSite } from "@/lib/server/site";
+import { getSite } from "@/lib/server/site";
 
 export const revalidate = 15;
 export const metadata: Metadata = {
@@ -45,7 +45,6 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const live = R.ruling_now;
   const ruledIds = new Set(all.map((r) => r.claim_id));
   const queue = site.facts.filter((f) => f.caught && f.status === "open" && !ruledIds.has(f.id)).sort((a, b) => b.trades - a.trades || a.id - b.id);
-  const byClaim = agentsByClaim(site.bets);
   const reopened = all.flatMap((r) => (r.correction ? [r.correction.claim_id] : []));
 
   return (
@@ -85,7 +84,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
         <>
           <SHead id="next" title="Up next: facts Wikipedia may have wrong" sub="Our check found a newer source that disagrees with each of these sentences. You can bet before the AI judges decide." right={plural(queue.length, "fact")} />
           <div className="grid">
-            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} agents={byClaim[f.id] ?? []} reopened={reopened.includes(f.id)} />)}
+            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} reopened={reopened.includes(f.id)} />)}
           </div>
         </>
       )}

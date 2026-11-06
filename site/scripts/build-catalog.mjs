@@ -1,5 +1,5 @@
 // Builds data/catalog.json: the art direction for each claim (topic, art object, coin icon, a short
-// name for live sentences) and, for lines the corpus audit found out of date, what the newer source
+// label that reads on its own) and, for lines the corpus audit found out of date, what the newer source
 // says. Sources, all real: the Pulse kit's data (.apex/design/brand/pulse/assets/data.js, itself built
 // from the mainnet snapshot, the contract's event log and corpus/ERRORS.json) and the one-line
 // evidence the kit's clarity pass wrote from those sources. Prices are never stored here: the site
@@ -27,19 +27,14 @@ const EVIDENCE = {
   26: 'SKY replaced MKR for governance (Sky)',
   27: 'about $78B a week in June 2025 (DefiLlama)',
 };
-// Plain names for live sentences ("The Quant bet $0.13 that Tether's T-Bills fact is false").
-const FACT = {
-  18: "Tether's T-Bills fact", 10: 'the Cantor Fitzgerald fact', 9: 'the T3 frozen-funds fact', 12: "Tether's $187.8B assets fact",
-  13: 'the XAU₮ gold fact', 16: 'the “backed 100%” fact', 7: 'the “five Tether tokens” fact', 6: 'the “13 chains” fact',
-  4: 'the El Salvador HQ fact', 2: 'the “350M users” fact', 1: 'the “largest stablecoin” fact', 0: 'the USD₮ codes fact',
-};
 
 const claims = {};
 for (const m of D.markets) {
   if (m.id === null || m.id === undefined) continue;
   claims[m.id] = {
     page: m.page, topic: m.topic, article: m.article, icon: m.icon, art: m.art,
-    name: FACT[m.id] || `the “${m.short}” fact`,
+    // a label that reads on its own, for the live strip: "Tether · T-Bills $72.6B"
+    short: m.topic === 'Prediction markets' ? m.short : `${m.topic} · ${m.short}`,
     caught: m.caught ? { today: m.caught.today, onPage: m.caught.onPage, source: m.caught.source, label: m.caught.label, checked: m.caught.checked, line: EVIDENCE[m.id] || null } : null,
   };
 }

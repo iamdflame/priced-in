@@ -79,6 +79,7 @@ main { flex: 1; padding-bottom: 56px; }
 .whyest { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 4px; border-radius: 50%; background: var(--surface3); color: var(--ink2); font: 700 11px var(--disp); vertical-align: 1px; position: relative; }
 .whyest::before { content: ''; position: absolute; inset: -13px; }
 .whyest:hover { color: var(--ink); }
+.chip .whyest { margin-left: 2px; background: oklch(from currentColor l c h / .18); color: inherit; }
 
 /* Popover */
 .pop { position: fixed; z-index: 60; max-width: min(340px, calc(100vw - 24px)); background: var(--surface3); color: var(--ink); border-radius: 14px; box-shadow: var(--lift), inset 0 0 0 1px var(--line-strong); padding: 14px 16px; font-size: 14px; line-height: 1.45; }
@@ -103,8 +104,8 @@ main { flex: 1; padding-bottom: 56px; }
 
 @keyframes rise { from { transform: translateY(18px); opacity: 0; } }
 @keyframes fade { from { opacity: 0; } }
-.still .tape-in, .still .dot { animation: none; }
+.still .tape .tk, .still .dot { animation: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; scroll-behavior: auto !important; }
-  .tape-in, .dot, .spark .hl, .sk { animation: none !important; }
+  .tape .tk, .dot, .spark .hl, .sk { animation: none !important; }
 }

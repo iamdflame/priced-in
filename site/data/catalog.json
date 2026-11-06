@@ -7,7 +7,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "tether",
-   "name": "the USD₮ codes fact",
+   "short": "Tether · USD₮ codes",
    "caught": null
   },
   "1": {
@@ -16,7 +16,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "stablecoins",
-   "name": "the “largest stablecoin” fact",
+   "short": "Tether · Largest stablecoin",
    "caught": null
   },
   "2": {
@@ -25,7 +25,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "tether",
-   "name": "the “350M users” fact",
+   "short": "Tether · 350M users",
    "caught": null
   },
   "3": {
@@ -34,7 +34,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "corp",
-   "name": "the “Owned by iFinex” fact",
+   "short": "Tether · Owned by iFinex",
    "caught": null
   },
   "4": {
@@ -43,7 +43,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "corp",
-   "name": "the El Salvador HQ fact",
+   "short": "Tether · HQ in El Salvador",
    "caught": null
   },
   "5": {
@@ -52,7 +52,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "corp",
-   "name": "the “Fully owned” fact",
+   "short": "Tether · Fully owned",
    "caught": null
   },
   "6": {
@@ -61,7 +61,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "defi",
-   "name": "the “13 chains” fact",
+   "short": "Tether · Issued on 13 chains",
    "caught": {
     "today": "No longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand",
     "onPage": "Tether issues on 13 chains, including Algorand, EOS and Bitcoin Cash SLP",
@@ -77,7 +77,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "tether",
-   "name": "the “five Tether tokens” fact",
+   "short": "Tether · Five tokens",
    "caught": null
   },
   "8": {
@@ -86,7 +86,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "btc",
    "art": "bitcoin",
-   "name": "the “Half of BTC trades” fact",
+   "short": "Tether · Half of BTC trades",
    "caught": null
   },
   "9": {
@@ -95,7 +95,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "freeze",
-   "name": "the T3 frozen-funds fact",
+   "short": "Tether · T3 froze $12M",
    "caught": null
   },
   "10": {
@@ -104,7 +104,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "reserves",
-   "name": "the Cantor Fitzgerald fact",
+   "short": "Tether · Cantor custodian",
    "caught": null
   },
   "11": {
@@ -113,7 +113,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "stablecoins",
-   "name": "the “Anchorage issues USAT” fact",
+   "short": "Tether · Anchorage issues USAT",
    "caught": null
   },
   "12": {
@@ -122,7 +122,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "reserves",
-   "name": "Tether's $187.8B assets fact",
+   "short": "Tether · $187.8B in assets",
    "caught": null
   },
   "13": {
@@ -131,7 +131,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "gold",
-   "name": "the XAU₮ gold fact",
+   "short": "Tether · XAU₮ is one ounce",
    "caught": null
   },
   "14": {
@@ -140,7 +140,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "gold",
-   "name": "the “XAU₮ on two chains” fact",
+   "short": "Tether · XAU₮ on two chains",
    "caught": null
   },
   "15": {
@@ -149,7 +149,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "tether",
-   "name": "the “Issued for dollars” fact",
+   "short": "Tether · Issued for dollars",
    "caught": null
   },
   "16": {
@@ -158,7 +158,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "reserves",
-   "name": "the “backed 100%” fact",
+   "short": "Tether · Backed 100%",
    "caught": null
   },
   "17": {
@@ -167,7 +167,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "audit",
-   "name": "the “No audits shown” fact",
+   "short": "Tether · No audits shown",
    "caught": null
   },
   "18": {
@@ -176,7 +176,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "reserves",
-   "name": "Tether's T-Bills fact",
+   "short": "Tether · T-Bills $72.6B",
    "caught": {
     "today": "$122.84 billion at 30 September 2026",
     "onPage": "$72.6 billion in U.S. T-Bills, stated without a date",
@@ -192,7 +192,7 @@
    "article": "Tether (cryptocurrency)",
    "icon": "usdt",
    "art": "reserves",
-   "name": "the “18th largest holder” fact",
+   "short": "Tether · 18th largest holder",
    "caught": null
   },
   "20": {
@@ -201,7 +201,7 @@
    "article": "Ethereum",
    "icon": "eth",
    "art": "ethereum",
-   "name": "the “ETH 25 tx a second” fact",
+   "short": "Ethereum · ETH 25 tx a second",
    "caught": {
     "today": "0.15 per second in January 2016 (Etherscan daily counts); about 23 to 25 per second now",
     "onPage": "About 25 transactions per second in January 2016",
@@ -217,7 +217,7 @@
    "article": "Uniswap",
    "icon": "uni",
    "art": "uniswap",
-   "name": "the “UNI supply capped” fact",
+   "short": "Uniswap · UNI supply capped",
    "caught": {
     "today": "No hard cap: the contract allows a mint of up to 2% a year; live supply is 1,000,000,000 and a minter address is set",
     "onPage": "UNI total supply is capped",
@@ -233,7 +233,7 @@
    "article": "Stablecoin",
    "icon": "usdt",
    "art": "audit",
-   "name": "the “Never audited” fact",
+   "short": "Stablecoins · Never audited",
    "caught": {
     "today": "On 13 August 2026 Tether announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion. The audit report is not public",
     "onPage": "As of November 2026, Tether has never completed an audit by an accounting firm",
@@ -249,7 +249,7 @@
    "article": "Prediction market",
    "icon": "mono:Pm",
    "art": "polymarket",
-   "name": "the “Polymarket uses USDC” fact",
+   "short": "Polymarket uses USDC",
    "caught": {
     "today": "pUSD, backed by USDC, is the collateral for all trading on Polymarket",
     "onPage": "Polymarket uses the USDC stablecoin",
@@ -265,7 +265,7 @@
    "article": "Prediction market",
    "icon": "mono:Ka",
    "art": "kalshi",
-   "name": "the “Kalshi US only” fact",
+   "short": "Kalshi US only",
    "caught": {
     "today": "Kalshi says users can trade from many countries, and announced 140+ countries in October 2025",
     "onPage": "Kalshi is available only for U.S. residents",
@@ -281,7 +281,7 @@
    "article": "Prediction market",
    "icon": "mono:Pm",
    "art": "polymarket",
-   "name": "the “Only Ontario banned” fact",
+   "short": "Only Ontario banned",
    "caught": {
     "today": "Blocked in Alberta, British Columbia, Ontario and Quebec",
     "onPage": "Polymarket operates in all of Canada except Ontario",
@@ -297,7 +297,7 @@
    "article": "Dai (cryptocurrency)",
    "icon": "dai",
    "art": "dai",
-   "name": "the “DAI run by MakerDAO” fact",
+   "short": "DAI · DAI run by MakerDAO",
    "caught": {
     "today": "SKY has been voted in as the sole governance token of the Sky Protocol",
     "onPage": "DAI is run by a DAO of MKR owners",
@@ -313,7 +313,7 @@
    "article": "Decentralized finance",
    "icon": "mono:DeFi",
    "art": "defi",
-   "name": "the “DEX volume $18.6B” fact",
+   "short": "DeFi · DEX volume $18.6B",
    "caught": {
     "today": "About $78 billion a week in June 2025 on DefiLlama; about $67 billion a week in Q2 2025 on CoinGecko",
     "onPage": "About $18.6 billion in weekly DEX volume in mid-2025",
@@ -329,7 +329,7 @@
    "article": "Polymarket",
    "icon": "mono:Pm",
    "art": "polymarket",
-   "name": "the “0.1% take 67%” fact",
+   "short": "0.1% take 67%",
    "caught": null
   },
   "29": {
@@ -338,7 +338,7 @@
    "article": "Near Protocol",
    "icon": "mono:N",
    "art": "near",
-   "name": "the “NEAR founded 2018” fact",
+   "short": "NEAR · NEAR founded 2018",
    "caught": null
   },
   "30": {
@@ -347,7 +347,7 @@
    "article": "Prediction market",
    "icon": "mono:Au",
    "art": "augur",
-   "name": "the “Augur defunct” fact",
+   "short": "Augur defunct",
    "caught": null
   },
   "31": {
@@ -356,7 +356,7 @@
    "article": "Bitcoin",
    "icon": "btc",
    "art": "bitcoin",
-   "name": "the “20% of BTC lost” fact",
+   "short": "Bitcoin · 20% of BTC lost",
    "caught": null
   }
  },

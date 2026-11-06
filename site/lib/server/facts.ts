@@ -6,7 +6,7 @@ import catalogJson from "@/data/catalog.json";
 import questionsJson from "@/data/questions.json";
 import { liveNumbers, type Caught, type ClaimView, type Fact } from "../model";
 
-interface CatalogEntry { page: string; topic: string; article: string; icon: string; art: string; name: string; caught: Caught | null }
+interface CatalogEntry { page: string; topic: string; article: string; icon: string; art: string; short: string; caught: Caught | null }
 interface WikiPage { title: string; url: string; attribution: string }
 
 const CATALOG: Record<string, CatalogEntry> = catalogJson.claims;
@@ -31,10 +31,10 @@ export function catalogFor(id: number, page: string, correctionOf: number | null
   const hit = CATALOG[String(id)];
   if (hit) return hit;
   const was = correctionOf === null ? undefined : CATALOG[String(correctionOf)];
-  if (was) return { ...was, name: `the corrected ${was.name.replace(/^the /, "")}`, caught: null };
+  if (was) return { ...was, short: `${was.short} (corrected)`, caught: null };
   const same = Object.values(CATALOG).find((c) => c.page === page);
   const topic = page.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
-  return { page, topic: same?.topic ?? topic, article: same?.article ?? topic, icon: same?.icon ?? `mono:${topic.slice(0, 2)}`, art: same?.art ?? "reserves", name: "a fact", caught: null };
+  return { page, topic: same?.topic ?? topic, article: same?.article ?? topic, icon: same?.icon ?? `mono:${topic.slice(0, 2)}`, art: same?.art ?? "reserves", short: same?.topic ?? topic, caught: null };
 }
 
 export function toFact(c: ClaimView, openPpm: number | null = null, correctionOf: number | null = null): Fact {
@@ -48,7 +48,7 @@ export function toFact(c: ClaimView, openPpm: number | null = null, correctionOf
     article: cat.article,
     icon: cat.icon,
     art: cat.art,
-    name: cat.name,
+    short: cat.short,
     caught: cat.caught,
     openPrice: openPpm === null ? null : openPpm / 1e6,
     ...liveNumbers(c),

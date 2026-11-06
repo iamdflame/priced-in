@@ -19,7 +19,11 @@
 /* Sparkline and chart */
 .spark { display: block; overflow: visible; }
 .spark .ln { fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
-.spark.flat .ln { stroke: var(--ink3); stroke-dasharray: 1 5; }
+.spark .bt { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
+.nobets { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
+.chartempty { display: grid; place-items: center; align-content: center; gap: 6px; min-height: 200px; border-radius: 16px; background: repeating-linear-gradient(0deg, transparent 0 49px, var(--line) 49px 50px); text-align: center; padding: 24px; }
+.chartempty b { font: 600 18px var(--disp); color: var(--ink); }
+.chartempty span { font-size: 14px; color: var(--ink2); max-width: 44ch; }
 .spark .hd { fill: var(--brand); } [data-theme='light'] .spark .hd { fill: var(--brand-text); }
 .spark .hl { fill: none; stroke: var(--brand); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: head 2.4s var(--ease-out) infinite; }
 @keyframes head { 0% { opacity: .8; transform: scale(.6); } 80%, 100% { opacity: 0; transform: scale(2.6); } }

@@ -1,136 +1,122 @@
-/* The home page: the promise, the lead, the rails, the coach mark. */
-/* Intro and steps */
-.intro { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; padding: 26px 0 18px; }
-.intro h1 { font: 700 44px/1.02 var(--disp); letter-spacing: -.032em; }
-.intro p { margin-top: 8px; font: 500 18px/1.4 var(--text); color: var(--ink2); }
+/* The home page: the promise, the numbers, the lead, the rails. Composed so that at 1440x900 the lead
+   and the first row of cards share the first screen, and on a phone the lead's Yes/No does. */
+
+/* The promise and the three steps */
+.intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 0 10px; }
+.intro h1 { font: 700 36px/1.04 var(--disp); letter-spacing: -.03em; }
+.intro p { margin-top: 4px; font: 500 16.5px/1.4 var(--text); color: var(--ink2); }
 .steps { display: flex; gap: 8px; flex: none; }
-.steps li { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 8px; height: 48px; border-radius: 999px; background: var(--surface); box-shadow: var(--card-shadow); font: 600 15px/1.2 var(--disp); color: var(--ink); white-space: nowrap; }
-.steps .n { width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface2); font: 700 14px var(--disp); }
+.steps li { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 8px; height: 44px; border-radius: 999px; background: var(--surface); box-shadow: var(--card-shadow); font: 600 14.5px/1.2 var(--disp); color: var(--ink); white-space: nowrap; }
+.steps .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface2); font: 700 13px var(--disp); }
 .steps li:first-child .n { background: var(--brand); color: var(--brand-ink); }
 
-/* Home hero: the featured story and the rails */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) 392px; gap: 16px; }
-.feature { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 28px; padding: 26px 30px; border-radius: var(--r-xl); overflow: hidden; background: radial-gradient(70% 110% at 84% 42%, var(--glow), transparent 70%), var(--panel); box-shadow: var(--card-shadow); }
-.feature h2 { font: 700 34px/1.08 var(--disp); letter-spacing: -.026em; margin: 14px 0 12px; text-wrap: balance; }
-.feature h2 a:hover { color: var(--brand-text); }
-.story { font-size: 15px; line-height: 1.5; color: var(--ink2); max-width: 60ch; }
-.story b { color: var(--ink); font-weight: 600; }
-.story .neg { color: var(--no); font-weight: 600; }
-.story .short { display: none; }
-.reopen { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
-.reopen.plain { border-top: 0; padding-top: 0; }
-.reopen .k { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--brand-text); font-weight: 600; margin-bottom: 6px; }
-.reopen .k .ic { width: 16px; height: 16px; }
-.reopen h3 { font: 600 19px/1.28 var(--disp); letter-spacing: -.01em; text-wrap: balance; }
-.reopen h3 a:hover { color: var(--brand-text); }
-.reopen .bets { margin-top: 12px; }
-.feature .bet { min-height: 62px; padding: 9px 16px; }
-.feature .bet b { font-size: 17px; } .feature .bet small { font-size: 13.5px; }
-.first { margin-top: 10px; font-size: 13px; color: var(--ink3); display: flex; align-items: center; gap: 7px; flex-wrap: wrap; }
-.feature-dial.phone { display: none; }
-.feature .ev { margin: -2px 0 10px; }
-.feature-side { display: flex; flex-direction: column; gap: 16px; align-self: center; }
-.feature-dial { width: 100%; max-width: 300px; margin: 0 auto; }
-.dialcap { margin-top: 12px; text-align: center; font-size: 13px; line-height: 1.35; color: var(--ink3); }
-.dialcap b { display: block; font: 600 15px/1.3 var(--disp); color: var(--ink); }
-.judges { display: flex; flex-direction: column; gap: 6px; }
-.judge { display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 8px; align-items: center; font-size: 13px; color: var(--ink2); padding: 8px 10px; border-radius: 12px; background: oklch(from var(--surface2) l c h / .7); }
-.judge .ic { width: 18px; height: 18px; color: var(--no); stroke-width: 2.2; }
-.judge b { font-weight: 600; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.judge .t { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
-.judge a { color: var(--brand-text); }
+/* The market in numbers */
+.proof { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; padding: 0 0 10px; font-size: 13.5px; color: var(--ink2); }
+.proof b { font: 600 15px var(--disp); color: var(--ink); font-feature-settings: 'tnum'; }
+.proof .pub { margin-left: auto; }
+.proof .pub a { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; color: var(--ink2); }
+.proof .pub a:hover { color: var(--ink); }
+.proof .ic { width: 15px; height: 15px; }
+.proof .pub .ic:first-child { color: var(--yes); }
 
-/* Rails */
+/* The lead: one open question */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; }
+.feature { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; padding: 18px 24px; border-radius: var(--r-xl); overflow: hidden; background: radial-gradient(70% 110% at 88% 40%, var(--glow), transparent 70%), var(--panel); box-shadow: var(--card-shadow); }
+.ftext { display: flex; flex-direction: column; min-width: 0; }
+.feature h2 { font: 700 28px/1.1 var(--disp); letter-spacing: -.024em; margin: 8px 0 8px; text-wrap: balance; }
+.feature h2 a:hover { color: var(--brand-text); }
+.feature .ev { margin-bottom: 10px; }
+.feature .bets { margin-top: auto; }
+.feature .bet { min-height: 58px; padding: 8px 16px; }
+.feature .bet b { font-size: 17px; } .feature .bet small { font-size: 13.5px; }
+.payline { margin-top: 8px; font-size: 13px; color: var(--ink3); display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
+.freecash { display: inline-flex; align-items: center; }
+.fside { display: grid; grid-template-columns: 150px 200px; gap: 18px; align-items: center; }
+.feature-dial { width: 100%; max-width: 150px; }
+.feature-dial .scale { display: none; }
+.feature-dial.phone { display: none; }
+.feature-dial.phone .mini { margin-top: 4px; text-align: center; font-size: 11.5px; line-height: 1.25; color: var(--ink2); }
+.fstats { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; }
+.fstats .dialcap { text-align: left; }
+.dialcap { text-align: center; font-size: 12.5px; line-height: 1.35; color: var(--ink3); }
+.dialcap b { display: block; font: 600 14.5px/1.3 var(--disp); color: var(--ink); }
+.lastbets { width: 100%; font-size: 12px; line-height: 1.4; color: var(--ink2); display: flex; flex-direction: column; gap: 2px; }
+.lastbets li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* The first-visit hint, on the buttons it points at */
+.coach { display: flex; align-items: center; gap: 8px; align-self: flex-start; margin: 0 0 8px; padding: 0 0 0 12px; border-radius: 999px; background: var(--brand-soft); color: var(--brand-text); font: 600 13.5px/1.3 var(--disp); animation: rise .5s var(--ease-out); }
+.coach .ic { width: 16px; height: 16px; }
+.coach .iconbtn { color: inherit; }
+[data-coach='off'] .coach { display: none; }
+
+/* The rails */
 .rail { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.railcard { position: relative; display: flex; flex-direction: column; border-radius: var(--r-xl); overflow: hidden; background: var(--surface); box-shadow: var(--card-shadow); }
-.railcard .art { height: 128px; }
-.railcard .art img { object-position: 30% 50%; transform: scale(1.5) translateX(18%); }
-.railcard:hover .art img { transform: scale(1.55) translateX(18%); }
-.railcard .art::before { content: ''; position: absolute; inset: 0; z-index: 1; background: linear-gradient(90deg, oklch(.16 .012 255 / .92) 10%, oklch(.16 .012 255 / .2) 70%); }
-.timer { position: absolute; z-index: 2; left: 16px; bottom: 12px; right: 16px; }
-.timer .big { font: 700 40px/1 var(--disp); letter-spacing: -.03em; font-feature-settings: 'tnum'; color: oklch(.975 .004 255); text-shadow: 0 2px 16px oklch(0 0 0 / .5); }
-.timer .sm-big { font-size: 24px; }
-.timer .sm { font-size: 13px; color: oklch(.86 .012 255); margin-bottom: 2px; }
-.railcard .rbody { display: flex; flex-direction: column; gap: 8px; padding: 12px 16px 14px; }
+.railcard { position: relative; border-radius: var(--r-xl); overflow: hidden; background: var(--surface); box-shadow: var(--card-shadow); }
+.railcard .rbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 0; }
 .railcard h2 { font: 600 13px var(--text); color: var(--ink3); display: flex; align-items: center; gap: 8px; }
 .railcard h2 .ic { width: 16px; height: 16px; }
-.railcard .all { font-size: 13.5px; align-self: flex-start; min-height: 32px; display: inline-flex; align-items: center; }
-.railcard p { font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
-.resrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; align-items: start; padding: 10px 0; border-top: 1px solid var(--line); }
-.resrow:first-of-type { border-top: 0; padding-top: 2px; }
-.resrow .rq { font: 600 14.5px/1.3 var(--disp); color: var(--ink); }
-.rbody > .rq { display: block; padding: 4px 0; font: 600 15px/1.3 var(--disp); color: var(--ink); }
+.railcard p { font-size: 13px; line-height: 1.45; color: var(--ink2); }
+.rbody > .rq { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 2px 0; font: 600 14.5px/1.3 var(--disp); color: var(--ink); }
 .rbody > .rq:hover { color: var(--brand-text); }
-.resrow .rq:hover { color: var(--brand-text); }
-.resrow .rs { grid-column: 1 / -1; font-size: 12.5px; color: var(--ink3); }
+.ruled { display: grid; grid-template-columns: 84px minmax(0, 1fr); }
+.ruled .art { height: 100%; min-height: 100px; }
+.ruled .rs { font-size: 12.5px; color: var(--ink3); }
+.rlinks { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; }
+.rlinks a { min-height: 28px; display: inline-flex; align-items: center; }
 .verdict { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; font: 700 12px var(--disp); letter-spacing: .02em; }
 .verdict.false { background: var(--no-bg); color: var(--no); } .verdict.true { background: var(--yes-bg); color: var(--yes); }
+.deciding .timer { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.deciding .timer .big { font: 700 26px/1 var(--disp); letter-spacing: -.03em; font-feature-settings: 'tnum'; color: var(--ink); }
+.deciding .timer .sm { font-size: 13px; color: var(--ink2); }
 
-/* Coach mark */
-.coach { position: relative; display: flex; width: fit-content; max-width: 100%; align-items: center; gap: 12px; padding: 12px 8px 12px 16px; border-radius: 16px; background: var(--brand); color: var(--brand-ink); font: 600 15px/1.35 var(--disp); box-shadow: 0 14px 34px -14px oklch(.86 .15 205 / .8); margin-bottom: 12px; animation: rise .5s var(--ease-out); }
-.coach .ic { width: 20px; height: 20px; flex: none; }
-.coach p { flex: 1; }
-[data-coach='off'] .coach, [data-coach='off'] .coach-off { display: none; }
-.coach-off { margin-bottom: 12px; }
-.coach-off p { flex: 1; }
-.coach-off .iconbtn { margin: -10px -8px -10px 0; color: inherit; }
-.coach .iconbtn { color: var(--brand-ink); }
-.coach .iconbtn:hover { background: oklch(1 0 0 / .25); color: var(--brand-ink); }
-
+/* The grid's heading carries its filters, so the first row of cards stays on the first screen */
+.home .sec { margin: 16px 0 0; flex-wrap: wrap; align-items: center; }
+.home .sec h2 { font-size: 22px; }
+.home .sec .tabs { padding: 0; }
+.home .sec .tab { height: 36px; padding: 0 12px; font-size: 14px; }
 
 @media (max-width: 1240px) {
+  .intro { flex-direction: column; align-items: flex-start; gap: 12px; }
   .hero { grid-template-columns: 1fr; }
   .rail { display: grid; grid-template-columns: 1fr 1fr; }
-  .intro { flex-direction: column; align-items: flex-start; }
 }
-
-@media (max-width: 1000px) {
-  .feature { grid-template-columns: minmax(0, 1fr) 240px; }
+@media (max-width: 1100px) {
+  .fside { grid-template-columns: 150px; }
+  .fstats { display: none; }
 }
-
+/* Phone: the lead and its Yes/No on the first screen; the numbers just below */
 @media (max-width: 760px) {
-  .intro { padding: 14px 0 10px; gap: 10px; }
-  .intro h1 { font-size: 27px; line-height: 1.08; }
-  .intro p { font-size: 15px; margin-top: 4px; }
+  .home { display: flex; flex-direction: column; }
+  .home > .intro { order: 1; }
+  .home > .hero { order: 2; }
+  .home > .proof { order: 3; padding: 14px 0 0; gap: 4px 14px; }
+  .home > .notice { order: 2; margin-bottom: 10px; }
+  .home > section, .home > div:not(.hero) { order: 4; }
+  .proof .pub { margin-left: 0; }
+  .proof .pub a { min-height: 44px; }
+  .intro { padding: 12px 0 10px; gap: 8px; }
+  .intro h1 { font-size: 26px; line-height: 1.08; }
+  .intro p { font-size: 15px; }
   .steps { display: flex; flex-wrap: wrap; gap: 4px 12px; width: 100%; }
-  .steps li { height: auto; padding: 0; gap: 6px; background: none; box-shadow: none; border-radius: 0; font-size: 14px; line-height: 1.3; }
+  .steps li { height: auto; padding: 0; gap: 6px; background: none; box-shadow: none; border-radius: 0; font-size: 14px; }
   .steps .n { width: 20px; height: 20px; font-size: 11.5px; }
-  .coach { font-size: 14px; padding: 6px 4px 6px 14px; border-radius: 14px; margin-bottom: 10px; }
-  .feature .story .long { display: none; }
-  .feature .story .short { display: inline; }
-  .reopen .k .long { display: none; }
-  .hero { display: block; margin-top: 2px; }
+  .hero { display: block; }
   .feature { display: block; padding: 14px; border-radius: var(--r-lg); }
-  .feature .fhd { display: grid; grid-template-columns: minmax(0, 1fr) 104px; gap: 12px; align-items: start; }
-  .feature h2 { font-size: 21px; line-height: 1.12; margin: 8px 0 6px; }
-  .feature .story { font-size: 13.5px; }
-  .feature-side, .hide-phone { display: none !important; }
-  .feature-dial.phone { display: block; max-width: 104px; margin: 6px 0 0; }
+  .fhd { display: grid; grid-template-columns: minmax(0, 1fr) 96px; gap: 12px; align-items: start; }
+  .feature h2 { font-size: 21px; line-height: 1.14; margin: 8px 0 8px; }
+  .feature-dial.phone { display: block; max-width: 96px; margin-top: 6px; }
   .feature-dial.phone .read .l, .feature-dial.phone .scale { display: none; }
-  .reopen { margin-top: 12px; padding-top: 12px; }
-  .reopen h3 { font-size: 16.5px; }
-  .reopen .bets { grid-template-columns: 1fr 1fr; }
+  .fside, .hide-phone { display: none !important; }
+  .feature .bets { margin-top: 4px; }
   .feature .bet { min-height: 56px; padding: 8px 12px; }
   .feature .bet b { font-size: 15.5px; } .feature .bet small { font-size: 12.5px; }
+  .coach { font-size: 13px; }
   .rail { display: flex; flex-direction: column; margin-top: 12px; gap: 12px; }
-  .railcard .art { height: 112px; }
-  .feature .bet .bk { display: none; }
+  .home .sec { margin-top: 20px; }
+  .home .sec .tab { height: 44px; }
 }
-/* The smallest phones: the bet stays above the fold. */
 @media (max-width: 380px) {
-  .steps { gap: 4px 8px; }
-  .steps li { font-size: 13px; }
-  .feature .fhd { grid-template-columns: minmax(0, 1fr) 84px; gap: 8px; }
-  .feature-dial.phone { max-width: 84px; }
+  .fhd { grid-template-columns: minmax(0, 1fr) 80px; gap: 8px; }
+  .feature-dial.phone { max-width: 80px; }
   .feature h2 { font-size: 19px; }
-  .feature .story { font-size: 13px; line-height: 1.4; }
-  .reopen h3 { font-size: 15.5px; }
-}
-
-/* Phone: the hero dial says what its % means; the coach mark is one line. */
-.feature-dial.phone .mini { margin-top: 4px; text-align: center; font-size: 11.5px; line-height: 1.25; color: var(--ink2); }
-@media (max-width: 760px) {
-  .coach { padding: 4px 4px 4px 12px; font-size: 13.5px; gap: 8px; }
-  .coach .ic { width: 18px; height: 18px; }
-  .coach .iconbtn { width: 44px; height: 44px; margin: -4px -2px -4px 0; }
 }

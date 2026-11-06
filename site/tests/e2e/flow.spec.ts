@@ -17,7 +17,7 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // tap No on the first card in the grid
   const no = page.locator(".grid a.bet.no").first();
   await expect(no).toContainText("No, it’s false");
-  await expect(no).toContainText(/Bet \$1 → get \$\d\.\d\d/);
+  await expect(no).toContainText(/Right: you get \$\d\.\d\d/);
   trade.claimId = Number(/\/c\/(\d+)/.exec((await no.getAttribute("href"))!)![1]);
   await no.click();
   await expect(page).toHaveURL(`/c/${trade.claimId}?side=no`);
@@ -26,7 +26,8 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // the side is picked; the quote says what $1 gets back
   const pickNo = page.getByRole("button", { name: /No, it’s false/ }).first();
   await expect(pickNo).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("If you’re right, you get back")).toBeVisible();
+  await expect(page.getByText("If you’re right, you get", { exact: true })).toBeVisible();
+  await expect(page.getByText("If you’re wrong, you lose the $1.")).toBeVisible();
   await page.getByTestId("confirm").click();
 
   // the receipt
