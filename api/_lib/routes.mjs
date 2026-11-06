@@ -9,6 +9,7 @@ import { REPO } from "./runtime.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, timeOf } from "./views.mjs";
 import { namesOf, readRulings } from "./rulings.mjs";
 import { checkerFacts, checkerQueue, rulingClock, sittingConfig } from "./keeper.mjs";
+import { readLedger } from "./sentinel.mjs";
 import { parsePublicKey } from "../../services/api/src/lane.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
@@ -96,10 +97,11 @@ export async function clockOf(p, rulings, claims) {
   return { ...clock, checker: c ? { account: c.account, balance_usd: c.balance_micro === null ? null : Number(c.balance_micro) / 1e6, lines_left: clock.queue, note: c.note ?? c.reason ?? null } : null, keeper_ran_at: k?.at ?? null };
 }
 
-/** GET /rulings: live and past challenges, and the clock. */
+/** GET /rulings: live and past challenges, each with its receipt check and the Sentinel's part, and the clock. */
 export async function rulingsRoute(p) {
   const snap = await p.claims.decorated();
-  const rulings = await readRulings(p, snap.claims);
+  const ledger = await readLedger(p.state).catch(() => null);
+  const rulings = await readRulings(p, snap.claims, { ledger });
   const clock = await clockOf(p, rulings, snap.claims);
   return { status: 200, body: { ...clock, rulings, count: rulings.length, asOf: snap.at }, headers: { "cache-control": READ_CACHE.rulings } };
 }

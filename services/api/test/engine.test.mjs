@@ -8,8 +8,9 @@ import path from "node:path";
 import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
-import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, isCapRefusal, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
+import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, isCapRefusal, juryRefused, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
+import { LEDGER, ledgerChecks, putCheck, putSentinel, readLedger, runSentinel } from "../../../api/_lib/sentinel.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
 import { corpusEvidence } from "../../ai/src/evidence.js";
 import errors from "../../../corpus/ERRORS.json" with { type: "json" };
@@ -711,6 +712,18 @@ test("the Checker waits: for funding, for its sitting, and for a key; a job out 
   assert.equal(w.sent.length, 0);
 });
 
+test("a challenge our jury refused doesn't hold up the sitting; one it is ruling on does", async () => {
+  const w = loopWorld();
+  const liar = ev("challenge", { challenge_id: 40, claim_id: 77, claimed: false, trader: "liar.near", amount_micro: "1000000", jury_deadline_ns: NS(w.now + H) }, w.now - 60_000);
+  w.claims.push(claim(77, { status: "Challenged", challenge_id: 40 }));
+  w.events.push(liar);
+  const held = await w.round({ rulings: async (claims) => rulingsOf({ events: w.events, claims, ledger: { checks: { 40: { result: "verified" } } } }) });
+  assert.equal(held.challenged, null, "a ruling is running: one at a time");
+  assert.match(held.checker.note, /one at a time/);
+  const r = await w.round({ rulings: async (claims) => rulingsOf({ events: w.events, claims, ledger: { checks: { 40: { result: "record_mismatch" } } } }) });
+  assert.equal(r.challenged.claim_id, 18, "nothing is sitting on the forgery, so the sitting goes ahead");
+});
+
 test("one sitting a day: after today's ruling the Checker rests, and tomorrow it takes the next", async () => {
   const w = loopWorld();
   w.claims.push(claim(19, { text: CAUGHT, trades: 1 }));
@@ -982,6 +995,131 @@ test("GET /rulings: the chain's live view, the clock and the Checker's state", a
     const never = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE, trades: 5 })] }));
     assert.deepEqual([never.body.next_ruling_at, never.body.checker, never.body.next_ruling_note], [null, null, "The jury isn't sitting right now"]);
   } finally { await mock.close(); }
+});
+
+test("GET /rulings: each ruling says what its receipts were and what the Sentinel did, in the shape docs/API.md gives", async () => {
+  const mock = await startMockRpc({ blockMs: 100000 });
+  try {
+    mock.st.views.set("get_challenge", () => ({ claim_id: 6, challenger: "liar.near", evidence: "e", verdicts: [], resolved: false, disputes: 1 }));
+    mock.st.views.set("dispute_ends_ns", () => NS(Date.now() + 500_000));
+    const check = {
+      result: "quote_not_found", reason: "The quoted words are not at https://tether.to/en/legal/.", checked_at: "2026-11-06T15:00:00.000Z", via: "source", record: null,
+      quotes: [{ text: "headquartered in Zug", found: false, url: null, via: null }],
+      sources: [{ url: "https://tether.to/en/legal/", final_url: "https://tether.to/en/legal/", via: "source", status: 200, content_type: "text/html", bytes: 9, sha256: "ab", fetched_at: "2026-11-06T15:00:00.000Z", error: null }],
+    };
+    const docs = { [LEDGER]: { checks: { 7: check }, sentinel: { 7: { status: "disputed", note: "Disputed in round 1.", last_look_at: "2026-11-06T15:01:00.000Z", disputes: [{ round: 1, bond_usd: 2, tx: "T", at: "2026-11-06T15:01:00.000Z", result: "quote_not_found" }], attempts: [{ round: 1, at: "x", error: "internal" }] } } } };
+    const claims = [claim(6, { status: "Challenged", challenge_id: 7, provisional: true })];
+    const r = await rulingsRoute(routeWorld(mock, { claims, docs }));
+    const [x] = r.body.rulings;
+    assert.deepEqual(Object.keys(x.receipt_check).sort(), ["checked_at", "quotes", "reason", "record", "result", "sources", "via"]);
+    assert.equal(x.receipt_check.result, "quote_not_found");
+    assert.deepEqual(x.receipt_check.quotes, [{ text: "headquartered in Zug", found: false, url: null }]);
+    assert.deepEqual(Object.keys(x.receipt_check.sources[0]).sort(), ["bytes", "content_type", "error", "fetched_at", "sha256", "status", "url", "via"]);
+    assert.deepEqual(x.sentinel, { status: "disputed", note: "Disputed in round 1.", last_look_at: "2026-11-06T15:01:00.000Z", disputes: [{ round: 1, bond_usd: 2, tx: "T", at: "2026-11-06T15:01:00.000Z" }] }, "its internal attempts stay internal");
+    const none = await rulingsRoute(routeWorld(mock, { claims }));
+    assert.deepEqual([none.body.rulings[0].receipt_check, none.body.rulings[0].sentinel], [null, null], "a ruling from before the Sentinel: both fields, null");
+    assert.deepEqual(Object.keys(none.body.rulings[0]).sort(), Object.keys(x).sort(), "the same fields either way");
+  } finally { await mock.close(); }
+});
+
+test("a challenge our jury refused: the clock doesn't call it a sitting, and it holds nothing up", () => {
+  const now = DAY + 15 * H;
+  const r = { status: "jury", challenge_id: 9, claim_id: 2, claim: "A line.", verdicts: [], opened_at: now - 60_000, jury_deadline_at: now + H, receipt_check: { result: "quote_not_found" } };
+  for (const result of ["quote_not_found", "unfetchable", "record_mismatch", "no_receipt"]) assert.equal(juryRefused({ ...r, receipt_check: { result } }), true, result);
+  assert.equal(juryRefused({ ...r, receipt_check: { result: "verified" } }), false);
+  assert.equal(juryRefused({ ...r, receipt_check: null }), false, "not checked yet: the jury may still sit");
+  assert.equal(juryRefused({ ...r, status: "window" }), false, "someone else's jury ruled: it is a ruling like any other");
+  const clock = rulingClock({ rulings: [r], nowMs: now });
+  assert.equal(clock.next_ruling_note, "Our jury isn't sitting on this challenge: its receipts did not verify");
+  assert.ok(clock.next_ruling_at >= r.jury_deadline_at, "its real next step is the deadline, not a settlement in minutes");
+  const real = { ...r, challenge_id: 10, receipt_check: { result: "verified" } };
+  assert.equal(rulingClock({ rulings: [r, real], nowMs: now }).ruling_now.challenge_id, 10, "a real sitting comes first");
+  assert.match(rulingClock({ rulings: [real], nowMs: now }).next_ruling_note, /Three AI judges are ruling/);
+});
+
+test("a run's receipt check still shows if the ledger's write failed", () => {
+  const events = [ev("challenge", { challenge_id: 1, claim_id: 3, claimed: false, trader: "liar.near", amount_micro: "1000000", jury_deadline_ns: NS(9000) }, 6000)];
+  const [r] = rulingsOf({ events, claims: [claim(3)], juryRuns: [{ challenge_id: 1, status: "refused", receipt_check: { result: "unfetchable", reason: "HTTP 403", checked_at: "t", via: "source" }, jurors: [] }] });
+  assert.deepEqual([r.receipt_check.result, r.receipt_check.reason, r.receipt_check.sources, r.sentinel], ["unfetchable", "HTTP 403", [], null]);
+});
+
+test("the Sentinel's ledger: compare-and-swap on one document, read as the gate's store, the newest 400 kept", async () => {
+  const state = new FsState({ prefix: "state/testnet/m", dir: tmp() });
+  assert.deepEqual(await readLedger(state), { checks: {}, sentinel: {}, updated_at: null });
+  const store = ledgerChecks(state);
+  assert.equal(await store.get(3), null);
+  await store.put(3, { result: "verified" });
+  await putSentinel(state, 3, { status: "no_dispute" });
+  await Promise.all([putCheck(state, 4, { result: "no_receipt" }), putCheck(state, 5, { result: "unfetchable" })]);
+  const l = await readLedger(state);
+  assert.deepEqual(Object.keys(l.checks).sort(), ["3", "4", "5"], "writers at once don't lose each other's records");
+  assert.equal((await store.get(3)).result, "verified");
+  assert.equal(l.sentinel[3].status, "no_dispute");
+  assert.ok(l.updated_at);
+  for (let i = 10; i < 416; i += 40) await putCheck(state, i, { result: "verified" });
+  await state.updateDoc(LEDGER, (c) => { for (let i = 1000; i < 1500; i++) c.checks[i] = { result: "verified" }; return c; });
+  await putCheck(state, 2000, { result: "verified" });
+  const pruned = await readLedger(state);
+  assert.equal(Object.keys(pruned.checks).length, 400);
+  assert.ok(pruned.checks[2000] && pruned.checks[1499] && !pruned.checks[3], "the oldest fall off the end");
+});
+
+function sentinelWorld(mock, o = {}) {
+  const state = new FsState({ prefix: "state/testnet/m", dir: tmp() });
+  const dataDir = tmp();
+  return { api: { rpcUrls: [mock.url], marketId: "m.testnet", network: "testnet" }, state, journals: new JournalDir(state, dataDir), env: { NEAR_NETWORK: "testnet", MARKET_CONTRACT_ID: "m.testnet", DATA_DIR: dataDir }, operatorAccounts: o.accounts ?? {} };
+}
+
+test("the Sentinel's minute: one view call when nothing is live, and no lock, no store", async () => {
+  const mock = await startMockRpc({ blockMs: 100000 });
+  try {
+    mock.st.stats.bonds_micro = "0";
+    const p = sentinelWorld(mock);
+    const r = await runSentinel(p);
+    assert.deepEqual([r.ok, r.idle], [true, true]);
+    assert.deepEqual(mock.st.calls, ["query"]);
+    assert.deepEqual([p.state.ops.gets, p.state.ops.puts], [0, 0]);
+  } finally { await mock.close(); }
+});
+
+test("the Sentinel's minute: a live challenge is checked and written; a running Sentinel is not doubled; no key says so", async () => {
+  const mock = await startMockRpc({ blockMs: 100000 });
+  try {
+    mock.st.stats.bonds_micro = "1000000";
+    mock.st.claims = [claim(0, { status: "Challenged", challenge_id: 0, provisional: false, text: "USDC is issued by Circle." })];
+    mock.st.views.set("get_challenge", () => ({ claim_id: 0, challenger: "liar.near", claimed_outcome: false, evidence: "Forged. Corpus record usdc-0001 says so.", bond_micro: "1000000", disputes: 0, resolved: false, verdicts: [] }));
+    mock.st.views.set("dispute_ends_ns", () => NS(Date.now() + 500_000));
+    const p = sentinelWorld(mock);
+    const busy = await p.state.acquire("sentinel", { ttlMs: 60_000 });
+    assert.equal((await runSentinel(p)).busy, true);
+    await busy.release();
+    const r = await runSentinel(p);
+    assert.equal(r.live[0].receipt, "record_mismatch");
+    assert.equal(r.live[0].status, "blocked");
+    assert.match(r.live[0].note, /no Sentinel key/);
+    const l = await readLedger(p.state);
+    assert.equal(l.checks[0].result, "record_mismatch");
+    assert.equal(l.sentinel[0].status, "blocked");
+    assert.equal((await p.state.acquire("sentinel", { ttlMs: 1000 })) !== null, true, "the lock was released");
+  } finally { await mock.close(); }
+});
+
+test("the Sentinel's minute: a chain that doesn't answer is a failure said plainly, never a throw", async () => {
+  const mock = await startMockRpc({ blockMs: 100000 });
+  mock.st.down = true;
+  try {
+    const r = await runSentinel(sentinelWorld(mock));
+    assert.equal(r.ok, false);
+    assert.match(r.error, /stats did not answer/);
+  } finally { mock.st.down = false; await mock.close(); }
+});
+
+test("the Checker's evidence passes the Sentinel's check: the keeper's hash and the receipt check's are one", async () => {
+  const { checkReceipts, recordHash } = await import("../../ai/src/receipts.js");
+  for (const e of errors.items) {
+    assert.equal(corpusRecord(e.id).sha256, recordHash(e));
+    assert.equal((await checkReceipts({ claim: e.sentence, evidence: checkerEvidence(corpusEvidence(e.sentence)), claimed: false, fetchSource: null })).result, "verified", e.id);
+  }
 });
 
 test("GET /lane/status says before the tap whether this visitor can still get a free bet, with a plain reason", async () => {

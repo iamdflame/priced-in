@@ -1,8 +1,10 @@
 // POST /api/after-challenge {txHash, signerId}: the jury, once per challenge. The transaction is
-// read from the chain; for each challenge event in it, the three jurors (NEAR AI Cloud models in
-// attested TEEs) receive the contract's canonical request bytes, their signatures are checked
-// here, and their verdicts are submitted with a key that can only call submit_verdict. Two of
-// three sets the provisional outcome. The cron picks up any challenge still waiting.
+// read from the chain; for each challenge event in it, the challenge's receipts are checked at
+// their source first (services/ai/src/receipts.js; the result goes to the Sentinel's ledger and
+// GET /api/rulings). Only when they verify do the three jurors (NEAR AI Cloud models in attested
+// TEEs) receive the contract's canonical request bytes; their signatures are checked here, and
+// their verdicts are submitted with a key that can only call submit_verdict. Two of three sets the
+// provisional outcome. The cron picks up any challenge still waiting.
 
 import { waitUntil } from "@vercel/functions";
 import { prepare, readBody, sendJson, txEvents, recordEvents, runJob, log } from "./_lib/runtime.mjs";

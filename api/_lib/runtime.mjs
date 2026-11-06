@@ -26,6 +26,7 @@ import { makeState, JournalDir } from "./store.mjs";
 import { installSpendMeter } from "./spend.mjs";
 import { ClaimsSnapshot } from "./snapshot.mjs";
 import { storeMeter } from "./meter.mjs";
+import { ledgerChecks } from "./sentinel.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, "../..");
@@ -65,6 +66,7 @@ export function prepare() {
   // encrypted environment variable, is written out with mode 0600, and is removed from this
   // process's environment before any model code runs
   let operatorAccountId = null;
+  const operatorAccounts = {}; // role -> account, public: the Sentinel needs to know its own and the Checker's
   if (env.PRICEDIN_KEYSTORE) {
     const bundle = JSON.parse(Buffer.from(env.PRICEDIN_KEYSTORE, "base64").toString("utf8"));
     delete env.PRICEDIN_KEYSTORE;
@@ -73,6 +75,7 @@ export function prepare() {
       if (!/^[A-Za-z0-9._-]+\.json$/.test(name)) continue;
       fs.writeFileSync(path.join(env.KEYSTORE_DIR, name), JSON.stringify(rec), { mode: 0o600 });
       if (rec.kind === "operator" && rec.role === "market") operatorAccountId = rec.accountId;
+      if (rec.kind === "operator" && rec.role && rec.accountId) operatorAccounts[rec.role] = rec.accountId;
     }
     if (bundle.signerKeys) {
       const f = path.join(TMP, "keys", "signer-keys.json");
@@ -87,7 +90,7 @@ export function prepare() {
   const journals = new JournalDir(state, env.DATA_DIR, { log });
   const spend = installSpendMeter({ baseUrl: ai.nearai.baseUrl, capUsd: Number(env.NEARAI_DAILY_CAP_USD || 1), dir: env.DATA_DIR, log });
   const claims = new ClaimsSnapshot({ urls: api.rpcUrls, marketId: api.marketId, state, log });
-  prepared = { env, api, ai, state, journals, spend, claims, operatorAccountId, laneAccountId: api.lane.accountId };
+  prepared = { env, api, ai, state, journals, spend, claims, operatorAccountId, operatorAccounts, laneAccountId: api.lane.accountId };
   return prepared;
 }
 
@@ -109,7 +112,9 @@ function build({ agents = true } = {}) {
     app.claims.all = async () => (await p.claims.decorated()).claims;
     app.claims.one = async (id) => (await app.claims.all()).find((c) => c.id === id) ?? one(id);
   }
-  const layer = mountAi(app, ai, { log, overrides: agents ? {} : { crowd: { signer: NO_AGENTS, reconcile: null } } });
+  // the jury's receipt checks live in the store's Sentinel ledger, shared by every instance
+  const receipts = { store: ledgerChecks(p.state) };
+  const layer = mountAi(app, ai, { log, overrides: agents ? { receipts } : { receipts, crowd: { signer: NO_AGENTS, reconcile: null } } });
   for (const r of evidence.values()) if (!app.rewrites.get(r.id) || app.rewrites.get(r.id).anchor?.status !== "anchored") app.rewrites.put(r);
   for (const e of p.journals.read("events.jsonl")) app.hub.publish(e);
   return { app, layer, ai, api, evidence };

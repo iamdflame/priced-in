@@ -230,12 +230,34 @@ export function activityOf({ events = [], rewrites = [], rationales = [], claims
 
 const OUTCOME = (b) => (b === true ? "TRUE" : b === false ? "FALSE" : null);
 
+/** A receipt check as /api/rulings shows it: the result, why, and every source and quote (docs/API.md). */
+export function receiptCheckView(c) {
+  if (!c?.result) return null;
+  return {
+    result: c.result, reason: c.reason ?? null, checked_at: c.checked_at ?? null, via: c.via ?? null,
+    record: c.record ? { id: c.record.id ?? null, found: Boolean(c.record.found), hash_matches: Boolean(c.record.hash_matches), sentence_matches: Boolean(c.record.sentence_matches), sha256_claimed: c.record.sha256_claimed ?? null, sha256_committed: c.record.sha256_committed ?? null } : null,
+    quotes: (c.quotes || []).map((q) => ({ text: q.text, found: Boolean(q.found), url: q.url ?? null })),
+    sources: (c.sources || []).map((x) => ({ url: x.url, via: x.via ?? "source", status: x.status ?? null, sha256: x.sha256 ?? null, bytes: x.bytes ?? null, content_type: x.content_type ?? null, fetched_at: x.fetched_at ?? null, error: x.error ?? null })),
+  };
+}
+
+/** What the Sentinel did about a challenge, as /api/rulings shows it (docs/API.md). */
+export function sentinelView(e) {
+  if (!e?.status) return null;
+  return {
+    status: e.status, note: e.note ?? null, last_look_at: e.last_look_at ?? null,
+    disputes: (e.disputes || []).map((x) => ({ round: x.round, bond_usd: x.bond_usd, tx: x.tx ?? null, at: x.at ?? null })),
+  };
+}
+
 /**
  * Every challenge, live and past: the per-model verdicts and how each signature was checked,
- * the dispute window, the disputes, the outcome and the market that opened in its place.
- * @param {{ events: object[], claims: object[], live?: Map<number, object>, windowEnds?: Map<number, string|null>, juryRuns?: object[], links?: object[], names?: Map<string,string> }} a
+ * the dispute window, the disputes, the outcome and the market that opened in its place, and
+ * from the Sentinel's ledger, the receipt check (receipt_check) and what the Sentinel did (sentinel).
+ * @param {{ events: object[], claims: object[], live?: Map<number, object>, windowEnds?: Map<number, string|null>, juryRuns?: object[], links?: object[], names?: Map<string,string>,
+ *   ledger?: { checks?: object, sentinel?: object }|null }} a
  */
-export function rulingsOf({ events = [], claims = [], live = new Map(), windowEnds = new Map(), juryRuns = [], links = [], names = new Map() }) {
+export function rulingsOf({ events = [], claims = [], live = new Map(), windowEnds = new Map(), juryRuns = [], links = [], names = new Map(), ledger = null }) {
   const byId = new Map(claims.map((c) => [c.id, c]));
   const recs = new Map();
   const get = (id) => recs.get(id);
@@ -244,6 +266,7 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     challenger: null, challenger_name: null, claimed: null, bond_usd: null, opened_at: null, open_tx: null, jury_deadline_at: null, evidence: null,
     verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false,
     status: "jury", outcome: null, settled_at: null, settle_tx: null, payout_usd: null, bonds: [], expired_at: null, correction: null,
+    receipt_check: null, sentinel: null,
   });
   const ordered = chronological(events);
   // 1. every challenge the index or the chain knows; the index can be behind the chain, either way
@@ -308,9 +331,11 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     r.disputes_on_chain = ch.disputes ?? r.disputes.length;
   }
   // what the jury's runner saw: each model's attestation and its own check of the signature
+  const runChecks = new Map(); // the check a run carried: said even if the ledger's write failed
   for (const run of juryRuns) {
     const r = get(run.challenge_id);
     if (!r) continue;
+    if (run.receipt_check?.result) runChecks.set(run.challenge_id, run.receipt_check);
     for (const j of run.jurors || []) {
       if (j.status === "already_ruled") continue; // a later run found this model's verdict on-chain
       if (j.status === "failed" && /already ruled/.test(j.error || "")) continue; // a retry that lost to its own late verdict
@@ -327,6 +352,10 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     if (r) r.correction = { claim_id: l.new_claim_id, text: l.text, open_tx: l.open_tx ?? null, rewrite_id: l.rewrite_id ?? null, at: l.at ?? null };
   }
   const list = [...recs.values()];
+  for (const r of list) {
+    r.receipt_check = receiptCheckView(ledger?.checks?.[r.challenge_id] ?? runChecks.get(r.challenge_id));
+    r.sentinel = sentinelView(ledger?.sentinel?.[r.challenge_id]);
+  }
   for (const r of list) {
     if (r.status === "jury" && r.jury_deadline_at && r.jury_deadline_at < Date.now() && !r.provisional) r.stage_note = "the jury deadline passed with no two matching verdicts: anyone can call expire_challenge, which refunds the bond and reopens the line";
   }

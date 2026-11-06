@@ -13,14 +13,20 @@
 //     7. the agents' cycle: roster, open intents reconciled, settled winnings redeemed; then a look
 //        at the stalest open claims (they bet only when their signed credence beats the price,
 //        and post why not when it doesn't)
-//     8. challenges still waiting for the jury, before their deadline
+//     8. challenges still waiting for the jury, before their deadline, once their receipts verify
+//        (a challenge whose receipts failed is not sent to the models again: the Sentinel watches it)
+//   receipts: a past challenge with no receipt check yet, whose evidence our corpus can check
+//     with no fetch (the Checker's), gets one, so every ruling on /api/rulings says what it rested on
 //   9. the health check: a trade, a rewrite or an agent's answer in the last day, else it fails
+// The Sentinel (GET /api/sentinel) runs every minute on its own: a 10-minute window can't wait for this.
 // Model calls stop at the daily NEAR AI cap (NEARAI_DAILY_CAP_USD, $1), enforced in code.
 
 import { prepare, sendJson, runJob, log, recordEvents, txEvents } from "./_lib/runtime.mjs";
 import { Indexer, sourcesFor } from "./_lib/indexer.mjs";
 import { keeperRound, sittingConfig } from "./_lib/keeper.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
+import { putCheck, readLedger } from "./_lib/sentinel.mjs";
+import { checkReceipts, FAILED } from "../services/ai/src/receipts.js";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { labelSentences, PRICEABLE } from "../services/api/src/planner.mjs";
 import { paragraphsOf } from "../services/ai/src/writer.js";
@@ -92,7 +98,7 @@ export default async function handler(req, res) {
         wantCorrection: (id) => p.state.updateDoc(CORRECTIONS, (cur = {}) => ({ ...cur, [id]: cur[id] ?? Date.now() })),
         record: async (hash, sender) => { const r = await txEvents(app.rpc, p.api.marketId, hash, sender, { attempts: 3 }); await recordEvents(r.events); },
         trigger: triggerJury,
-        rulings: (claims) => readRulings(p, claims),
+        rulings: async (claims) => readRulings(p, claims, { ledger: await readLedger(p.state).catch(() => null) }),
         plannerP0: pc.apiKey && pc.model && p.spend.status().open ? async (text) => { const [l] = await labelSentences(pc, [text]); return PRICEABLE.has(l?.label) ? l.p0_ppm : null; } : null,
         sitting: sittingConfig(),
         checkerOn: process.env.CHECKER_ENABLED !== "0",
@@ -104,6 +110,21 @@ export default async function handler(req, res) {
     }, { lock: "keeper", agents: false, waitMs: 5_000, budgetMs: 60_000 });
   } catch (e) { keeper = { ok: false, error: e.message }; }
   for (const e of keeper.round?.errors || []) failures.push(`keeper: ${e}`);
+
+  // receipts for past rulings that have none: only what the committed corpus can check, no fetch
+  let receipts = null;
+  try {
+    const ledger = await readLedger(p.state);
+    const rulings = await readRulings(p, (await p.claims.decorated()).claims);
+    receipts = { checked: 0 };
+    for (const r of rulings) {
+      if (receipts.checked >= 10 || ledger.checks[r.challenge_id] || !r.evidence || !r.claim) continue;
+      const c = await checkReceipts({ claim: r.claim, evidence: r.evidence, claimed: r.claimed === "TRUE" ? true : r.claimed === "FALSE" ? false : null, fetchSource: null });
+      if (c.via === "source") continue; // a live source: the jury's gate or the Sentinel checks it
+      await putCheck(p.state, r.challenge_id, c);
+      receipts.checked++;
+    }
+  } catch (e) { log(`cron: receipts backfill: ${e.message}`); }
 
   const writer = await runJob("cron-writer", async ({ app, layer, started, reanchor, deadline }) => {
     const out = {};
@@ -184,6 +205,7 @@ export default async function handler(req, res) {
     } else out.agents = "off";
     if (layer.jury && left() > 60_000 && !out.yielded) {
       const stats = await app.rpc.viewFunction(p.api.marketId, "stats", {});
+      const ledger = await readLedger(p.state).catch(() => ({ checks: {} }));
       out.jury = [];
       for (let id = Math.max(0, stats.challenges - 20); id < stats.challenges; id++) {
         const ch = await app.rpc.viewFunction(p.api.marketId, "get_challenge", { challenge_id: id }).catch(() => null);
@@ -193,6 +215,10 @@ export default async function handler(req, res) {
         if (BigInt(ch.jury_deadline_ns) < BigInt(Date.now()) * 1_000_000n) continue;
         // a juror still finishing a run that just ended (quorum and grace) lands on its own
         if (p.journals.read("jury.jsonl").some((x) => x.challenge_id === id && Date.now() - (x.at || 0) < 180_000)) continue;
+        // receipts that failed for good are not sent to the models again (an unreadable source is tried again by the gate)
+        const known = ledger.checks[id];
+        if (known && FAILED.includes(known.result) && known.result !== "unfetchable") { out.jury.push({ id, status: "refused", receipts: known.result }); continue; }
+        if (known?.result === "no_receipt") { out.jury.push({ id, status: "refused", receipts: known.result }); continue; }
         if (left() < 60_000 || (await wanted())) break;
         const rr = await layer.jury.run(id);
         p.journals.append("jury.jsonl", { ...rr, jurors: (rr.jurors || []).map(({ signature, ...j }) => j), at: Date.now() });
@@ -210,7 +236,7 @@ export default async function handler(req, res) {
   if (Date.now() - newest > 24 * 3600_000) failures.push(`outcomes: no trade, rewrite or agent answer in the last 24 h (newest ${newest ? new Date(newest).toISOString() : "never"})`);
   const busyOnly = failures.length > 0 && failures.every((f) => /lock was held/.test(f));
   const claimsNow = await p.claims.decorated().then((x) => x.claims).catch(() => []);
-  const record = { at: new Date().toISOString(), ok: failures.length === 0 || busyOnly, failures, ms: Date.now() - t0, index, keeper: keeper.round ?? keeper, writer, agents, coverage: coverage(p, claimsNow), last: Object.fromEntries(Object.entries(last).map(([k, v]) => [k, v ? new Date(v).toISOString() : null])), spend: p.spend.status() };
+  const record = { at: new Date().toISOString(), ok: failures.length === 0 || busyOnly, failures, ms: Date.now() - t0, index, keeper: keeper.round ?? keeper, receipts, writer, agents, coverage: coverage(p, claimsNow), last: Object.fromEntries(Object.entries(last).map(([k, v]) => [k, v ? new Date(v).toISOString() : null])), spend: p.spend.status() };
   const cur = await p.state.getDoc("snapshots/health.json").catch(() => null);
   await p.state.putDoc("snapshots/health.json", record, { etag: cur?.etag ?? null }).catch((e) => log(`cron: health record: ${e.message}`));
   if (!record.ok) console.error(`cron: FAIL ${failures.join(" | ")}`);

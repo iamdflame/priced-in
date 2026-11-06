@@ -17,19 +17,27 @@
 // Every money move goes through the signer process (roles "keeper" and "checker"); this module
 // holds no key. The pure functions below are what the tests exercise.
 
-import { createHash } from "node:crypto";
-import errors from "../../corpus/ERRORS.json" with { type: "json" };
 import { corpusEvidence, normText } from "../../services/ai/src/evidence.js";
+import { corpusRecord as recordOf } from "../../services/ai/src/receipts.js";
 
 export const CRON_EVERY_MS = 10 * 60_000;
 const SLOT_MS = 30_000; // how long into a cron run the Checker has acted
 const LIVE = ["jury", "window", "escalated"];
+const NOT_VERIFIED = ["quote_not_found", "unfetchable", "record_mismatch", "no_receipt"];
 const CAPPED_OPEN = "today's cap on opened lines is reached: the keeper opens it after midnight UTC";
 const NS = 1_000_000n;
 const nsToMs = (ns) => (ns === null || ns === undefined ? null : Number(BigInt(String(ns)) / NS));
 const day = (t) => new Date(t).toISOString().slice(0, 10);
 const sittingAt = (t, hour, days = 0) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + days, hour); };
 const hhmm = (hour) => `${String(hour).padStart(2, "0")}:00 UTC`;
+
+/**
+ * A challenge our jury runner refused: its receipts did not verify, so no model is reading it.
+ * It waits for its deadline (or someone else's jury), holds nothing up, and the clock doesn't
+ * call it a sitting. Its bond comes back at expiry, so a refused challenge that held up the
+ * Checker's sitting would be free griefing.
+ */
+export const juryRefused = (r) => r.status === "jury" && NOT_VERIFIED.includes(r.receipt_check?.result);
 
 /** When the cron run at or after t has done its work: it fires on the ten-minute marks. */
 export function nextTick(t, every = CRON_EVERY_MS, latencyMs = 45_000) {
@@ -78,10 +86,12 @@ export const isCapRefusal = (error) => /already (opened|posted) today/.test(Stri
 
 // ---------- the Checker ----------
 
-/** The corpus record behind a caught line, and its sha256 (over the record's JSON as committed). */
+/**
+ * The corpus record behind a caught line, and its sha256 (over the record's JSON as committed).
+ * The receipt check (services/ai/src/receipts.js) verifies the Checker's evidence with this same hash.
+ */
 export function corpusRecord(corpusId) {
-  const item = (errors.items || []).find((x) => x.id === corpusId) || null;
-  return item ? { item, sha256: createHash("sha256").update(JSON.stringify(item), "utf8").digest("hex") } : null;
+  return recordOf(corpusId);
 }
 
 /** The evidence the Checker posts: the corpus record in plain words, its source, and its hash. At most 4,000 bytes. */
@@ -197,6 +207,7 @@ export function bOf(claim, events) {
 /** What a live ruling waits for next, and when. Never a time already past, and never one that slides. */
 function liveClock(r, nowMs, juryMs, windowMs) {
   if (r.status === "escalated") return { at: null, note: "This ruling went to the council after three disputes" };
+  if (juryRefused(r)) return { at: r.jury_deadline_at ? nextTick(Math.max(nowMs, r.jury_deadline_at)) : null, note: "Our jury isn't sitting on this challenge: its receipts did not verify" };
   if (r.status === "window") return { at: r.window_ends_at ? nextTick(Math.max(nowMs, r.window_ends_at)) : null, note: "Anyone can object with twice the bond until the window closes, then the keeper settles it" };
   const expected = (r.opened_at || nowMs) + juryMs;
   // a late jury has one known limit left: its deadline, when the keeper expires the challenge
@@ -220,7 +231,7 @@ export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null,
 
   const live = rulings.filter((r) => LIVE.includes(r.status));
   if (live.length) {
-    const r = live[0];
+    const r = live.find((x) => !juryRefused(x)) ?? live[0];
     const { at, note } = liveClock(r, nowMs, juryMs, windowMs);
     return say(at, note, { challenge_id: r.challenge_id, claim_id: r.claim_id, claim: r.claim, stage: r.status, provisional: r.provisional, verdicts: r.verdicts.map((v) => ({ model: v.model, verdict: v.verdict })), opened_at: r.opened_at, jury_deadline_at: r.jury_deadline_at, window_ends_at: r.window_ends_at, finalize_due_at: at, live: live.length });
   }
@@ -334,7 +345,7 @@ export async function keeperRound(d) {
   const rulings = await d.rulings(claims);
   const account = checkerKey?.ok ? checkerKey.accountId : null;
   const q = checkerQueue({ claims, rulings, account, nowMs: now(), sitting });
-  const liveRuling = rulings.find((r) => LIVE.includes(r.status)) || null;
+  const liveRuling = rulings.find((r) => LIVE.includes(r.status) && !juryRefused(r)) || null;
   const chk = {
     enabled: Boolean(account) && d.checkerOn !== false, account, candidates: q.candidates.length,
     lines: q.candidates.slice(0, 12).map((x) => ({ claim_id: x.claim.id, corpus_id: x.evidence.corpus_id, bets: x.bets })),

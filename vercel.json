@@ -19,17 +19,23 @@
     "api/after-challenge.mjs": {
       "maxDuration": 240,
       "memory": 1024,
-      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**,node_modules/unpdf/dist/**}"
     },
     "api/cron.mjs": {
       "maxDuration": 300,
       "memory": 1024,
-      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**}"
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**,node_modules/unpdf/dist/**}"
+    },
+    "api/sentinel.mjs": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "{services/ai/src/**,api/_data/**,node_modules/unpdf/dist/**}"
     }
   },
   "crons": [
     { "path": "/api/cron", "schedule": "*/10 * * * *" },
-    { "path": "/api/health", "schedule": "* * * * *" }
+    { "path": "/api/health", "schedule": "* * * * *" },
+    { "path": "/api/sentinel", "schedule": "* * * * *" }
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index?__p=/:path*" },

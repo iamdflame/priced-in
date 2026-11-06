@@ -1,6 +1,7 @@
 // Live and past rulings, assembled from the store and the chain: the events and the jury's runs
 // from the journals, each challenge's own view from the market (a finished challenge never
-// changes, so its view is kept), and the live dispute window from dispute_ends_ns.
+// changes, so its view is kept), the live dispute window from dispute_ends_ns, and, when given,
+// the Sentinel's ledger (each ruling's receipt check and what the Sentinel did).
 
 import { raceView } from "./snapshot.mjs";
 import { rulingsOf } from "./views.mjs";
@@ -15,7 +16,7 @@ export function namesOf(p) {
 }
 
 /** Every challenge, with what the chain says right now about the ones still running. */
-export async function readRulings(p, claims) {
+export async function readRulings(p, claims, { ledger = null } = {}) {
   const events = p.journals.readCached("events.jsonl");
   const ids = new Set();
   for (const e of events) if (e.event === "challenge" && Number.isInteger(e.data?.challenge_id)) ids.add(e.data.challenge_id);
@@ -31,5 +32,5 @@ export async function readRulings(p, claims) {
     const end = await view("dispute_ends_ns", { challenge_id: id }).catch(() => null);
     if (end) windowEnds.set(id, end);
   }));
-  return rulingsOf({ events, claims, live, windowEnds, juryRuns: p.journals.readCached("jury.jsonl"), links: p.journals.readCached("links.jsonl"), names: namesOf(p) });
+  return rulingsOf({ events, claims, live, windowEnds, juryRuns: p.journals.readCached("jury.jsonl"), links: p.journals.readCached("links.jsonl"), names: namesOf(p), ledger });
 }
