@@ -7,6 +7,7 @@
 
 import { waitUntil } from "@vercel/functions";
 import { prepare, readBody, sendJson, txEvents, recordEvents, runJob, log } from "./_lib/runtime.mjs";
+import { Indexer, sourcesFor } from "./_lib/indexer.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { clientIp } from "../services/api/src/ratelimit.mjs";
 
@@ -37,6 +38,8 @@ export default async function handler(req, res) {
   if (!trades.length) return sendJson(res, 422, { error: { code: "not_a_market_trade", message: "That transaction made no trade on this market." } });
   const fresh = await recordEvents(got.events);
   const checkedMs = Date.now() - t0;
+  // the cheap path of the index: trades nobody reported (MCP, scripts) reach the store now, not at the next cron
+  waitUntil(new Indexer({ state: p.state, rpc, marketId: p.api.marketId, sources: sourcesFor(p.api.network, p.api.marketId), record: recordEvents, log }).run({ mode: "quick", budgetMs: 8000 }).catch((e) => log(`after-trade: index: ${e.message}`)));
   if (!fresh.some((e) => e.event === "trade")) return sendJson(res, 200, { status: "seen", txHash, events: got.events.length, checked_ms: checkedMs });
 
   sendJson(res, 202, { status: "accepted", txHash, events: fresh.map((e) => e.event), checked_ms: checkedMs, next: "the rewrite and the agents' answers arrive on /api/rewrites?since= and /api/rationales?since=" });

@@ -21,25 +21,29 @@ export default async function handler(req, res) {
   const signerId = String(body.signerId || p.laneAccountId || "");
   if (!TX.test(txHash) || !ACCOUNT.test(signerId)) return sendJson(res, 400, { error: { code: "invalid_tx", message: "Send {txHash, signerId}: the challenge transaction and the account that signed it." } });
   const ip = clientIp({ headers: { "x-forwarded-for": req.headers["x-real-ip"] || req.headers["x-forwarded-for"] }, socket: req.socket }, true);
-  const lim = await p.state.take("after-challenge", ip, 10).catch(() => ({ ok: true }));
+  // the Checker's challenges come from the cron, with its secret: they never use a visitor's allowance
+  const fromCron = Boolean(process.env.CRON_SECRET) && req.headers.authorization === `Bearer ${process.env.CRON_SECRET}`;
+  const lim = fromCron ? { ok: true } : await p.state.take("after-challenge", ip, 10).catch(() => ({ ok: true }));
   if (!lim.ok) return sendJson(res, 429, { error: { code: "rate_limited", message: "Too many challenges reported from this address today.", retryAfterS: lim.retryAfterS } });
   const rpc = new Rpc(p.api.rpcUrls, { timeoutMs: 8000 });
   let got;
   try { got = await txEvents(rpc, p.api.marketId, txHash, signerId); } catch (e) {
-    await p.state.release("after-challenge", ip);
+    if (!fromCron) await p.state.release("after-challenge", ip);
     return sendJson(res, 404, { error: { code: "tx_not_found", message: `That transaction is not on ${p.api.network} yet.` } });
   }
   const ids = [...new Set(got.events.filter((e) => e.event === "challenge" && Number.isInteger(e.data?.challenge_id)).map((e) => e.data.challenge_id))];
   if (!ids.length) return sendJson(res, 422, { error: { code: "not_a_challenge", message: "That transaction opened no challenge on this market." } });
   await recordEvents(got.events);
   sendJson(res, 202, { status: "accepted", challenges: ids, next: "GET /api/jury?challenge=<id>" });
-  waitUntil(runJob(`after-challenge ${ids.join(",")}`, async ({ layer, p: pp, started }) => {
+  waitUntil(runJob(`after-challenge ${ids.join(",")}`, async ({ layer, p: pp, started, track }) => {
     await started;
     if (!layer.jury) return { jury: "off" };
     const runs = [];
     for (const id of ids) {
       const r = await layer.jury.run(id);
       pp.journals.append("jury.jsonl", { ...r, jurors: (r.jurors || []).map(({ signature, ...j }) => j), at: Date.now() });
+      // each verdict's transaction becomes market events now, not at the next index
+      for (const j of r.jurors || []) track(j.tx_hash, layer.jury.sender?.accountId);
       runs.push({ id, status: r.status ?? r.skipped });
     }
     return { runs };
