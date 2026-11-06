@@ -1,7 +1,7 @@
 // The encyclopedia's front page: the articles that have markets, each with a strip of its facts' heat.
 import "../styles/pages.css";
 import type { Metadata } from "next";
-import Image from "next/image";
+import { Art } from "@/components/Art";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ErrorState } from "@/components/States";
@@ -29,7 +29,7 @@ export default async function EncyclopediaPage() {
         <div className="pagelist shelf">
           {shelf.map((a) => (
             <Link key={a.slug} className="pagec" href={`/p/${a.slug}`}>
-              <span className="art"><Image src={`/art/${a.facts[0].art}.webp`} alt="" width={560} height={320} sizes="(max-width: 760px) 100vw, 420px" /></span>
+              <span className="art"><Art name={a.facts[0].art} width={560} height={320} sizes="(max-width: 760px) 100vw, 420px" /></span>
               <div className="b">
                 <h2>{a.title}</h2>
                 <p>{plural(a.facts.length, "fact")} priced in {a.sentences} sentences</p>

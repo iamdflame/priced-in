@@ -2,9 +2,9 @@
 // /portfolio: the wallet (balance, what can be collected, open positions with value and P&L, money on its
 // way, history with tx links) and the free $1 (its positions, what they're worth, and the score). The
 // rules are in lib/money/portfolio.ts; this renders them. Polled while the tab is visible.
-import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import { Art } from "../Art";
 import { Icon, type IconName } from "../Icon";
 import { Sk } from "../States";
 import { GeoLine } from "./ui";
@@ -70,7 +70,7 @@ function Row({ r, facts, free }: { r: PositionRow; facts: FactMap; free: boolean
   const open = r.state === "open" || r.state === "ruling";
   return (
     <article className={`panel pf-row ${r.redeemable && !free ? "win" : ""}`}>
-      <div className="art">{f ? <Image src={`/art/${f.art}.webp`} alt="" width={64} height={64} /> : null}</div>
+      <div className="art">{f ? <Art name={f.art} width={64} height={64} /> : null}</div>
       <div className="mid">
         <div className="chips">
           <span className={`chip ${r.side}`}>You said: {r.side === "yes" ? "true" : "false"}</span>

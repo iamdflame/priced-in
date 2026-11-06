@@ -15,6 +15,17 @@
 .read .l { display: block; margin-top: 4cqw; font: 500 max(11px, 4.1cqw) var(--text); color: oklch(.8 .012 255); }
 .scale { position: absolute; font: 500 max(10px, 3.6cqw) var(--text); color: oklch(.72 .012 255); }
 .scale.a { left: 21%; bottom: 13.5%; } .scale.b { right: 19%; bottom: 13.5%; }
+.needle path { fill: var(--needle); }
+/* Light: the ceramic face. Graphite read-out, a deep cyan needle with a contact shadow instead of a glow,
+   and a polished aluminium hub around the cyan pivot. */
+[data-theme='light'] .needle { filter: drop-shadow(0 1px 1px oklch(.25 .05 230 / .4)) drop-shadow(0 4px 5px oklch(.25 .05 230 / .2)); }
+[data-theme='light'] .hub { background: radial-gradient(circle at 36% 30%, oklch(1 0 0), oklch(.9 .004 255) 46%, oklch(.7 .01 255)); box-shadow: 0 2px 5px oklch(.25 .03 255 / .35), 0 0 0 .5px oklch(.3 .02 255 / .25), inset 0 1px 0 oklch(1 0 0); }
+[data-theme='light'] .hub::after { background: var(--needle); box-shadow: 0 0 0 1px oklch(1 0 0 / .6), 0 0 6px oklch(.57 .14 216 / .55); }
+[data-theme='light'] .ring { border-color: var(--needle); }
+[data-theme='light'] .read { color: var(--ink); }
+[data-theme='light'] .read .l { color: var(--ink2); }
+[data-theme='light'] .scale { color: var(--ink3); }
+[data-theme='light'] .scale.a { left: 22%; bottom: 24%; } [data-theme='light'] .scale.b { right: 20%; bottom: 24%; }
 
 /* Sparkline and chart */
 .spark { display: block; overflow: visible; }

@@ -2,7 +2,7 @@
 /* Tabs */
 .tabs { display: flex; flex-wrap: wrap; gap: 4px; padding: 4px 0; }
 .tab { flex: none; height: 40px; padding: 0 14px; border-radius: 999px; color: var(--ink2); font: 500 15px var(--text); display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
-.tab:hover { color: var(--ink); background: var(--surface); }
+.tab:hover { color: var(--ink); background: var(--hover); }
 .tab[aria-pressed='true'] { color: var(--brand-ink); background: var(--brand); font-weight: 600; }
 .tab .ic { width: 16px; height: 16px; }
 .tab .n { font-size: 12px; color: var(--ink3); }
@@ -14,7 +14,8 @@
 .bet:active { transform: scale(.97); }
 .bet b { font: 600 15.5px var(--disp); }
 .bet { min-width: 0; }
-.card .bet { padding: 8px 9px; }
+.card .bet { padding: 8px 6px 8px 8px; }
+.card .bet small { font-size: 11.5px; letter-spacing: -.005em; } /* "Right: $1 becomes $1.79" on one line in a 330 px card */
 .bet small { font-size: 12px; line-height: 1.25; opacity: .92; }
 .bet.yes { background: var(--yes-bg); color: var(--yes); }
 .bet.no { background: var(--no-bg); color: var(--no); }
@@ -25,7 +26,7 @@
 /* Card */
 .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 8px; }
 .card { position: relative; display: flex; flex-direction: column; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--card-shadow); overflow: hidden; transition: box-shadow var(--color); }
-.card:hover { box-shadow: var(--card-shadow), 0 0 0 1px var(--line-strong); }
+.card:hover { box-shadow: var(--card-hover); }
 .art { position: relative; height: 100px; overflow: hidden; background: #14171C; display: block; }
 .art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 44%; transition: transform .7s var(--ease-out); }
 .card:hover .art img { transform: scale(1.045); }
@@ -43,6 +44,22 @@
 .ovspark .nobets { color: oklch(.86 .012 255); display: block; padding: 2px 2px; }
 .art .ov .lab { color: oklch(.86 .012 255); margin-top: 3px; }
 .art .ov .lab b { color: oklch(.95 .008 255); }
+/* Light: the object stands on the card's own white, so the band is product photography, not a tile. The %
+   moves into the body in ink (the phone's layout), where it reads first and nothing sits on the object. */
+[data-theme='light'] .art { background: var(--surface); height: 104px; }
+[data-theme='light'] .art img { object-fit: contain; object-position: 84% 50%; transform: scale(1.16); transform-origin: 80% 52%; }
+[data-theme='light'] .card:hover .art img { transform: scale(1.21); }
+/* The % and what it means sit in the body, in ink, in both themes: nothing to read over the art. */
+.art .ov { display: none; }
+[data-theme='light'] .tag { background: oklch(1 0 0 / .82); color: var(--ink2); box-shadow: inset 0 0 0 1px var(--line); backdrop-filter: blur(6px); }
+[data-theme='light'] .tag.warn { color: var(--warn); } [data-theme='light'] .tag.no { color: var(--no); }
+.card .odds > div:first-child { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.card .odds .pct { font-size: 34px; }
+.card .odds .lab { margin-top: 0; }
+.card .odds .nobets { display: none; }
+/* Rows stay even: a question shows three lines at most; the whole of it is the market page's title. */
+.card .q { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+[data-theme='light'] .bet small { opacity: 1; }
 .cbody { display: flex; flex-direction: column; gap: 8px; padding: 10px 14px 10px; flex: 1; }
 .q { font: 600 16.5px/1.28 var(--disp); letter-spacing: -.008em; color: var(--ink); display: block; min-height: 2.56em; }
 a.q:hover { color: var(--brand-text); }
@@ -51,7 +68,7 @@ a.q:hover { color: var(--brand-text); }
 a.fromwiki { display: block; font-size: 12.5px; line-height: 24px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration-color: transparent; }
 a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
 .card .fromwiki { margin-top: -8px; }
-.card .odds { display: none; align-items: flex-end; justify-content: space-between; gap: 10px; }
+.card .odds { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: -2px; }
 .ev { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: var(--ink2); }
 .ev .ic { width: 15px; height: 15px; color: var(--warn); margin-top: 1px; }
 .ev b { color: var(--warn); font-weight: 600; }
@@ -79,6 +96,8 @@ a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
   .card .art .top, .card .art .ov { display: none; }
   [data-theme='dark'] .card .art::after { inset: 0 0 0 auto; width: 36%; height: auto; background: linear-gradient(270deg, var(--surface), transparent); }
   .card .art img { object-position: 50% 50%; }
+  [data-theme='light'] .card .art img, [data-theme='light'] .card:hover .art img { object-position: 50% 50%; transform: scale(1.7); transform-origin: 50% 50%; }
+  [data-theme='light'] .card .art { height: auto; }
   .card .cbody { display: contents; }
   .card .q { grid-column: 2; grid-row: 1; padding: 12px 14px 0; font-size: 16px; align-self: start; }
   .card .fromwiki { grid-column: 2; grid-row: 2; margin: 0 14px; }

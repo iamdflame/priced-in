@@ -26,7 +26,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#F8F9FB" }],
+  themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#FFFFFF" }],
 };
 
 // Before paint: ?theme= wins, then the visitor's choice, else the default on <html>, light; and film mode

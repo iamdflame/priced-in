@@ -12,19 +12,20 @@ const WORD = [
   ["3128", "M226 0H74V718H226Z"],
   ["3417", "M201 291V0H62V534H190V458Q253 544 354 544Q436 544 485.5 492.0Q535 440 535 345V0H397V298Q397 421 303 421Q259 421 230.0 387.0Q201 353 201 291Z"],
 ] as const;
-const CYAN = "oklch(0.86 0.15 205)";
+// The needle and the i's dot: #00E5F2 on dark grounds, the kit's #00B7C7 on light ones (base.css --mark-cyan).
+const CYAN = { fill: "var(--mark-cyan)" };
 
 export function Lockup({ className = "" }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 171.28 48" role="img" aria-label="Priced In">
       <g transform="translate(-8 0)">
         <path fill="currentColor" fillRule="evenodd" d="M10 40.25V19A14 14 0 1 1 15.5 30.12V40.25A2.75 2.75 0 0 1 10 40.25ZM24 10.5A8.5 8.5 0 1 0 24 27.5A8.5 8.5 0 1 0 24 10.5Z" />
-        <path fill={CYAN} d="M25.41 20.27L29.14 14.34A0.7 0.7 0 0 0 28.1 13.4L22.59 17.73Z" />
-        <circle fill={CYAN} cx="24" cy="19" r="3" />
+        <path style={CYAN} d="M25.41 20.27L29.14 14.34A0.7 0.7 0 0 0 28.1 13.4L22.59 17.73Z" />
+        <circle style={CYAN} cx="24" cy="19" r="3" />
       </g>
       <g transform="translate(46 30) scale(0.02924791086350975 -0.02924791086350975)">
         {WORD.map(([x, d]) => <path key={x} fill="currentColor" transform={`translate(${x} 0)`} d={d} />)}
-        <path fill={CYAN} transform="translate(1004 0)" d="M223 658Q223 622 197.0 599.0Q171 576 130 576Q90 576 64.0 599.5Q38 623 38 658Q38 695 64.0 718.5Q90 742 130 742Q171 742 197.0 718.5Q223 695 223 658Z" />
+        <path style={CYAN} transform="translate(1004 0)" d="M223 658Q223 622 197.0 599.0Q171 576 130 576Q90 576 64.0 599.5Q38 623 38 658Q38 695 64.0 718.5Q90 742 130 742Q171 742 197.0 718.5Q223 695 223 658Z" />
       </g>
     </svg>
   );

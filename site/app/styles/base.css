@@ -1,6 +1,21 @@
 /* Reset, layout, buttons, chips and the small pieces every screen shares. */
-[data-theme='dark'] { --card-shadow: inset 0 1px 0 oklch(1 0 0 / .05), 0 1px 0 oklch(0 0 0 / .4); --panel: linear-gradient(180deg, oklch(.225 .014 255), oklch(.2 .013 255)); --lift: 0 18px 40px -18px oklch(0 0 0 / .8); --dial-shadow: 0 30px 60px -20px oklch(0 0 0 / .85); --glow: oklch(.31 .035 225 / .55); }
-[data-theme='light'] { --card-shadow: 0 1px 2px oklch(.3 .03 255 / .06), 0 8px 24px -12px oklch(.3 .05 255 / .16); --panel: linear-gradient(180deg, oklch(1 0 0), oklch(.985 .003 255)); --lift: 0 18px 40px -18px oklch(.3 .06 255 / .3); --dial-shadow: 0 30px 50px -22px oklch(.25 .05 255 / .55); --glow: oklch(.86 .07 210 / .4); }
+[data-theme='dark'] { --card-shadow: inset 0 1px 0 oklch(1 0 0 / .05), 0 1px 0 oklch(0 0 0 / .4); --card-hover: var(--card-shadow), 0 0 0 1px var(--line-strong); --panel: linear-gradient(180deg, oklch(.225 .014 255), oklch(.2 .013 255)); --lift: 0 18px 40px -18px oklch(0 0 0 / .8); --dial-shadow: 0 30px 60px -20px oklch(0 0 0 / .85); --glow: oklch(.31 .035 225 / .55); --hover: var(--surface); --mark-cyan: #00E5F2; --needle: oklch(.86 .15 205); }
+/* Light: white paper. Cards are drawn by a hairline and a whisper of shadow tinted toward the graphite
+   hue; lifted things (hover, popovers, the dial) get a longer, softer shadow. No washes, no glow. */
+[data-theme='light'] {
+  --card-shadow: 0 0 0 1px oklch(.3 .02 255 / .09), 0 1px 2px oklch(.25 .02 255 / .04), 0 2px 8px -2px oklch(.25 .03 255 / .05);
+  --card-hover: 0 0 0 1px oklch(.3 .02 255 / .15), 0 2px 4px oklch(.25 .02 255 / .05), 0 14px 30px -14px oklch(.25 .04 255 / .2);
+  --panel: oklch(1 0 0);
+  --lift: 0 0 0 1px oklch(.3 .02 255 / .08), 0 4px 8px -2px oklch(.25 .03 255 / .06), 0 20px 44px -16px oklch(.25 .05 255 / .24);
+  --dial-shadow: 0 1px 2px oklch(.25 .02 255 / .12), 0 10px 22px -10px oklch(.25 .04 255 / .3), 0 30px 50px -28px oklch(.25 .05 255 / .32);
+  --glow: transparent;
+  --hover: var(--surface2);
+  --mark-cyan: #00B7C7;
+  --needle: oklch(.57 .14 216);
+}
+/* Art per theme: each surface renders both files; the theme set before paint shows one, so nothing flashes,
+   and the hidden one is lazy, so it never loads. */
+[data-theme='light'] .th-d, [data-theme='dark'] .th-l { display: none !important; }
 
 @layer base {
   *, *::before, *::after { box-sizing: border-box; }
@@ -36,9 +51,12 @@ main.wrap { flex: 1; padding-bottom: 56px; }
 .btn:disabled { opacity: .55; }
 .btn.primary { background: linear-gradient(180deg, var(--brand-hover), var(--brand)); color: var(--brand-ink); box-shadow: inset 0 1px 0 oklch(1 0 0 / .45), inset 0 -1px 0 oklch(.5 .1 215 / .35), 0 10px 26px -10px oklch(.86 .15 205 / .55); }
 .btn.primary:hover:not(:disabled) { box-shadow: inset 0 1px 0 oklch(1 0 0 / .45), inset 0 -1px 0 oklch(.5 .1 215 / .35), 0 14px 32px -10px oklch(.86 .15 205 / .8); }
-[data-theme='light'] .btn.primary { box-shadow: inset 0 0 0 1px oklch(.55 .11 215 / .45), inset 0 1px 0 oklch(1 0 0 / .45), 0 10px 26px -12px oklch(.6 .14 205 / .6); }
+/* On white the action is a deep, rich cyan with a white label (5.1:1), lit from above like the dark one. */
+[data-theme='light'] .btn.primary { background: linear-gradient(180deg, oklch(.56 .13 216), oklch(.51 .13 219)); box-shadow: inset 0 1px 0 oklch(1 0 0 / .22), inset 0 -1px 0 oklch(.3 .08 225 / .35), 0 1px 2px oklch(.3 .08 225 / .22), 0 8px 18px -8px oklch(.5 .13 218 / .55); }
+[data-theme='light'] .btn.primary:hover:not(:disabled) { background: linear-gradient(180deg, oklch(.52 .13 218), oklch(.47 .125 221)); box-shadow: inset 0 1px 0 oklch(1 0 0 / .2), inset 0 -1px 0 oklch(.3 .08 225 / .4), 0 1px 2px oklch(.3 .08 225 / .25), 0 12px 24px -10px oklch(.5 .13 218 / .6); }
 .btn.ghost { box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); }
 .btn.ghost:hover { background: var(--surface2); }
+[data-theme='light'] .btn.ghost { box-shadow: inset 0 0 0 1px oklch(.3 .02 255 / .16), 0 1px 2px oklch(.25 .02 255 / .05); }
 .btn.soft { background: var(--surface2); color: var(--ink); }
 .btn.soft:hover:not(:disabled) { background: var(--surface3); }
 .btn.lg { height: 52px; font-size: 16px; padding: 0 26px; }

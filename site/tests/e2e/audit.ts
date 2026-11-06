@@ -3,7 +3,7 @@
 import type { Page } from "@playwright/test";
 
 /** Text meant to end in an ellipsis: live bets in a fixed strip, and a long account name. */
-const MAY_TRUNCATE = ".sr-only, .tk, .tk *, .lastbets li, .proofline, .mbadge b, .mbadge small, .vcard b, .pf-hist .w span, .wmenu .a, a.fromwiki";
+const MAY_TRUNCATE = ".sr-only, .tk, .tk *, .lastbets li, .proofline, .mbadge b, .mbadge small, .vcard b, .pf-hist .w span, .wmenu .a, a.fromwiki, .card .q";
 
 export async function audit(page: Page): Promise<string[]> {
   return page.evaluate((mayTruncate) => {
@@ -57,7 +57,7 @@ export async function audit(page: Page): Promise<string[]> {
     }
 
     // rows that must stay rows: at least two of their items side by side
-    const rows = [".home .proof", ".bets", ".seg", ".pnav", ".foot-cols", ".kpis", ".steps3", ".judges3", ".books"];
+    const rows = [".home .proof", ".bets", ".seg", ".pnav", ".ft-topics", ".ft-legal", ".kpis", ".steps3", ".judges3", ".books"];
     for (const sel of rows) {
       for (const row of document.querySelectorAll(sel)) {
         if (!shown(row)) continue;

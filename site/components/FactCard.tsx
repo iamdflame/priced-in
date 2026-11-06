@@ -1,8 +1,8 @@
 // The fact card. It answers four things at a glance: what is claimed (the question), what the market
 // thinks (the % and what it means, with its step chart), what I can do (Yes or No) and, in plain money,
 // what happens if I'm right or wrong.
-import Image from "next/image";
 import Link from "next/link";
+import { Art } from "./Art";
 import { BetLinks } from "./Bet";
 import { TopicIcon } from "./Brand";
 import { Spark } from "./Chart";
@@ -54,7 +54,7 @@ export function FactCard({ f, points, reopened = false, eager = false }: {
   return (
     <article className={`card ${settled ? "settled" : ""}`} aria-labelledby={`q${f.id}`}>
       <Link className="art" href={href} tabIndex={-1} aria-hidden="true" prefetch={false}>
-        <Image src={`/art/${f.art}.webp`} alt="" width={560} height={320} sizes="(max-width: 760px) 96px, (max-width: 1240px) 33vw, 330px" loading={eager ? "eager" : "lazy"} />
+        <Art name={f.art} width={560} height={320} sizes="(max-width: 760px) 96px, (max-width: 1240px) 33vw, 330px" eager={eager} />
         <div className="top">
           <span className="tag"><TopicIcon icon={f.icon} />{f.topic}</span>
           {f.status === "deciding" && <span className="tag plain warn"><Icon name="clock" />Being decided</span>}
@@ -63,7 +63,7 @@ export function FactCard({ f, points, reopened = false, eager = false }: {
         <div className="ov"><PctOnArt f={f} reopened={reopened} /><span className="ovspark">{spark}</span></div>
       </Link>
       <div className="cbody">
-        <Link className="q" id={`q${f.id}`} href={href} prefetch={false}>{f.question}</Link>
+        <Link className="q" id={`q${f.id}`} href={href} prefetch={false} title={f.question}>{f.question}</Link>
         <FromWikipedia f={f} />
         <div className="odds"><PctBlock f={f} reopened={reopened} />{spark}</div>
         {f.caught?.line && !settled && (
