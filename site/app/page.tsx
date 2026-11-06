@@ -5,8 +5,22 @@ import { HomeGrid } from "@/components/HomeGrid";
 import { CoachMark } from "@/components/Live";
 import { ErrorState } from "@/components/States";
 import { agentsByClaim, getSite } from "@/lib/server/site";
+import type { Fact } from "@/lib/model";
 
 export const revalidate = 15;
+
+function interleave(facts: Fact[]): Fact[] {
+  const by = new Map<string, Fact[]>();
+  for (const f of [...facts].sort((a, b) => b.trades - a.trades || Number(!!b.caught) - Number(!!a.caught) || a.id - b.id)) {
+    const l = by.get(f.topic) ?? [];
+    l.push(f);
+    by.set(f.topic, l);
+  }
+  const lists = [...by.values()].sort((a, b) => b.reduce((n, f) => n + f.trades, 0) - a.reduce((n, f) => n + f.trades, 0));
+  const out: Fact[] = [];
+  for (let i = 0; out.length < facts.length; i++) for (const l of lists) if (l[i]) out.push(l[i]);
+  return out;
+}
 
 export default async function Home() {
   const site = await getSite();
@@ -23,8 +37,9 @@ export default async function Home() {
   const lane = site.lane;
   const laneOpen = !!lane && lane.open && (lane.creditsLeft === null || lane.creditsLeft > 0);
   const laneReason = !lane ? "We couldn’t check the free bets just now." : lane.paused ? "The market is paused." : lane.creditsLeft === 0 ? "Today’s free bets are all taken; more tomorrow." : null;
-  // the grid: open facts first (most bet on first), then results
-  const grid = [...site.facts].sort((a, b) => (a.status === "settled" ? 1 : 0) - (b.status === "settled" ? 1 : 0) || b.trades - a.trades || a.id - b.id);
+  // the grid leads with variety: one fact per topic in turn (the most bet on, and the doubted, first);
+  // results go last
+  const grid = interleave(site.facts.filter((f) => f.status !== "settled")).concat(site.facts.filter((f) => f.status === "settled"));
 
   return (
     <main id="main" className="wrap">
@@ -38,7 +53,7 @@ export default async function Home() {
         </aside>
       </div>
       <p className="scale-line">
-        <span><b>{site.totals.facts} facts</b> across {site.totals.topics} topics</span>
+        <span><b>{site.totals.facts} facts</b> from {new Set(site.facts.map((f) => f.page)).size} Wikipedia articles</span>
         <span><b>{site.totals.trades} bets</b> so far</span>
         <span><b>{Object.keys(site.agents).length} AI traders</b> betting their own money</span>
         <span>Every bet is a public transaction</span>

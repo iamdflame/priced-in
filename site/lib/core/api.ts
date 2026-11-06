@@ -375,6 +375,8 @@ export interface Rewrite {
 
 export interface Rationale {
   agent: string;
+  /** "Archivist", "Skeptic", "Quant" (the hosted API sends it; site addition, not in web/src/core) */
+  persona?: string;
   label: string;
   house: boolean;
   account_id: string;

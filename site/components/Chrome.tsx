@@ -114,7 +114,7 @@ export function ReplayBar({ on }: { on: boolean }) {
   return (
     <div className="replaybar" role="status">
       <div className="wrap">
-        <span><b>Replay of a real mainnet run.</b> The free $1 on the T-Bills fact, its signed rewrite and the AI judges’ ruling, as recorded on 5–6 Nov 2026. Nothing is sent.</span>
+        <span><b>Replay of a real mainnet run.</b><span className="long"> The free $1 on the T-Bills fact, its signed rewrite and the AI judges’ ruling, as recorded on 5–6 Nov 2026.</span> Nothing is sent.</span>
         <a href="/">Back to live</a>
       </div>
     </div>

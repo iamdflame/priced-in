@@ -177,7 +177,13 @@ export function Ticket(p: TicketProps) {
           </p>
         </>
       )}
-      {!side && !blocked && <p className="decide hide-dock">Pick a side. If you’re right, your $1 comes back as {quotes ? `${backUsd(quotes.yes)} on Yes or ${backUsd(quotes.no)} on No` : "more"}.</p>}
+      {!side && !blocked && quotes && (
+        <ol className="howto hide-dock" aria-label="How your free $1 works">
+          <li><span className="n">1</span><span><b>Pick Yes or No.</b> Your free $1 is made in this browser: no wallet, no sign-up.</span></li>
+          <li><span className="n">2</span><span><b>3 AI judges decide</b> when the fact is challenged, signing their verdicts on-chain.</span></li>
+          <li><span className="n">3</span><span><b>Right answers get paid:</b> {backUsd(quotes.yes)} back on Yes, or {backUsd(quotes.no)} on No.</span></li>
+        </ol>
+      )}
       {failure ? (
         <div className="notice err" role="alert">
           <Icon name="alert" />

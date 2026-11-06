@@ -38,11 +38,9 @@ export function HomeGrid({ initial, points, agents, reopened, recorded = false }
         if (!r.ok) return;
         const j = (await r.json()) as { claims: Claim[] };
         if (stop || !Array.isArray(j.claims)) return;
-        setFacts((cur) => {
-          const open = new Map(cur.map((f) => [f.id, f.openPrice === null ? null : Math.round(f.openPrice * 1e6)]));
-          const ids = new Set(cur.map((f) => f.id));
-          return j.claims.filter((c) => ids.has(c.id)).map((c) => toFact(c, open.get(c.id) ?? null));
-        });
+        const fresh = new Map(j.claims.map((c) => [c.id, c]));
+        // keep the order the page was laid out in; only the numbers move
+        setFacts((cur) => cur.map((f) => { const c = fresh.get(f.id); return c ? toFact(c, f.openPrice === null ? null : Math.round(f.openPrice * 1e6)) : f; }));
       } catch { /* the next tick tries again */ }
     };
     const t = setInterval(tick, 20_000);

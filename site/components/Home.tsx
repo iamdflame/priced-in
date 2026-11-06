@@ -57,7 +57,7 @@ export function RulingFeature({ ruled, corrected, ruling, recorded = false }: { 
         </div>
         {corrected && corrected.status === "open" && (
           <div className="reopen">
-            <p className="k"><Icon name="sparkle" />Corrected and reopened<span className="long">. Is the new sentence true?</span></p>
+            <p className="k"><Icon name="sparkle" /><span>Corrected and reopened<span className="long">. Is the new sentence true?</span></span></p>
             <h3><Link href={`/c/${corrected.id}${recorded ? "?recorded=1" : ""}`}>{corrected.question}</Link></h3>
             <BetLinks id={corrected.id} quotes={corrected.quotes} question={corrected.question} recorded={recorded} size="feature" />
             <p className="first"><span className="dot" />{corrected.trades ? `${plural(corrected.trades, "bet")} so far · ${Math.round(corrected.price * 100)}% chance it’s true` : priceWords(corrected, true).whose}</p>

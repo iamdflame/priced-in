@@ -4,6 +4,7 @@
 // sentence arrives signed and is verified here, in the browser, against the model's key on the market;
 // an AI trader replies; and it shares to X with the market's card.
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { Icon, Arrow } from "./Icon";
 import { useToast } from "./Toasts";
@@ -90,7 +91,8 @@ export function Receipt({ doubt, store, question, sentence, recorded, onClose, r
     try { await navigator.clipboard.writeText(url); toast("Link copied.", "ok"); } catch { toast("Couldn’t copy. The link is " + url, "err"); }
   };
 
-  return (
+  // a portal: the ticket is sticky (its own stacking context), and the sheet must cover the whole page
+  return createPortal(
     <div className="sheet" role="dialog" aria-modal="true" aria-labelledby="rc-h" onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}>
       <div className="sheet-in">
         <button ref={close} type="button" className="iconbtn sheet-close" aria-label="Close the receipt" onClick={onClose}><Icon name="x" /></button>
@@ -130,7 +132,7 @@ export function Receipt({ doubt, store, question, sentence, recorded, onClose, r
             <section className="panel" aria-label="The sentence, rewritten">
               <div className="ph">
                 <h3>Wikipedia’s sentence, rewritten</h3>
-                {v?.result ? (v.result.ok ? <span className="sig" data-testid="sig-ok"><Icon name="check" />Signature ✓</span> : <span className="sig bad"><Icon name="alert" />Not verified</span>)
+                {v?.result ? (v.result.ok ? <span className="sig" data-testid="sig-ok">Signature ✓</span> : <span className="sig bad"><Icon name="alert" />Not verified</span>)
                   : v?.running ? <span className="sig wait"><span className="spin" />Checking signature</span>
                   : c.rewrite && !rewriteSigned ? <span className="sig wait">Unsigned draft</span> : null}
               </div>
@@ -167,6 +169,7 @@ export function Receipt({ doubt, store, question, sentence, recorded, onClose, r
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

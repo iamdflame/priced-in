@@ -366,6 +366,8 @@ a.q:hover { color: var(--brand-text); }
 .chartp .hd { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 4px; font-size: 13.5px; color: var(--ink2); flex-wrap: wrap; }
 .chartwrap { position: relative; }
 .dialbox { text-align: center; }
+.dialbox .read .l { display: none; }
+.dialbox .dialcap .whyest { margin-left: 6px; }
 .wiki { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 16px 20px; margin-top: 14px; }
 .wiki .h { font-size: 12.5px; color: var(--ink3); margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
 .wiki .h .ic { width: 15px; height: 15px; }
@@ -426,6 +428,10 @@ a.q:hover { color: var(--brand-text); }
 .pstep.done { color: var(--ink2); } .pstep.done .b { background: var(--yes); box-shadow: none; color: var(--yes-ink); }
 .pstep.done .b .ic { width: 12px; height: 12px; stroke-width: 3; }
 @keyframes blink { from { opacity: .35; } to { opacity: 1; } }
+.howto { display: flex; flex-direction: column; gap: 10px; padding: 4px 0 2px; }
+.howto li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
+.howto b { color: var(--ink); font-weight: 600; }
+.howto .n { width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--surface2); font: 700 12px var(--disp); color: var(--ink); }
 .settledbox { display: flex; flex-direction: column; gap: 10px; }
 .settledbox .big { font: 700 30px/1.05 var(--disp); letter-spacing: -.02em; }
 
@@ -619,7 +625,14 @@ a.q:hover { color: var(--brand-text); }
   .mk h1 { font-size: 24px; }
   .how { font-size: 14px; }
   .chartp { display: block; padding: 14px; }
-  .chartp .dialbox { max-width: 150px; margin: 0 auto 10px; }
+  .chartp .dialbox { display: grid; grid-template-columns: 112px minmax(0, 1fr); gap: 14px; align-items: center; text-align: left; margin-bottom: 10px; }
+  .chartp .dialbox .dial .scale { display: none; }
+  .chartp .dialbox .read { top: 62%; }
+  .chartp .dialbox .dialcap { margin-top: 0; text-align: left; font-size: 13.5px; }
+  .chartp .dialbox .dialcap b { font-size: 17px; }
+  .feature .bet .bk { display: none; }
+  .replaybar { font-size: 13px; }
+  .replaybar .long { display: none; }
   .wiki { grid-template-columns: 1fr; gap: 12px; padding: 14px 16px; }
   .rules { grid-template-columns: 1fr; } .rules > div + div { box-shadow: inset 0 1px 0 var(--line); }
   .verdicts3 { grid-template-columns: 1fr; }

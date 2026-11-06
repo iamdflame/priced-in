@@ -9,7 +9,7 @@ import { backUsd, type Quotes } from "@/lib/quote";
 export function BetLinks({ id, quotes, question, recorded = false, size = "card" }: { id: number; quotes: Quotes | null; question: string; recorded?: boolean; size?: "card" | "feature" }) {
   if (!quotes) return null;
   const href = (side: "yes" | "no") => `/c/${id}?side=${side}${recorded ? "&recorded=1" : ""}`;
-  const line = (side: "yes" | "no") => (size === "feature" ? `Bet $1 → get ${backUsd(quotes[side])} back` : `Bet $1 → get ${backUsd(quotes[side])}`);
+  const line = (side: "yes" | "no") => (size === "feature" ? <>Bet $1 → get {backUsd(quotes[side])}<span className="bk"> back</span></> : <>Bet $1 → get {backUsd(quotes[side])}</>);
   return (
     <div className="bets">
       <Link className="bet yes" href={href("yes")} onClick={markIntent} prefetch={false}

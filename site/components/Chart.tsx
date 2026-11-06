@@ -2,7 +2,7 @@
 // The chart: the chance it's true after each real bet, one step per logged trade on a true 0-100 axis,
 // from /history (the contract's own log). Hover or focus a step to read who bet and what it did.
 // A ruled fact ends with the ruling's line. A market with no bets is honestly flat and says so.
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { Bet } from "@/lib/live";
 import { clockUtc, money } from "@/lib/format";
 
@@ -20,7 +20,17 @@ export interface ChartProps {
 export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the start" }: ChartProps) {
   const id = useId().replace(/:/g, "");
   const [hover, setHover] = useState<number | null>(null);
-  const W = 640, H = 262, L = 8, R = 44, T = 14, B = 26;
+  // draw at the container's own width, so the labels stay readable on a phone
+  const box = useRef<HTMLDivElement>(null);
+  const [W, setW] = useState(640);
+  useEffect(() => {
+    const el = box.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([e]) => setW(Math.max(280, Math.round(e.contentRect.width))));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+  const H = W < 520 ? 200 : 262, L = 8, R = 44, T = 14, B = 26;
   const steps = useMemo(() => {
     // the settlement's 0 or 1 is not a price: stop the line at the last trade
     const pts = points.filter(([t]) => !ruled || t < ruled.at);
@@ -53,7 +63,7 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
     return `${p}% · ${clockUtc(steps[i].t)}`;
   }
   return (
-    <div className="chartwrap" onMouseLeave={() => setHover(null)}>
+    <div className="chartwrap" ref={box} onMouseLeave={() => setHover(null)}>
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img"
         aria-label={trades ? `Chance it’s true after each of ${trades} bets, from ${first}% at the start to ${last}%${ruled ? `, then ruled ${ruled.outcome}` : " now"}` : `No bets yet: flat at ${first}%`}>
         <defs><linearGradient id={`cg${id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".16" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
