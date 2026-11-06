@@ -1,6 +1,6 @@
 import { pageCard } from "@/lib/og/page";
 import { money, plural, span } from "@/lib/format";
-import { rulingRecord } from "@/lib/record";
+import { rulingRecord } from "@/lib/rulings";
 import { api } from "@/lib/server/api";
 
 export const alt = "Results on Priced In: facts decided by three AI judges";

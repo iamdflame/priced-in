@@ -18,7 +18,7 @@ import { Kpis, ModelBadge, PageHero, SHead, modelMaker } from "@/components/page
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
-import { rulingRecord } from "@/lib/record";
+import { rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling } from "@/lib/server/api";
 import { judgeWords, verdictTx } from "@/lib/server/proof";
 import { agentsByClaim, getSite } from "@/lib/server/site";
@@ -136,7 +136,7 @@ function Head({ next, checker, live }: { next: number | null; checker: { account
 }
 
 function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact | null }) {
-  const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
+  const verdict = verdictOf(r);
   const took = r.settled_at ? span(r.settled_at - r.opened_at) : null;
   const lastJudge = r.verdicts.length ? span(Math.max(...r.verdicts.map((v) => v.at)) - r.opened_at) : null;
   return (
@@ -156,7 +156,7 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
         <div className="facts3">
           <div><b>{lastJudge ?? "—"}</b>for all three judges to rule</div>
           <div><b>{took ?? "—"}</b>from doubt to paid</div>
-          <div><b>{r.payout_usd ? money(r.payout_usd) : "—"}</b>paid to {verdict === "FALSE" ? "No" : "Yes"}</div>
+          <div><b>{r.payout_usd ? money(r.payout_usd) : "—"}</b>paid to {winningSide(verdict)}</div>
         </div>
         {corrected && (
           <div className="corrected">
@@ -205,7 +205,7 @@ async function Judges({ r }: { r: Ruling }) {
 }
 
 function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
-  const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
+  const verdict = verdictOf(r);
   const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
   return (
     <div className="rrow">

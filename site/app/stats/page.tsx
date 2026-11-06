@@ -12,7 +12,7 @@ import { Kpis, PageHero, SHead } from "@/components/pages/Kit";
 import { Calibration, Spread, TopicBars, VolumeChart } from "@/components/pages/StatCharts";
 import { clockUtc, dayTimeUtc, explorerAccount, money, plural, signedMoney, span } from "@/lib/format";
 import { MARKET_ID } from "@/lib/nav";
-import { rulingRecord } from "@/lib/record";
+import { rulingRecord } from "@/lib/rulings";
 import { api } from "@/lib/server/api";
 import { proof } from "@/lib/server/proof";
 import { getSite } from "@/lib/server/site";

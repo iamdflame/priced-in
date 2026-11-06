@@ -153,7 +153,6 @@
 .chartc svg text { fill: var(--ink3); font: 500 11.5px var(--text); }
 .chartc svg .g { stroke: var(--line); }
 .chartc svg .ln { fill: none; stroke: var(--ink); stroke-width: 2; stroke-linejoin: round; }
-.chartc svg .ln2 { fill: none; stroke: var(--ink3); stroke-width: 1.5; stroke-dasharray: 3 4; }
 .chartc svg .hd { fill: var(--brand); } [data-theme='light'] .chartc svg .hd { fill: var(--brand-text); }
 .chartc svg .bar { fill: var(--ink2); } .chartc svg .bar.y { fill: var(--yes); } .chartc svg .bar.n { fill: var(--no); }
 .chartc svg .barbg { fill: var(--surface2); }

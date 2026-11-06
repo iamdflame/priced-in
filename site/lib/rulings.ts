@@ -22,3 +22,34 @@ export const winningSide = (verdict: string) => (verdict === "FALSE" ? "No" : "Y
 export function correctionsOf(rulings: Ruling[]): Map<number, number> {
   return new Map(rulings.flatMap((r) => (r.correction ? [[r.correction.claim_id, r.claim_id] as const] : [])));
 }
+
+export interface RulingRecord {
+  /** newest first */
+  all: Ruling[];
+  /** newest first */
+  settled: Ruling[];
+  /** doubt to paid, in ms; null before the first settlement */
+  medianMs: number | null;
+  paidUsd: number;
+  /** settled rulings where all three judges gave the same verdict */
+  unanimous: number;
+}
+
+export function median(xs: number[]): number | null {
+  if (!xs.length) return null;
+  const s = [...xs].sort((a, b) => a - b);
+  const m = s.length >> 1;
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+/** The record /rulings, /stats and their share cards all show, computed in one place. */
+export function rulingRecord(rulings: Ruling[]): RulingRecord {
+  const settled = settledRulings(rulings).filter((r) => r.settled_at !== null);
+  return {
+    all: [...rulings].sort((a, b) => b.opened_at - a.opened_at),
+    settled,
+    medianMs: median(settled.map((r) => r.settled_at! - r.opened_at)),
+    paidUsd: settled.reduce((n, r) => n + (r.payout_usd ?? 0), 0),
+    unanimous: settled.filter((r) => r.verdicts.length >= 3 && new Set(r.verdicts.map((v) => v.verdict)).size === 1).length,
+  };
+}

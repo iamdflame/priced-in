@@ -14,7 +14,11 @@ export function Footer() {
         <nav aria-label="Footer">
           <Link href="/#how">How it works</Link>
           <Link href={REPLAY_HREF}>Watch a replay</Link>
-          <a href="/v1" target="_blank" rel="noopener">Truth API</a>
+          <Link href="/stats">The numbers</Link>
+          <Link href="/trust">Trust</Link>
+          <Link href="/p">Encyclopedia</Link>
+          <Link href="/new">Price a claim</Link>
+          <Link href="/developers">Developers</Link>
           <a href={REPO_URL} target="_blank" rel="noopener">Source code <Icon name="ext" className="inline-block !w-3 !h-3" /></a>
         </nav>
       </div>

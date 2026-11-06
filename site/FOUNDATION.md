@@ -60,3 +60,15 @@ Env (`.env.example`): `API_ORIGIN` (default `https://isitpriced.com`), `NEAR_NET
 4. Add the route to `lib/nav.ts` (`NAV`, and `phone: true` for the bottom bar, at most four).
 5. Share card: add `opengraph-image.tsx` next to the page (see `app/c/[id]/opengraph-image.tsx`).
 6. Check 360/390/1440 in both themes (`?theme=light`), no overflow, 44 px targets.
+
+## The proof pages
+
+`/rulings`, `/agents`, `/stats`, `/trust`, `/developers`, `/p`, `/p/[slug]`, `/new`, `/[user]/status/[id]` and `/embed/[id]`. Their components are in `components/pages/`, their styles in `app/styles/pages.css` (each route imports it).
+
+- **Reads beyond `getSite()`** go through `lib/server/proof.ts`: activity, reasons, portfolios, proofs, the truth API, and the chain itself (`stats`, code hash, keys, a verdict's own transaction).
+- **The ruling record** is `rulingRecord()` in `lib/rulings.ts`. `/rulings`, `/stats` and the share card all read it, so they can't disagree.
+- **Per-address limits decide where a call runs.** `/paste`, `/post` and `/v1/credence` count per address, so they run in the browser (`lib/client/api.ts`), where `proxy.ts` forwards the visitor's address. From the server, every visitor would share one quota. A `/v1/credence` sample read on the server is cached for hours.
+- **Commands a developer copies** live in `lib/truth.ts`. The MCP server defaults to a local API and testnet, so both must be set.
+- **The encyclopedia's text** is `data/pages/`, built from `corpus/pages/` by `npm run pages`. `lib/server/encyclopedia.ts` joins it to the market.
+- **`data/mainnet-public.json`** is the public part of `deployments/mainnet.json`, for `/trust`. Copy it again after an upgrade, or the page will say the hashes differ.
+- **Class names:** check `globals.css` before naming one. `.skip` is the skip link and `.mk` the market page's grid; both have broken a page by being reused.
