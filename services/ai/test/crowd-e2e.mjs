@@ -227,7 +227,7 @@ try {
   if (errors.length) throw new Error(errors.join("; "));
   const start = async () => {
     app = createApp(api, { log: () => {} });
-    layer = mountAi(app, ai, { quoteVerifier: mock.quoteVerifier, gpuVerifier: mock.gpuVerifier, log: (m) => { if (/billing|fell asleep|woke|anchor|jury:|agents|reconcile|ledger:/.test(m)) console.log(`  [ai] ${m}`); }, overrides: { jury: { signatureDeadlineMs: 1500, graceMs: 2500 } } });
+    layer = mountAi(app, ai, { quoteVerifier: mock.quoteVerifier, gpuVerifier: mock.gpuVerifier, log: (m) => { if (/billing|fell asleep|woke|anchor|jury:|agents|reconcile|ledger:/.test(m)) console.log(`  [ai] ${m}`); }, overrides: { jury: { signatureDeadlineMs: 1500, graceMs: 2500, gate: null } } }); // its evidence cites no source: the receipt check is off for this chain
     const addr = await app.start();
     const base = `http://127.0.0.1:${addr.port}`;
     stream = await sse(`${base}/events`);

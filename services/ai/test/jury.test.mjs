@@ -7,6 +7,8 @@ import path from "node:path";
 import nacl from "tweetnacl";
 import { NearAI, Attestor } from "../src/nearai.js";
 import { JuryRunner, parseVerdict } from "../src/jury.js";
+import { ReceiptGate } from "../src/receipts.js";
+import jurytest from "../../../deployments/jury-test.json" with { type: "json" };
 import { EventHub } from "../../api/src/events.mjs";
 import { startMockNearAI, MOCK_MODELS } from "./mock-nearai.mjs";
 
@@ -145,6 +147,78 @@ test("already ruled models are skipped, unlisted models too, and a challenge eve
     assert.equal(runs[0].data.challenge_id, 6);
     assert.equal(runs[0].data.jurors[0].signature, undefined);
   } finally { jury.stop(); await mock.close(); }
+});
+
+test("receipts that failed: no model is called, nothing is sent, and the run says why", async () => {
+  const seen = [];
+  const gate = { verdict: async (a) => { seen.push(a); return { ok: false, check: { result: "quote_not_found", reason: "The quoted words are not at https://tether.to/en/legal/.", checked_at: "2026-11-06T12:00:00.000Z", via: "source" } }; } };
+  const { mock, jury, market, hub } = await setup({ gate });
+  const events = [];
+  hub.subscribe((e) => events.push(e));
+  try {
+    const r = await jury.run(5);
+    assert.equal(r.status, "refused");
+    assert.deepEqual(r.jurors, []);
+    assert.equal(r.receipt_check.result, "quote_not_found");
+    assert.match(r.message, /did not call the models/);
+    assert.match(r.message, /are not at https:\/\/tether\.to/);
+    assert.equal(mock.calls.filter((c) => c.path === "/v1/chat/completions").length, 0, "no model read the forgery");
+    assert.deepEqual(market.c.submitted, []);
+    assert.equal(seen[0].challenge_id, 5);
+    assert.equal(events.at(-1).event, "jury_run");
+    assert.equal(events.at(-1).data.status, "refused");
+    assert.equal(jury.active.size, 0, "the challenge can be run again");
+  } finally { await mock.close(); }
+});
+
+test("receipts that verified: the jury sits as before, and the run carries the check", async () => {
+  const gate = { verdict: async () => ({ ok: true, check: { result: "verified", reason: "Every quote is at its source.", checked_at: "2026-11-06T12:00:00.000Z", via: "corpus", sources: [] } }) };
+  const { mock, jury } = await setup({ gate });
+  try {
+    const r = await jury.run(0);
+    assert.equal(r.status, "provisional");
+    assert.deepEqual(r.receipt_check, { result: "verified", reason: "Every quote is at its source.", checked_at: "2026-11-06T12:00:00.000Z", via: "corpus" });
+    assert.equal(mock.calls.filter((c) => c.path === "/v1/chat/completions").length, 3);
+  } finally { await mock.close(); }
+});
+
+test("the real gate in front of the real runner: the measured forgery reaches no model, and the Checker's real evidence does", async () => {
+  const onChain = (r) => (rpc) => ({
+    async viewFunction(a, method, args) {
+      if (method === "get_challenge") return { ...(await rpc.viewFunction(a, method, args)), evidence: r.evidence, claimed_outcome: false, challenger: "someone.near" };
+      if (method === "get_claim") return { ...(await rpc.viewFunction(a, method, args)), text: r.claim };
+      return rpc.viewFunction(a, method, args);
+    },
+  });
+  const noFetch = async (url) => { throw new Error(`no fetch expected: ${url}`); };
+  const run = async (r) => {
+    const { mock, jury } = await setup({ gate: new ReceiptGate({ fetchSource: noFetch }) });
+    jury.rpc = onChain(r)(jury.rpc);
+    try {
+      const out = await jury.run(0);
+      return { out, models: mock.calls.filter((c) => c.path === "/v1/chat/completions").length };
+    } finally { await mock.close(); }
+  };
+  const forged = jurytest.rows.filter((r) => r.set === "forged");
+  assert.equal(forged.length, 10);
+  for (const r of forged) {
+    const { out, models } = await run(r);
+    assert.deepEqual([out.status, out.receipt_check.result, models], ["refused", "record_mismatch", 0], r.id);
+  }
+  const honest = await run(jurytest.rows.find((r) => r.set === "honest"));
+  assert.equal(honest.out.status, "provisional");
+  assert.equal(honest.out.receipt_check.result, "verified");
+  assert.equal(honest.models, 3);
+});
+
+test("a receipt check that breaks refuses: the gate fails closed", async () => {
+  const { mock, jury } = await setup({ gate: { verdict: async () => { throw new Error("no store"); } } });
+  try {
+    const r = await jury.run(1);
+    assert.equal(r.status, "refused");
+    assert.match(r.receipt_check.reason, /no store/);
+    assert.equal(mock.calls.filter((c) => c.path === "/v1/chat/completions").length, 0);
+  } finally { await mock.close(); }
 });
 
 test("verdict parsing matches the contract: the first non-empty line of the answer, exactly", () => {

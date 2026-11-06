@@ -14,6 +14,7 @@ import { Research } from "./research.js";
 import { Crowd } from "./agents.js";
 import { SignerClient } from "./signer.js";
 import { JuryRunner } from "./jury.js";
+import { ReceiptGate, fetchSource } from "./receipts.js";
 import { FunctionCallSender } from "./txsender.js";
 import { Biller } from "./billing.js";
 import { journalIn } from "./journal.js";
@@ -22,8 +23,10 @@ import { PersonaRegistry, personaHash, normalizePersona } from "./personas.js";
 /**
  * @param {object} app from createApp
  * @param {object} ai from loadAiConfig
- * @param {{ quoteVerifier?: Function, gpuVerifier?: Function, researchFetch?: typeof fetch, log?: (m: string) => void, overrides?: object }} [deps]
- *   The verifiers can only be replaced in code (the offline tests); no setting does it.
+ * @param {{ quoteVerifier?: Function, gpuVerifier?: Function, researchFetch?: typeof fetch, receiptFetch?: typeof fetchSource, log?: (m: string) => void, overrides?: object }} [deps]
+ *   The verifiers can only be replaced in code (the offline tests); no setting does it. So can the
+ *   jury's receipt check: overrides.receipts.store keeps its results (the hosted runtime's store),
+ *   and overrides.jury.gate = null turns it off for a test chain whose evidence cites no source.
  */
 export function mountAi(app, ai, deps = {}) {
   const log = deps.log || ((m) => console.log(`${new Date().toISOString()} ${m}`));
@@ -51,6 +54,7 @@ export function mountAi(app, ai, deps = {}) {
     marketId: api.marketId, swarmId: ai.swarmId, rpcUrls: api.rpcUrls, network: api.network, keystoreDir, keysFile: ai.agents.keysFile,
     journalFile: dir ? path.join(dir, "signer.jsonl") : null, dailySpendMicro: ai.agents.dailySpendMicro, dailyBillMicro: ai.agents.billing.dailyBillMicro,
     dailyOpens: ai.agents.dailyOpens, dailyChallenges: ai.agents.dailyChallenges,
+    dailyDisputes: ai.agents.dailyDisputes, dailyDisputeMicro: ai.agents.dailyDisputeMicro, maxDisputeBondMicro: ai.agents.maxDisputeBondMicro,
     yoctoPerMicro: ai.agents.billing.yoctoPerMicro, supersededAfterMs: ai.agents.supersededAfterMs, log,
   });
   const anchorOn = () => Boolean(signer?.operator?.market?.ok);
@@ -78,14 +82,16 @@ export function mountAi(app, ai, deps = {}) {
     });
   }
 
+  // the receipt check in front of our jury runner: no model reads evidence whose sources don't hold what it quotes
+  const receipts = new ReceiptGate({ store: o.receipts?.store, fetchSource: deps.receiptFetch ?? fetchSource, log });
   let jury = null;
   if (!api.marketId) state.jury.reason = "MARKET_CONTRACT_ID is not set";
   else if (!client.hasKey) state.jury.reason = "NEARAI_API_KEY is not set";
   else if (!ai.jury.accountId || !ai.jury.privateKey) state.jury.reason = "JURY_ACCOUNT_ID or JURY_PRIVATE_KEY (or JURY_KEY_FILE) is not set";
   else {
     const sender = new FunctionCallSender({ rpc: app.rpc, accountId: ai.jury.accountId, keyPair: KeyPair.fromString(ai.jury.privateKey), receiverId: api.marketId });
-    jury = new JuryRunner({ client, attestor, rpc: app.rpc, marketId: api.marketId, sender, models: ai.jury.models, timeoutMs: ai.jury.timeoutMs, ledger, hub: ai.jury.auto ? app.hub : null, log, ...o.jury });
-    state.jury = { status: "on", reason: null, account: ai.jury.accountId };
+    jury = new JuryRunner({ client, attestor, rpc: app.rpc, marketId: api.marketId, sender, models: ai.jury.models, timeoutMs: ai.jury.timeoutMs, ledger, hub: ai.jury.auto ? app.hub : null, log, gate: receipts, ...o.jury });
+    state.jury = { status: "on", reason: null, account: ai.jury.accountId, receipts: jury.gate ? "checked at the source before any model is called" : "off" };
   }
 
   /** Resolve every money intent the ledger has no final outcome for, through the signer's journal. */
@@ -188,5 +194,5 @@ export function mountAi(app, ai, deps = {}) {
     }
   });
   app.hooks.stop.push(async () => { writer?.stop(); crowd?.stop(); jury?.stop(); await signer?.stop(); });
-  return { client, attestor, ledger, personas, writer, crowd, swarm: crowd, biller, signer, jury, status, reconcile, personaHash };
+  return { client, attestor, ledger, personas, writer, crowd, swarm: crowd, biller, signer, jury, receipts, status, reconcile, personaHash };
 }

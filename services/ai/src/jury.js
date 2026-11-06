@@ -9,6 +9,10 @@
 // window. Anyone can run this: the runner can drop a verdict but cannot forge one. Bonded
 // people have the last word: the outcome stands only if nobody disputes it in the window.
 //
+// Our runner first checks the challenge's receipts at their source (a `gate`, see receipts.js):
+// a made-up receipt fooled the real models 9 times in 10, so when the receipts don't verify it
+// calls no model, and the run says why (status "refused", with the receipt check).
+//
 // CLI: node services/ai/src/jury.js <challenge_id>
 //      node services/ai/src/jury.js --attest     (needs no NEAR AI key)
 
@@ -36,10 +40,12 @@ export class JuryRunner {
   /**
    * @param {{ client: import('./nearai.js').NearAI, attestor: import('./nearai.js').Attestor, rpc: import('../../api/src/rpc.mjs').Rpc,
    *   marketId: string, sender: import('./txsender.js').FunctionCallSender, models?: string[], quorum?: number, timeoutMs?: number,
-   *   graceMs?: number, signatureDeadlineMs?: number, ledger?: object, hub?: object, log?: (m: string) => void }} o
+   *   graceMs?: number, signatureDeadlineMs?: number, ledger?: object, hub?: object, log?: (m: string) => void,
+   *   gate?: { verdict: (a: { challenge_id: number, challenge: object, claim: object }) => Promise<{ ok: boolean, check: object|null, error?: string }> }|null }} o
+   *   gate: the receipt check; without one, every challenge goes to the models
    */
   constructor(o) {
-    Object.assign(this, { client: o.client, attestor: o.attestor, rpc: o.rpc, marketId: o.marketId, sender: o.sender, ledger: o.ledger || null, hub: o.hub || null });
+    Object.assign(this, { client: o.client, attestor: o.attestor, rpc: o.rpc, marketId: o.marketId, sender: o.sender, ledger: o.ledger || null, hub: o.hub || null, gate: o.gate || null });
     this.models = o.models || DEFAULT_JURY_MODELS;
     this.quorum = o.quorum ?? 2;
     this.timeoutMs = o.timeoutMs ?? 90_000;
@@ -96,6 +102,24 @@ export class JuryRunner {
     try {
       const ch = await this.rpc.viewFunction(this.marketId, "get_challenge", { challenge_id: challengeId });
       if (!ch) throw new Error(`no challenge ${challengeId}`);
+      // the receipts first: no model reads evidence whose sources don't hold what it quotes
+      let receipt = null;
+      if (this.gate) {
+        const claim0 = await this.rpc.viewFunction(this.marketId, "get_claim", { claim_id: ch.claim_id });
+        const g = await this.gate.verdict({ challenge_id: challengeId, challenge: ch, claim: claim0 }).catch((e) => ({ ok: false, check: null, error: e.message }));
+        receipt = g.check ? { result: g.check.result, reason: g.check.reason, checked_at: g.check.checked_at, via: g.check.via } : { result: null, reason: g.error || "the receipt check did not answer", checked_at: new Date().toISOString(), via: null };
+        if (!g.ok) {
+          const result = {
+            challenge_id: challengeId, claim_id: ch.claim_id, ended: "refused", ms: Date.now() - t0, jurors: [],
+            verdicts_on_chain: ch.verdicts ?? [], provisional: claim0?.provisional ?? null, status: "refused", receipt_check: receipt,
+            message: `Our jury runner did not call the models: the receipts did not verify (${receipt.result ?? "no check"}). ${receipt.reason || ""} Anyone may still run the jury; if two verdicts side with this challenger, the Sentinel disputes.`.trim(),
+          };
+          this.runs.set(challengeId, result);
+          this.hub?.publish({ uid: `jury:${challengeId}:${t0}`, event: "jury_run", source: "ai", data: result });
+          this.log(`jury: challenge ${challengeId}: refused, receipts ${receipt.result}`);
+          return result;
+        }
+      }
       const jurors = this.models.map((model) => ({ model, status: "pending" }));
       const fresh = jurors.filter((j) => {
         if (!ch.verdicts.some((v) => v.model === j.model)) return true;
@@ -119,6 +143,7 @@ export class JuryRunner {
         challenge_id: challengeId, claim_id: ch.claim_id, ended, ms: Date.now() - t0, jurors,
         verdicts_on_chain: after?.verdicts ?? [],
         provisional: claim?.provisional ?? null,
+        ...(receipt ? { receipt_check: receipt } : {}),
         status: claim?.provisional === true || claim?.provisional === false ? "provisional" : "no_quorum",
         message: claim?.provisional === null || claim?.provisional === undefined
           ? `No ${this.quorum}-of-${this.models.length} agreement. The claim stays challenged and keeps trading. After the jury deadline anyone can call expire_challenge: the bond is refunded and the claim reopens.`
@@ -161,7 +186,8 @@ async function cli() {
   }
   const rpc = new Rpc(api.rpcUrls, { timeoutMs: 8000 });
   const sender = new FunctionCallSender({ rpc, accountId: ai.jury.accountId, keyPair: KeyPair.fromString(ai.jury.privateKey), receiverId: api.marketId });
-  const runner = new JuryRunner({ client, attestor, rpc, marketId: api.marketId, sender, models: ai.jury.models, timeoutMs: ai.jury.timeoutMs, log: console.log });
+  const { ReceiptGate } = await import("./receipts.js");
+  const runner = new JuryRunner({ client, attestor, rpc, marketId: api.marketId, sender, models: ai.jury.models, timeoutMs: ai.jury.timeoutMs, log: console.log, gate: new ReceiptGate({ log: console.log }) });
   const r = await runner.run(id);
   console.log(JSON.stringify({ ...r, jurors: r.jurors.map(({ signature, ...j }) => j) }, null, 1));
   process.exit(r.status === "provisional" ? 0 : 1);
