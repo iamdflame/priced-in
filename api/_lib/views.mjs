@@ -187,9 +187,12 @@ export function activityOf({ events = [], rewrites = [], rationales = [], claims
   const byId = new Map(claims.map((c) => [c.id, c]));
   const text = (id) => byId.get(id)?.text ?? null;
   const out = [];
+  const lineOf = new Map(); // challenge id -> claim id: a verdict's event names only the challenge
   for (const e of chronological(events)) {
     const d = e.data || {};
-    const base = { at: timeOf(e), claim_id: d.claim_id ?? null, claim: text(d.claim_id), tx: e.txHash || null };
+    if (e.event === "challenge") lineOf.set(d.challenge_id, d.claim_id);
+    const line = d.claim_id ?? lineOf.get(d.challenge_id) ?? null;
+    const base = { at: timeOf(e), claim_id: line, claim: text(line), tx: e.txHash || null };
     if (e.event === "trade") {
       const sell = String(d.side).startsWith("sell_");
       out.push({ kind: "trade", ...base, who: whoIs(d.trader, names), trader: d.trader, action: sell ? "sell" : "buy", side: sell ? d.side.slice(5) : d.side, amount_usd: usd(d.amount_micro), shares: usd(d.shares_micro), price_after: d.price_yes_ppm / 1e6 });

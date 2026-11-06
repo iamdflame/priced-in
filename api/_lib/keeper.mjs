@@ -127,12 +127,6 @@ export function bOf(claim, events) {
   return null;
 }
 
-/** micro-USDC the market reserves for a claim at b and p0 (max loss, after the 20-80% clamp). */
-export function reserveMicro(bMicro, p0ppm) {
-  const p = Math.min(0.8, Math.max(0.2, p0ppm / 1e6));
-  return Math.floor(Number(bMicro) * Math.log(1 / Math.min(p, 1 - p))) + 1;
-}
-
 // ---------- the clock: what is being ruled now, and when the next ruling lands ----------
 
 /**

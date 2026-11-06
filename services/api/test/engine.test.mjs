@@ -8,7 +8,7 @@ import path from "node:path";
 import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
-import { bOf, checkerCandidates, checkerEvidence, corpusRecord, correctedWording, keeperRound, nextTick, planKeeper, reserveMicro, rulingClock } from "../../../api/_lib/keeper.mjs";
+import { bOf, checkerCandidates, checkerEvidence, corpusRecord, correctedWording, keeperRound, nextTick, planKeeper, rulingClock } from "../../../api/_lib/keeper.mjs";
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "../../../api/_lib/routes.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
 import { corpusEvidence } from "../../ai/src/evidence.js";
@@ -289,6 +289,7 @@ test("activity: trades, rewrites, answers and rulings in one list, newest first,
   assert.deepEqual([buy.who, buy.action, buy.side, buy.amount_usd, buy.price_after], ["a free $1 bet", "buy", "no", 1, 0.4]);
   assert.deepEqual([sell.who, sell.action, sell.side], ["Quant", "sell", "yes"]);
   assert.equal(list.find((x) => x.stage === "challenged").who, "the Checker");
+  assert.equal(list.find((x) => x.stage === "verdict").claim_id, 1, "a verdict's event names only the challenge: its row names the line");
   assert.equal(list.find((x) => x.kind === "answer").reason, "no edge");
   assert.equal(list.find((x) => x.kind === "rewrite").sentence, "Corrected.");
   assert.equal(activityOf({ events, limit: 2 }).length, 2);
@@ -404,8 +405,6 @@ test("the corrected wording is the latest signed sentence in the correct band; t
   const inferred = bOf(c, []);
   assert.ok(Math.abs(Number(inferred.b_micro) - 1450000) < 20);
   assert.equal(bOf(claim(1), []), null);
-  assert.ok(Math.abs(reserveMicro("1450000", 500000) - 1005063) < 3, "b ln 2");
-  assert.equal(reserveMicro("1000000", 950000), reserveMicro("1000000", 800000), "the market clamps to 20-80%");
 });
 
 test("the clock: stages of a live ruling, the next slot, and an honest null", () => {
