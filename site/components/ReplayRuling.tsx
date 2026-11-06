@@ -4,18 +4,20 @@
 // so), the settlement and the correction. Before the bet it waits, with a way to skip ahead.
 import { useEffect, useState } from "react";
 import { RulingBlock } from "./Ruling";
-import { recordedEngine } from "@/lib/engine";
 import type { Ruling } from "@/lib/server/api";
 
 export function ReplayRuling({ r, correctedQuestion }: { r: Ruling; correctedQuestion: string | null }) {
   const [upTo, setUpTo] = useState(-1);
   const [started, setStarted] = useState(false);
   useEffect(() => {
-    let off = () => {};
-    void recordedEngine().then((e) => {
-      off = e.store.subscribe((s) => { if (s.doubt.stage === "answered") setStarted(true); }) as unknown as () => void;
+    let off: (() => void) | null = null;
+    let gone = false;
+    void import("@/lib/client/engine").then(({ recordedEngine }) => recordedEngine()).then((e) => {
+      if (gone) return;
+      const unsubscribe = e.store.subscribe((s) => { if (s.doubt.stage === "answered") setStarted(true); });
+      off = () => { unsubscribe(); };
     });
-    return () => off();
+    return () => { gone = true; off?.(); };
   }, []);
   useEffect(() => {
     if (!started) return;
@@ -29,7 +31,7 @@ export function ReplayRuling({ r, correctedQuestion }: { r: Ruling; correctedQue
       <section className="panel rulingp" id="ruling" aria-label="The ruling, coming up">
         <h2>Then the AI judges ruled on it</h2>
         <p className="sub">After your replayed bet, the ruling plays here as it happened: a challenge, three signed verdicts and the settlement.</p>
-        <button type="button" className="btn soft" style={{ marginTop: 12 }} onClick={() => setStarted(true)}>Play the ruling now</button>
+        <button type="button" className="btn soft gap" onClick={() => setStarted(true)}>Play the ruling now</button>
       </section>
     );
   }

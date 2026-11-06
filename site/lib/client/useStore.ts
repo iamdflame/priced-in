@@ -1,10 +1,9 @@
-"use client";
-// The bridge from the engine's store to React: useSyncExternalStore over store.subscribe. The store's
-// state is immutable (every change is a new object), so a selector that returns part of it is stable.
+// The bridge from the engine to React: useSyncExternalStore over the store and the lane. The store's
+// state is immutable (every change is a new object), so a selector that returns part of it is stable;
+// a selector must never build a new object. Both hooks take null until the engine has loaded.
 import { useSyncExternalStore } from "react";
-import type { AppState, Store } from "./core/store";
-import type { LaneState } from "./core/lane";
-import type { Lane } from "./core/lane";
+import type { Lane, LaneState } from "../core/lane";
+import type { AppState, Store } from "../core/store";
 
 export function useStore<T>(store: Store | null, select: (s: AppState) => T, fallback: T): T {
   return useSyncExternalStore(

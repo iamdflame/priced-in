@@ -59,6 +59,9 @@ export const explorerAccount = (a: string) => `https://nearblocks.io/address/${a
 /** "z-ai/glm-5.3-flash" to "glm-5.3-flash". */
 export const modelShort = (m: string | null | undefined) => (m ? m.split("/").pop()! : "an AI model");
 
+/** A judge's short name: "deepseek-ai/DeepSeek-V4.1-Flash-1017" to "DeepSeek-V4.1-Flash". */
+export const judgeName = (m: string) => modelShort(m).replace(/-\d{4}$/, "");
+
 /** Personas of the house agents by account, for plain sentences. */
 export type AgentNames = Record<string, string>;
 

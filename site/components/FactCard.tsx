@@ -10,25 +10,25 @@ import { Icon } from "./Icon";
 import { money, plural } from "@/lib/format";
 import { priceWords, type Fact } from "@/lib/model";
 
-export function PctBlock({ f, reopened = false }: { f: Fact; reopened?: boolean }) {
+/** The % and what it means, with the one-tap "?" unless `explain` is off (the art is one link). */
+export function PctBlock({ f, reopened = false, explain = true }: { f: Fact; reopened?: boolean; explain?: boolean }) {
   const w = priceWords(f, reopened);
-  const pct = Math.round(f.price * 100);
   return (
     <div>
-      <div className="pct num">{pct}<i>%</i></div>
+      <div className="pct num">{Math.round(f.price * 100)}<i>%</i></div>
       <span className="lab">
         <b>{w.means}</b>
         <span>{w.whose}</span>
-        {w.firstRead && <WhyEstimate pct={Math.round((f.openPrice ?? f.price) * 100)} />}
+        {explain && w.firstRead && <WhyEstimate pct={Math.round((f.openPrice ?? f.price) * 100)} />}
       </span>
     </div>
   );
 }
 
-export function FactCard({ f, points, agents = [], reopened = false, recorded = false, eager = false }: {
-  f: Fact; points?: [number, number][]; agents?: string[]; reopened?: boolean; recorded?: boolean; eager?: boolean;
+export function FactCard({ f, points, agents = [], reopened = false, eager = false }: {
+  f: Fact; points?: [number, number][]; agents?: string[]; reopened?: boolean; eager?: boolean;
 }) {
-  const href = `/c/${f.id}${recorded ? "?recorded=1" : ""}`;
+  const href = `/c/${f.id}`;
   const settled = f.status === "settled";
   return (
     <article className={`card ${settled ? "settled" : ""}`} aria-labelledby={`q${f.id}`}>
@@ -39,7 +39,7 @@ export function FactCard({ f, points, agents = [], reopened = false, recorded = 
           {f.status === "deciding" && <span className="tag plain warn"><Icon name="clock" />Being decided</span>}
           {settled && <span className={`tag plain ${f.outcome ? "" : "no"}`}><Icon name="gavel" />Ruled {f.outcome ? "TRUE" : "FALSE"}</span>}
         </div>
-        <div className="ov"><PctBlockStatic f={f} reopened={reopened} /></div>
+        <div className="ov"><PctBlock f={f} reopened={reopened} explain={false} /></div>
       </Link>
       <div className="cbody">
         <Link className="q" id={`q${f.id}`} href={href} prefetch={false}>{f.question}</Link>
@@ -50,7 +50,7 @@ export function FactCard({ f, points, agents = [], reopened = false, recorded = 
         {settled ? (
           <div className="result"><span>3 AI judges ruled it <b className={f.outcome ? "pos" : "neg"}>{f.outcome ? "true" : "false"}</b></span><Link className="link" href={href}>See the ruling</Link></div>
         ) : (
-          <BetLinks id={f.id} quotes={f.quotes} question={f.question} recorded={recorded} />
+          <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
         )}
         <div className="meta">
           <span className="l">{f.trades ? <><span>{money(f.volumeUsd)} bet</span><span>{plural(f.trades, "bet")}</span></> : <span>No bets yet. Be the first.</span>}</span>
@@ -60,16 +60,5 @@ export function FactCard({ f, points, agents = [], reopened = false, recorded = 
         </div>
       </div>
     </article>
-  );
-}
-
-/** The % on the art (desktop): no "?" button there, the art is one link. */
-function PctBlockStatic({ f, reopened }: { f: Fact; reopened: boolean }) {
-  const w = priceWords(f, reopened);
-  return (
-    <div>
-      <div className="pct num">{Math.round(f.price * 100)}<i>%</i></div>
-      <span className="lab"><b>{w.means}</b><span>{w.whose}</span></span>
-    </div>
   );
 }

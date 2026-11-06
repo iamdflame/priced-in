@@ -42,5 +42,3 @@ export function betsFrom(events: MarketEvent[], agents: AgentNames, opens: Recor
   }
   return out;
 }
-
-export interface LiveTotals { trades: number; volumeUsd: number; facts: number; topics: number }

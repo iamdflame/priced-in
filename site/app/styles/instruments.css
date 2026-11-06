@@ -1,0 +1,40 @@
+/* The dial and the charts. */
+/* The dial: a Blender render with a live needle. 0 degrees is up; 0-100% sweeps -120 to +120. */
+.dial { --p: .5; position: relative; width: 100%; aspect-ratio: 1; border-radius: 50%; box-shadow: var(--dial-shadow); container-type: inline-size; }
+.dial > img { width: 100%; height: 100%; border-radius: 50%; }
+.needle { position: absolute; left: 50%; top: 50%; width: 8.4%; height: 40.5%; margin-left: -4.2%; margin-top: -40.5%; transform-origin: 50% 100%; transform: rotate(calc(-120deg + 240deg * var(--p))); transition: transform 1.25s cubic-bezier(.3, 1.6, .45, 1); filter: drop-shadow(0 0 6px oklch(.86 .15 205 / .75)) drop-shadow(0 3px 5px oklch(0 0 0 / .6)); }
+.needle svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.hub { position: absolute; left: 50%; top: 50%; width: 12%; height: 12%; margin: -6% 0 0 -6%; border-radius: 50%; background: radial-gradient(circle at 36% 30%, oklch(.72 .012 255), oklch(.34 .012 255) 48%, oklch(.2 .01 255)); box-shadow: 0 3px 8px oklch(0 0 0 / .7), inset 0 1px 0 oklch(1 0 0 / .35); }
+.hub::after { content: ''; position: absolute; inset: 34%; border-radius: 50%; background: oklch(.86 .15 205); box-shadow: 0 0 10px oklch(.86 .15 205 / .9); }
+.ring { position: absolute; left: 50%; top: 50%; width: 12%; height: 12%; margin: -6% 0 0 -6%; border-radius: 50%; border: 2px solid oklch(.86 .15 205); opacity: 0; pointer-events: none; }
+.dial.go .ring { animation: ring 1.3s .35s var(--ease-out); }
+@keyframes ring { 0% { opacity: .9; transform: scale(1); } 100% { opacity: 0; transform: scale(9); } }
+.read { position: absolute; left: 0; right: 0; top: 60%; text-align: center; color: oklch(.975 .004 255); line-height: 1; pointer-events: none; }
+.read .n { font: 700 25cqw/.9 var(--disp); letter-spacing: -.05em; }
+.read .n i { font-style: normal; font-size: .52em; letter-spacing: -.02em; margin-left: .03em; }
+.read .l { display: block; margin-top: 4cqw; font: 500 max(11px, 4.1cqw) var(--text); color: oklch(.8 .012 255); }
+.scale { position: absolute; font: 500 max(10px, 3.6cqw) var(--text); color: oklch(.72 .012 255); }
+.scale.a { left: 21%; bottom: 13.5%; } .scale.b { right: 19%; bottom: 13.5%; }
+
+/* Sparkline and chart */
+.spark { display: block; overflow: visible; }
+.spark .ln { fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
+.spark.flat .ln { stroke: var(--ink3); stroke-dasharray: 1 5; }
+.spark .hd { fill: var(--brand); } [data-theme='light'] .spark .hd { fill: var(--brand-text); }
+.spark .hl { fill: none; stroke: var(--brand); stroke-width: 1.5; opacity: 0; transform-box: fill-box; transform-origin: center; animation: head 2.4s var(--ease-out) infinite; }
+@keyframes head { 0% { opacity: .8; transform: scale(.6); } 80%, 100% { opacity: 0; transform: scale(2.6); } }
+.chart { width: 100%; height: auto; display: block; overflow: visible; color: var(--ink); }
+.chart .g { stroke: var(--line); stroke-width: 1; }
+.chart text { fill: var(--ink3); font: 500 11.5px var(--text); }
+.chart .ln { fill: none; stroke: var(--ink); stroke-width: 2.2; stroke-linejoin: round; }
+.chart .endd { fill: var(--brand); } [data-theme='light'] .chart .endd { fill: var(--brand-text); }
+.chart .bd { fill: var(--surface); stroke-width: 2; }
+.chart .bd.y { stroke: var(--yes); } .chart .bd.n { stroke: var(--no); }
+.chart .rule { stroke: var(--no); stroke-width: 1.5; stroke-dasharray: 3 4; }
+.chart .rulet { fill: var(--no); font-weight: 600; }
+.charttip { position: absolute; pointer-events: none; transform: translate(-50%, calc(-100% - 12px)); background: var(--surface3); color: var(--ink); font-size: 12.5px; line-height: 1.35; padding: 7px 10px; border-radius: 10px; box-shadow: var(--lift); white-space: nowrap; z-index: 2; }
+
+
+@media (max-width: 760px) {
+  .read .n { font-size: 27cqw; }
+}

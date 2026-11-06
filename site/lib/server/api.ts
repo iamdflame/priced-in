@@ -3,7 +3,8 @@
 // instead of a blank page. The browser never calls API_ORIGIN directly: it goes through next.config's
 // rewrites on this site's own origin.
 import "server-only";
-import type { Claim, MarketEvent, Rationale, Rewrite } from "../core/api";
+import type { MarketEvent, Rationale, Rewrite } from "../core/api";
+import type { ClaimView } from "../model";
 
 export const API_ORIGIN = (process.env.API_ORIGIN || "https://isitpriced.com").replace(/\/+$/, "");
 
@@ -20,14 +21,6 @@ async function get<T>(path: string, revalidate = 10, timeoutMs = 8000): Promise<
     const timeout = (e as Error)?.name === "TimeoutError" || (e as Error)?.name === "AbortError";
     return { ok: false, error: timeout ? "Priced In took too long to answer." : "We couldn't reach Priced In.", status: 0 };
   }
-}
-
-export interface ClaimV3 extends Claim {
-  b_micro?: string;
-  d0?: string;
-  q_yes_micro?: string;
-  q_no_micro?: string;
-  fee_bps?: number;
 }
 
 export interface Verdict {
@@ -65,6 +58,7 @@ export interface Ruling {
   settled_at: number | null;
   settle_tx: string | null;
   payout_usd: number | null;
+  bonds?: { who: string; trader: string; paid_usd: number; tx: string }[];
   correction: { claim_id: number; text: string; open_tx: string; rewrite_id?: string; at: number } | null;
 }
 
@@ -89,11 +83,11 @@ export interface Health {
 
 export const api = {
   claims: async () => {
-    const r = await get<{ claims: ClaimV3[]; asOf: number }>("/claims", 10);
+    const r = await get<{ claims: ClaimView[]; asOf: number }>("/claims", 10);
     return r.ok ? { ok: true as const, value: r.value.claims } : r;
   },
   claim: async (id: number) => {
-    const r = await get<{ claim: ClaimV3 }>(`/claims/${id}`, 5);
+    const r = await get<{ claim: ClaimView }>(`/claims/${id}`, 5);
     return r.ok ? { ok: true as const, value: r.value.claim } : r;
   },
   historyAll: async () => {

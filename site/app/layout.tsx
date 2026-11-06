@@ -2,10 +2,12 @@ import type { Metadata, Viewport } from "next";
 import { Suspense, type ReactNode } from "react";
 import "./globals.css";
 import { fontVars } from "./fonts";
-import { Nav, OfflineNotice, PhoneNav } from "@/components/Chrome";
-import { Footer } from "@/components/Footer";
-import { LiveStrip, type StripFact } from "@/components/LiveStrip";
 import { Toasts } from "@/components/Toasts";
+import { Footer } from "@/components/shell/Footer";
+import { LiveStrip, LiveStripSkeleton } from "@/components/shell/LiveStrip";
+import { Nav } from "@/components/shell/Nav";
+import { OfflineNotice } from "@/components/shell/OfflineNotice";
+import { PhoneNav } from "@/components/shell/PhoneNav";
 import { SITE_URL } from "@/lib/nav";
 import { getSite } from "@/lib/server/site";
 
@@ -29,10 +31,20 @@ export const viewport: Viewport = {
 // Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default.
 const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still')}catch(e){}`;
 
-export default async function RootLayout({ children }: { children: ReactNode }) {
+/** The strip reads the market on its own, so a slow API never holds up the page. */
+async function LiveBets() {
   const site = await getSite();
-  const stripFacts: Record<number, StripFact> = Object.fromEntries(site.facts.map((f) => [f.id, { id: f.id, name: f.name, icon: f.icon }]));
-  const recent = [...site.bets].reverse().slice(0, 16);
+  return (
+    <LiveStrip
+      initial={[...site.bets].reverse().slice(0, 16)}
+      facts={Object.fromEntries(site.facts.map((f) => [f.id, { name: f.name, icon: f.icon }]))}
+      agents={site.agents}
+      totals={{ facts: site.totals.facts, trades: site.totals.trades, volumeUsd: site.totals.volumeUsd }}
+    />
+  );
+}
+
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" data-theme="dark" className={fontVars} suppressHydrationWarning>
       <head>
@@ -44,9 +56,11 @@ export default async function RootLayout({ children }: { children: ReactNode }) 
           <Suspense fallback={<div className="nav" style={{ height: 69 }} />}>
             <Nav />
           </Suspense>
-          <LiveStrip initial={recent} facts={stripFacts} agents={site.agents} totals={{ facts: site.totals.facts, trades: site.totals.trades, volumeUsd: site.totals.volumeUsd }} />
+          <Suspense fallback={<LiveStripSkeleton />}>
+            <LiveBets />
+          </Suspense>
           {children}
-          <Footer asOf={site.ok ? site.asOf : null} />
+          <Footer />
           <PhoneNav />
           <OfflineNotice />
         </Toasts>

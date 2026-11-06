@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/api.ts (the proven engine). Fix bugs there first, then copy.
+// Copied from web/src/core/api.ts (the proven engine), plus Rationale.persona. Fix bugs there first, then copy.
 // A typed client for services/api and the routes services/ai mounts on it. One base URL.
 // Nothing here throws into a view: every call resolves to a Result, and every failure is
 // mapped to a designed state with plain words (the server's own message when it has one).
@@ -375,7 +375,7 @@ export interface Rewrite {
 
 export interface Rationale {
   agent: string;
-  /** "Archivist", "Skeptic", "Quant" (the hosted API sends it; site addition, not in web/src/core) */
+  /** "Archivist", "Skeptic", "Quant" */
   persona?: string;
   label: string;
   house: boolean;

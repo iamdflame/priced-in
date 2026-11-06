@@ -2,15 +2,14 @@
 // Activity (the real bets), Discussion (the AI traders' reasons, including why they held off) and
 // History (what happened to the fact), as tabs with arrow-key support.
 import { useRef, useState, type KeyboardEvent } from "react";
-import { Icon } from "./Icon";
-import { Ago } from "./Live";
+import { Icon } from "../Icon";
+import { Ago } from "../Live";
+import type { Bet } from "@/lib/bets";
 import type { Rationale } from "@/lib/core/api";
 import { explorerTx, money, modelShort, shortHash } from "@/lib/format";
-import type { Bet } from "@/lib/live";
+import type { HistoryItem } from "@/lib/server/market";
 
-export interface HistoryItem { at: number; icon: "pulse" | "flag" | "chip" | "scale" | "coin" | "sparkle"; text: string; tx?: string | null }
-
-const persona = (r: Rationale) => (r as any).persona || r.agent.replace(/^house-/, "").replace(/^./, (c) => c.toUpperCase());
+const persona = (r: Rationale) => r.persona || r.agent.replace(/^house-/, "").replace(/^./, (c) => c.toUpperCase());
 
 function heldOff(r: Rationale): string | null {
   if (r.side !== "no_bet" && r.side !== "agree") return null;

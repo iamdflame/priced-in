@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTransition } from "react";
 import { Icon, type IconName } from "./Icon";
+import { REPLAY_HREF } from "@/lib/nav";
 
 export function Sk({ w = "100%", h = 16, r, className = "" }: { w?: number | string; h?: number | string; r?: number; className?: string }) {
   return <span className={`sk block ${className}`} style={{ width: w, height: h, borderRadius: r }} aria-hidden="true" />;
@@ -42,7 +43,7 @@ export function Retry({ label = "Try again", reset }: { label?: string; reset?: 
 
 export function ErrorState({ message, reset }: { message: string; reset?: () => void }) {
   return (
-    <StateBox icon="alert" title="We can’t reach the market right now" actions={<><Retry reset={reset} /><Link className="btn soft" href="/c/18?recorded=1">Watch a replay</Link></>}>
+    <StateBox icon="alert" title="We can’t reach the market right now" actions={<><Retry reset={reset} /><Link className="btn soft" href={REPLAY_HREF}>Watch a replay</Link></>}>
       {message} Prices live on NEAR either way; nothing is lost. Try again in a moment, or watch the replay of a real run.
     </StateBox>
   );

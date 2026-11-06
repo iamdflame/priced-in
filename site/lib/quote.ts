@@ -20,7 +20,6 @@ export interface Quotes { yes: Quote; no: Quote; amountUsd: number }
 
 export interface ClaimLike extends ClaimMarket {
   price_yes_ppm: number;
-  cost_up_10_micro?: string;
 }
 
 const DEFAULT_B_MICRO = 1_450_000; // the deployed liquidity, used only for a view without b_micro

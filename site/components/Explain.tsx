@@ -40,7 +40,7 @@ export function Explain({ label, children }: { label: string; children: ReactNod
       {open && pos && (
         <div id={id} role="dialog" aria-label={label} className="pop" style={{ left: pos.left, top: pos.top }}>
           <button type="button" className="iconbtn x" aria-label="Close" onClick={() => setOpen(false)}><Icon name="x" /></button>
-          <div style={{ paddingRight: 32 }}>{children}</div>
+          <div className="pop-in">{children}</div>
         </div>
       )}
     </>

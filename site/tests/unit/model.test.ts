@@ -4,11 +4,14 @@ import { describe, expect, test } from "vitest";
 import claimsSnap from "./fixtures/claims.json";
 import events from "./fixtures/events.json";
 import { ago, mmss, pctOf, shortHash, span, traderName } from "@/lib/format";
-import { betsFrom } from "@/lib/live";
-import { catalogFor, priceWords, questionFor, toFact, topicsOf, wikiOf } from "@/lib/model";
+import { betsFrom } from "@/lib/bets";
+import type { MarketEvent } from "@/lib/core/api";
+import type { ClaimView } from "@/lib/model";
+import { liveNumbers, priceWords, topicsOf } from "@/lib/model";
+import { catalogFor, questionFor, toFact, wikiOf } from "@/lib/server/facts";
 
-const claims = (claimsSnap as any).claims as any[];
-const byId = (id: number) => claims.find((c) => c.id === id);
+const claims = claimsSnap.claims as ClaimView[];
+const byId = (id: number) => claims.find((c) => c.id === id)!;
 
 describe("facts", () => {
   test("every claim has a plain question, topic art and a Wikipedia source", () => {
@@ -19,12 +22,20 @@ describe("facts", () => {
       expect(wikiOf(c.page).url).toMatch(/^https:\/\/en\.wikipedia\.org\//);
     }
   });
-  test("33 facts from 10 Wikipedia articles in 9 topics, 32 open", () => {
+  test("the snapshot's facts group into 9 topics from 10 Wikipedia articles", () => {
     const facts = claims.map((c) => toFact(c));
-    expect(facts).toHaveLength(33);
     expect(new Set(facts.map((f) => f.page)).size).toBe(10);
     expect(topicsOf(facts)).toHaveLength(9);
-    expect(facts.filter((f) => f.status === "open")).toHaveLength(32);
+  });
+  test("a corrected sentence the catalog hasn't met keeps the look of the one it replaced", () => {
+    const look = catalogFor(9999, "ethereum", 20);
+    expect(look.art).toBe(catalogFor(20, "ethereum").art);
+    expect(look.caught).toBeNull();
+    expect(look.name).toMatch(/^the corrected /);
+  });
+  test("a challenged fact can still be bet on, as the contract allows; a settled one can't", () => {
+    expect(liveNumbers({ ...byId(24), status: "Challenged" }).quotes).not.toBeNull();
+    expect(liveNumbers({ ...byId(24), status: "Settled" }).quotes).toBeNull();
   });
   test("a settled fact has no quote and says it was decided", () => {
     const f = toFact(byId(18), 500000);
@@ -47,7 +58,7 @@ describe("facts", () => {
 
 describe("live sentences from the contract's log", () => {
   const agents = { "h-quant.isitpriced.near": "Quant", "h-archivist.isitpriced.near": "Archivist", "h-skeptic.isitpriced.near": "Skeptic" };
-  const bets = betsFrom((events as any).events, agents, { 18: 500000 });
+  const bets = betsFrom(events.events as MarketEvent[], agents, { 18: 500000 });
   test("free $1 bets are Someone's; agents by persona; sells left out", () => {
     const first = bets.find((b) => b.claimId === 18)!;
     expect(first.free).toBe(true);

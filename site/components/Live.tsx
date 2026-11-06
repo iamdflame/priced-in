@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { ago, mmss } from "@/lib/format";
-import { BETS_KEY } from "@/lib/mybets";
+import { BETS_KEY } from "@/lib/client/mybets";
+import { REPLAY_HREF } from "@/lib/nav";
 
 export function Countdown({ to, done = "any minute now" }: { to: number; done?: string }) {
   const [now, setNow] = useState<number | null>(null);
@@ -40,10 +41,10 @@ export function CoachMark({ open, reason }: { open: boolean; reason: string | nu
   const close = () => { try { localStorage.setItem(COACH, "1"); } catch { /* private mode */ } setShow(false); };
   if (!open) {
     return (
-      <div className="notice" role="status" style={{ marginBottom: 12 }}>
+      <div className="notice coach-off" role="status">
         <Icon name="info" />
-        <p><b>Free bets are paused right now.</b> {reason ?? "Every price still updates live."} <Link href="/c/18?recorded=1">Watch a replay of a real bet</Link></p>
-        <button type="button" className="iconbtn" aria-label="Dismiss" onClick={close} style={{ margin: "-10px -8px -10px 0" }}><Icon name="x" /></button>
+        <p><b>Free bets are paused right now.</b> {reason ?? "Every price still updates live."} <Link href={REPLAY_HREF}>Watch a replay of a real bet</Link></p>
+        <button type="button" className="iconbtn" aria-label="Dismiss" onClick={close}><Icon name="x" /></button>
       </div>
     );
   }

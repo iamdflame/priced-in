@@ -6,10 +6,13 @@ export interface NavItem { href: string; label: string; icon: IconName; phone?: 
 
 export const NAV: NavItem[] = [
   { href: "/", label: "Facts", icon: "pulse", phone: true, match: (p) => p === "/" || p.startsWith("/c/") },
-  { href: "/#deciding", label: "Being decided", icon: "clock", phone: true },
-  { href: "/#results", label: "Results", icon: "gavel", phone: true },
+  { href: "/rulings", label: "Results", icon: "gavel", phone: true },
+  { href: "/agents", label: "AI traders", icon: "bot", phone: true },
   { href: "/#how", label: "How it works", icon: "info", phone: true },
 ];
+
+/** The replay of the complete mainnet run: every "watch a replay" link goes here. */
+export const REPLAY_HREF = "/c/18?recorded=1";
 
 export const SITE_URL = (process.env.SITE_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://isitpriced.com").replace(/\/+$/, "");
 export const MARKET_ID = "market.isitpriced.near";

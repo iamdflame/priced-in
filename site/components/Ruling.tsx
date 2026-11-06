@@ -2,12 +2,9 @@
 // window, the settlement and the corrected sentence. Every line links to its transaction.
 import Link from "next/link";
 import { Icon } from "./Icon";
-import { dayTimeUtc, explorerAccount, explorerTx, modelShort, money, span } from "@/lib/format";
+import { dayTimeUtc, explorerAccount, explorerTx, judgeName, money, span } from "@/lib/format";
+import { verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling } from "@/lib/server/api";
-
-export type RulingStage = "challenge" | "jury" | "window" | "settled";
-
-const judgeName = (m: string) => modelShort(m).replace(/-\d{4}$/, "");
 
 function TxLink({ tx, label = "tx" }: { tx: string | null | undefined; label?: string }) {
   if (!tx) return null;
@@ -16,7 +13,8 @@ function TxLink({ tx, label = "tx" }: { tx: string | null | undefined; label?: s
 
 /** `upTo` hides steps that haven't happened yet (the replay reveals them in order). */
 export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = false }: { r: Ruling; correctedQuestion?: string | null; upTo?: number; replay?: boolean }) {
-  const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
+  const verdict = verdictOf(r);
+  const side = winningSide(verdict);
   const settled = r.status === "settled" && upTo >= 6;
   const shown = (i: number) => i <= upTo;
   const verdicts = r.verdicts.filter((_, i) => shown(1 + i));
@@ -28,20 +26,20 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
           <h2 id="ruling-h">{settled ? `Ruled ${verdict} by ${r.verdicts.length} AI judges` : verdicts.length ? `${verdicts.length} of 3 AI judges have ruled` : "Challenged: the AI judges are reading"}</h2>
           <p className="sub">
             {settled
-              ? <>Settled in {span((r.settled_at ?? r.opened_at) - r.opened_at)}{r.payout_usd ? <> · {money(r.payout_usd)} paid to {verdict === "FALSE" ? "No" : "Yes"}</> : null}{replay ? " · replayed at the real offsets, the 10-minute window shortened" : ""}</>
+              ? <>Settled in {span((r.settled_at ?? r.opened_at) - r.opened_at)}{r.payout_usd ? <> · {money(r.payout_usd)} paid to {side}</> : null}{replay ? " · replayed at the real offsets, the 10-minute window shortened" : ""}</>
               : <>Three attested AI models read the sources and sign their verdicts on-chain. Then anyone can object for 10 minutes.</>}
           </p>
         </div>
-        {settled && <span className={`verdict ${verdict.toLowerCase()}`} style={{ height: 30, fontSize: 14, padding: "0 12px" }}>{verdict}</span>}
+        {settled && <span className={`verdict ${verdict.toLowerCase()}`} data-size="lg">{verdict}</span>}
       </header>
       <ol className="tl">
         <li>
           <span className="dotc no"><Icon name="flag" /></span>
           <div className="what">
             <b>{r.challenger_name.replace(/^the /, "The ")} challenged it</b>: it says the sentence is {String(r.claimed).toLowerCase()}, and put up a {money(r.bond_usd)} bond.
-            <details style={{ marginTop: 6 }}>
-              <summary className="link" style={{ cursor: "pointer", minHeight: 32, display: "inline-flex", alignItems: "center" }}>The evidence it filed</summary>
-              <div style={{ marginTop: 6, fontSize: 13.5 }}>{evidence.map((l, i) => <p key={i} style={{ overflowWrap: "anywhere" }}>{l}</p>)}</div>
+            <details className="checkbox">
+              <summary className="link">The evidence it filed</summary>
+              <div className="evidence">{evidence.map((l, i) => <p key={i}>{l}</p>)}</div>
             </details>
           </div>
           <div className="when">{dayTimeUtc(r.opened_at)}<TxLink tx={r.open_tx} /></div>
@@ -59,7 +57,7 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
                   <TxLink tx={v.tx} label="See the verdict" />
                 </div>
               ) : (
-                <div key={v.tx} className="vcard pending" aria-hidden="true"><b>{judgeName(v.model)}</b><span className="v" style={{ color: "var(--ink3)" }}>Reading…</span></div>
+                <div key={v.tx} className="vcard pending" aria-hidden="true"><b>{judgeName(v.model)}</b><span className="v reading">Reading…</span></div>
               ))}
             </div>
           </div>
@@ -72,7 +70,7 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
         </li>
         <li className={settled ? "" : "pending"}>
           <span className={`dotc ${settled ? "yes" : ""}`}><Icon name="coin" /></span>
-          <div className="what">{settled ? <><b>Settled: {verdict === "FALSE" ? "No" : "Yes"} wins.</b> The keeper settled it and {r.payout_usd ? `${money(r.payout_usd)} became payable to` : "paid"} everyone who bet {verdict === "FALSE" ? "No" : "Yes"}; the Checker’s bond came back.</> : <b>Settlement</b>}</div>
+          <div className="what">{settled ? <><b>Settled: {side} wins.</b> {r.payout_usd ? `The keeper settled it and ${money(r.payout_usd)} became payable to everyone who bet ${side}.` : `Nobody had bet ${side}, so nothing was paid.`}{r.bonds?.length ? " The challenger’s bond came back." : ""}</> : <b>Settlement</b>}</div>
           <div className="when">{settled && r.settled_at ? <>{dayTimeUtc(r.settled_at)}<TxLink tx={r.settle_tx} /></> : null}</div>
         </li>
       </ol>
@@ -82,7 +80,7 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
           <Link className="btn primary" href={`/c/${r.correction.claim_id}`}>See the new market<Icon name="arrow" /></Link>
         </div>
       )}
-      <p className="fine" style={{ marginTop: 12 }}>
+      <p className="fine gap">
         Judges’ signing keys are registered on the market contract; the challenger is <a className="link" href={explorerAccount(r.challenger)} target="_blank" rel="noopener">{r.challenger}</a>.
       </p>
     </section>

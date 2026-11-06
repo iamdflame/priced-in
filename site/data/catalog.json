@@ -358,15 +358,6 @@
    "art": "bitcoin",
    "name": "the “20% of BTC lost” fact",
    "caught": null
-  },
-  "32": {
-   "page": "tether",
-   "topic": "Tether",
-   "article": "Tether (cryptocurrency)",
-   "icon": "usdt",
-   "art": "reserves",
-   "name": "Tether's corrected T-Bills fact",
-   "caught": null
   }
  },
  "pages": {

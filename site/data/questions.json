@@ -278,6 +278,24 @@
    "model": null,
    "at": "2026-11-06",
    "reviewed": "hand-written 2026-11-06 for the corrected line (claim 32), from claim 18's question and the correction it opened with"
+  },
+  "dd0443fb51134b85c535c51cdc152c96b184b01b168739300850eda00e950571": {
+   "q": "Has Tether stopped issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand?",
+   "page": "tether",
+   "source": "claim 33",
+   "sentence": "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron; according to Tether, checked 2026-11-05, it is no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand.",
+   "model": null,
+   "at": "2026-11-06",
+   "reviewed": "hand-written 2026-11-06 for the corrected line, from claim 6's question and the correction it opened with"
+  },
+  "c34f8eac43d6faaa2fe9630f88ceb002ff7eb34458112bdd56b6856d2b50e7cf": {
+   "q": "Did Ethereum go from about 0.15 transactions a second in 2016 to about 23 to 25 now?",
+   "page": "ethereum",
+   "source": "claim 34",
+   "sentence": "As of January 2016, Etherscan's daily counts put Ethereum at about 0.15 transactions per second, rising to about 23 to 25 per second as of 5 November 2026; this did not change after the move to proof-of-stake.",
+   "model": null,
+   "at": "2026-11-06",
+   "reviewed": "hand-written 2026-11-06 for the corrected line, from claim 20's question and the correction it opened with"
   }
  }
 }

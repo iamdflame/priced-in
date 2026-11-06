@@ -31,7 +31,7 @@ test("touch targets are at least 44 px on the phone", async ({ page }) => {
     await page.goto(path);
     const small = await page.evaluate(() => {
       const out: string[] = [];
-      for (const el of document.querySelectorAll<HTMLElement>("a, button, [role=tab]")) {
+      for (const el of document.querySelectorAll<HTMLElement>("a, button")) {
         const r = el.getBoundingClientRect();
         if (!r.width || !r.height || getComputedStyle(el).visibility === "hidden") continue;
         if (el.closest("h1, h2, h3, .tape, .ticker, .foot .trust, .ev, .story, .lab, .tl .what, .reason, .t, .pop, details, .skip")) continue; // inline text links

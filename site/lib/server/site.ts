@@ -2,20 +2,27 @@
 // (React's cache dedupes it). Every number is the API's; nothing is filled in when a read fails.
 import "server-only";
 import { cache } from "react";
-import { agentNames, api, type ClaimV3, type Rulings } from "./api";
-import { betsFrom, type Bet } from "../live";
-import { toFact, type Fact } from "../model";
+import { agentNames, api, type Ruling, type Rulings } from "./api";
+import { toFact } from "./facts";
+import { betsFrom, type Bet } from "../bets";
+import type { ClaimView, Fact } from "../model";
+import { correctionsOf, settledRulings } from "../rulings";
 
 export interface Site {
   ok: boolean;
   error: string | null;
   facts: Fact[];
-  claims: ClaimV3[];
+  claims: ClaimView[];
   /** price paths by claim id: [t_ms, ppm] */
   history: Record<string, [number, number][]>;
   bets: Bet[];
   agents: Record<string, string>;
+  /** null when the read failed: say so, never "nothing was ruled" */
   rulings: Rulings | null;
+  /** settled rulings, newest first */
+  settled: Ruling[];
+  /** the corrected claims a ruling opened */
+  reopened: number[];
   lane: { open: boolean; creditsLeft: number | null; paused: boolean } | null;
   totals: { facts: number; open: number; topics: number; trades: number; volumeUsd: number };
   asOf: number;
@@ -27,7 +34,8 @@ export const getSite = cache(async (): Promise<Site> => {
   const opens: Record<number, number> = Object.fromEntries(Object.entries(hist).map(([id, pts]) => [Number(id), pts[0]?.[1]]));
   const names = agents.ok ? agentNames(agents.value) : {};
   const list = claims.ok ? claims.value : [];
-  const facts = list.map((c) => toFact(c, opens[c.id] ?? null));
+  const corrections = correctionsOf(rulings.ok ? rulings.value.rulings : []);
+  const facts = list.map((c) => toFact(c, opens[c.id] ?? null, corrections.get(c.id) ?? null));
   const bets = events.ok ? betsFrom(events.value, names, opens) : [];
   const lane = health.ok ? health.value.checks?.lane : undefined;
   return {
@@ -39,6 +47,8 @@ export const getSite = cache(async (): Promise<Site> => {
     bets,
     agents: names,
     rulings: rulings.ok ? rulings.value : null,
+    settled: rulings.ok ? settledRulings(rulings.value.rulings) : [],
+    reopened: [...corrections.keys()],
     lane: lane ? { open: !!lane.open && !lane.paused, creditsLeft: typeof lane.creditsLeft === "number" ? lane.creditsLeft : null, paused: !!lane.paused } : null,
     totals: {
       facts: facts.length,

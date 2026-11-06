@@ -3,7 +3,8 @@
 // says. Sources, all real: the Pulse kit's data (.apex/design/brand/pulse/assets/data.js, itself built
 // from the mainnet snapshot, the contract's event log and corpus/ERRORS.json) and the one-line
 // evidence the kit's clarity pass wrote from those sources. Prices are never stored here: the site
-// reads every number live from the API.
+// reads every number live from the API. A corrected sentence needs no entry: it takes the look of the
+// sentence it replaced (lib/server/facts.ts).
 import fs from 'node:fs';
 import vm from 'node:vm';
 
@@ -42,9 +43,6 @@ for (const m of D.markets) {
     caught: m.caught ? { today: m.caught.today, onPage: m.caught.onPage, source: m.caught.source, label: m.caught.label, checked: m.caught.checked, line: EVIDENCE[m.id] || null } : null,
   };
 }
-// Claim 32 is claim 18's corrected sentence, opened by the ruling (tx 8dZz4DmaMGYk3PtriToVePCfxp7as63ZohYB7U6A8eyW).
-claims[32] = { ...claims[18], name: "Tether's corrected T-Bills fact", caught: null };
-
 // The Wikipedia revision each page was read from (web/src/ui/data/corpus.json), for "where it's from".
 const corpus = JSON.parse(fs.readFileSync(`${ROOT}web/src/ui/data/corpus.json`, 'utf8'));
 const pages = {};

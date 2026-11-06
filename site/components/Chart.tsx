@@ -3,7 +3,7 @@
 // from /history (the contract's own log). Hover or focus a step to read who bet and what it did.
 // A ruled fact ends with the ruling's line. A market with no bets is honestly flat and says so.
 import { useEffect, useId, useMemo, useRef, useState } from "react";
-import type { Bet } from "@/lib/live";
+import type { Bet } from "@/lib/bets";
 import { clockUtc, money } from "@/lib/format";
 
 export interface ChartProps {
