@@ -11,6 +11,9 @@ export const general = localFont({
   ],
   variable: "--font-general",
   display: "swap",
+  // not preloaded: three weights in the critical path cost the phone its LCP; the metric-matched fallback
+  // keeps the swap from moving anything, and Geist (the reading face) is still preloaded
+  preload: false,
   fallback: ["system-ui", "sans-serif"],
 });
 
