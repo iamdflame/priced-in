@@ -1,12 +1,15 @@
-// The judge's path on the hosted site, in a fresh browser profile, with a time for each step and a
-// screenshot of each stage of the story:
-//   the page says what it is and shows a flagged sentence with its odds; a no-wallet $1 bet goes
-//   final on NEAR; the odds move; the page rewrites the sentence and the signature checks out in
-//   the browser; an AI agent answers; the demo post link opens priced.
+// The judge's path on the hosted site (site/), in a fresh browser profile, with a time for each step
+// and a screenshot of each stage:
+//   the home page says what it is and leads with a fact and its odds; the fact's page quotes what a
+//   free $1 gets back; the $1 settles on NEAR and the odds move; the sentence is rewritten and its
+//   signature checks out in the browser; an AI trader replies; a post on X opens priced.
 //   SITE_URL=https://isitpriced.com node scripts/vercel/judge-path.mjs [--phone] [--shots <dir>] [--no-bet]
-// Each run without --no-bet spends one free $1 lane credit (a fresh key) on the network the site
-// runs on: real USDC on mainnet, so run it sparingly there. Playwright comes from PLAYWRIGHT_DIR
-// (default .apex/design/tools), as in web/e2e.
+// The selectors are the ones the site's own e2e uses (site/tests/e2e/flow.spec.ts): the confirm,
+// settled and sig-ok test ids, the lead's .feature a.bet links, and the receipt dialog.
+// Each run without --no-bet spends one free $1 lane credit (a fresh key) on the network the site runs
+// on: real USDC on mainnet, so run it sparingly there. --no-bet stops at the quote and sends nothing.
+// Playwright is the site's own (npm run site:install, then npx --prefix site playwright install
+// chromium); PLAYWRIGHT_DIR points at another install.
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -18,87 +21,111 @@ const NO_BET = process.argv.includes("--no-bet");
 const si = process.argv.indexOf("--shots");
 const shots = si > 0 ? path.resolve(process.argv[si + 1]) : null;
 if (shots) fs.mkdirSync(shots, { recursive: true });
-const pwDir = path.resolve(process.env.PLAYWRIGHT_DIR || path.join(ROOT, ".apex/design/tools"));
-const { chromium, devices } = createRequire(path.join(pwDir, "package.json"))("playwright");
+const pwDir = path.resolve(process.env.PLAYWRIGHT_DIR || path.join(ROOT, "site"));
+const pwReq = createRequire(path.join(pwDir, "package.json"));
+const { chromium, devices } = (() => { try { return pwReq("@playwright/test"); } catch { return pwReq("playwright"); } })();
 const DEMO_POST = "/ilblackdragon/status/2118027843980366222";
 let failed = 0;
-const step = (name, ok, ms, detail = "") => { if (!ok) failed++; console.log(`${ok ? "PASS" : "FAIL"} ${name} · ${ms === null ? "-" : `${(ms / 1000).toFixed(1)} s`}${detail ? ` · ${detail}` : ""}`); };
+// FAIL counts against the run; NOTE is a real state of the product worth reading (no rewrite this time)
+const step = (name, ok, ms, detail = "") => {
+  const st = ok === "note" ? "NOTE" : ok ? "PASS" : "FAIL";
+  if (st === "FAIL") failed++;
+  console.log(`${st} ${name} · ${ms === null ? "-" : `${(ms / 1000).toFixed(1)} s`}${detail ? ` · ${detail}` : ""}`);
+};
+const squash = (s) => (s || "").replace(/\s+/g, " ").trim();
 
 const browser = await chromium.launch();
-const ctx = await browser.newContext(phone ? { ...devices["iPhone 13"] } : { viewport: { width: 1440, height: 900 } });
+// the same viewports as the site's e2e: Desktop Chrome at 1440 x 900, Pixel 7 at 390 x 844
+const ctx = await browser.newContext(phone ? { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } } : { viewport: { width: 1440, height: 900 } });
 const page = await ctx.newPage();
 const errors = [];
 page.on("pageerror", (e) => errors.push(e.message));
 page.on("console", (m) => { if (m.type() === "error") errors.push(m.text()); });
 const tag = phone ? "phone" : "desktop";
-const shot = async (name, selector = null) => {
+const shot = async (name, locator = null) => {
   if (!shots) return;
   const file = path.join(shots, `${name}-${tag}.png`);
-  if (selector) await page.locator(selector).first().screenshot({ path: file }).catch(() => page.screenshot({ path: file }));
+  if (locator) await locator.first().screenshot({ path: file }).catch(() => page.screenshot({ path: file }));
   else await page.screenshot({ path: file });
 };
-const stage = () => page.evaluate(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") ?? window.__pricedin?.store.state.doubt?.stage ?? null);
-const stepState = (id) => page.evaluate((i) => document.querySelector(`[data-step-id="${i}"]`)?.getAttribute("data-state") ?? null, id);
-const stepText = (id) => page.evaluate((i) => (document.querySelector(`[data-step-id="${i}"]`)?.textContent || "").replace(/\s+/g, " ").trim(), id);
 
 try {
-  // 1. the page says what it is, with a flagged sentence and its odds
+  // 1. the home page says what it is, and leads with a fact and its odds
   let t0 = Date.now();
   await page.goto(`${site}/`, { waitUntil: "domcontentloaded" });
-  const flag = page.locator(".sheet .s.flag[data-sentence]");
-  await flag.waitFor({ timeout: 30000 });
-  const key = await flag.getAttribute("data-sentence");
-  await page.waitForFunction(() => window.__pricedin?.mode === "live", null, { timeout: 20000 }).catch(() => {});
-  const mode = await page.evaluate(() => window.__pricedin?.mode);
-  const pill = (await page.locator("#netpill").textContent().catch(() => "")).trim();
-  const h1 = (await page.locator(".hero h1").textContent()).trim();
-  const headline = (await page.locator(".callout .headline").first().textContent()).trim();
-  const before = Number(await page.locator(`.sheet [data-sentence="${key}"]`).first().getAttribute("data-price"));
-  step("the page says what it is and flags a sentence with its odds", mode === "live" && /odds of being true/.test(h1) && before > 0, Date.now() - t0, `${mode}; "${pill}"; "${headline}"`);
+  const h1 = page.getByRole("heading", { level: 1, name: "Bet on whether facts are true." });
+  await h1.waitFor({ timeout: 30000 });
+  const lead = page.locator(".feature");
+  const question = squash(await lead.locator("#lead-q").textContent());
+  const odds = (await lead.getByRole("img", { name: /% chance it’s true$/ }).first().getAttribute("aria-label")) || "";
+  const no = lead.locator("a.bet.no").first();
+  const canBet = await no.isVisible();
+  step("the home page says what it is and leads with a fact and its odds", /^\d+% chance/.test(odds) && canBet, Date.now() - t0, `"${question}" at ${odds.replace(" chance it’s true", "")}`);
   await shot("1-home");
 
+  // 2. the fact's page: No is picked, and it says what the free $1 gets back
+  t0 = Date.now();
+  await no.click();
+  await page.waitForURL(/\/c\/\d+\?side=no$/, { timeout: 30000 });
+  const claimId = Number(/\/c\/(\d+)/.exec(page.url())[1]);
+  const pickNo = page.getByRole("button", { name: /No, it’s false/ }).first();
+  await page.waitForFunction(() => document.querySelector(".ticket .seg .n")?.getAttribute("aria-pressed") === "true", null, { timeout: 20000 }).catch(() => {});
+  const picked = (await pickNo.getAttribute("aria-pressed")) === "true";
+  // the quote is the contract's fill (site/lib/core/lmsr.ts), on the No button at every width
+  const quoted = await page.waitForFunction(() => /\$1 becomes \$\d+\.\d\d/.test(document.querySelector(".ticket .seg .n")?.textContent || ""), null, { timeout: 20000 }).then(() => true, () => false);
+  const confirm = page.getByTestId("confirm");
+  const ready = quoted && await confirm.isEnabled().catch(() => false);
+  step("the fact's page quotes what a free $1 gets back, no wallet", picked && ready, Date.now() - t0, `/c/${claimId}: ${squash(await confirm.textContent().catch(() => ""))}; ${squash(await page.locator(".ticket .seg .n").textContent().catch(() => "")).replace("false", "false: ")}`);
+  await shot("2-market");
+
   if (!NO_BET) {
-    // 2. the free $1 key, asked for on the first sign of a person
+    // 3. the $1 settles on NEAR, and the odds move
     t0 = Date.now();
-    await page.mouse.wheel(0, 30);
-    await page.waitForFunction(() => window.__pricedin?.store.state.lane.state === "ready", null, { timeout: 30000 });
-    step("the free $1 key is ready, no wallet", true, Date.now() - t0);
-
-    // 3. the bet goes final, and the odds move
-    t0 = Date.now();
-    await page.locator('.callout [data-bet="no"]').first().click();
-    await page.waitForFunction(() => ["optimistic", "final"].includes(document.querySelector("#doubt-state")?.getAttribute("data-stage")), null, { timeout: 30000, polling: 50 }).catch(() => {});
-    const opt = Date.now() - t0;
-    await page.waitForFunction(() => document.querySelector("#doubt-state")?.getAttribute("data-stage") === "final", null, { timeout: 60000, polling: 100 });
+    await confirm.click();
+    const receipt = page.getByRole("dialog", { name: /You bet \$1 that it’s false/ });
+    await receipt.waitFor({ timeout: 60000 });
+    await receipt.getByTestId("settled").waitFor({ timeout: 90000 });
     const fin = Date.now() - t0;
-    const after = Number(await page.locator(`.sheet [data-sentence="${key}"]`).first().getAttribute("data-price"));
-    const tx = await page.evaluate(() => window.__pricedin.store.state.doubt?.ctx?.txHash ?? null);
-    step("the $1 bet goes final on NEAR and the odds move", after < before, fin, `optimistic ${(opt / 1000).toFixed(1)} s; ${(before * 100).toFixed(1)}% -> ${(after * 100).toFixed(1)}%; tx ${tx}`);
-    step("story step 1 and 2 read in plain words", /bet is in/i.test(await stepText("bet")) && /odds moved/i.test(await stepText("odds")), null, (await stepText("odds")).slice(0, 140));
-    await shot("2-after-bet", ".sheet");
+    const settled = squash(await receipt.getByTestId("settled").textContent());
+    const move = (await receipt.locator(".big-move").getAttribute("aria-label")) || "";
+    const [, from, to] = /(\d+)% to (\d+)%/.exec(move) || [];
+    const tx = await receipt.locator("a.hashv").getAttribute("href").catch(() => null);
+    step("the $1 bet settles on NEAR and the odds move", Boolean(tx) && Number(to) <= Number(from), fin, `${settled}; ${from}% -> ${to}%; ${tx}`);
+    await shot("3-receipt", receipt);
 
-    // 4. the page rewrites the sentence; the signature checks out in the browser
-    await page.waitForFunction(() => /Signature checks out/.test(document.querySelector('[data-step-id="rewrite"]')?.textContent || ""), null, { timeout: 150000, polling: 250 });
-    step("the page rewrites the sentence, and the signature checks out", true, Date.now() - t0, (await stepText("rewrite")).slice(0, 220));
-    await shot("3-after-rewrite", ".sheet");
+    // 4. the sentence is rewritten, and its signature checks out in this browser
+    const rewrite = await Promise.race([
+      receipt.getByTestId("sig-ok").waitFor({ timeout: 150000 }).then(() => "signed"),
+      receipt.getByText(/No rewrite this time/).waitFor({ timeout: 150000 }).then(() => "none"),
+    ]).catch(() => "timeout");
+    const panel = squash(await receipt.getByRole("region", { name: "The sentence, rewritten" }).textContent().catch(() => ""));
+    step("the sentence is rewritten, and its signature checks out in the browser", rewrite === "signed" ? true : rewrite === "none" ? "note" : false, Date.now() - t0, panel.slice(0, 220));
+    await shot("4-rewrite", receipt);
 
-    // 5. an AI agent answers
-    const answered = await page.waitForFunction(() => { const s = document.querySelector('[data-step-id="answer"]'); return s && s.getAttribute("data-state") === "done"; }, null, { timeout: 120000, polling: 500 }).then(() => true, () => false);
-    step("an AI agent answers", answered, answered ? Date.now() - t0 : null, (await stepText("answer")).slice(0, 220));
-    await shot("4-after-answer", ".sheet");
+    // 5. an AI trader replies
+    const reply = await Promise.race([
+      receipt.getByRole("heading", { name: /an AI trader, replied/ }).waitFor({ timeout: 120000 }).then(() => "replied"),
+      receipt.getByText(/No AI trader has answered yet/).waitFor({ timeout: 120000 }).then(() => "none"),
+    ]).catch(() => "timeout");
+    const said = squash(await receipt.getByRole("region", { name: "An AI trader’s reply" }).textContent().catch(() => ""));
+    step("an AI trader replies", reply === "replied" ? true : reply === "none" ? "note" : false, Date.now() - t0, said.slice(0, 220));
+    await shot("5-reply", receipt);
+    await receipt.getByRole("button", { name: "Close the receipt" }).click().catch(() => {});
   }
 
-  // 6. the demo post opens priced
+  // 6. a post on X opens priced: x.com changed to the site's domain
   t0 = Date.now();
   await page.goto(`${site}${DEMO_POST}`, { waitUntil: "domcontentloaded" });
-  const pricedPost = await page.waitForFunction(() => document.querySelectorAll(".sheet [data-sentence][data-price]").length > 0, null, { timeout: 45000 }).then(() => true, () => false);
-  step("the demo post opens priced", pricedPost, Date.now() - t0, `${await page.locator(".sheet [data-sentence][data-price]").count()} priced line(s)`);
-  await shot("5-post");
+  const head = page.getByRole("heading", { level: 2, name: /checkable lines?, priced$|Nothing here to bet on/ });
+  const opened = await head.waitFor({ timeout: 45000 }).then(() => true, () => false);
+  const said = opened ? squash(await head.textContent()) : squash(await page.locator("main").textContent().catch(() => "")).slice(0, 160);
+  step("the demo post opens priced", opened && /priced$/.test(said), Date.now() - t0, said);
+  await shot("6-post");
 } catch (e) {
   step("the path completed", false, null, String(e.message || e).split("\n")[0]);
   await shot("x-failure");
 }
 step("no errors in the browser console", errors.length === 0, null, errors.slice(0, 3).join(" | "));
 await browser.close();
-console.log(failed ? `${failed} step(s) failed` : "every step passed");
+console.log(failed ? `${failed} step(s) failed` : `every step passed${NO_BET ? " (--no-bet: nothing was sent)" : ""}`);
 process.exit(failed ? 1 : 0);
