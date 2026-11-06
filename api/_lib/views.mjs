@@ -236,19 +236,34 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
   const byId = new Map(claims.map((c) => [c.id, c]));
   const recs = new Map();
   const get = (id) => recs.get(id);
-  for (const e of chronological(events)) {
+  const blank = (id, claimId) => ({
+    challenge_id: id, claim_id: claimId, claim: byId.get(claimId)?.text ?? null, page: byId.get(claimId)?.page ?? null,
+    challenger: null, challenger_name: null, claimed: null, bond_usd: null, opened_at: null, open_tx: null, jury_deadline_at: null, evidence: null,
+    verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false,
+    status: "jury", outcome: null, settled_at: null, settle_tx: null, payout_usd: null, bonds: [], expired_at: null, correction: null,
+  });
+  const ordered = chronological(events);
+  // 1. every challenge the index or the chain knows; the index can be behind the chain, either way
+  for (const e of ordered) {
+    if (e.event !== "challenge") continue;
+    const d = e.data || {};
+    recs.set(d.challenge_id, Object.assign(blank(d.challenge_id, d.claim_id), {
+      challenger: d.trader, challenger_name: whoIs(d.trader, names), claimed: OUTCOME(d.claimed), bond_usd: usd(d.amount_micro),
+      opened_at: timeOf(e), open_tx: e.txHash || null, jury_deadline_at: nsToMs(d.jury_deadline_ns),
+    }));
+  }
+  for (const [id, ch] of live) {
+    if (!ch || recs.has(id)) continue;
+    recs.set(id, Object.assign(blank(id, ch.claim_id), {
+      challenger: ch.challenger, challenger_name: whoIs(ch.challenger, names), claimed: OUTCOME(ch.claimed_outcome), bond_usd: usd(ch.stakes?.[0]?.amount_micro),
+      opened_at: nsToMs(ch.opened_ns), jury_deadline_at: nsToMs(ch.jury_deadline_ns),
+    }));
+  }
+  // 2. what happened to each, in order
+  for (const e of ordered) {
     const d = e.data || {};
     const t = timeOf(e);
-    if (e.event === "challenge") {
-      recs.set(d.challenge_id, {
-        challenge_id: d.challenge_id, claim_id: d.claim_id, claim: byId.get(d.claim_id)?.text ?? null, page: byId.get(d.claim_id)?.page ?? null,
-        challenger: d.trader, challenger_name: whoIs(d.trader, names), claimed: OUTCOME(d.claimed), bond_usd: usd(d.amount_micro),
-        opened_at: t, open_tx: e.txHash || null, jury_deadline_at: nsToMs(d.jury_deadline_ns), evidence: null,
-        verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false,
-        status: "jury", outcome: null, settled_at: null, settle_tx: null, payout_usd: null, bonds: [], expired_at: null, correction: null,
-      });
-      continue;
-    }
+    if (e.event === "challenge") continue;
     const r = Number.isInteger(d.challenge_id) ? get(d.challenge_id) : null;
     if (!r) continue;
     if (e.event === "verdict") {
@@ -265,15 +280,12 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     else if (e.event === "challenge_expired") { r.status = "expired"; r.expired_at = t; r.settle_tx = e.txHash || null; }
     else if (e.event === "void") { r.status = "void"; r.settled_at = t; }
   }
-  // the chain's live view wins for a challenge still running (the index can be minutes behind)
+  // 3. the chain's own view: it wins for a challenge still running, and settles one the index has
+  //    not reached yet (a settled claim keeps its challenge id and its outcome)
   for (const [id, ch] of live) {
     if (!ch) continue;
-    let r = get(id);
+    const r = get(id);
     const claim = byId.get(ch.claim_id);
-    if (!r) {
-      r = { challenge_id: id, claim_id: ch.claim_id, claim: claim?.text ?? null, page: claim?.page ?? null, challenger: ch.challenger, challenger_name: whoIs(ch.challenger, names), claimed: OUTCOME(ch.claimed_outcome), bond_usd: usd(ch.stakes?.[0]?.amount_micro), opened_at: nsToMs(ch.opened_ns), open_tx: null, jury_deadline_at: nsToMs(ch.jury_deadline_ns), evidence: null, verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false, status: "jury", outcome: null, settled_at: null, settle_tx: null, payout_usd: null, bonds: [], expired_at: null, correction: null };
-      recs.set(id, r);
-    }
     r.evidence = ch.evidence ?? r.evidence;
     for (const v of ch.verdicts || []) {
       const have = r.verdicts.find((x) => x.model === v.model);
@@ -286,6 +298,9 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
       else if (claim.provisional !== null && claim.provisional !== undefined) r.status = "window";
       const end = windowEnds.get(id);
       if (end) r.window_ends_at = nsToMs(end);
+    } else if (ch.resolved && r.status !== "settled" && r.status !== "void") {
+      if (claim?.status === "Settled" && claim.challenge_id === id) { r.status = "settled"; r.outcome = OUTCOME(claim.outcome); }
+      else if (claim && claim.challenge_id !== id) r.status = "void";
     }
     r.disputes_on_chain = ch.disputes ?? r.disputes.length;
   }
@@ -295,8 +310,10 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     if (!r) continue;
     for (const j of run.jurors || []) {
       if (j.status === "already_ruled") continue; // a later run found this model's verdict on-chain
+      if (j.status === "failed" && /already ruled/.test(j.error || "")) continue; // a retry that lost to its own late verdict
       let v = r.verdicts.find((x) => x.model === j.model);
       if (!v) { v = { model: j.model, verdict: null, at: null, tx: null, signature: null }; r.verdicts.push(v); }
+      if (v.runner?.status === "submitted") continue; // a later run's retry says nothing new about it
       v.runner = { status: j.status, verdict: j.outcome ?? null, error: j.error ?? null, signing_address: j.signing_address ?? null, signature_kind: j.signature_kind ?? null, attestation: j.attestation ?? null, tx: j.tx_hash ?? null, at: run.at ?? null };
       v.tx ??= j.tx_hash ?? null;
       if (!v.signature) v.signature = j.status === "submitted" ? "verified by the runner; on-chain record pending" : j.status === "unverified" ? `not verified: ${j.error || "the signature did not match the attested key"}` : j.status ? `no verdict: ${j.error || j.status}` : null;

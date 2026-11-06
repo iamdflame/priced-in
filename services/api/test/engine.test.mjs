@@ -16,6 +16,7 @@ import { Rpc } from "../src/rpc.mjs";
 import { startMockRpc, eventLog } from "./mock-rpc.mjs";
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "pricedin-engine-"));
+const NS = (ms) => String(BigInt(ms) * 1_000_000n);
 const STALE = "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.";
 const LANE = "lane:ed25519:6237QdS6SP63oys9apSKnmMN9bkcF3MBNyV7dUHr16eT";
 let uid = 0;
@@ -337,9 +338,19 @@ test("rulings: per-model verdicts with how each signature was checked, the windo
   assert.equal(s.correction.claim_id, 32);
 });
 
-// ---------- the keeper ----------
+test("rulings: an index behind the chain still shows a settled challenge as settled, never as running", () => {
+  const settle = ev("settle", { claim_id: 7, challenge_id: 0, outcome: false, payout_micro: "1" }, 9000);
+  const view = { claim_id: 7, challenger: "seed-a.testnet", claimed_outcome: false, evidence: "e", verdicts: MODELS.map((m) => ({ model: m, outcome: "FALSE" })), resolved: true, opened_ns: NS(100), jury_deadline_ns: NS(3700), stakes: [{ amount_micro: "1000000" }] };
+  const [r] = rulingsOf({ events: [settle], claims: [claim(7, { status: "Settled", outcome: false, provisional: false, challenge_id: 0 })], live: new Map([[0, view]]) });
+  assert.deepEqual([r.status, r.outcome, r.settled_at, r.verdicts.length, r.opened_at, r.claimed], ["settled", "FALSE", 9000, 3, 100, "FALSE"]);
+  const [v] = rulingsOf({ events: [], claims: [claim(7, { status: "Settled", outcome: true, challenge_id: 0 })], live: new Map([[0, view]]) });
+  assert.deepEqual([v.status, v.outcome], ["settled", "TRUE"]);
+  const [w] = rulingsOf({ events: [], claims: [claim(7, { status: "Open", challenge_id: null })], live: new Map([[0, view]]) });
+  assert.equal(w.status, "void");
+  assert.equal(rulingClock({ nowMs: 10_000, rulings: [r] }).ruling_now, null);
+});
 
-const NS = (ms) => String(BigInt(ms) * 1_000_000n);
+// ---------- the keeper ----------
 
 test("the keeper finalizes after the window, expires after the jury deadline, and leaves everything else alone", () => {
   const now = 10_000_000;

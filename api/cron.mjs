@@ -190,6 +190,8 @@ export default async function handler(req, res) {
         const ruled = new Set(ch.verdicts.map((v) => v.model));
         if (layer.jury.models.every((m) => ruled.has(m))) continue;
         if (BigInt(ch.jury_deadline_ns) < BigInt(Date.now()) * 1_000_000n) continue;
+        // a juror still finishing a run that just ended (quorum and grace) lands on its own
+        if (p.journals.read("jury.jsonl").some((x) => x.challenge_id === id && Date.now() - (x.at || 0) < 180_000)) continue;
         if (left() < 60_000 || (await wanted())) break;
         const rr = await layer.jury.run(id);
         p.journals.append("jury.jsonl", { ...rr, jurors: (rr.jurors || []).map(({ signature, ...j }) => j), at: Date.now() });
