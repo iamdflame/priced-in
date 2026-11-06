@@ -26,7 +26,7 @@ import { Indexer, sourcesFor } from "./_lib/indexer.mjs";
 import { keeperRound, sittingConfig } from "./_lib/keeper.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
 import { putCheck, readLedger } from "./_lib/sentinel.mjs";
-import { checkReceipts, FAILED } from "../services/ai/src/receipts.js";
+import { checkReceipts, FAILED, unsettled } from "../services/ai/src/receipts.js";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { labelSentences, PRICEABLE } from "../services/api/src/planner.mjs";
 import { paragraphsOf } from "../services/ai/src/writer.js";
@@ -217,7 +217,7 @@ export default async function handler(req, res) {
         if (p.journals.read("jury.jsonl").some((x) => x.challenge_id === id && Date.now() - (x.at || 0) < 180_000)) continue;
         // receipts that failed for good are not sent to the models again (an unreadable source is tried again by the gate)
         const known = ledger.checks[id];
-        if (known && FAILED.includes(known.result) && known.result !== "unfetchable") { out.jury.push({ id, status: "refused", receipts: known.result }); continue; }
+        if (known && FAILED.includes(known.result) && !unsettled(known)) { out.jury.push({ id, status: "refused", receipts: known.result }); continue; }
         if (known?.result === "no_receipt") { out.jury.push({ id, status: "refused", receipts: known.result }); continue; }
         if (left() < 60_000 || (await wanted())) break;
         const rr = await layer.jury.run(id);

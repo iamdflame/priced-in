@@ -31,9 +31,9 @@ const fake = (answers) => {
 const noFetch = async (url) => { throw new Error(`no fetch expected: ${url}`); };
 const QUOTE = "Tether Holdings Limited is headquartered in Zug, Switzerland";
 
-test("the results are the five the API promises", () => {
-  assert.deepEqual([...RESULTS], ["verified", "quote_not_found", "unfetchable", "record_mismatch", "no_receipt"]);
-  assert.deepEqual([...FAILED], ["quote_not_found", "unfetchable", "record_mismatch"]);
+test("the results are the six the API promises", () => {
+  assert.deepEqual([...RESULTS], ["verified", "quote_not_found", "unfetchable", "record_mismatch", "no_receipt", "unsupported"]);
+  assert.deepEqual([...FAILED], ["quote_not_found", "unfetchable", "record_mismatch", "unsupported"]);
 });
 
 // ---------- parsing ----------
@@ -185,6 +185,7 @@ test("unfetchable: an HTTP error, a dead host, plain HTTP, and a source that can
   assert.equal(http404.sources[0].status, 404);
   const dead = await checkReceipts({ claim: "x", evidence: `Source: ${URL_A}\n${q}`, fetchSource: fake({ "*": failed(null, "no such host") }) });
   assert.equal(dead.result, "unfetchable");
+  assert.match(dead.reason, /could not be read \(no such host, tried 2026-11-06T12:00:00Z\)/);
   const plain = await checkReceipts({ claim: "x", evidence: `Source: http://example.org/a\n${q}` }); // the real fetcher, which refuses before any network
   assert.equal(plain.result, "unfetchable");
   assert.match(plain.reason, /http is not HTTPS/);

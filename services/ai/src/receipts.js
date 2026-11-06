@@ -23,8 +23,11 @@
 //   record_mismatch  the corpus record named doesn't exist, has another hash, is about another
 //                    sentence, or says the opposite of the challenge
 //   no_receipt       no URL, no quote and no record: a bare accusation
+//   unsupported      every quote is at its source, and the attested models reading that source
+//                    found it does not support the challenge (support.js): a real quote, and a lie
+//                    told around it
 //
-// Fetched text is untrusted: it is only searched here, never followed.
+// Fetched text is untrusted: it is only searched here, or read by a model as data, never followed.
 
 import { createHash } from "node:crypto";
 import dns from "node:dns";
@@ -36,9 +39,9 @@ import errors from "../../../corpus/ERRORS.json" with { type: "json" };
 import committedReceipts from "./corpus-receipts.json" with { type: "json" };
 import { normText } from "./evidence.js";
 
-export const RESULTS = Object.freeze(["verified", "quote_not_found", "unfetchable", "record_mismatch", "no_receipt"]);
+export const RESULTS = Object.freeze(["verified", "quote_not_found", "unfetchable", "record_mismatch", "no_receipt", "unsupported"]);
 /** Results that mean the receipts failed: our jury runner stops, and the Sentinel disputes a ruling for the challenger. */
-export const FAILED = Object.freeze(["quote_not_found", "unfetchable", "record_mismatch"]);
+export const FAILED = Object.freeze(["quote_not_found", "unfetchable", "record_mismatch", "unsupported"]);
 
 export const USER_AGENT = "PricedInSentinel/1.0 (+https://isitpriced.com; checks the receipts a challenge cites)";
 export const LIMITS = Object.freeze({ timeoutMs: 10_000, maxBytes: 6 * 1024 * 1024, maxRedirects: 5, maxSources: 6, concurrency: 3, retries: 1, minQuoteChars: 16, minQuoteWords: 3 });
@@ -437,19 +440,20 @@ async function mapLimit(items, limit, fn) {
 }
 
 const sourceView = (f, via) => ({ url: f.url, final_url: f.final_url ?? null, via, status: f.status ?? null, content_type: f.content_type ?? null, bytes: f.bytes ?? null, sha256: f.sha256 ?? null, fetched_at: f.fetched_at ?? null, error: f.error ?? null });
-const at = (f) => `HTTP ${f.status ?? "no answer"}, fetched ${f.fetched_at ? f.fetched_at.replace(/\.\d+Z$/, "Z") : "just now"}`;
+const at = (f) => `${f.status ? `HTTP ${f.status}, fetched` : "tried"} ${f.fetched_at ? f.fetched_at.replace(/\.\d+Z$/, "Z") : "just now"}`;
 
 /**
  * Check a challenge's receipts.
- * @param {{ claim: string, evidence: string, claimed?: boolean|null, fetchSource?: typeof fetchSource|null,
+ * @param {{ claim: string, evidence: string, claimed?: boolean|null, fetchSource?: typeof fetchSource|null, support?: Function|null,
  *   records?: Map<string, object>, committed?: object, now?: () => number, limits?: object, log?: (m: string) => void }} a
  *   fetchSource null means no live fetch is allowed (a source that needs one is reported unfetchable).
- * @returns {Promise<object>} { result, reason, checked_at, via, record, quotes: [{ text, found, url, via }], sources: [...] }
+ *   support asks the attested models about a receipt verified at a live source (support.js); null asks nobody.
+ * @returns {Promise<object>} { result, reason, checked_at, via, record, quotes: [{ text, found, url, via }], sources: [...], support }
  */
-export async function checkReceipts({ claim, evidence, claimed = null, fetchSource: get = fetchSource, records = RECORDS, committed = committedReceipts.items, now = Date.now, limits = {}, log = () => {} }) {
+export async function checkReceipts({ claim, evidence, claimed = null, fetchSource: get = fetchSource, support = null, records = RECORDS, committed = committedReceipts.items, now = Date.now, limits = {}, log = () => {} }) {
   const L = { ...LIMITS, ...limits };
   const parsed = parseEvidence(evidence, { minChars: L.minQuoteChars, minWords: L.minQuoteWords });
-  const out = { result: null, reason: null, checked_at: iso(now()), via: null, record: null, quotes: parsed.quotes.map((text) => ({ text, found: false, url: null, via: null })), sources: [] };
+  const out = { result: null, reason: null, checked_at: iso(now()), via: null, record: null, quotes: parsed.quotes.map((text) => ({ text, found: false, url: null, via: null })), sources: [], support: null };
   const finish = (result, reason, via) => Object.assign(out, { result, reason, via });
 
   if (!parsed.urls.length && !parsed.quotes.length && !parsed.record) return finish("no_receipt", "The evidence gives no source, no quoted words and no corpus record: a bare accusation.", null);
@@ -489,14 +493,16 @@ export async function checkReceipts({ claim, evidence, claimed = null, fetchSour
       f = await get(url, { timeoutMs: L.timeoutMs, maxBytes: L.maxBytes, maxRedirects: L.maxRedirects });
     }
     const hay = [];
+    let text = "";
     if (!f.error && f.body) {
       const read = await readSource(f);
+      text = read.text || read.raw;
       if (read.error) f = { ...f, error: read.error };
       else if (!read.text && !read.raw) f = { ...f, error: `nothing readable in it (${read.kind})` };
       else for (const t of [read.text, read.raw]) if (t) hay.push(normForMatch(t));
     }
     log(`receipts: ${url} ${f.status ?? "-"} ${f.error ?? "read"}`);
-    return { ...f, hay };
+    return { ...f, hay, text };
   });
   out.sources.push(...fetched.map((f) => sourceView(f, "source")));
   for (const q of out.quotes.filter((x) => !x.found)) {
@@ -513,7 +519,17 @@ export async function checkReceipts({ claim, evidence, claimed = null, fetchSour
     if (!read.length && unread.length) return finish("unfetchable", `${unread[0].url} could not be read (${unread[0].error}${unread[0].status ? "" : `, ${at(unread[0])}`}), and the evidence quotes nothing from it.`, via);
     return finish("quote_not_found", `The evidence names ${urls.length === 1 ? "a source" : "sources"} but quotes nothing from ${urls.length === 1 ? "it" : "them"}, so nothing in it can be checked: ${read.map((f) => `${f.url} (${at(f)})`).join("; ")}.`, via);
   }
-  if (!missing.length) return finish("verified", `Every quoted passage is at its source: ${[...new Set(out.quotes.map((q) => q.url))].join(", ")}.`, out.quotes.every((q) => q.via === "corpus") ? "corpus" : "source");
+  if (!missing.length) {
+    const urls2 = [...new Set(out.quotes.map((q) => q.url))];
+    const live = out.quotes.find((q) => q.via === "source");
+    // the words are there. Do they say what the challenge needs? Our own corpus records aren't asked
+    if (support && live) {
+      const from = fetched.find((f) => f.url === live.url);
+      out.support = await support({ claim, claimed, evidence, url: live.url, text: from.text, quotes: out.quotes }).catch((e) => ({ verdict: "unanswered", unanimous: false, asked_at: iso(now()), url: live.url, answers: [], error: e.message }));
+      if (out.support.verdict === "unsupported") return finish("unsupported", `The quoted words are at ${live.url}, but the attested models that read that source found it does not support the challenge.`, "source");
+    }
+    return finish("verified", `Every quoted passage is at its source: ${urls2.join(", ")}.`, out.quotes.every((q) => q.via === "corpus") ? "corpus" : "source");
+  }
   const words0 = `"${clip(missing[0].text, 140)}"`;
   if (!urls.length) return finish("quote_not_found", `The quoted words ${words0} ${parsed.record ? "are not in the corpus record's receipt, and" : ""} the evidence names no source to find them in.`.replace(/\s+/g, " "), via);
   if (unread.length) return finish("unfetchable", `${unread[0].url} could not be read (${unread[0].error}${unread[0].status ? "" : `, ${at(unread[0])}`}), and the quoted words ${words0} are not at any source that could be read${more}.`, via);
@@ -525,6 +541,9 @@ export const checkSummary = (c) => (c ? { result: c.result, reason: c.reason, ch
 
 // ---------- the gate in front of our jury runner ----------
 
+/** A check whose answer can still change: a source that couldn't be read, or models that didn't answer. */
+export const unsettled = (c) => c?.result === "unfetchable" || c?.support?.verdict === "unanswered";
+
 /** An in-memory store of checks, by challenge id (the self-hosted server's; the hosted runtime keeps them in its store). */
 export function memoryChecks() {
   const m = new Map();
@@ -533,19 +552,20 @@ export function memoryChecks() {
 
 /**
  * Our jury runner calls the models only for a challenge whose receipts verified. A check is
- * reused; one that could not fetch a source is tried again after `recheckMs`.
+ * reused; one that could not read a source, or whose support question went unanswered, is tried
+ * again after `recheckMs`.
  */
 export class ReceiptGate {
-  /** @param {{ store?: { get: (id: number) => Promise<object|null>, put: (id: number, c: object) => Promise<void> }, fetchSource?: Function|null, check?: typeof checkReceipts, recheckMs?: number, now?: () => number, log?: (m: string) => void }} [o] */
-  constructor({ store = memoryChecks(), fetchSource: get = fetchSource, check = checkReceipts, recheckMs = 10 * 60_000, now = Date.now, log = () => {} } = {}) {
-    Object.assign(this, { store, get, check, recheckMs, now, log });
+  /** @param {{ store?: { get: (id: number) => Promise<object|null>, put: (id: number, c: object) => Promise<void> }, fetchSource?: Function|null, support?: Function|null, check?: typeof checkReceipts, recheckMs?: number, now?: () => number, log?: (m: string) => void }} [o] */
+  constructor({ store = memoryChecks(), fetchSource: get = fetchSource, support = null, check = checkReceipts, recheckMs = 10 * 60_000, now = Date.now, log = () => {} } = {}) {
+    Object.assign(this, { store, get, support, check, recheckMs, now, log });
   }
 
   /** The check for one challenge: the stored one, or a new one, stored. */
   async checkFor({ challenge_id: id, challenge: ch, claim }) {
     const known = await this.store.get(id).catch(() => null);
-    if (known?.result && (known.result !== "unfetchable" || this.now() - Date.parse(known.checked_at) < this.recheckMs)) return known;
-    const c = await this.check({ claim: claim?.text ?? "", evidence: ch?.evidence ?? "", claimed: typeof ch?.claimed_outcome === "boolean" ? ch.claimed_outcome : null, fetchSource: this.get, now: this.now, log: this.log });
+    if (known?.result && (!unsettled(known) || this.now() - Date.parse(known.checked_at) < this.recheckMs)) return known;
+    const c = await this.check({ claim: claim?.text ?? "", evidence: ch?.evidence ?? "", claimed: typeof ch?.claimed_outcome === "boolean" ? ch.claimed_outcome : null, fetchSource: this.get, support: this.support, now: this.now, log: this.log });
     await this.store.put(id, c).catch((e) => this.log(`receipts: store ${id}: ${e.message}`));
     return c;
   }
@@ -554,7 +574,8 @@ export class ReceiptGate {
   async verdict(a) {
     try {
       const check = await this.checkFor(a);
-      return { ok: check.result === "verified", check };
+      // a jury needs the same models the support question does: unanswered waits, like the jury would
+      return { ok: check.result === "verified" && check.support?.verdict !== "unanswered", check };
     } catch (e) {
       return { ok: false, check: null, error: `the receipt check failed: ${e.message}` };
     }

@@ -16,6 +16,8 @@ import path from "node:path";
 import { loadAiConfig } from "../../services/ai/src/config.js";
 import { SignerClient } from "../../services/ai/src/signer.js";
 import { checkReceipts } from "../../services/ai/src/receipts.js";
+import { Attestor, NearAI } from "../../services/ai/src/nearai.js";
+import { supportPanel } from "../../services/ai/src/support.js";
 import { sentinelRound } from "../../services/ai/src/sentinel.js";
 import { Rpc } from "../../services/api/src/rpc.mjs";
 import { recordEvents, txEvents } from "./runtime.mjs";
@@ -77,6 +79,15 @@ export async function withSentinelSigner(p, fn, log = () => {}) {
   }
 }
 
+/** The support question, only built when a receipt needs asking: attestation is not a per-minute cost. */
+function support(p, view, log) {
+  const { ai } = loadAiConfig(p.env);
+  const client = new NearAI({ apiKey: ai.nearai.apiKey, baseUrl: ai.nearai.baseUrl });
+  if (!client.hasKey) return null;
+  const attestor = new Attestor({ client, requireGpu: ai.requireGpu, dir: ai.attestationsDir, log });
+  return supportPanel({ client, attestor, models: ai.jury.models, extrasOf: async (model) => JSON.parse(`{${(await view("get_model", { model }))?.extras_json || ""}}`), log });
+}
+
 /**
  * One minute of the Sentinel. Never throws.
  * @param {object} p prepare()'s context
@@ -98,7 +109,7 @@ export async function runSentinel(p, { budgetMs = 50_000, log = () => {}, now = 
       stats,
       view,
       ledger: { read: () => readLedger(p.state), putCheck: (id, c) => putCheck(p.state, id, c), putSentinel: (id, e) => putSentinel(p.state, id, e) },
-      check: (a) => checkReceipts({ ...a, limits: SENTINEL_LIMITS, log }),
+      check: (a) => checkReceipts({ ...a, support: support(p, view, log), limits: SENTINEL_LIMITS, log }),
       dispute: accounts.sentinel ? (intent, d) => withSentinelSigner(p, (signer) => signer.dispute(intent, d), log) : null,
       accounts,
       now,

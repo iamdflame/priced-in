@@ -238,6 +238,7 @@ export function receiptCheckView(c) {
     record: c.record ? { id: c.record.id ?? null, found: Boolean(c.record.found), hash_matches: Boolean(c.record.hash_matches), sentence_matches: Boolean(c.record.sentence_matches), sha256_claimed: c.record.sha256_claimed ?? null, sha256_committed: c.record.sha256_committed ?? null } : null,
     quotes: (c.quotes || []).map((q) => ({ text: q.text, found: Boolean(q.found), url: q.url ?? null })),
     sources: (c.sources || []).map((x) => ({ url: x.url, via: x.via ?? "source", status: x.status ?? null, sha256: x.sha256 ?? null, bytes: x.bytes ?? null, content_type: x.content_type ?? null, fetched_at: x.fetched_at ?? null, error: x.error ?? null })),
+    support: c.support ? { verdict: c.support.verdict, unanimous: Boolean(c.support.unanimous), asked_at: c.support.asked_at ?? null, url: c.support.url ?? null, answers: (c.support.answers || []).map((a) => ({ model: a.model, answer: a.answer, verified: Boolean(a.verified), reason: a.reason ?? null, request_hash: a.request_hash ?? null, response_hash: a.response_hash ?? null, signature: a.signature ?? null, signing_address: a.signing_address ?? null })) } : null,
   };
 }
 

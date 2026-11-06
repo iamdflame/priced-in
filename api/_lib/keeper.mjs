@@ -23,7 +23,7 @@ import { corpusRecord as recordOf } from "../../services/ai/src/receipts.js";
 export const CRON_EVERY_MS = 10 * 60_000;
 const SLOT_MS = 30_000; // how long into a cron run the Checker has acted
 const LIVE = ["jury", "window", "escalated"];
-const NOT_VERIFIED = ["quote_not_found", "unfetchable", "record_mismatch", "no_receipt"];
+const NOT_VERIFIED = ["quote_not_found", "unfetchable", "record_mismatch", "no_receipt", "unsupported"];
 const CAPPED_OPEN = "today's cap on opened lines is reached: the keeper opens it after midnight UTC";
 const NS = 1_000_000n;
 const nsToMs = (ns) => (ns === null || ns === undefined ? null : Number(BigInt(String(ns)) / NS));

@@ -15,6 +15,7 @@ import { Crowd } from "./agents.js";
 import { SignerClient } from "./signer.js";
 import { JuryRunner } from "./jury.js";
 import { ReceiptGate, fetchSource } from "./receipts.js";
+import { supportPanel } from "./support.js";
 import { FunctionCallSender } from "./txsender.js";
 import { Biller } from "./billing.js";
 import { journalIn } from "./journal.js";
@@ -83,7 +84,9 @@ export function mountAi(app, ai, deps = {}) {
   }
 
   // the receipt check in front of our jury runner: no model reads evidence whose sources don't hold what it quotes
-  const receipts = new ReceiptGate({ store: o.receipts?.store, fetchSource: deps.receiptFetch ?? fetchSource, log });
+  const extrasOf = async (model) => JSON.parse(`{${(await view("get_model", { model }))?.extras_json || ""}}`);
+  const support = client.hasKey ? supportPanel({ client, attestor, models: ai.jury.models, extrasOf, ledger, log }) : null;
+  const receipts = new ReceiptGate({ store: o.receipts?.store, fetchSource: deps.receiptFetch ?? fetchSource, support: o.receipts?.support === undefined ? support : o.receipts.support, log });
   let jury = null;
   if (!api.marketId) state.jury.reason = "MARKET_CONTRACT_ID is not set";
   else if (!client.hasKey) state.jury.reason = "NEARAI_API_KEY is not set";

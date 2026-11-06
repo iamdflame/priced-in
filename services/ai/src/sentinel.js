@@ -6,9 +6,9 @@
 // so a refusal is not enough. The Sentinel watches every live challenge, every minute:
 //
 //   - when a provisional outcome sides with a challenger whose receipts failed the check
-//     (quote_not_found, unfetchable, record_mismatch), it disputes, once per round, inside the
-//     window, with evidence in plain words: what it fetched, when, the HTTP status, the page's
-//     sha256, and the quote it could not find
+//     (quote_not_found, unfetchable, record_mismatch, or unsupported with no model disagreeing), it
+//     disputes, once per round, inside the window, with evidence in plain words: what it fetched,
+//     when, the HTTP status, the page's sha256, and the quote it could not find
 //   - it never disputes a verified receipt, our own Checker's included
 //   - a bare accusation (no_receipt) is recorded, not disputed: the jury already refuses those
 //     (0 FALSE in 10)
@@ -58,12 +58,14 @@ export function sentinelDecision({ id, ch, claim, check, windowEndMs = null, now
   if (claim.status !== "Challenged") return none(before ? "disputed" : "no_dispute", "This challenge is no longer live.");
   if (accounts.sentinel && ch.challenger === accounts.sentinel) return none("no_dispute", "The Sentinel never disputes its own account.");
   if (!check) return { act: "check", status: "watching", note: "The receipts are being checked." };
+  if (check.result === "verified" && check.support?.verdict === "unanswered") return none("watching", "The quote is at its source. Whether that source supports the challenge is still unanswered, so it is asked again.");
   if (check.result === "verified") {
     const ours = accounts.checker && ch.challenger === accounts.checker;
     return none("no_dispute", ours ? "Our Checker's receipt verified against the committed corpus record: the Sentinel never disputes it." : "The receipts verified at their source: the Sentinel never disputes a verified receipt.");
   }
   if (check.result === "no_receipt") return none("no_dispute", "A bare accusation, with no source, no quote and no record: the jury refuses those (0 FALSE in 10 measured), so the Sentinel records it and does not dispute.");
   if (!FAILED.includes(check.result)) return none("watching", `The receipt check said ${check.result}.`);
+  if (check.result === "unsupported" && !check.support?.unanimous) return none("no_dispute", "Two attested models found the source does not support the challenge and another disagreed: enough to keep our jury off it, not enough to put money against it.");
   const failed = `The receipts failed (${check.result.replace(/_/g, " ")})`;
   if (claim.provisional === null || claim.provisional === undefined) return none(before ? "disputed" : "watching", `${failed}. The jury has not ruled for anyone yet: if two judges side with the challenger, the Sentinel disputes.`);
   if (claim.provisional !== ch.claimed_outcome) return none(before ? "disputed" : "watching", before
@@ -89,7 +91,10 @@ function sourceLine(s) {
  */
 export function disputeEvidence({ id, round, check, claimed }) {
   const lines = [`Priced In's Sentinel disputes challenge ${id} (round ${round}): the challenger's receipts do not check out, so the ${OUTCOME(claimed) ?? "claimed"} outcome has no support.`];
-  if (check.result === "record_mismatch") {
+  if (check.result === "unsupported") {
+    for (const s of (check.sources || []).filter((x) => x.via === "source").slice(0, 3)) lines.push(sourceLine(s));
+    lines.push(`The quoted words are there, but they do not state what the challenge relies on. Attested models read that source and said so: ${(check.support?.answers || []).filter((a) => a.verified && a.answer === "NO").map((a) => `${a.model} (response sha256 ${a.response_hash})`).join("; ")}.`);
+  } else if (check.result === "record_mismatch") {
     lines.push(check.reason);
     if (check.record?.id) lines.push(`The challenge cites corpus record ${check.record.id}${check.record.sha256_claimed ? ` with sha256 ${check.record.sha256_claimed}` : ""}. Anyone can compare: corpus/ERRORS.json at github.com/iamdflame/priced-in${check.record.sha256_committed ? ` gives that record sha256 ${check.record.sha256_committed}` : " has no such record"}.`);
   } else {
@@ -152,8 +157,9 @@ export async function sentinelRound(d) {
       let dec = decide();
       if (dec.act === "check") { check = await run(); dec = decide(); }
       // a failure is checked again just before acting on it: a source that was down may be back,
-      // and the dispute's evidence says what is true now
-      if (dec.act === "dispute" && now() - Date.parse(check.checked_at) > SENTINEL.freshMs) { check = await run(); dec = decide(); }
+      // and the dispute's evidence says what is true now. So is a question the models left unanswered
+      const stale = () => now() - Date.parse(check.checked_at) > SENTINEL.freshMs;
+      if ((dec.act === "dispute" || check?.support?.verdict === "unanswered") && stale()) { check = await run(); dec = decide(); }
       const entry = { status: dec.status, note: dec.note, last_look_at: new Date(now()).toISOString(), disputes: past.disputes || [], attempts: past.attempts || [] };
       if (dec.act === "dispute") {
         const evidence = disputeEvidence({ id, round: dec.round, check, claimed: ch.claimed_outcome });

@@ -1011,7 +1011,7 @@ test("GET /rulings: each ruling says what its receipts were and what the Sentine
     const claims = [claim(6, { status: "Challenged", challenge_id: 7, provisional: true })];
     const r = await rulingsRoute(routeWorld(mock, { claims, docs }));
     const [x] = r.body.rulings;
-    assert.deepEqual(Object.keys(x.receipt_check).sort(), ["checked_at", "quotes", "reason", "record", "result", "sources", "via"]);
+    assert.deepEqual(Object.keys(x.receipt_check).sort(), ["checked_at", "quotes", "reason", "record", "result", "sources", "support", "via"]);
     assert.equal(x.receipt_check.result, "quote_not_found");
     assert.deepEqual(x.receipt_check.quotes, [{ text: "headquartered in Zug", found: false, url: null }]);
     assert.deepEqual(Object.keys(x.receipt_check.sources[0]).sort(), ["bytes", "content_type", "error", "fetched_at", "sha256", "status", "url", "via"]);
