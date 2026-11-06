@@ -37,11 +37,14 @@ const LEDGER = [
   {at: 3.9, p: 12, who: 'A person, free $1', yes: false},
   {at: 4.5, p: 10, who: 'The Archivist, AI trader', yes: false},
 ];
+// the moments the three stamps land on the plate (HITS in blender/dial_film.py)
+const HIT = [0.6, 1.6, 3.7];
 const JUDGES = [
   {name: 'DeepSeek V4.1', tx: '6HWB2E…a2dz', at: '8.0 s'},
   {name: 'Qwen 3.8', tx: '7MQF5C…67E', at: '9.8 s'},
   {name: 'GLM 5.3', tx: '78KBg1…WhR', at: '16.7 s'},
 ];
+const NAMES = JUDGES;
 const PROOF = [
   ['The free $1 on No', 'FGFhi1…BBvc6'],
   ['The challenge, $1 staked', '5C2kye…SnxaQ'],
@@ -110,8 +113,8 @@ const Wake: React.FC<P> = ({t, T}) => {
   const c = cut.cues.find((q) => q.id === 'L02');
   const w = c ? c.words : [];
   return (
-    <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="wake" local={t} bloom={0.55} />
+    <AbsoluteFill style={{background: C.bg}}>
+      <Plate shot="wake" local={t} />
       <AbsoluteFill style={{padding: '84px 120px'}}>
         <Spoken t={T} words={w.slice(0, 5)} size={62} color={C.ink2} paint={false} />
         <div style={{height: 14}} />
@@ -153,10 +156,10 @@ const Tap: React.FC<P> = ({shot, t, T}) => {
         <div style={{flex: 'none'}}>
           <Phone3D src={src} width={tall ? 450 : 400} pose={pose} sheen={clamp01(t / 1.6)}>
             {before ? (
-              <div style={{position: 'absolute', left: '7.5%', top: '53.6%', width: '44%', height: '2.6%', background: '#13181D', display: 'flex', alignItems: 'center', font: `400 ${tall ? 19 : 16}px ${FONT.text}`, color: C.ink2}}>5 bets</div>
+              <div style={{position: 'absolute', left: '7.5%', top: '53.6%', width: '44%', height: '2.6%', background: '#FFFFFF', display: 'flex', alignItems: 'center', font: `400 ${tall ? 19 : 16}px ${FONT.text}`, color: C.ink2}}>5 bets</div>
             ) : null}
             {ripple > 0 && ripple < 1 ? (
-              <div style={{position: 'absolute', left: '74%', top: '86%', width: 70, height: 70, margin: '-35px 0 0 -35px', borderRadius: '50%', background: 'rgba(255,255,255,0.4)', opacity: 1 - ripple, transform: `scale(${1 + ripple * 3})`}} />
+              <div style={{position: 'absolute', left: '74%', top: '86%', width: 70, height: 70, margin: '-35px 0 0 -35px', borderRadius: '50%', background: 'rgba(17,22,30,0.16)', opacity: 1 - ripple, transform: `scale(${1 + ripple * 3})`}} />
             ) : null}
           </Phone3D>
         </div>
@@ -170,10 +173,10 @@ const Swing: React.FC<P> = ({t}) => {
   const tall = useTall();
   const k = ease(t, 0.78, 0.45, EASE.spring);
   return (
-    <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="swing" local={t} bloom={0.5} />
+    <AbsoluteFill style={{background: C.bg}}>
+      <Plate shot="swing" local={t} />
       <AbsoluteFill style={{justifyContent: tall ? 'flex-end' : 'flex-end', alignItems: 'flex-start', padding: tall ? '0 70px 560px' : '0 110px 130px'}}>
-        <div style={{opacity: k, transform: `translateY(${(1 - k) * 22}px) scale(${mix(0.93, 1, k)})`, transformOrigin: '0 100%', padding: tall ? '26px 30px' : '22px 30px', borderRadius: 24, background: 'rgba(11,15,19,0.74)', boxShadow: `0 0 0 1px ${C.lineStrong}, ${SHADOW.lift}`}}>
+        <div style={{opacity: k, transform: `translateY(${(1 - k) * 22}px) scale(${mix(0.93, 1, k)})`, transformOrigin: '0 100%', padding: tall ? '26px 30px' : '22px 30px', borderRadius: 24, background: 'rgba(255,255,255,0.9)', boxShadow: `0 0 0 1px ${C.line}, ${SHADOW.lift}`}}>
           <div style={{font: `600 ${tall ? 54 : 50}px ${FONT.disp}`, letterSpacing: '-0.025em', color: C.yes}}>✓ Recorded on NEAR · 4.5 s</div>
           <div style={{display: 'flex', gap: 22, marginTop: 10, alignItems: 'baseline'}}>
             <span style={{font: `500 ${tall ? 30 : 26}px ${FONT.mono}`, color: C.ink2}}>FGFhi1…BBvc6</span>
@@ -220,7 +223,7 @@ const Feed: React.FC<P> = ({shot, t, T}) => {
           <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1500} height={930} top={mix(1180, 1560, k)} pose={{rx: mix(20, 16, k), ry: mix(-26, -20, k), rz: 5, z: mix(-120, -30, k)}} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(11,15,19,0.98) 0%, rgba(11,15,19,0.9) 40%, transparent 66%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(248,249,251,0.98) 0%, rgba(248,249,251,0.9) 40%, transparent 66%)'}} />
       <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 40px 130px'}}>
         <div style={{width: 800}}>
           <Spoken t={T} words={words} size={104} paint={false} />
@@ -247,8 +250,8 @@ const Steps: React.FC<P> = ({shot, t, T}) => {
   void T;
   if (tall) {
     return (
-      <AbsoluteFill style={{background: '#000'}}>
-        <Plate shot="steps" local={local} bloom={0.5} />
+      <AbsoluteFill style={{background: C.bg}}>
+        <Plate shot="steps" local={local} />
         <AbsoluteFill style={{padding: '170px 76px 0'}}>
           <div style={{...big(120), opacity: title}}>7 bets</div>
           <div style={{...big(82, C.ink2), marginTop: 12, opacity: title}}>50% → 10%</div>
@@ -268,8 +271,8 @@ const Steps: React.FC<P> = ({shot, t, T}) => {
     );
   }
   return (
-    <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="steps" local={local} bloom={0.5} style={{transform: 'scale(1.07)', transformOrigin: '100% 50%'}} />
+    <AbsoluteFill style={{background: C.bg}}>
+      <Plate shot="steps" local={local} style={{transform: 'scale(1.07)', transformOrigin: '100% 50%'}} />
       <AbsoluteFill style={{left: 1215, width: 620, justifyContent: 'center', paddingBottom: 30}}>
         <div style={{opacity: title, transform: `translateY(${(1 - title) * 18}px)`}}>
           <div style={{...big(108)}}>7 bets</div>
@@ -303,7 +306,7 @@ const Traders: React.FC<P> = ({shot, t, T}) => {
           <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(3120, 3170, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: -1.5}} lifts={[{x: 60, y: 3440, w: 1960, h: 330, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(11,15,19,0.97) 0%, rgba(11,15,19,0.8) 28%, transparent 46%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'flex-end', padding: '0 110px 40px 0'}}>
         <div style={{width: 640}}>
           <Spoken t={T} words={wordsIn(cut, shot.at - 0.1, shot.at + shot.dur)} size={92} paint={false} />
@@ -338,7 +341,7 @@ const Challenge: React.FC<P> = ({shot, t, T}) => {
           <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(1140, 1200, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: 1.5}} lifts={[{x: 90, y: 1425, w: 1890, h: 150, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(11,15,19,0.97) 0%, rgba(11,15,19,0.8) 28%, transparent 46%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'flex-end', padding: '0 100px 40px 0'}}>
         <div style={{width: 660}}>
           <Spoken t={T} words={words} size={76} paint />
@@ -363,7 +366,7 @@ const Judges: React.FC<P> = ({shot, t, T}) => {
   const scan = ease(t, shot.dur * 0.48, shot.dur * 0.36, EASE.inOut);
   const fade = 1 - ease(t, shot.dur - 0.55, 0.45, EASE.inOut);
   return (
-    <AbsoluteFill style={{background: '#05070A'}}>
+    <AbsoluteFill style={{background: '#FFFFFF'}}>
       <AbsoluteFill style={{opacity: fade, justifyContent: 'center', padding: tall ? '0 76px 300px' : '0 150px 30px'}}>
         <Spoken t={T} words={head} size={tall ? 124 : 176} paint={false} />
         <div style={{height: 26}} />
@@ -389,13 +392,23 @@ const Stamps: React.FC<P> = ({shot, t, T}) => {
   const c4 = cut.cues.find((q) => q.id === 'C4');
   const sig = c4 ? ease(T, c4.at + 0.15, 0.35, EASE.spring) : 0;
   return (
-    <AbsoluteFill style={{background: '#000'}}>
+    <AbsoluteFill style={{background: C.bg}}>
       <AbsoluteFill style={{opacity: inK, transform: c4 ? `scale(${tall ? 0.9 : 0.84})` : undefined, transformOrigin: '50% 8%'}}>
-        <Plate shot="stamps" local={local} bloom={0.6} style={{filter: 'contrast(1.16) brightness(0.9)'}} />
+        <Plate shot="stamps" local={local} />
+        {NAMES.map((j, i) => {
+          const y = (tall ? [617, 958, 1330] : [242, 541, 845])[i];
+          const hit = local >= HIT[i];
+          return (
+            <div key={j.name} style={{position: 'absolute', left: tall ? 76 : 150, top: y - (tall ? 62 : 80)}}>
+              <div style={{...big(tall ? 64 : 92), letterSpacing: '-0.03em', whiteSpace: 'nowrap'}}>{j.name}</div>
+              <div style={{font: `500 ${tall ? 42 : 48}px ${FONT.text}`, color: C.ink3, marginTop: 10, opacity: hit ? 1 : 0, fontFeatureSettings: "'tnum'"}}>{j.at}</div>
+            </div>
+          );
+        })}
       </AbsoluteFill>
       {c4 ? (
         <AbsoluteFill style={{alignItems: 'center', justifyContent: 'flex-end', paddingBottom: tall ? 470 : 112}}>
-          <div style={{opacity: clamp01(sig), transform: `scale(${mix(0.92, 1, sig)})`, padding: '16px 30px', borderRadius: 999, background: 'rgba(11,15,19,0.82)', boxShadow: `0 0 0 1px ${C.lineStrong}`, font: `600 ${tall ? 52 : 46}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.yes}}>✓ Signature checked by NEAR</div>
+          <div style={{opacity: clamp01(sig), transform: `scale(${mix(0.92, 1, sig)})`, padding: '16px 30px', borderRadius: 999, background: 'rgba(255,255,255,0.92)', boxShadow: `0 0 0 1px ${C.line}, ${SHADOW.lift}`, font: `600 ${tall ? 52 : 46}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.yes}}>✓ Signature checked by NEAR</div>
         </AbsoluteFill>
       ) : null}
     </AbsoluteFill>
@@ -412,8 +425,8 @@ const Signed: React.FC<P> = ({shot, t, T}) => {
   void t;
   void tall;
   return (
-    <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="stamps" local={5.59} bloom={0} style={{filter: 'blur(22px) brightness(0.22)', transform: 'scale(1.08)'}} />
+    <AbsoluteFill style={{background: C.bg}}>
+      <Plate shot="stamps" local={5.59} style={{filter: 'blur(26px)', opacity: 0.16, transform: 'scale(1.08)'}} />
       <AbsoluteFill style={{justifyContent: 'center', padding: '0 150px 30px'}}>
         <div style={{...big(84, C.ink2)}}>
           <WordIn t={T} at={shot.at - 0.05}>
@@ -507,7 +520,7 @@ const Payout: React.FC<P> = ({shot, t, T}) => {
       </AbsoluteFill>
       {!tall ? (
         <AbsoluteFill style={{alignItems: 'flex-end', justifyContent: 'center', padding: '0 110px 60px 0', perspective: 1800}}>
-          <div style={{width: 620, height: 500, borderRadius: 26, overflow: 'hidden', position: 'relative', transform: `rotateY(${mix(-32, -20, lift)}deg) rotateX(${mix(9, 5, lift)}deg)`, boxShadow: `0 70px 120px -40px rgba(0,0,0,0.95), 0 0 0 1px ${C.lineStrong}`}}>
+          <div style={{width: 620, height: 500, borderRadius: 26, overflow: 'hidden', position: 'relative', transform: `rotateY(${mix(-32, -20, lift)}deg) rotateX(${mix(9, 5, lift)}deg)`, boxShadow: `0 70px 120px -44px rgba(40,52,66,0.42), 0 0 0 1px ${C.line}`}}>
             <Img src={staticFile('site/c18-d__full.png')} style={{position: 'absolute', width: 2880 * (620 / 760), left: -2055 * (620 / 760), top: -255 * (620 / 760)}} />
           </div>
         </AbsoluteFill>
@@ -526,7 +539,7 @@ const Reopen: React.FC<P> = ({shot, t, T}) => {
           <Browser3D src="site/c32-d.png" url="isitpriced.com/c/32" width={1400} height={876} top={0} pose={{rx: mix(12, 6, k), ry: mix(-26, -19, k), rz: 2, z: mix(-160, -20, k)}} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(11,15,19,0.98) 0%, rgba(11,15,19,0.86) 36%, transparent 54%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(248,249,251,0.98) 0%, rgba(248,249,251,0.86) 36%, transparent 54%)'}} />
       <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 40px 130px'}}>
         <div style={{width: 720}}>
           <Spoken t={T} words={wordsIn(cut, shot.at - 0.1, shot.at + shot.dur)} size={96} paint={false} />
@@ -553,7 +566,7 @@ const Pullback: React.FC<P> = ({shot, t, T}) => {
           <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1560} height={940} top={mix(760, 2150, k)} pose={{rx: mix(30, 40, k), ry: mix(-6, -16, k), rz: mix(2, 8, k), z: mix(40, -620, k)}} dof={7} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(11,15,19,0.97) 12%, rgba(11,15,19,0.7) 40%, transparent 62%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(248,249,251,0.97) 12%, rgba(248,249,251,0.7) 40%, transparent 62%)'}} />
       <AbsoluteFill style={{padding: '84px 130px'}}>
         <Spoken t={T} words={split >= 0 ? words.slice(0, split) : words} size={92} paint={false} maxWidth={1400} />
         <div style={{marginTop: 28, display: 'flex', alignItems: 'baseline', gap: 24, opacity: T >= six - 0.05 ? 1 : 0, transformOrigin: '0 100%', transform: `scale(${mix(1.05, 1, b)})`}}>
@@ -597,8 +610,8 @@ const End: React.FC<P> = ({shot, t, T}) => {
   const url = ease(t, fast ? 1.0 : 4.6, 0.5, EASE.spring);
   void T;
   return (
-    <AbsoluteFill style={{background: '#000'}}>
-      <Plate shot="end" local={t} bloom={0.5} />
+    <AbsoluteFill style={{background: C.bg}}>
+      <Plate shot="end" local={t} />
       <AbsoluteFill style={tall ? {alignItems: 'center', justifyContent: 'flex-end', padding: '0 60px 470px', textAlign: 'center'} : {left: 1080, width: 800, justifyContent: 'center', paddingBottom: 30}}>
         <div style={{opacity: lock, transform: `translateY(${(1 - lock) * 14}px)`, marginBottom: 34}}>
           <Lockup height={tall ? 92 : 84} />
@@ -606,7 +619,7 @@ const End: React.FC<P> = ({shot, t, T}) => {
         <div style={{...big(tall ? 112 : 118), lineHeight: 1.03, letterSpacing: '-0.035em', opacity: q, transform: `translateY(${(1 - q) * 14}px)`}}>
           Is it true?
           <br />
-          <span style={{color: C.brand}}>Bet on it.</span>
+          <span>Bet on it.</span>
         </div>
         <div style={{font: `500 ${tall ? 38 : 32}px/1.3 ${FONT.text}`, color: C.ink2, marginTop: 30, opacity: free, transform: `translateY(${(1 - free) * 12}px)`}}>Your first $1 is free · no wallet, nothing to lose</div>
         <div style={{marginTop: 30, opacity: clamp01(url), transform: `scale(${mix(0.9, 1, url)})`, transformOrigin: tall ? '50% 50%' : '0 50%'}}>

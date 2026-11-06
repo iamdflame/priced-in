@@ -47,41 +47,26 @@ const FRAMES: Record<string, number> = {wake: 120, swing: 96, steps: 186, end: 2
 const plateSrc = (shot: string, aspect: string, f: number) =>
   staticFile(`blender/${aspect}/${shot}/${String(f).padStart(4, '0')}.png`);
 
-/** A Blender shot played frame for frame, with a soft bloom from its own highlights. `local` is seconds into the plate. */
-export const Plate: React.FC<{shot: string; local: number; bloom?: number; style?: React.CSSProperties}> = ({shot, local, bloom = 0.5, style}) => {
+/** A Blender shot played frame for frame: transparent, so the page's own white is the seamless. `local` is seconds into the plate. */
+export const Plate: React.FC<{shot: string; local: number; style?: React.CSSProperties}> = ({shot, local, style}) => {
   const tall = useTall();
   const f = Math.max(1, Math.min(FRAMES[shot], 1 + Math.floor(local * FPS)));
-  const src = plateSrc(shot, tall ? 'tall' : 'wide', f);
+  const src = plateSrc(shot, tall ? 'light-tall' : 'light-wide', f);
   return (
     <AbsoluteFill style={style}>
       <Img src={src} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
-      {bloom > 0 ? (
-        <Img
-          src={src}
-          style={{
-            position: 'absolute',
-            inset: 0,
-            width: '100%',
-            height: '100%',
-            objectFit: 'cover',
-            filter: 'contrast(2.4) brightness(0.75) saturate(1.4) blur(26px)',
-            mixBlendMode: 'screen',
-            opacity: bloom,
-          }}
-        />
-      ) : null}
     </AbsoluteFill>
   );
 };
 
-// ----- grade: vignette and fine grain over everything, so flat graphite never bands -----------------------
+// ----- grade: a faint falloff and fine grain over everything, so the white never bands -----------------------
 export const Grade: React.FC = () => {
   const frame = useCurrentFrame();
   const seed = frame % 5;
   return (
     <AbsoluteFill style={{pointerEvents: 'none'}}>
-      <AbsoluteFill style={{background: 'radial-gradient(85% 85% at 50% 48%, transparent 55%, rgba(4,6,9,0.62))'}} />
-      <AbsoluteFill style={{opacity: 0.055, mixBlendMode: 'overlay'}}>
+      <AbsoluteFill style={{background: 'radial-gradient(90% 90% at 50% 46%, transparent 62%, rgba(40,52,66,0.05))'}} />
+      <AbsoluteFill style={{opacity: 0.022, mixBlendMode: 'multiply'}}>
         <svg width="100%" height="100%">
           <filter id={`fg${seed}`}>
             <feTurbulence type="fractalNoise" baseFrequency="0.95" numOctaves="2" seed={seed + 3} stitchTiles="stitch" />
@@ -94,10 +79,10 @@ export const Grade: React.FC = () => {
   );
 };
 
-/** The graphite stage. */
+/** The white stage. */
 export const Ground: React.FC<{glow?: string; children?: React.ReactNode}> = ({glow = '50% 45%', children}) => (
   <AbsoluteFill style={{background: C.bg, overflow: 'hidden'}}>
-    <AbsoluteFill style={{background: `radial-gradient(60% 70% at ${glow}, oklch(.24 .03 225 / .6), transparent 70%)`}} />
+    <AbsoluteFill style={{background: `radial-gradient(60% 70% at ${glow}, #FFFFFF, transparent 72%)`}} />
     {children}
   </AbsoluteFill>
 );
@@ -183,7 +168,8 @@ export const Captions: React.FC = () => {
         style={{
           font: `500 ${tall ? 42 : 32}px/1.25 ${FONT.text}`,
           color: C.ink,
-          background: 'rgba(11,15,19,0.62)',
+          background: 'rgba(255,255,255,0.86)',
+          boxShadow: `0 0 0 1px ${C.line}, 0 8px 24px -12px rgba(40,52,66,0.25)`,
           borderRadius: 14,
           padding: tall ? '10px 22px' : '8px 20px',
           opacity: k,
@@ -231,7 +217,7 @@ export const Phone3D: React.FC<{src: string; width?: number; pose: Xform; sheen?
           bottom: '-7%',
           height: '12%',
           borderRadius: '50%',
-          background: 'radial-gradient(closest-side, rgba(0,0,0,0.75), transparent)',
+          background: 'radial-gradient(closest-side, rgba(40,52,66,0.32), transparent)',
           filter: 'blur(26px)',
           transform: `translateX(${(pose.ry ?? 0) * 2}px)`,
         }}
@@ -243,11 +229,11 @@ export const Phone3D: React.FC<{src: string; width?: number; pose: Xform; sheen?
           transform: xf(pose),
           transformStyle: 'preserve-3d',
           borderRadius: r + pad,
-          background: 'linear-gradient(135deg, #3A4048, #15191E 35%, #0B0E12 60%, #2A3038)',
-          boxShadow: '0 70px 140px -40px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.14), inset 0 0 0 1.5px rgba(255,255,255,0.08)',
+          background: 'linear-gradient(135deg, #F4F5F7, #C9CDD3 35%, #AEB3BA 60%, #E7E9EC)',
+          boxShadow: '0 70px 120px -44px rgba(40,52,66,0.42), 0 0 0 1px rgba(27,34,43,0.1), inset 0 0 0 1.5px rgba(255,255,255,0.7)',
         }}
       >
-        <div style={{position: 'absolute', inset: pad, borderRadius: r, overflow: 'hidden', background: '#000'}}>
+        <div style={{position: 'absolute', inset: pad, borderRadius: r, overflow: 'hidden', background: '#FFF'}}>
           <Img src={staticFile(src)} style={{width: '100%', display: 'block'}} />
           {children}
           {sheen >= 0 ? (
@@ -255,7 +241,7 @@ export const Phone3D: React.FC<{src: string; width?: number; pose: Xform; sheen?
               style={{
                 position: 'absolute',
                 inset: 0,
-                background: `linear-gradient(112deg, transparent ${mix(-40, 100, sheen)}%, rgba(255,255,255,0.09) ${mix(-30, 110, sheen)}%, transparent ${mix(-20, 120, sheen)}%)`,
+                background: `linear-gradient(112deg, transparent ${mix(-40, 100, sheen)}%, rgba(255,255,255,0.28) ${mix(-30, 110, sheen)}%, transparent ${mix(-20, 120, sheen)}%)`,
               }}
             />
           ) : null}
@@ -300,7 +286,7 @@ export const Browser3D: React.FC<{src: string; url: string; width?: number; heig
           transform: xf(pose),
           transformStyle: 'preserve-3d',
           borderRadius: 22,
-          boxShadow: '0 80px 160px -50px rgba(0,0,0,0.95), 0 0 0 1px rgba(255,255,255,0.14)',
+          boxShadow: '0 80px 140px -56px rgba(40,52,66,0.4), 0 0 0 1px rgba(27,34,43,0.1)',
           background: C.surface,
         }}
       >
@@ -308,10 +294,10 @@ export const Browser3D: React.FC<{src: string; url: string; width?: number; heig
           <div style={{position: 'absolute', top: bar, left: 0, right: 0, bottom: 0, overflow: 'hidden', background: C.bg}}>
             {img(false)}
             {dof > 0 ? img(true) : null}
-            {dim > 0 ? <div style={{position: 'absolute', inset: 0, background: `rgba(11,15,19,${dim})`}} /> : null}
+            {dim > 0 ? <div style={{position: 'absolute', inset: 0, background: `rgba(248,249,251,${dim})`}} /> : null}
             {lifts.map((l, i) => (
               // the place the lifted card came from, so it is never seen twice
-              <div key={i} style={{position: 'absolute', left: l.x * k, top: (l.y - top) * k, width: l.w * k, height: l.h * k, borderRadius: 18, background: '#090C10', opacity: clamp01(l.z / 50)}} />
+              <div key={i} style={{position: 'absolute', left: l.x * k, top: (l.y - top) * k, width: l.w * k, height: l.h * k, borderRadius: 18, background: C.surface2, opacity: clamp01(l.z / 50)}} />
             ))}
           </div>
           <div style={{position: 'absolute', top: 0, left: 0, right: 0, height: bar, display: 'flex', alignItems: 'center', justifyContent: 'center', background: C.bg, borderBottom: `1px solid ${C.line}`}}>
@@ -330,7 +316,7 @@ export const Browser3D: React.FC<{src: string; url: string; width?: number; heig
               borderRadius: 18,
               overflow: 'hidden',
               transform: `translateZ(${l.z}px)`,
-              boxShadow: `0 40px 80px -24px rgba(0,0,0,0.9), 0 0 0 1px ${l.ring ? 'rgba(255,255,255,0.32)' : 'rgba(255,255,255,0.12)'}`,
+              boxShadow: `0 40px 70px -28px rgba(40,52,66,0.42), 0 0 0 1px ${l.ring ? 'rgba(27,34,43,0.2)' : 'rgba(27,34,43,0.1)'}`,
               background: C.surface,
             }}
           >

@@ -1,44 +1,44 @@
-// Pulse tokens, copied from .apex/design/brand/pulse/tokens.json and assets/kit.css (dark theme).
+// Pulse tokens, copied from .apex/design/brand/pulse/tokens.json and assets/kit.css (light theme: the default since 2026-11-06).
 // The kit wins on any disagreement: copy values, never retype them.
 import {Easing} from 'remotion';
 
 export const C = {
-  bg: '#0B0F13',
-  surface: '#13181D',
-  surface2: '#1B2026',
-  surface3: '#252B33',
-  line: 'rgba(255,255,255,0.08)',
-  lineStrong: 'rgba(255,255,255,0.15)',
-  ink: '#F5F7F9',
-  ink2: '#B9BEC6',
-  ink3: '#9399A1',
+  bg: '#F8F9FB',
+  surface: '#FFFFFF',
+  surface2: '#F0F3F6',
+  surface3: '#E6EAEE',
+  line: 'rgba(27,34,43,0.09)',
+  lineStrong: 'rgba(27,34,43,0.17)',
+  ink: '#11161E',
+  ink2: '#474E57',
+  ink3: '#5D646C',
   brand: '#00ECFF', // Pulse Cyan: action only (buttons, needle, hub, live dot, focus)
-  brandHover: '#81F2FF',
+  brandHover: '#00E1F3',
   brandInk: '#001926',
-  brandSoft: 'rgba(0,236,255,0.14)',
-  yes: '#4BDE81',
-  yesBg: 'rgba(75,222,129,0.13)',
+  brandText: '#006E89', // cyan as text on white
+  brandSoft: '#00B2C824',
+  yes: '#007B3D',
+  yesBg: '#00A1511F',
   yesFill: '#42D77B',
   yesInk: '#011C0A',
-  no: '#FF7072',
-  noBg: 'rgba(255,112,114,0.13)',
+  no: '#C9222B',
+  noBg: '#DE3B3D1A',
   noFill: '#FF6367',
   noInk: '#230707',
-  warn: '#FAC053', // only for "Wikipedia may be wrong"
-  warnBg: 'rgba(250,192,83,0.13)',
-  // mark colours (logo/*-on-dark.svg)
-  markInk: '#F4F6F9',
-  markCyan: '#00E5F2',
+  warn: '#965800', // only for "Wikipedia may be wrong"
+  warnBg: '#EDB34533',
+  // mark colours (logo/mark.svg, for light grounds)
+  markInk: '#14171C',
+  markCyan: '#00B7C7',
 } as const;
 
 export const SHADOW = {
-  card: 'inset 0 1px 0 oklch(1 0 0 / .05), 0 1px 0 oklch(0 0 0 / .4)',
-  panel: 'linear-gradient(180deg, oklch(.225 .014 255), oklch(.2 .013 255))',
-  lift: '0 18px 40px -18px oklch(0 0 0 / .8)',
-  dial: '0 30px 60px -20px oklch(0 0 0 / .85)',
-  // featured/slip backdrop: the glow sits behind the dial
-  backdrop: 'radial-gradient(70% 110% at 84% 42%, oklch(.31 .035 225 / .55), transparent 70%)',
-  stage: 'radial-gradient(60% 70% at 50% 40%, oklch(.24 .03 225 / .7), transparent 70%)',
+  card: '0 1px 2px oklch(.3 .03 255 / .06), 0 8px 24px -12px oklch(.3 .05 255 / .16)',
+  panel: 'linear-gradient(180deg, oklch(1 0 0), oklch(.985 .003 255))',
+  lift: '0 18px 40px -18px oklch(.3 .06 255 / .3)',
+  dial: '0 30px 50px -22px oklch(.25 .05 255 / .55)',
+  backdrop: 'radial-gradient(70% 110% at 84% 42%, oklch(.86 .07 210 / .4), transparent 70%)',
+  stage: 'radial-gradient(60% 70% at 50% 40%, #FFFFFF, transparent 70%)',
   primary:
     'inset 0 1px 0 oklch(1 0 0/.45), inset 0 -1px 0 oklch(.5 .1 215/.35), 0 10px 26px -10px oklch(.86 .15 205/.55)',
 } as const;

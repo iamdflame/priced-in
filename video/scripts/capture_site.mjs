@@ -1,5 +1,5 @@
-// Captures the real site for the film: stills at 2x desktop and 3x phone, and the replay's real bet flow
-// as a CDP screencast (the phone's UI actually moving). Dark theme, ?film=1, nothing is sent: the replay
+// Captures the real site (light theme) for the film: stills at 2x desktop and 3x phone, and the replay's real bet flow
+// as a CDP screencast (the phone's UI actually moving). ?film=1, nothing is sent: the replay
 // is the recorded mainnet run. Output: public/site/ (git-ignored).
 //   BASE=http://127.0.0.1:3100 node scripts/capture_site.mjs
 import {createRequire} from 'node:module';
@@ -14,8 +14,8 @@ const OUT = path.resolve(here, '../public/site');
 const BASE = process.env.BASE ?? 'http://127.0.0.1:3100';
 fs.mkdirSync(OUT, {recursive: true});
 
-const desktop = {viewport: {width: 1440, height: 900}, deviceScaleFactor: 2, colorScheme: 'dark'};
-const phone = {viewport: {width: 390, height: 844}, deviceScaleFactor: 3, isMobile: true, hasTouch: true, colorScheme: 'dark'};
+const desktop = {viewport: {width: 1440, height: 900}, deviceScaleFactor: 2, colorScheme: 'light'};
+const phone = {viewport: {width: 390, height: 844}, deviceScaleFactor: 3, isMobile: true, hasTouch: true, colorScheme: 'light'};
 const browser = await chromium.launch();
 // The replay's chart caption reads "$0.00 bet so far · 5 bets": the replay has no dollar figure at that point.
 // The film shows only the true part ("5 bets"). This edits the captured page, not the site (see the result file).
@@ -33,20 +33,20 @@ async function still(view, name, url, opts = {}) {
   await ctx.close();
 }
 
-await still(desktop, 'home-d', '/?film=1&theme=dark', {full: true});
-await still(desktop, 'c18-d', '/c/18?film=1&theme=dark', {full: true});
-await still(desktop, 'c32-d', '/c/32?film=1&theme=dark');
-await still(desktop, 'replay-d', '/c/18?recorded=1&film=1&theme=dark');
-await still(phone, 'home-p', '/?film=1&theme=dark');
-await still(phone, 'c18-p', '/c/18?film=1&theme=dark', {full: true});
-await still(phone, 'replay-p', '/c/18?recorded=1&film=1&theme=dark');
+await still(desktop, 'home-d', '/?film=1&theme=light', {full: true});
+await still(desktop, 'c18-d', '/c/18?film=1&theme=light', {full: true});
+await still(desktop, 'c32-d', '/c/32?film=1&theme=light');
+await still(desktop, 'replay-d', '/c/18?recorded=1&film=1&theme=light');
+await still(phone, 'home-p', '/?film=1&theme=light');
+await still(phone, 'c18-p', '/c/18?film=1&theme=light', {full: true});
+await still(phone, 'replay-p', '/c/18?recorded=1&film=1&theme=light');
 
 // The bet flow, for both views: real UI motion as image frames with timestamps.
 async function flow(view, name) {
   const ctx = await browser.newContext(view);
   const page = await ctx.newPage();
   await page.addInitScript(FIX);
-  await page.goto(`${BASE}/c/18?recorded=1&film=1&theme=dark`, {waitUntil: 'networkidle'}).catch(() => {});
+  await page.goto(`${BASE}/c/18?recorded=1&film=1&theme=light`, {waitUntil: 'networkidle'}).catch(() => {});
   await page.waitForTimeout(1200);
   const dir = path.join(OUT, `flow-${name}`);
   fs.mkdirSync(dir, {recursive: true});

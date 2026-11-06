@@ -28,7 +28,7 @@ export const Stage: React.FC<{children?: React.ReactNode; glowAt?: string; push?
 }) => (
   <AbsoluteFill style={{background: C.bg, overflow: 'hidden'}}>
     <AbsoluteFill
-      style={{background: `radial-gradient(60% 70% at ${glowAt}, oklch(.24 .03 225 / .7), transparent 70%)`}}
+      style={{background: `radial-gradient(60% 70% at ${glowAt}, #FFFFFF, transparent 70%)`}}
     />
     <AbsoluteFill style={{transform: `scale(${1 + push})`, transformOrigin: '50% 50%'}}>{children}</AbsoluteFill>
     <Grain />
@@ -40,7 +40,7 @@ const Grain: React.FC = () => {
   const frame = useCurrentFrame();
   const seed = frame % 4;
   return (
-    <AbsoluteFill style={{opacity: 0.05, mixBlendMode: 'overlay', pointerEvents: 'none'}}>
+    <AbsoluteFill style={{opacity: 0.025, mixBlendMode: 'multiply', pointerEvents: 'none'}}>
       <svg width="100%" height="100%">
         <filter id={`g${seed}`}>
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed={seed} stitchTiles="stitch" />
@@ -116,7 +116,7 @@ export const Lockup: React.FC<{height: number; sweep?: number}> = ({height, swee
         </g>
         <circle fill={C.markCyan} cx="24" cy="19" r="3" />
       </g>
-      <image href={staticFile('brand/logo/wordmark-on-dark.svg')} x={46} y={6.6} width={117.3} height={29.25} />
+      <image href={staticFile('brand/logo/wordmark.svg')} x={46} y={6.6} width={117.3} height={29.25} />
     </svg>
   );
 };

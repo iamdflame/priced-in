@@ -10,16 +10,19 @@ import bpy, math, os, sys
 
 argv = sys.argv[sys.argv.index('--') + 1:]
 SHOT, ASPECT, OUT = argv[0], argv[1], os.path.abspath(argv[2])
-FRAMES, SAMPLES = None, 64
+FRAMES, SAMPLES, THEME = None, 64, 'dark'
 i = 3
 while i < len(argv):
     if argv[i] == '--frames':
         FRAMES = argv[i + 1]
     if argv[i] == '--samples':
         SAMPLES = int(argv[i + 1])
+    if argv[i] == '--theme':
+        THEME = argv[i + 1]
     i += 2
 HERE = os.path.dirname(os.path.abspath(__file__))
 TALL = ASPECT == 'tall'
+LIGHT = THEME == 'light'  # the bright film: a white studio, the kit's dial-light materials, a transparent ground
 
 
 # ----- timing helpers ----------------------------------------------------------------------------------
@@ -116,7 +119,8 @@ s.render.fps = FPS
 s.view_settings.view_transform = 'Standard'
 s.view_settings.look = 'None'
 s.render.image_settings.file_format = 'PNG'
-s.render.image_settings.color_mode = 'RGB'
+s.render.image_settings.color_mode = 'RGBA' if LIGHT else 'RGB'
+s.render.film_transparent = LIGHT
 s.render.image_settings.compression = 40
 
 
@@ -202,10 +206,34 @@ w.use_nodes = True
 w.node_tree.nodes['Background'].inputs[0].default_value = (0.0035, 0.0048, 0.0065, 1)
 w.node_tree.nodes['Background'].inputs[1].default_value = 1.0
 s.world = w
+if LIGHT:
+    # the kit's soft white cyclorama (studio_world in _pr/blender-pulse.py): bright above, falling off below
+    n_ = w.node_tree
+    tc_ = n_.nodes.new('ShaderNodeTexCoord')
+    sep_ = n_.nodes.new('ShaderNodeSeparateXYZ')
+    ramp_ = n_.nodes.new('ShaderNodeValToRGB')
+    map_ = n_.nodes.new('ShaderNodeMapRange')
+    map_.inputs['From Min'].default_value = -1
+    map_.inputs['From Max'].default_value = 1
+    n_.links.new(tc_.outputs['Generated'], sep_.inputs[0])
+    n_.links.new(sep_.outputs['Y'], map_.inputs['Value'])
+    n_.links.new(map_.outputs['Result'], ramp_.inputs['Fac'])
+    c_ = ramp_.color_ramp
+    c_.elements[0].position = 0.0
+    c_.elements[0].color = (0.5, 0.5, 0.52, 1)
+    c_.elements[1].position = 1.0
+    c_.elements[1].color = (1.0, 1.0, 1.0, 1)
+    m_ = c_.elements.new(0.5)
+    m_.color = (0.68, 0.68, 0.69, 1)
+    n_.links.new(ramp_.outputs['Color'], n_.nodes['Background'].inputs[0])
+    n_.nodes['Background'].inputs[1].default_value = 0.66
 table = mat('table', (0.0022, 0.0028, 0.004), 0.0, 0.5)
 table.node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0.0 if TALL else 0.12
 bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, -0.3))
 bpy.context.object.data.materials.append(table)
+if LIGHT:
+    bpy.context.object.is_shadow_catcher = True  # the ground is the page's own white; only the soft shadow is kept
+    table.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (0.92, 0.925, 0.935, 1)  # what the bezel reflects
 
 face = radial_brushed('face', (0.13, 0.142, 0.165), 0.3, 0.82)
 bezel = mat('bezel', (0.2, 0.21, 0.235), 1.0, 0.14)
@@ -219,6 +247,26 @@ core_m = mat('core', (0.0, 0.4, 0.5), 0.0, 0.3, emit=cyan, strength=3.0)
 hub_m = mat('hub', (0.13, 0.135, 0.15), 1.0, 0.22)
 ink = mat('ink', (0.9, 0.92, 0.95), 0.0, 0.5, emit=(0.96, 0.97, 0.98), strength=1.05)
 ink2 = mat('ink2', (0.6, 0.63, 0.66), 0.0, 0.5, emit=(0.72, 0.75, 0.79), strength=0.72)
+
+if LIGHT:
+    # dial_light() in _pr/blender-pulse.py: ceramic face, brushed aluminium bezel, graphite ticks
+    face = mat('face', (0.95, 0.953, 0.96), 0.0, 0.34, coat=0.4)
+    bezel = mat('bezel', (0.74, 0.755, 0.78), 1.0, 0.22)
+    bezel.node_tree.nodes['Principled BSDF'].inputs['Anisotropic'].default_value = 0.8
+    glass_ring = mat('lip', (0.86, 0.87, 0.89), 1.0, 0.08)
+    well = mat('well', (0.1, 0.11, 0.125), 0.8, 0.36)
+    tick = mat('tick', (0.009, 0.011, 0.015), 0.0, 0.4, coat=0.2)
+    tick2 = mat('tick2', (0.07, 0.078, 0.09), 0.0, 0.45)
+    # the needle keeps the mark's light-ground cyan (#00B7C7 in logo/mark.svg), lit from inside just enough to sing
+    needle_m = mat('needle', (0.0, 0.36, 0.45), 0.0, 0.34, emit=(0.0, 0.72, 0.86), strength=0.62)
+    core_m = mat('core', (0.0, 0.36, 0.45), 0.0, 0.34, emit=(0.0, 0.72, 0.86), strength=0.72)
+    for m in (needle_m, core_m):
+        m.node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0.25
+    hub_m = mat('hub', (0.78, 0.79, 0.81), 1.0, 0.16)
+    ink = mat('ink', (0.0056, 0.0080, 0.013), 0.0, 0.75)
+    ink2 = mat('ink2', (0.06, 0.07, 0.085), 0.0, 0.75)
+    for m in (ink, ink2, tick, tick2):
+        m.node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0.08
 
 cyl('body', 1.0, 0.3, -0.15, bezel, bevel=0.035, segs=6)
 cyl('lip', 0.965, 0.03, 0.012, glass_ring, bevel=0.01)
@@ -299,10 +347,20 @@ if SHOT == 'stamps':
         if o.type in ('MESH', 'FONT') and o.name != 'Plane':
             o.hide_render = True
     red = (1.0, 0.162, 0.168)  # the kit's --no
-    plate = radial_brushed('plate', (0.05, 0.055, 0.066), 0.36, 0.0)
-    bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, 0))
-    bpy.context.object.data.materials.append(plate)
+    if LIGHT:
+        # on white the plate is the page: the shadow catcher rises to the stamps' level
+        for o in bpy.data.objects:
+            if o.name == 'Plane':
+                o.location.z = 0.0
+    else:
+        plate = radial_brushed('plate', (0.05, 0.055, 0.066), 0.36, 0.0)
+        bpy.ops.mesh.primitive_plane_add(size=60, location=(0, 0, 0))
+        bpy.context.object.data.materials.append(plate)
     def stamp_mat(n):
+        if LIGHT:
+            m = mat(n, (0.58, 0.016, 0.024), 0.0, 0.42)  # --no on white, #C9222B
+            m.node_tree.nodes['Principled BSDF'].inputs['Specular IOR Level'].default_value = 0.2
+            return m
         return mat(n, (0.55, 0.06, 0.07), 0.0, 0.32, emit=red, strength=0.5, coat=0.5)
     def rounded(w, h, r, n=10):
         pts = []
@@ -331,7 +389,7 @@ if SHOT == 'stamps':
     if TALL:
         rows, sx, nx, sz, ns, ts = (1.75, 0.0, -1.75), 0.72, -1.72, 0.54, 0.3, 0.21
     else:
-        rows, sx, nx, sz, ns, ts = (1.25, 0.0, -1.25), 1.75, -3.6, 0.7, 0.46, 0.27
+        rows, sx, nx, sz, ns, ts = (1.25, 0.0, -1.25), 1.75, -3.45, 0.7, 0.46, 0.27
     for t, name, secs, i in HITS:
         y = rows[i]
         m = stamp_mat(f'st{i}')
@@ -353,6 +411,10 @@ if SHOT == 'stamps':
         tm.data.extrude = 0.0015
         for o in (word, fr, nm, tm):
             o.hide_render = False
+        if LIGHT:
+            # the names are set by the film as crisp type (src/film/shots.tsx); only the stamps have weight
+            nm.hide_render = True
+            tm.hide_render = True
         lamp = bpy.data.lights.new('hit', 'POINT')
         lamp.color = red
         lamp.energy = 0
@@ -370,7 +432,10 @@ s.camera = cam
 cd.dof.use_dof = True
 cd.sensor_fit = 'HORIZONTAL'
 
-key = area((-2.6, 2.8, 3.2), (0, 0, 0), 3.4, 300, (0.92, 0.96, 1), 'key')
+KEYS = dict(key=300, top=90, fill=60, rim=130, sweep=900, endsweep=320)
+if LIGHT:
+    KEYS = dict(key=105, top=26, fill=14, rim=14, sweep=190, endsweep=80)
+key = area((-2.6, 2.8, 3.2), (0, 0, 0), 3.4 if not LIGHT else 5.0, 300, (0.92, 0.96, 1) if not LIGHT else (1, 0.985, 0.965), 'key')
 rim = area((3.0, -2.6, 1.6), (0, 0, 0), 1.8, 130, (0.45, 0.9, 1), 'rim')
 top = area((0, 3.4, 0.8), (0, 0, 0), 4, 90, (1, 1, 1), 'top')
 fill = area((-3.2, -2.4, 1.2), (0, 0, 0), 2.4, 60, (0.85, 0.9, 1), 'fill')
@@ -458,17 +523,24 @@ def apply(frame):
         w = OUTC(clamp((sec - a) / (b - a)))
     def st(m, val):
         m.node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = val
-    st(tick, 0.5 * w)
-    st(tick2, 0.16 * w)
-    st(needle_m, 2.2 * (0.06 + 0.94 * w))
-    st(core_m, 3.0 * (0.06 + 0.94 * w))
+    if not LIGHT:
+        st(tick, 0.5 * w)
+        st(tick2, 0.16 * w)
+        st(needle_m, 2.2 * (0.06 + 0.94 * w))
+        st(core_m, 3.0 * (0.06 + 0.94 * w))
     lit = clamp((w - 0.6) / 0.4)
     if SHOT == 'wake':
         lit = OUTC(clamp((sec - 1.55) / 0.5))  # the number appears once the needle has settled on 23%
-    st(ink, 1.05 * lit)
-    st(ink2, 0.72 * lit)
-    for l, base in ((key, 300), (top, 90), (fill, 60), (rim, 130)):
-        l.data.energy = base * (0.05 + 0.95 * w) if 'wake' in S else base
+    if LIGHT:
+        # printed ink cannot glow on: it fades in from the ceramic
+        for m, c in ((ink, (0.0056, 0.0080, 0.013)), (ink2, (0.06, 0.07, 0.085))):
+            m.node_tree.nodes['Principled BSDF'].inputs['Base Color'].default_value = (*vlerp((0.95, 0.953, 0.96), c, lit), 1)
+    else:
+        st(ink, 1.05 * lit)
+        st(ink2, 0.72 * lit)
+    for l, nm in ((key, 'key'), (top, 'top'), (fill, 'fill'), (rim, 'rim')):
+        base = KEYS[nm]
+        l.data.energy = base * (0.05 + 0.95 * w) if ('wake' in S and not LIGHT) else base
     if SHOT == 'stamps':
         for st in stamp_sets:
             dt = sec - st['t']
@@ -477,7 +549,7 @@ def apply(frame):
             visible = dt > -drop
             for o in (st['word'], st['fr']):
                 o.hide_render = not visible
-            st['tm'].hide_render = dt < 0.02
+            st['tm'].hide_render = LIGHT or dt < 0.02
             if dt < 0:
                 z = 3.6 * (dt / -drop) ** 2 + 0.02
             else:
@@ -486,25 +558,32 @@ def apply(frame):
             sq = 1.0 + (0.05 * math.exp(-dt * 16) if dt >= 0 else 0.1)
             st['pivot'].scale = (sq, sq, 1.0)
             flash = math.exp(-max(dt, 0) * 5.5) if dt >= 0 else 0
-            st['m'].node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = 0.42 + 2.4 * big * flash
-            st['lamp'].energy = 260 * big * flash
+            if not LIGHT:
+                st['m'].node_tree.nodes['Principled BSDF'].inputs['Emission Strength'].default_value = 0.42 + 2.4 * big * flash
+                st['lamp'].energy = 260 * big * flash
             lit = clamp((dt + 0.02) / 0.1)
         st_w = 1.0
         for l, base in ((key, 60), (top, 22), (fill, 22), (rim, 40)):
-            l.data.energy = base
+            l.data.energy = base if not LIGHT else base * 2.1
+        if LIGHT:
+            # a big overhead source: the stamps sit tight on the page with one soft contact shadow, no doubled edge
+            key.location = (-1.2, 1.4, 8.0)
+            aim(key, (0, 0, 0))
+            key.data.size = 11
+            rim.data.energy = 0
         st_val = 1.05
     if 'sweep' in S:
         a, b = S['sweep']
         k = clamp((sec - a) / (b - a))
         sweep.location = (lerp(-6.5, 6.5, INOUT(k)), -2.2, 2.2)
         aim(sweep, (0, 0, 0))
-        sweep.data.energy = 900 * math.sin(math.pi * k) ** 0.7
+        sweep.data.energy = KEYS['sweep'] * math.sin(math.pi * k) ** 0.7
     elif SHOT == 'end':
         # one slow pass of light over the machined face while the dial holds still
         k = clamp((sec - 2.0) / 5.5)
         sweep.location = (lerp(-6.5, 6.5, INOUT(k)), -2.2, 2.2)
         aim(sweep, (0, 0, 0))
-        sweep.data.energy = 320 * math.sin(math.pi * k)
+        sweep.data.energy = KEYS['endsweep'] * math.sin(math.pi * k)
 
 
 # ----- render, one file per frame, skipping what is already on disk ------------------------------------
