@@ -233,6 +233,42 @@
    "model": "hand-written",
    "at": "2026-11-06",
    "reviewed": "hand-written from the exact sentence"
+  },
+  "f949b3c3b4d48226c67ab1cc23ed7f355f042abafeea9fc8d6b37916916ea19b": {
+   "q": "Do 0.1% of accounts take 67% of Polymarket's profits?",
+   "page": "polymarket",
+   "source": "polymarket-0092",
+   "sentence": "0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "28fcf59c178312939557037b8ae9f742853432a1d86bbe82a0624ad3d2000fe4": {
+   "q": "Was NEAR founded in 2018, with mainnet in 2020?",
+   "page": "near",
+   "source": "near-0003",
+   "sentence": "It was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "38009dde8f2fb00cd717a73a3e2f70957c8829a15f3dba4e4424ada6a1698770": {
+   "q": "Is Augur a now-defunct prediction market?",
+   "page": "prediction-market",
+   "source": "prediction-market-0207",
+   "sentence": "Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "a89871944ce6b3b8c238e2921bfdddc5f66524683c24188aebbca85220234ae2": {
+   "q": "Are around 20% of all bitcoins lost?",
+   "page": "bitcoin",
+   "source": "bitcoin-0106",
+   "sentence": "It is estimated that around 20% of all bitcoins are lost.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
   }
  }
 }
