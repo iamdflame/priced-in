@@ -1,0 +1,186 @@
+{
+ "summary": {
+  "at": "2026-11-06",
+  "method": "One chat assistant with web search (Claude Sonnet), one run, at most three searches per sentence. It saw the 16 sentences shuffled, with neutral labels, and was told some may be right and some may not. It had no access to our records. Scored afterwards against corpus/ERRORS.json and corpus/verdicts.tsv.",
+  "limits": "One model, one run, 16 sentences. A small test, not a benchmark.",
+  "caught": {
+   "sentences": 10,
+   "found_the_mistake": 7,
+   "unsure": 3,
+   "repeated_the_error": 0
+  },
+  "control": {
+   "sentences": 6,
+   "right": 5,
+   "unsure": 1,
+   "wrongly_doubted": 0
+  },
+  "still_on_wikipedia": {
+   "checked_on": "2026-11-06",
+   "caught_sentences_still_on_the_live_page": 10,
+   "of": 10
+  }
+ },
+ "rows": [
+  {
+   "id": "uniswap-0035",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Uniswap",
+   "sentence": "Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.",
+   "answer": "no",
+   "why": "UNI has a 1B genesis supply but a perpetual 2% annual inflation began after the four-year vesting, so supply is not capped.",
+   "source": "https://dev.to/mrnasdog/uniswap-uni-inflation-analysis-fee-switch-burn-turned-it-deflationary-4ipj"
+  },
+  {
+   "id": "tether-0022",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Tether (cryptocurrency)",
+   "sentence": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
+   "answer": "yes",
+   "why": "Tether announced in January 2025 that it was moving its headquarters to El Salvador, and it is still described as El Salvador-based.",
+   "source": "https://finance.yahoo.com/news/crypto-firm-tether-founders-finalising-163830425.html"
+  },
+  {
+   "id": "tether-0030",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Tether (cryptocurrency)",
+   "sentence": "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.",
+   "answer": "no",
+   "why": "Tether ended issuance on Omni, Kusama, Bitcoin Cash SLP, EOS and Algorand, so the list is outdated.",
+   "source": "https://cointelegraph.com/news/tether-drops-plan-to-end-usdt-on-five-chains"
+  },
+  {
+   "id": "defi-0069",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Decentralized finance",
+   "sentence": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.",
+   "answer": "unsure",
+   "why": "The figures appear only on low-quality unsourced crypto news pages, and the wallet figure reads like a forecast.",
+   "source": "https://www.coinlive.com/news/dex-data-analysis-in-2025-liquidity-dynamics-and-institutional-trends"
+  },
+  {
+   "id": "dai-0026",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Dai (cryptocurrency)",
+   "sentence": "Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.",
+   "answer": "unsure",
+   "why": "Ratios are set per collateral type; ETH-A is 150% and I found no authoritative source for a usual 110-200% range.",
+   "source": "https://torof.github.io/DeFi-program/part2/6-stablecoins-cdps.html"
+  },
+  {
+   "id": "polymarket-0097",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Polymarket",
+   "sentence": "Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.",
+   "answer": "yes",
+   "why": "Polymarket is legally domiciled in Panama (Adventure One QSS Inc.) with arbitration there, per Wikipedia and NPR's 2026 reporting.",
+   "source": "https://www.npr.org/nx-s1-5807918"
+  },
+  {
+   "id": "dai-0002",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Dai (cryptocurrency)",
+   "sentence": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.",
+   "answer": "no",
+   "why": "MakerDAO rebranded to Sky in 2024, DAI is now optionally upgraded to USDS, and SKY has replaced MKR as the governance token.",
+   "source": "https://theblock.co/post/313235/makerdao-mkr-sky-dai-stablecoin-usds"
+  },
+  {
+   "id": "tether-0091",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Tether (cryptocurrency)",
+   "sentence": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
+   "answer": "yes",
+   "why": "Cantor Fitzgerald has been Tether's custodian since late 2021 and is still reported as such in October 2026.",
+   "source": "https://stablecoininsider.org/cantor-fitzgerald-tether"
+  },
+  {
+   "id": "tether-0161",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Tether (cryptocurrency)",
+   "sentence": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
+   "answer": "no",
+   "why": "The Q3 2026 BDO attestation shows about $122.8B in direct T-bills (about $132.4B including repo), not $72.6B.",
+   "source": "https://www.cryptobriefing.com/tether-q3-2026-profit-reserve-buffer/"
+  },
+  {
+   "id": "ethereum-0172",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Ethereum",
+   "sentence": "As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.",
+   "answer": "unsure",
+   "why": "The throughput was unchanged by proof-of-stake, but sources give about 15 TPS for 2016, and I could not confirm 25.",
+   "source": "https://thedefiant.io/news/defi/ethereum-throughput-tags-record-high-as-burn-rate-drives-down-eth-supply"
+  },
+  {
+   "id": "prediction-market-0186",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Prediction market",
+   "sentence": "However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.",
+   "answer": "no",
+   "why": "A July 2026 report says Polymarket also blocked Alberta, British Columbia and Quebec, so it no longer operates in all of Canada except Ontario.",
+   "source": "https://www.canadiangamingbusiness.com/2026/07/13/polymarket-blocks-provinces/"
+  },
+  {
+   "id": "prediction-market-0215",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Prediction market",
+   "sentence": "Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.",
+   "answer": "unsure",
+   "why": "Polymarket runs on Polygon, but since the V2 upgrade in April 2026 its collateral is pUSD, a token backed 1:1 by USDC, rather than USDC itself.",
+   "source": "https://cointelegraph.com/news/polymarket-smart-contract-overhaul-protocol-v2"
+  },
+  {
+   "id": "stablecoin-0085",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Stablecoin",
+   "sentence": "As of November 2026, Tether has still never once completed an audit by an accounting firm.",
+   "answer": "no",
+   "why": "KPMG completed Tether's first full financial audit for FY2025 with a clean opinion, announced August 13, 2026.",
+   "source": "https://cointelegraph.com/news/tether-completes-first-full-financial-audit-receives-clean-kpmg-opinion"
+  },
+  {
+   "id": "ethereum-0171",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Ethereum",
+   "sentence": "Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.",
+   "answer": "yes",
+   "why": "Mainnet throughput is only in the low tens of TPS in practice because blocks are gas-limited and complex transactions use more gas.",
+   "source": "https://thedefiant.io/news/defi/ethereum-throughput-tags-record-high-as-burn-rate-drives-down-eth-supply"
+  },
+  {
+   "id": "prediction-market-0067",
+   "kind": "control",
+   "truth": "yes",
+   "article": "Prediction market",
+   "sentence": "In case of a dispute, the Data Verification Mechanism (DVM) is launched: a Schelling point mechanism in which UMA stakers commit votes in secret over a 24-hour period and reveal them during the following 24 hours.",
+   "answer": "yes",
+   "why": "UMA's docs describe DVM voting as a 24-hour commit phase followed by a 24-hour reveal phase.",
+   "source": "https://contracts.docs.umaproject.org/uma-tokenholders/uma-tokenomics"
+  },
+  {
+   "id": "prediction-market-0211",
+   "kind": "caught",
+   "truth": "no",
+   "article": "Prediction market",
+   "sentence": "Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.",
+   "answer": "no",
+   "why": "Kalshi opened access to users in more than 140 countries in October 2025, though some jurisdictions are restricted.",
+   "source": "https://www.sportico.com/business/sports-betting/2025/kalshi-international-countries-access-1234874388/"
+  }
+ ]
+}

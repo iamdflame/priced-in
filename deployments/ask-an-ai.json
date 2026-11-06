@@ -1,0 +1,1166 @@
+{
+ "summary": {
+  "at": "2026-11-06T21:47:34.707Z",
+  "method": "Each sentence as \"From the Wikipedia article ...: ... Is this true today?\", told today's date, no sources, no web, reasoning off, 3 runs per model.",
+  "models": [
+   "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "Qwen/Qwen3.8-27B",
+   "z-ai/glm-5.3-flash"
+  ],
+  "caught": {
+   "sentences": 10,
+   "answers": 90,
+   "repeated_the_error": 47,
+   "said_no": 43,
+   "said_no_only_because_it_could_not_verify": 4,
+   "other": 0
+  },
+  "control": {
+   "sentences": 6,
+   "answers": 54,
+   "right": 38,
+   "wrongly_doubted": 16,
+   "other": 0
+  }
+ },
+ "perFact": [
+  {
+   "id": "ethereum-0172",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 3,
+   "no": 6,
+   "other": 0
+  },
+  {
+   "id": "uniswap-0035",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 4,
+   "no": 5,
+   "other": 0
+  },
+  {
+   "id": "stablecoin-0085",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 4,
+   "no": 5,
+   "other": 0
+  },
+  {
+   "id": "tether-0161",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 4,
+   "no": 5,
+   "other": 0
+  },
+  {
+   "id": "prediction-market-0215",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 7,
+   "no": 2,
+   "other": 0
+  },
+  {
+   "id": "prediction-market-0211",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 5,
+   "no": 4,
+   "other": 0
+  },
+  {
+   "id": "prediction-market-0186",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 4,
+   "no": 5,
+   "other": 0
+  },
+  {
+   "id": "dai-0002",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 7,
+   "no": 2,
+   "other": 0
+  },
+  {
+   "id": "tether-0030",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 7,
+   "no": 2,
+   "other": 0
+  },
+  {
+   "id": "defi-0069",
+   "kind": "caught",
+   "truth": "no",
+   "yes": 2,
+   "no": 7,
+   "other": 0
+  },
+  {
+   "id": "tether-0022",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 7,
+   "no": 2,
+   "other": 0
+  },
+  {
+   "id": "tether-0091",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 8,
+   "no": 1,
+   "other": 0
+  },
+  {
+   "id": "dai-0026",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 6,
+   "no": 3,
+   "other": 0
+  },
+  {
+   "id": "prediction-market-0067",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 7,
+   "no": 2,
+   "other": 0
+  },
+  {
+   "id": "polymarket-0097",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 4,
+   "no": 5,
+   "other": 0
+  },
+  {
+   "id": "ethereum-0171",
+   "kind": "control",
+   "truth": "yes",
+   "yes": 6,
+   "no": 3,
+   "other": 0
+  }
+ ],
+ "rows": [
+  {
+   "id": "ethereum-0172",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Ethereum\": \"As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, Ethereum has significantly increased its transactions per second through protocol upgrades like The Merge and subsequent scalability solutions."
+    },
+    {
+     "answer": "no",
+     "text": "No, Ethereum's transaction throughput is far higher today than 25 transactions per second due to numerous protocol upgrades and scaling solutions."
+    },
+    {
+     "answer": "no",
+     "text": "No, Ethereum processes thousands of transactions per second today due to post-Merge scaling updates like EIP-1559 and Layer 2 solutions."
+    }
+   ]
+  },
+  {
+   "id": "uniswap-0035",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Uniswap\": \"Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, the Uniswap token supply is capped at 10 million tokens with a scheduled vesting release."
+    },
+    {
+     "answer": "no",
+     "text": "No, the Uniswap token (UNI) does not have a hard supply cap; its maximum supply is 10 billion tokens, but the specific statement about a \"capped total supply\" with a \"scheduled release\" is misleading as the tokenomics ar"
+    },
+    {
+     "answer": "no",
+     "text": "No, the UNI token does not have a capped total supply; instead, it has an unlimited inflationary supply with no maximum cap."
+    }
+   ]
+  },
+  {
+   "id": "ethereum-0172",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Ethereum\": \"As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. Ethereum’s transaction throughput has changed since then, especially through layer-2 scaling and protocol upgrades."
+    },
+    {
+     "answer": "no",
+     "text": "No. Ethereum’s transaction throughput has changed since then, especially with layer-2 scaling and protocol upgrades."
+    },
+    {
+     "answer": "no",
+     "text": "No\nEthereum’s transaction throughput has changed since then, and the cited sentence does not accurately reflect current capacity."
+    }
+   ]
+  },
+  {
+   "id": "stablecoin-0085",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Stablecoin\": \"As of November 2026, Tether has still never once completed an audit by an accounting firm.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, Tether has completed and published annual attestations (limited reviews) by accounting firms, though it may not have undergone a full audit depending on the strict definition used."
+    },
+    {
+     "answer": "no",
+     "text": "No, Tether completed a SOC 1 report from Ernst & Young in 2019 and continued to receive SOC 1 and SOC 2 reports from KPMG in subsequent years."
+    },
+    {
+     "answer": "no",
+     "text": "No, Tether has completed audits, including limited reviews, with accounting firms since at least 2018."
+    }
+   ]
+  },
+  {
+   "id": "uniswap-0035",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Uniswap\": \"Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Uniswap's UNI token has a capped total supply of 1 billion, released over several years."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Uniswap's UNI token has a capped total supply of 1 billion, with a scheduled multi-year release."
+    },
+    {
+     "answer": "no",
+     "text": "No. Uniswap's UNI token has a fixed total supply of 1 billion, but that quoted sentence does not appear in the Wikipedia article as described."
+    }
+   ]
+  },
+  {
+   "id": "ethereum-0172",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Ethereum\": \"As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Ethereum's base layer still handles only roughly 15–30 transactions per second even after the 2022 switch to proof-of-stake, since that change affected consensus, not throughput."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Ethereum's base-layer throughput stayed roughly the same after the switch to proof-of-stake in 2022, since the merge changed consensus, not transaction capacity (scalability gains came mainly from layer-2 rollups)."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Ethereum's base-layer throughput has remained roughly the same (on the order of tens of transactions per second) even after the 2022 switch to proof-of-stake, since The Merge changed consensus, not scaling."
+    }
+   ]
+  },
+  {
+   "id": "tether-0161",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, that figure is outdated and the composition of Tether's reserves has changed since then."
+    },
+    {
+     "answer": "no",
+     "text": "No, Tether's U.S. T-Bill holdings typically exceed this figure and fluctuate daily as the total reserve size changes."
+    },
+    {
+     "answer": "no",
+     "text": "No, the statement is outdated and false. Tether's reserve composition has changed significantly since that figure was reported, and the current value of its U.S. T-Bill holdings is not $72.6 billion."
+    }
+   ]
+  },
+  {
+   "id": "stablecoin-0085",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Stablecoin\": \"As of November 2026, Tether has still never once completed an audit by an accounting firm.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. As of November 2026, Tether still has not completed a full independent audit, so the statement is consistent with reporting."
+    },
+    {
+     "answer": "no",
+     "text": "No. Tether has not published a full independent audit, but the claim that it has \"never once\" engaged an accounting firm is inaccurate—it has commissioned attestations and, more recently, stated progress toward a full au"
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Tether has still not completed a full independent audit as of November 2026."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0215",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. While Polymarket uses Polygon and USDC, it operates on a non-custodial order book model with a dedicated operator for matching trades, rather than being a decentralized market relying on a decentralized auctioneer fo"
+    },
+    {
+     "answer": "yes",
+     "text": "Yes"
+    },
+    {
+     "answer": "no",
+     "text": "No, Polymarket primarily operates on the Polygon network but uses its own specific protocol for settlement rather than being defined solely as using USDC stablecoin in that context."
+    }
+   ]
+  },
+  {
+   "id": "tether-0161",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, I can't verify current figures; that statement reflects a specific past disclosure and reserve amounts change over time."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether's latest reserve attestations show U.S. Treasury bills remain the largest component of its cash and cash-equivalent reserves."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Tether's latest attestation reports the bulk of its reserves in U.S. Treasury bills, though the exact figure changes monthly."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0215",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket is a decentralized prediction market built on Polygon that uses USDC."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket is indeed a decentralized prediction market built on Polygon that uses USDC."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket is a decentralized prediction market built on Polygon that uses USDC."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0211",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, Kalshi is currently a U.S. CFTC-regulated exchange available to U.S. residents."
+    },
+    {
+     "answer": "no",
+     "text": "No, it is generally available to U.S. residents who are 18 years or older, though specific state availability varies."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, that is accurate based on the current knowledge cutoff, as Kalshi operates as a CFTC-regulated exchange restricted to U.S. residents."
+    }
+   ]
+  },
+  {
+   "id": "uniswap-0035",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Uniswap\": \"Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. UNI's 1 billion total supply was fully minted at launch in September 2020, so there is no scheduled multi-year release of tokens."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — UNI's total supply is capped at 1 billion tokens, part of which was scheduled for release to the team, investors, and community treasury over roughly four years following its September 2020 launch.\n\nOne caveat: I c"
+    },
+    {
+     "answer": "no",
+     "text": "No. UNI's total supply is not capped — the initial one billion tokens can be increased over time through governance, so a capped, scheduled release does not describe Uniswap."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0211",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Kalshi is a CFTC-regulated U.S. exchange, though it has been expanding access beyond U.S. residents via partnerships."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Kalshi is CFTC-regulated and currently restricted to U.S. residents, though it has been pursuing international expansion."
+    },
+    {
+     "answer": "no",
+     "text": "No. Kalshi has expanded access beyond U.S. residents through international offerings, so the claim is no longer accurate."
+    }
+   ]
+  },
+  {
+   "id": "stablecoin-0085",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Stablecoin\": \"As of November 2026, Tether has still never once completed an audit by an accounting firm.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Tether has undergone attestations but has never completed a full audit by an accounting firm."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes.\n\nTether has faced long-standing criticism for never having completed a full audit by an accounting firm, having only published attestations of its reserves instead."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — as far as my knowledge extends, Tether has only published attestations (limited assurances from firms like BDO Italia), never a full audit by an accounting firm."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0186",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, the statement accurately reflects the operational status of Polymarket in Canada as of late 2025."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes"
+    },
+    {
+     "answer": "no",
+     "text": "No, Polymarket has operated in Canada, but its availability was restricted in 2024, not banned specifically in Ontario in 2025."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0186",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. Wikipedia content can change and I can't verify that specific claim about Polymarket's current Canadian operations."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket remains banned in Ontario as of 2025, so the statement is accurate."
+    },
+    {
+     "answer": "no",
+     "text": "No. Polymarket was banned in Ontario in 2022, not 2025, and the cited claim appears to be inaccurate."
+    }
+   ]
+  },
+  {
+   "id": "tether-0161",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — as of Tether's latest disclosed attestations, the bulk of its reserves backing USDT are held in U.S. Treasury bills, roughly on that order."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, Tether holds the majority of its reserves in U.S. T-Bills, with holdings exceeding that figure."
+    },
+    {
+     "answer": "no",
+     "text": "No — Tether's holdings have grown well beyond that figure, which was accurate earlier (around 2023) but is outdated now."
+    }
+   ]
+  },
+  {
+   "id": "dai-0002",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, DAI is currently maintained and regulated by MakerDAO, a decentralized autonomous organization whose governance token is MKR."
+    },
+    {
+     "answer": "no",
+     "text": "No, MakerDAO rebranded to Sky in 2025, and the governance token MKR was upgraded to SKY, changing the organization's name and token structure."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, the statement remains accurate regarding DAI's maintenance by MakerDAO and its governance structure."
+    }
+   ]
+  },
+  {
+   "id": "dai-0002",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. DAI is still maintained and governed by MakerDAO (now rebranded as Sky), with MKR holders voting on smart contract parameters."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. MakerDAO rebranded to Sky in 2024, but DAI remains governed by that same decentralized organization (now Sky), so the statement is substantially accurate."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Dai is still governed by MakerDAO (now part of the Sky ecosystem), with MKR holders voting on smart-contract parameters."
+    }
+   ]
+  },
+  {
+   "id": "tether-0030",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, Tether currently issues tokens on all those listed blockchains."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, Tether issues tokens on all those listed blockchains and several others today."
+    },
+    {
+     "answer": "no",
+     "text": "No, the list of supported networks is outdated and incomplete as Tether has expanded to additional chains like Bitcoin and Bitcoin SV via Layer 2 solutions."
+    }
+   ]
+  },
+  {
+   "id": "tether-0030",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Tether issues its stablecoin on those blockchains according to the cited Wikipedia article."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Tether now also issues on several chains beyond that list, but the statement remains largely accurate."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether has expanded to those blockchains and more since that list was written."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0215",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. As of November 2026, Polymarket still operates as a decentralized prediction market built on Polygon using USDC, so the Wikipedia statement remains accurate."
+    }
+   ]
+  },
+  {
+   "id": "defi-0069",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Decentralized finance\": \"As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. The provided statement refers to data from mid-2025, which is in the past relative to today's date of November 6, 2026, and current trading volumes and user statistics will inevitably differ from those 2025 figures."
+    },
+    {
+     "answer": "no",
+     "text": "No, the article's statement about 2025 data does not reflect the current 2026 reality."
+    },
+    {
+     "answer": "no",
+     "text": "No, the prompt contains a date discrepancy, as \"today\" is November 2026, not mid-2025."
+    }
+   ]
+  },
+  {
+   "id": "defi-0069",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Decentralized finance\": \"As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. That statement aligns with mid-2025 DeFi data reported in the article and remains accurate as of now."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. That figure matches the cited mid-2025 data, and as of November 2026 it remains a valid historical statement, though current volumes may differ."
+    },
+    {
+     "answer": "no",
+     "text": "No. That exact claim cannot be verified as true today from what I know."
+    }
+   ]
+  },
+  {
+   "id": "tether-0022",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether Holdings Limited is headquartered in El Salvador as of January 2025.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, Tether Holdings Limited is headquartered in Hong Kong, not El Salvador."
+    },
+    {
+     "answer": "no",
+     "text": "No, Tether is headquartered in Seychelles, not El Salvador."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, Tether Holdings Limited is headquartered in El Salvador."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0211",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No — Kalshi has expanded internationally (e.g., launching in other countries in 2025), so it's no longer restricted to U.S. residents only."
+    },
+    {
+     "answer": "no",
+     "text": "No. Kalshi has expanded beyond U.S. residents, launching internationally (e.g., in certain other countries) after initially being U.S.-only."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Kalshi expanded internationally in 2025, so it is no longer restricted to U.S. residents only."
+    }
+   ]
+  },
+  {
+   "id": "tether-0022",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether Holdings Limited is headquartered in El Salvador as of January 2025.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Tether announced in January 2025 that it had established its headquarters in El Salvador."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether announced in January 2025 that it had relocated its headquarters to El Salvador."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Tether announced in January 2025 that it had relocated its headquarters to El Salvador."
+    }
+   ]
+  },
+  {
+   "id": "tether-0091",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, Cantor Fitzgerald is currently the primary dealer and reserve custodian for Tether."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, the article states that Cantor Fitzgerald serves as Tether's reserve custodian and preferred primary dealer."
+    },
+    {
+     "answer": "no",
+     "text": "No, Cantor Fitzgerald is the reserve custodian for Tether, but the article does not describe it as a \"preferred primary dealer\" for Tether."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0186",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Prediction market\": \"However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No — Polymarket's services are restricted in Canada (it blocks Canadian users and is not licensed to operate there), so the claim that it operates across Canada except Ontario is false."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Polymarket launched in Canada in 2025 but was excluded from Ontario, so that statement remains accurate as of today."
+    },
+    {
+     "answer": "no",
+     "text": "No. I have no reliable record of Polymarket being banned in Ontario in 2025; historically, it has been blocked/restricted in jurisdictions including the U.S., not Canada, so that claim appears inaccurate."
+    }
+   ]
+  },
+  {
+   "id": "tether-0091",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Cantor Fitzgerald has been Tether's reserve custodian since 2021, though Tether has since diversified reserves beyond just that relationship."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Cantor Fitzgerald has been Tether's reserve custodian and a primary dealer for its reserves."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Cantor Fitzgerald has been Tether's reserve custodian and preferred primary dealer since 2021."
+    }
+   ]
+  },
+  {
+   "id": "dai-0002",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Dai remains managed by MakerDAO's MKR-holders governance system, which continues to oversee the protocol's parameters through on-chain voting."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, Dai is still governed by MakerDAO (now rebranded as \"Sky\"), whose MKR holders vote on protocol parameters."
+    },
+    {
+     "answer": "no",
+     "text": "No. MakerDAO rebranded to Sky in 2024, and MKR is transitioning to the SKY governance token, so that exact wording is now outdated."
+    }
+   ]
+  },
+  {
+   "id": "dai-0026",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. The Dai article describes minimum collateralization ratios typically in the 110–200% range, which remains accurate for MakerDAO/Sky's vault types."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — that statement still accurately reflects how Dai (and the underlying Maker/Sky vault system) works, with minimum collateralization ratios set per collateral type (typically 110–200%)."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Dai loans on MakerDAO typically require minimum collateralization ratios in that 110–200% range depending on the collateral type."
+    }
+   ]
+  },
+  {
+   "id": "tether-0030",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, Tether is issued on all of those blockchains and more."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether tokens are issued on all of those blockchains listed."
+    },
+    {
+     "answer": "no",
+     "text": "No. Tether has since expanded and changed—no longer issuing on EOS and now also issuing on other chains like Bitcoin's Omni Layer and others, so that list isn't current."
+    }
+   ]
+  },
+  {
+   "id": "dai-0026",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, I cannot verify the current factual accuracy of that specific sentence from the 2026 perspective as I do not have real-time access to the live Wikipedia page or the live economic data for the Dai stablecoin's current"
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, the statement accurately reflects the typical collateralization ratios described in the context of Dai's lending mechanisms as documented in that article."
+    },
+    {
+     "answer": "no",
+     "text": "No, I cannot verify the current real-time status of the Wikipedia article or Dai's specific collateralization parameters as of November 6, 2026."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0067",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Prediction market\": \"In case of a dispute, the Data Verification Mechanism (DVM) is launched: a Schelling point mechanism in which UMA stakers commit votes in secret over a 24-hour period and reveal them during the following 24 hours.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. UMA’s DVM uses a commit-and-reveal vote by UMA token stakers over 48 hours, with a 24-hour commit phase followed by a 24-hour reveal phase."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. The described Data Verification Mechanism with secret commit and reveal voting by UMA stakers is accurate."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. UMA’s optimistic oracle still uses a DVM-style escalation with staker votes committed and revealed over two 24-hour phases."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0067",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Prediction market\": \"In case of a dispute, the Data Verification Mechanism (DVM) is launched: a Schelling point mechanism in which UMA stakers commit votes in secret over a 24-hour period and reveal them during the following 24 hours.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes, the description accurately reflects how UMA's Data Verification Mechanism functions."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, the description accurately reflects the dispute resolution process of the Optimistic Oracle used by the UMA protocol, which powers many prediction markets."
+    },
+    {
+     "answer": "no",
+     "text": "No, UMA’s Data Verification Mechanism is not a Schelling point mechanism; it uses a bond-and-slash system where validators stake tokens and risk losing them if they report incorrect outcomes."
+    }
+   ]
+  },
+  {
+   "id": "defi-0069",
+   "kind": "caught",
+   "truth": "no",
+   "question": "From the Wikipedia article \"Decentralized finance\": \"As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No.\n\nI can't verify that specific figure — I don't have access to Wikipedia's current content or live DeFi data, so I cannot confirm whether that statistic is accurate as of November 2026."
+    },
+    {
+     "answer": "no",
+     "text": "No. I have no way to verify that specific mid-2025 figure, and I can't confirm whether it remains accurate as of November 2026, since DeFi trading volumes and wallet activity fluctuate constantly."
+    },
+    {
+     "answer": "no",
+     "text": "No — those figures are from mid-2025 and would be outdated by November 2026, so they can't be assumed to hold today without updated data."
+    }
+   ]
+  },
+  {
+   "id": "polymarket-0097",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Polymarket\": \"Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket is domiciled in Panama and benefits from its prohibition on enforcing most foreign court orders and zero tax on foreign income."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Polymarket is indeed domiciled in Panama and benefits from its legal protections and tax treatment as described."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. As of my knowledge cutoff, Polymarket has operated under a Panama-domiciled entity structure with those legal characteristics."
+    }
+   ]
+  },
+  {
+   "id": "tether-0022",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Tether Holdings Limited is headquartered in El Salvador as of January 2025.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes.\n\nTether announced in January 2025 that it was relocating its headquarters to El Salvador, so per the article this remains true as of November 2026."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether relocated its headquarters to El Salvador in January 2025, and no report of a subsequent move is known."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Tether announced it was relocating its headquarters to El Salvador in January 2025, and no subsequent relocation has been reported."
+    }
+   ]
+  },
+  {
+   "id": "ethereum-0171",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Ethereum\": \"Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.\" Is this true today?",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — Ethereum’s average transaction throughput remains well below its theoretical maximum because complex smart contracts and batch transactions consume more gas per block."
+    },
+    {
+     "answer": "no",
+     "text": "No. The statement reflects a pre-merge/pre-scaling view; today Ethereum has higher throughput via rollups and blob capacity, though L1 gas per block still limits base-layer TPS."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Average transaction throughput remains lower than the theoretical maximum because complex smart contracts and batch transactions consume more gas per block."
+    }
+   ]
+  },
+  {
+   "id": "tether-0091",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Tether (cryptocurrency)\": \"Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Cantor Fitzgerald manages Tether's reserves and became its preferred primary dealer, a relationship Tether announced in 2024."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Cantor Fitzgerald was announced in 2024 as Tether's custodian for its reserves and preferred primary dealer, a relationship that remains in place as of late 2026."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — Cantor Fitzgerald continues to serve as custodian of Tether's reserves, and the relationship has deepened in 2025–2026."
+    }
+   ]
+  },
+  {
+   "id": "polymarket-0097",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Polymarket\": \"Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No, Polymarket is currently incorporated and domiciled in the United States following its 2025 restructuring to comply with US regulations."
+    },
+    {
+     "answer": "no",
+     "text": "No, the statement is not accurate; Polymarket is a US-based company registered in Wyoming that has actively pursued US regulatory compliance and has even paid fines related to US operations, not one domiciled in Panama f"
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, the article states that Polymarket has legal domicile in Panama and benefits from Panamanian laws protecting it from foreign court orders and taxing foreign income."
+    }
+   ]
+  },
+  {
+   "id": "ethereum-0171",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Ethereum\": \"Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.\" Is this true today?",
+   "model": "Qwen/Qwen3.8-27B",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. The Ethereum network has undergone significant scaling upgrades, including the Merge and the implementation of Layer 2 solutions, which have dramatically increased transaction throughput and reduced costs."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes, Ethereum's throughput remains significantly lower than high-throughput blockchains due to its prioritization of decentralization and security over speed."
+    },
+    {
+     "answer": "no",
+     "text": "No, the introduction of scalability solutions like Layer 2 rollups and the Dencun upgrade has significantly increased Ethereum's transaction throughput since that statement was likely written."
+    }
+   ]
+  },
+  {
+   "id": "dai-0026",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Dai (cryptocurrency)\": \"Each loan type has a fixed minimum collateralization ratio, which is usually in the range of 110-200%.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. Since the removal of Single-Collateral DAI and other changes, MakerDAO has moved away from such fixed minimum collateralization ratios, so that stated range no longer accurately describes the system today."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes — that detail reflects Dai's existing collateralized debt position mechanics and is still accurate today."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. The Dai wiki article states that loan types have fixed minimum collateralization ratios typically ranging from 110% to 200%."
+    }
+   ]
+  },
+  {
+   "id": "prediction-market-0067",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Prediction market\": \"In case of a dispute, the Data Verification Mechanism (DVM) is launched: a Schelling point mechanism in which UMA stakers commit votes in secret over a 24-hour period and reveal them during the following 24 hours.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes — the article describes UMA's Data Verification Mechanism (DVM) that way, with stakers committing votes secretly for 24 hours and revealing them over the following 24 hours."
+    },
+    {
+     "answer": "no",
+     "text": "No. That sentence describes UMA's optimistic oracle dispute process, but my knowledge doesn't confirm this exact wording as currently in the article, and Wikipedia content can change after my cutoff — I can't verify toda"
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. The article describes UMA's DVM, which works through a commit–reveal voting scheme: stakers submit encrypted votes for 24 hours, then reveal them over the next 24 hours."
+    }
+   ]
+  },
+  {
+   "id": "polymarket-0097",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Polymarket\": \"Having legal domicile in Panama, the company enjoys the benefits of Panamanian law, such as protection against foreign court orders due to Panamanian law, which prohibits rulings based on cases in other countries unless authorized by the supreme court, and zero tax on foreign income.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "no",
+     "text": "No. That claim appears fabricated — Polymarket has been described as a US-based company incorporated in the United States, not one domiciled in Panama with such legal protections."
+    },
+    {
+     "answer": "no",
+     "text": "No. Polymarket is incorporated in the United States (Delaware), and this claim about Panamanian legal domicile is not accurate."
+    },
+    {
+     "answer": "no",
+     "text": "No. That claim is false; Polymarket's parent company (Blockco/PolyMarket Labs) is based in New York City, with other entities like its token-based arm domiciled elsewhere, not Panama."
+    }
+   ]
+  },
+  {
+   "id": "ethereum-0171",
+   "kind": "control",
+   "truth": "yes",
+   "question": "From the Wikipedia article \"Ethereum\": \"Due to large smart contract and batch transaction using more gas in each block, the average transaction throughput is much less.\" Is this true today?",
+   "model": "z-ai/glm-5.3-flash",
+   "answers": [
+    {
+     "answer": "yes",
+     "text": "Yes. Ethereum still processes far fewer transactions per second than high-throughput chains or card networks, despite scaling upgrades like blobs."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Ethereum still processes far fewer transactions per second than many blockchains, since smart contracts and batch transactions consume more gas per block and limit throughput."
+    },
+    {
+     "answer": "yes",
+     "text": "Yes. Complex smart contracts and batch transactions consume more gas per transaction, so Ethereum's average transaction throughput remains lower compared to simple transfers."
+    }
+   ]
+  }
+ ]
+}
