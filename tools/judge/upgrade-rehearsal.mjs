@@ -52,7 +52,15 @@ const limited = (e) => /-429|Rate limits exceeded|Too Many Requests|fetch failed
 async function retry(fn) { for (let i = 0; ; i++) { try { return await fn(); } catch (e) { if (i >= 6 || !limited(e)) throw e; await sleep(2500 * (i + 1)); } } }
 const view = (contractId, method, args = {}) => retry(() => provider.callFunction({ contractId, method, args, blockQuery: { finality: "final" } }));
 const keysOf = async (id) => (await retry(() => provider.query({ request_type: "view_access_key_list", finality: "final", account_id: id }))).keys || [];
-const call = (a, contractId, methodName, args = {}, deposit = 0n, gas = 60n) => retry(() => a.callFunction({ contractId, methodName, args, gas: gas * TGAS, deposit }));
+// A write waits for finality, so the views after it (all at "final") see it. It is asked again only
+// when a rate limit refused it before the RPC took it: a lost answer could mean it ran.
+const rateLimited = (e) => /-429|Rate limits exceeded|Too Many Requests/i.test(String(e?.message || e));
+async function call(a, contractId, methodName, args = {}, deposit = 0n, gas = 60n) {
+  for (let i = 0; ; i++) {
+    try { return await a.callFunction({ contractId, methodName, args, gas: gas * TGAS, deposit, waitUntil: "FINAL" }); }
+    catch (e) { if (i >= 6 || !rateLimited(e)) throw e; await sleep(2500 * (i + 1)); }
+  }
+}
 let bad = 0;
 const ok = (name, pass, detail = "") => { console.log(`${pass ? "PASS" : "FAIL"} ${name}${detail ? " · " + detail : ""}`); if (!pass) bad++; return pass; };
 async function refused(name, fn, pattern) {
@@ -62,6 +70,12 @@ async function refused(name, fn, pattern) {
 const run = (script, args, env = {}) => {
   const r = spawnSync(process.execPath, [path.join(REPO, script), ...args], { cwd: STAGE, env: { ...process.env, ...env }, stdio: "inherit" });
   return r.status ?? 1;
+};
+// the same, keeping what it printed so a check can read it
+const runOut = (script, args, env = {}) => {
+  const r = spawnSync(process.execPath, [path.join(REPO, script), ...args], { cwd: STAGE, env: { ...process.env, ...env }, encoding: "utf8", maxBuffer: 1 << 24 });
+  process.stdout.write(r.stdout || ""); process.stderr.write(r.stderr || "");
+  return { status: r.status ?? 1, out: `${r.stdout || ""}${r.stderr || ""}` };
 };
 // deploy.mjs skips what is done, so a run cut short by the network is simply run again
 const deploy = (args, env) => { let s = 1; for (let i = 0; i < 3 && s !== 0; i++) s = run("scripts/deploy.mjs", args, env); return s; };
@@ -87,6 +101,7 @@ const kp = KeyPair.fromString(st.key);
 const R = st.root, M = `market.${R}`, S = `swarm.${R}`, L = `lane.${R}`, T = `tusdc.${R}`, H = `ha.${R}`;
 const as = (id, k = kp) => new Account(id, provider, new KeyPairSigner(k));
 const root = as(R);
+const funder0 = as(spike.id, KeyPair.fromString(spike.sk)); // the test funder: tops up and pays the hole's market
 
 let code = 0;
 try {
@@ -118,9 +133,18 @@ try {
   // ---------- 3. upgrade, the way mainnet will ----------
   const depFile = path.join(STAGE, "deployment.json");
   fs.writeFileSync(depFile, JSON.stringify({ network: "testnet", rpc: RPC, root: R, accounts: { market: M, swarm: S, lane: L, usdc: T }, code: { market: { ...dep.code.market, source_rev: FROM }, swarm: dep.code.swarm } }, null, 1));
-  console.log("\n$ node tools/judge/upgrade-testnet.mjs --state <rehearsal state> --deployment <rehearsal deployment> --from-rev " + FROM + " --set-fee-bps 100");
-  const up = run("tools/judge/upgrade-testnet.mjs", ["--state", STATE, "--deployment", depFile, "--from-rev", FROM, "--set-fee-bps", "100"], { NEAR_TESTNET_RPC: RPC });
+  const upArgs = ["--state", STATE, "--deployment", depFile, "--from-rev", FROM];
+  // deploy.mjs gave the market 0.2 NEAR over the old code; the new code is about 15.6 KB bigger and
+  // the deploy's gas is set aside first, so the tool must refuse until the market is topped up
+  console.log(`\n$ node tools/judge/upgrade-testnet.mjs --dry-run ${upArgs.join(" ").replace(STATE, "<rehearsal state>").replace(depFile, "<rehearsal deployment>")}`);
+  const dry = runOut("tools/judge/upgrade-testnet.mjs", ["--dry-run", ...upArgs], { NEAR_TESTNET_RPC: RPC });
+  const shortBy = dry.out.match(/send \S+ at least ([\d.]+) NEAR first/);
+  ok("on the thin margin deploy.mjs leaves, the tool refuses before signing and says how much to send", dry.status !== 0 && !!shortBy, shortBy ? `${shortBy[1]} NEAR short` : dry.out.split("\n").filter((l) => l.startsWith("BAD")).join("; "));
+  await retry(() => funder0.transfer({ receiverId: M, amount: NEAR * 3n / 10n }));
+  console.log("$ node tools/judge/upgrade-testnet.mjs " + upArgs.join(" ").replace(STATE, "<rehearsal state>").replace(depFile, "<rehearsal deployment>") + " --set-fee-bps 100   (after sending the market 0.3 NEAR)");
+  const up = run("tools/judge/upgrade-testnet.mjs", [...upArgs, "--set-fee-bps", "100"], { NEAR_TESTNET_RPC: RPC });
   ok("upgrade-testnet.mjs upgraded the throwaway market and verified it", up === 0);
+  if (up !== 0) throw new Error("the upgrade failed, so the new rules can't be checked (its output is above)");
   const rec = JSON.parse(fs.readFileSync(depFile, "utf8"));
   ok("the upgrade is recorded with the new code hash", rec.upgrades?.length === 1 && rec.upgrades[0].fee_bps === 100 && rec.code.market.code_hash !== dep.code.market.code_hash && rec.code.market.code_hash === (await retry(() => provider.query({ request_type: "view_account", finality: "final", account_id: M }))).code_hash, rec.code.market.code_hash);
   console.log("$ node tools/judge/upgrade-testnet.mjs (again)");
@@ -173,8 +197,7 @@ try {
   ok("a $5 buy on b = $0.10 stops at the cap: $0.851720 and a 1% fee on that", big.amount_micro === "860238" && big.fee_micro === "8518" && big.price_yes_ppm_after >= 999_800, `${big.price_yes_ppm_after / 1e4}%`);
 
   // the hole itself: the old bytes on a market of their own, which an upgrade can't take back
-  const spikeKey = KeyPair.fromString(spike.sk);
-  const funder = as(spike.id, spikeKey);
+  const funder = funder0;
   const holeName = `pih${Date.now().toString(36)}`, HOLE = `${holeName}.${spike.id}`, victim = "alice.testnet";
   await retry(() => funder.createSubAccount({ accountOrPrefix: holeName, publicKey: kp.getPublicKey(), nearToTransfer: NEAR * 47n / 10n }));
   const hole = as(HOLE);

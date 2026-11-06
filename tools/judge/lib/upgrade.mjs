@@ -38,7 +38,10 @@ import { MAINNET_RPCS } from "./near.mjs";
 
 const TGAS = 10n ** 12n;
 const BYTE_COST = 10n ** 19n; // yoctoNEAR per byte of storage
-const GAS_MARGIN = 10n ** 22n; // 0.01 NEAR: the deploy's gas, paid by the market account
+// The deploy's gas, which the market account pays: the runtime sets it aside at a pessimistic gas
+// price before it checks storage. Measured on testnet for a 435 KB market: 0.0256 NEAR, which a
+// 0.01 NEAR margin missed (the deploy failed "lacks balance for state"). 0.06 NEAR covers it twice.
+const GAS_MARGIN = 6n * 10n ** 22n;
 const MAX_FEE_BPS = 300;
 
 // The market's state struct, in borsh order, as v2 deployed it (contracts/market/src/lib.rs).
@@ -167,22 +170,34 @@ export async function upgradeMarket(network) {
   const q = (params) => retry(() => provider.query({ finality: "final", ...params }));
   const view = (method, args = {}) => retry(() => provider.callFunction({ contractId: M, method, args, blockQuery: { finality: "final" } }));
   const liveHash = async (id) => (await q({ request_type: "view_account", account_id: id })).code_hash;
-  const stateBytes = async () => {
-    const r = await q({ request_type: "view_state", account_id: M, prefix_base64: Buffer.from("STATE").toString("base64") });
-    const v = (r.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
-    if (!v) throw new Error("no STATE key on the market");
-    return Buffer.from(v.value, "base64");
-  };
-  const storedClaims = async () => {
-    const r = await q({ request_type: "view_state", account_id: M, prefix_base64: Buffer.from("c").toString("base64") });
-    const out = new Map();
-    for (const { key, value } of r.values || []) {
-      const k = Buffer.from(key, "base64");
-      if (k.length === 9) out.set(Number(k.readBigUInt64LE(1)), decodeClaim(Buffer.from(value, "base64")));
+  // Everything compared is read at one final block: two reads at "final" a second apart can see
+  // two blocks, and a trade between them looks like state that doesn't match its own stats.
+  const qAt = (h, params) => retry(() => provider.query({ ...params, block_id: h }));
+  const viewAt = (h, method, args = {}) => retry(() => provider.callFunction({ contractId: M, method, args, blockQuery: { blockId: h } }));
+  const rawAt = async (h, prefix) => (await qAt(h, { request_type: "view_state", account_id: M, prefix_base64: Buffer.from(prefix).toString("base64") })).values || [];
+  async function snapshot() {
+    for (let i = 0; ; i++) {
+      try {
+        const h = (await retry(() => provider.viewBlock({ finality: "final" }))).header.height;
+        const state = (await rawAt(h, "STATE")).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
+        if (!state) throw new Error("no STATE key on the market");
+        const stats = await viewAt(h, "stats"), resolution = await viewAt(h, "get_resolution");
+        const claims = [];
+        for (let from = 0; from < stats.claims; from += 100) claims.push(...(await viewAt(h, "get_claims", { from, limit: 100 })));
+        const stored = new Map();
+        for (const { key, value } of await rawAt(h, "c")) {
+          const k = Buffer.from(key, "base64");
+          if (k.length === 9) stored.set(Number(k.readBigUInt64LE(1)), decodeClaim(Buffer.from(value, "base64")));
+        }
+        return { h, bytes: Buffer.from(state.value, "base64"), stats, resolution, claims, stored };
+      } catch (e) {
+        // a node behind the others may not have the block yet: take a newer one
+        if (i >= 3 || /no STATE key|claim used/.test(String(e.message))) throw e;
+        await sleep(2000);
+      }
     }
-    return out;
-  };
-  const allClaims = async (n) => { const out = []; for (let from = 0; from < n; from += 100) out.push(...(await view("get_claims", { from, limit: 100 }))); return out; };
+  }
+  const stateBytes = async () => (await snapshot()).bytes;
   let bad = 0;
   const ok = (name, pass, detail = "") => { console.log(`${pass ? "ok  " : "BAD "} ${name}${detail ? " · " + detail : ""}`); if (!pass) bad++; return pass; };
 
@@ -195,12 +210,10 @@ export async function upgradeMarket(network) {
   const typeText = (text, name) => text.match(new RegExp(`pub (?:struct|enum) ${name} \\{[\\s\\S]*?\\n\\}`))?.[0]?.replace(/\/\/.*$/gm, "").replace(/\s+/g, " ") ?? null;
 
   // the live state decodes under the layout
-  const before = { bytes: await stateBytes() };
+  let before = await snapshot();
   let decoded;
   try { decoded = decodeState(before.bytes); } catch (e) { decoded = { error: e.message }; }
-  ok("the live STATE decodes under the layout with every byte used", !decoded.error && decoded.used === before.bytes.length, decoded.error || `${before.bytes.length} bytes`);
-  before.stats = await view("stats");
-  before.resolution = await view("get_resolution");
+  ok("the live STATE decodes under the layout with every byte used", !decoded.error && decoded.used === before.bytes.length, decoded.error || `${before.bytes.length} bytes at block ${before.h}`);
   const totals = ["treasury_micro", "reserved_micro", "lane_budget_micro", "lane_credit_micro", "held_micro", "balances_micro", "collected_micro", "payouts_micro", "bonds_micro", "bounties_micro"];
   const d = decoded.value || {};
   ok("the decoded totals equal the live stats view", !decoded.error && totals.every((k) => String(d[k]) === String(before.stats[k])) && String(d.next_claim) === String(before.stats.claims) && String(d.next_challenge) === String(before.stats.challenges) && d.paused === before.stats.paused && String(d.rewrites_anchored) === String(before.stats.rewrites_anchored), `${before.stats.claims} claims, held ${before.stats.held_micro}`);
@@ -221,13 +234,8 @@ export async function upgradeMarket(network) {
   const matches = (v, c) => v.text === c.text && v.page === c.page && v.kind === c.kind && v.status === c.status && v.outcome === c.outcome && v.provisional === c.provisional && v.trades === c.trades
     && v.volume_micro === String(c.volume_micro) && v.collected_micro === String(c.collected_micro) && v.payout_left_micro === String(c.payout_left_micro) && v.bounty_micro === String(c.bounty_micro)
     && String(v.challenge_id) === String(c.challenge) && String(v.prev) === String(c.prev) && String(v.next) === String(c.next);
-  let stored = null, liveClaims = [], claimError = null;
-  for (let i = 0; i < 3; i++) { // a trade between the two reads shows as a mismatch: read again
-    try { stored = await storedClaims(); liveClaims = await allClaims(before.stats.claims); claimError = null; } catch (e) { claimError = String(e.message || e).slice(0, 160); }
-    if (!claimError && stored.size === liveClaims.length && liveClaims.every((v) => stored.has(v.id) && matches(v, stored.get(v.id)))) break;
-    await sleep(1500);
-  }
-  ok("every stored claim decodes from raw storage, every byte used, and matches its view", !claimError && stored.size === before.stats.claims && liveClaims.every((v) => stored.has(v.id) && matches(v, stored.get(v.id))), claimError || `${stored?.size} claims`);
+  let stored = before.stored, liveClaims = before.claims;
+  ok("every stored claim decodes from raw storage, every byte used, and matches its view", stored.size === before.stats.claims && liveClaims.length === stored.size && liveClaims.every((v) => stored.has(v.id) && matches(v, stored.get(v.id))), `${stored.size} claims`);
   if (bad) { console.error("not upgrading: the layout check failed. Write a migration instead."); process.exit(1); }
 
   // ---------- 3. the reproducible build ----------
@@ -256,7 +264,8 @@ export async function upgradeMarket(network) {
     const after = BigInt(acct.storage_usage) + BigInt(wasm.size) - BigInt(oldCode.length) + 1000n;
     const need = after * BYTE_COST + GAS_MARGIN;
     const near = (y) => (Number(y) / 1e24).toFixed(4);
-    ok("the market account can pay for the new code's storage", BigInt(acct.amount) >= need, `holds ${near(acct.amount)} NEAR, needs ${near(need)} (code ${oldCode.length} -> ${wasm.size} bytes)`);
+    const short = need - BigInt(acct.amount);
+    ok("the market account can pay for the new code's storage and the deploy's gas", short <= 0n, `holds ${near(acct.amount)} NEAR, needs ${near(need)} (code ${oldCode.length} -> ${wasm.size} bytes)${short > 0n ? `: send ${M} at least ${near(short)} NEAR first` : ""}`);
     if (dep.accounts.swarm) {
       const swarmLive = await liveHash(dep.accounts.swarm);
       console.log(`     swarm: build ${built.wasm.swarm.hash}, live ${swarmLive}${built.wasm.swarm.hash === swarmLive ? " (same, not touched)" : " (DIFFERENT: this script does not upgrade the swarm)"}`);
@@ -313,11 +322,9 @@ export async function upgradeMarket(network) {
       paused = true;
       if (!(await untilFinal(async () => (await view("stats")).paused === true))) stuck("the pause never reached finality");
     }
-    before.bytes = await stateBytes();
-    before.stats = await view("stats");
-    before.resolution = await view("get_resolution");
-    before.claims = await allClaims(before.stats.claims);
-    stored = await storedClaims();
+    before = await snapshot();
+    stored = before.stored;
+    console.log(`     the snapshot everything is compared against: block ${before.h}, ${before.claims.length} claims, held ${before.stats.held_micro}`);
 
     // ---------- 6. deploy, same account, same state ----------
     console.log(`deploying ${wasm.hash} to ${M}`);
@@ -331,9 +338,8 @@ export async function upgradeMarket(network) {
     if (!(await untilFinal(async () => (await liveHash(M)) === wasm.hash))) stuck(`${wasm.hash} never reached finality on ${M}`);
 
     // ---------- 7. verify ----------
-    const after = { hash: await liveHash(M), bytes: await stateBytes(), stats: await view("stats"), resolution: await view("get_resolution") };
-    after.claims = await allClaims(after.stats.claims);
-    ok("the code hash on chain is the reproducible build", after.hash === wasm.hash, after.hash);
+    const after = { hash: await liveHash(M), ...(await snapshot()) };
+    ok("the code hash on chain is the reproducible build", after.hash === wasm.hash, `${after.hash}, read at block ${after.h}`);
     ok("the STATE bytes are unchanged", after.bytes.equals(before.bytes));
     const moved = (a, b) => Object.keys(a).filter((k) => JSON.stringify(a[k]) !== JSON.stringify(b[k]));
     const added = (a, b) => Object.keys(b).filter((k) => !(k in a));
@@ -355,19 +361,26 @@ export async function upgradeMarket(network) {
   }
 
   // ---------- 8. the fee ----------
+  // paused, nothing else can move the state, so it must stay byte for byte; unpaused, a trade may
+  // rightly move it, and only the layout is checked
+  const frozen = paused || (await view("stats")).paused;
   if (FEE !== null) {
     const was = await stateBytes();
     await asOwner("set_fee_bps", { fee_bps: FEE });
     if (!(await untilFinal(async () => (await view("stats")).fee_bps === FEE))) stuck("set_fee_bps never reached finality");
-    ok(`the fee is ${FEE} bps, and the STATE bytes didn't move: it lives outside the state struct`, (await stateBytes()).equals(was));
+    const now = await stateBytes();
+    if (frozen) ok(`the fee is ${FEE} bps, and the STATE bytes didn't move: it lives outside the state struct`, now.equals(was));
+    else ok(`the fee is ${FEE} bps, and the STATE still decodes under the layout`, decodeState(now).used === now.length);
     if (bad) stuck("not finished: the fee changed the state");
   }
 
   // ---------- 9. the books, unpause, record ----------
   // the books are read before the unpause: from then on a trade may rightly move them
   const end = await view("stats");
-  ok("the books are as they were", totals.every((k) => end[k] === before.stats[k]), `held ${end.held_micro}, treasury ${end.treasury_micro}, fee ${end.fee_bps} bps`);
-  if (bad) stuck("not finished: the books moved");
+  if (frozen) {
+    ok("the books are as they were", totals.every((k) => end[k] === before.stats[k]), `held ${end.held_micro}, treasury ${end.treasury_micro}, fee ${end.fee_bps} bps`);
+    if (bad) stuck("not finished: the books moved");
+  } else console.log(`     (not paused: the books may have moved with trades, so they aren't compared) held ${end.held_micro}, fee ${end.fee_bps} bps`);
   if (paused) {
     console.log(`unpausing ${M}`);
     await asOwner("pause", { paused: false });
