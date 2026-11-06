@@ -2,7 +2,7 @@
 //
 //   CONFIRM_MAINNET=yes node scripts/mainnet/fund.mjs --plan        print the split, change nothing
 //   CONFIRM_MAINNET=yes node scripts/mainnet/fund.mjs               do it
-//   options: --house <USD per agent, default 3> --lane <USD, default 12>
+//   options: --house <USD per agent, default 3> --lane <USD, default 12> --keep <USD left on the owner, default 0>
 //
 // Signed by the owner with NEAR_DEPLOYER_PRIVATE_KEY (read only after CONFIRM_MAINNET=yes).
 // Idempotent: each step is checked on chain first. In order:
@@ -32,6 +32,7 @@ const usd = (x) => BigInt(Math.round(Number(x) * 1e6));
 const fmt = (m) => `$${(Number(m) / 1e6).toFixed(2)}`;
 const HOUSE_EACH = usd(arg("--house", "3"));
 const LANE_BUDGET = usd(arg("--lane", "12"));
+const KEEP = usd(arg("--keep", "0"));
 const NAMES = ["house-archivist", "house-skeptic", "house-quant"];
 
 const RPCS = (env.NEAR_RPC_MAINNET || "https://rpc.fastnear.com,https://near.lava.build,https://rpc.mainnet.near.org").split(",");
@@ -59,7 +60,7 @@ const stats = await view(M, "stats");
 const ids = NAMES.map((n) => `${n.replace("house-", "h-")}.${dep.root}`);
 const balances = await Promise.all(ids.map(async (id) => BigInt(await view(M, "get_balance", { trader: id }))));
 const houseNeed = balances.reduce((a, b) => a + (b < HOUSE_EACH ? HOUSE_EACH - b : 0n), 0n);
-const treasuryIn = have > houseNeed ? have - houseNeed : 0n;
+const treasuryIn = have > houseNeed + KEEP ? have - houseNeed - KEEP : 0n;
 const treasuryAfter = BigInt(stats.treasury_micro) + treasuryIn;
 const reserveCap = treasuryAfter + BigInt(stats.reserved_micro) > LANE_BUDGET + 1_000_000n ? treasuryAfter + BigInt(stats.reserved_micro) - LANE_BUDGET - 1_000_000n : 0n;
 console.log(`owner ${dep.root} holds ${fmt(have)} USDC; the market's treasury holds ${fmt(stats.treasury_micro)}, ${fmt(stats.reserved_micro)} of it reserved`);
@@ -102,7 +103,8 @@ if (fs.existsSync(SIGNER_FILE)) fs.rmSync(SIGNER_FILE);
 writeKeyFile(SIGNER_FILE, signer);
 
 // ---------- 2. the treasury ----------
-const left = BigInt(await view(U, "ft_balance_of", { account_id: dep.root }, "optimistic"));
+const held = BigInt(await view(U, "ft_balance_of", { account_id: dep.root }, "optimistic"));
+const left = held > KEEP ? held - KEEP : 0n;
 if (left > 0n) await call(U, "ft_transfer_call", { receiver_id: M, amount: String(left), msg: "{\"treasury\":true}" }, { deposit: 1n, tgas: 100n, tag: `treasury ${fmt(left)}` });
 
 // ---------- 3. the limits ----------

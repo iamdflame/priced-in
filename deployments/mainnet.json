@@ -264,6 +264,30 @@
    "method": "open_claim",
    "tx": "CejDo4eomZ3XqDF6mjys34JtbX2967RDmKn4Vkwu4AQ1",
    "link": "https://nearblocks.io/txns/CejDo4eomZ3XqDF6mjys34JtbX2967RDmKn4Vkwu4AQ1"
+  },
+  {
+   "tag": "wrap 6.6 NEAR",
+   "method": "near_deposit",
+   "tx": "Gs3igZv6qPri4WTbXCAFWopnCpuA3C5fFNrV7mWXpYW9",
+   "link": "https://nearblocks.io/txns/Gs3igZv6qPri4WTbXCAFWopnCpuA3C5fFNrV7mWXpYW9"
+  },
+  {
+   "tag": "swap 6.6 wNEAR -> USDC",
+   "method": "ft_transfer_call",
+   "tx": "7vUfXJQ7UtiddRCF6xo1WELZncU9A2fmjmAo2SVy5zP2",
+   "link": "https://nearblocks.io/txns/7vUfXJQ7UtiddRCF6xo1WELZncU9A2fmjmAo2SVy5zP2"
+  },
+  {
+   "tag": "treasury $21.48",
+   "method": "ft_transfer_call",
+   "tx": "6ZKZXLUUAQmzXrGeG4Mu9kxVfpa1YUc8JZ8JQCVpjXkr",
+   "link": "https://nearblocks.io/txns/6ZKZXLUUAQmzXrGeG4Mu9kxVfpa1YUc8JZ8JQCVpjXkr"
+  },
+  {
+   "tag": "set_limits cap $47.16 lane $10.00",
+   "method": "set_limits",
+   "tx": "FBVxEiJwoVShhgsuuEV4A6g8nCHg2G5eiQeN5cmyeyya",
+   "link": "https://nearblocks.io/txns/FBVxEiJwoVShhgsuuEV4A6g8nCHg2G5eiQeN5cmyeyya"
   }
  ],
  "keys_set_at": "2026-11-05T22:06:38.206Z",
@@ -533,28 +557,157 @@
    "pool": 4512,
    "quote_micro": "47177027",
    "usdc_received_micro": "47177027"
+  },
+  {
+   "at": "2026-11-06T01:44:20.411Z",
+   "near_in": 6.6,
+   "pool": 4512,
+   "quote_micro": "24480400",
+   "usdc_received_micro": "24480400"
   }
  ],
  "funding": {
-  "at": "2026-11-05T23:09:38.716Z",
+  "at": "2026-11-06T01:57:23.390Z",
   "house_agents": [
    {
     "account": "h-archivist.isitpriced.near",
-    "balance_micro": "2500000"
+    "balance_micro": "1333589"
    },
    {
     "account": "h-skeptic.isitpriced.near",
-    "balance_micro": "2500000"
+    "balance_micro": "1277844"
    },
    {
     "account": "h-quant.isitpriced.near",
-    "balance_micro": "2500000"
+    "balance_micro": "1133318"
    }
   ],
-  "treasury_micro": "39677027",
-  "reserve_cap_micro": "28677027",
+  "treasury_micro": "30166387",
+  "reserve_cap_micro": "47157427",
   "lane_budget_micro": "10000000",
   "lane_credit_micro": "1000000",
   "challenge_bond_micro": "1000000"
- }
+ },
+ "lines_opened": [
+  {
+   "claim_id": 20,
+   "corpus_id": "ethereum-0172",
+   "page": "ethereum",
+   "kind": "data",
+   "p0_ppm": 200000,
+   "b_micro": "1450000",
+   "tx": "CmthSf645AZKHozFPXRZFrMdQuBq66cvbZXRAHQuoUM4",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 21,
+   "corpus_id": "uniswap-0035",
+   "page": "uniswap",
+   "kind": "document",
+   "p0_ppm": 350000,
+   "b_micro": "1450000",
+   "tx": "2Ni51BMCptbcZXpL2RVpkHim6JqmB9mmKKaPXbTMzMv2",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 22,
+   "corpus_id": "stablecoin-0085",
+   "page": "stablecoin",
+   "kind": "document",
+   "p0_ppm": 500000,
+   "b_micro": "1450000",
+   "tx": "GEBxnPZMqDMuZxCj2PyG9BU4Nm62prdkWDf6UfzBZKBy",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 23,
+   "corpus_id": "prediction-market-0215",
+   "page": "prediction-market",
+   "kind": "document",
+   "p0_ppm": 700000,
+   "b_micro": "1450000",
+   "tx": "9Dtd9mGRV4gedsqAgUkveVLkqXbYMug41cTD4FnNQUzp",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 24,
+   "corpus_id": "prediction-market-0211",
+   "page": "prediction-market",
+   "kind": "document",
+   "p0_ppm": 400000,
+   "b_micro": "1450000",
+   "tx": "8cQ2gyZp3pdMqw7eVHmSr4PWxjt9DahHfm5JBeXXdc1n",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 25,
+   "corpus_id": "prediction-market-0186",
+   "page": "prediction-market",
+   "kind": "document",
+   "p0_ppm": 400000,
+   "b_micro": "1450000",
+   "tx": "2183wfvQMzdaSJZToFtnSqicUEAdupUZPmDCPwYLQ7wU",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 26,
+   "corpus_id": "dai-0002",
+   "page": "dai",
+   "kind": "document",
+   "p0_ppm": 650000,
+   "b_micro": "1450000",
+   "tx": "Zme3bFgkQb8uMCiYhqosTVB6Wi78stEqVygWZqggJj2",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 27,
+   "corpus_id": "defi-0069",
+   "page": "defi",
+   "kind": "data",
+   "p0_ppm": 300000,
+   "b_micro": "1450000",
+   "tx": "4pZEGv38XkkfoKEufqdRStBNoSd9YCfgN954qcoSJrf1",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 28,
+   "corpus_id": "polymarket-0092",
+   "page": "polymarket",
+   "kind": "data",
+   "p0_ppm": 400000,
+   "b_micro": "1450000",
+   "tx": "6GC6W7AgFkch7MEyhKCYZ2CypZjwbwAHGaspR2gxniGb",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 29,
+   "corpus_id": "near-0003",
+   "page": "near",
+   "kind": "document",
+   "p0_ppm": 600000,
+   "b_micro": "1450000",
+   "tx": "63t3YeqhajX3vmzErsKNZSHvK6GQtuuBz7wMop55Voi8",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 30,
+   "corpus_id": "prediction-market-0207",
+   "page": "prediction-market",
+   "kind": "document",
+   "p0_ppm": 700000,
+   "b_micro": "1450000",
+   "tx": "9yW8NV2yHLM7tuHSGJttxEj5LDmE9nYpwd3vySZk5oif",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  },
+  {
+   "claim_id": 31,
+   "corpus_id": "bitcoin-0106",
+   "page": "bitcoin",
+   "kind": "judgment",
+   "p0_ppm": 500000,
+   "b_micro": "1450000",
+   "tx": "C9a4N2cLE7u8mtgSMJ69ZpKc8ybnygGqzMjDrHKV5WKi",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
+  }
+ ]
 }
