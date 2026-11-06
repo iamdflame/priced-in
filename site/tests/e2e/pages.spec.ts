@@ -37,17 +37,20 @@ for (const theme of ["dark", "light"]) {
 }
 
 test("/rulings and /stats show the API's real record, and agree", async ({ page, request }) => {
-  const api = await (await request.get("/api/rulings")).json();
-  const settled = api.rulings.filter((r: { status: string }) => r.status === "settled");
-  const paid = settled.reduce((n: number, r: { payout_usd: number | null }) => n + (r.payout_usd ?? 0), 0);
   await guard(page);
-  await page.goto("/rulings");
-  const record = page.getByLabel("The record so far");
-  await expect(record).toContainText(`$${paid.toFixed(2)}`);
-  await expect(record.locator(".kpi").first().locator(".v")).toHaveText(String(settled.length));
-  await expect(page.locator(".rrow")).toHaveCount(api.rulings.length);
-  await page.goto("/stats");
-  await expect(page.locator("#rulings").locator("xpath=following::div[contains(@class, 'books')][1]")).toContainText(`$${paid.toFixed(2)}`);
+  // a ruling can settle between the API read and the page's cached render: read both again until they meet
+  await expect(async () => {
+    const api = await (await request.get("/api/rulings")).json();
+    const settled = api.rulings.filter((r: { status: string }) => r.status === "settled");
+    const paid = `$${settled.reduce((n: number, r: { payout_usd: number | null }) => n + (r.payout_usd ?? 0), 0).toFixed(2)}`;
+    await page.goto("/rulings");
+    const record = page.getByLabel("The record so far");
+    await expect(record).toContainText(paid, { timeout: 2_000 });
+    await expect(record.locator(".kpi").first().locator(".v")).toHaveText(String(settled.length), { timeout: 2_000 });
+    await expect(page.locator(".rrow")).toHaveCount(api.rulings.length, { timeout: 2_000 });
+    await page.goto("/stats");
+    await expect(page.locator("#rulings").locator("xpath=following::div[contains(@class, 'books')][1]")).toContainText(paid, { timeout: 2_000 });
+  }).toPass({ timeout: 60_000, intervals: [5_000] });
 });
 
 test("a verdict's signature verifies in the browser, from the chain", async ({ page }) => {
