@@ -52,9 +52,10 @@ function newKey(accountId, KeyPair) {
  * @param {number} o.priceMicro
  * @param {boolean} o.apply false prints the plan and changes nothing
  * @param {(m: string) => void} [o.log]
+ * @param {(ms: number) => Promise<void>} [o.sleep] how the read-back waits for a new account to reach the RPCs
  * @returns {Promise<{ ok: boolean, changed: boolean }>}
  */
-export async function runX402({ dep, chain, keys, target, priceMicro, apply, log = console.log }) {
+export async function runX402({ dep, chain, keys, target, priceMicro, apply, log = console.log, sleep = (ms) => new Promise((r) => setTimeout(r, ms)) }) {
   const payTo = dep.root;
   const relayer = `x402.${dep.root}`;
   const key = keys.read();
@@ -93,9 +94,12 @@ export async function runX402({ dep, chain, keys, target, priceMicro, apply, log
   } else log(`ok  ${relayer} holds enough`);
 
   // ---------- read back and record ----------
-  const after = await chain.account(relayer);
-  if (!after) throw new Error(`${relayer} is not on chain after creating it`);
-  if (!(await chain.keyOn(relayer, rec.publicKey))) throw new Error(`${rec.publicKey} is not on ${relayer}`);
+  // a just-created account reaches the RPCs a few blocks later: wait for it before recording, so a
+  // run never ends with the account made and the record missing (run it again to record if it does)
+  const settled = async (read) => { for (let i = 0; i < 15; i++) { const v = await read(); if (v) return v; await sleep(2000); } return null; };
+  const after = await settled(() => chain.account(relayer));
+  if (!after) throw new Error(`${relayer} is not on chain 30 s after creating it: run this again to record it`);
+  if (!(await settled(() => chain.keyOn(relayer, rec.publicKey)))) throw new Error(`${rec.publicKey} is not on ${relayer} after 30 s: run this again to record it`);
   dep.keys = { ...(dep.keys || {}), x402_relayer_public_key: rec.publicKey };
   dep.x402 = { protocol: "x402 v2, NEAR exact", facilitator: "in-process: @fastnear/x402/facilitator inside the API function", pay_to: payTo, relayer, price_micro: priceMicro, rpc: RELAYER_RPC, at: new Date().toISOString() };
   dep.transactions = [...(dep.transactions || []), ...txs];
