@@ -127,8 +127,9 @@ test("/p/tether: a tinted sentence opens the sheet, Escape closes it and returns
 test("/p/tether: a ruled sentence is struck through, with its correction beside it", async ({ page }) => {
   await guard(page);
   await page.goto("/p/tether");
-  await expect(page.locator("a.hs.gone").first()).toContainText("$72.6 billion");
-  await expect(page.locator("a.hs.new").first()).toContainText("$122.84 billion");
+  // every ruled sentence on the page is struck through, the T-Bills one among them
+  await expect(page.locator("a.hs.gone", { hasText: "$72.6 billion" })).toHaveCount(1);
+  await expect(page.locator("a.hs.new", { hasText: "$122.84 billion" })).toHaveCount(1);
 });
 
 const PRICED = { index: 0, text: "Bitcoin has a hard cap of 21 million coins.", label: "data", kind: "data", status: "priced", p0_ppm: 800000, receipt: { message: "m", planner_sig_hex: "ab", args: { text: "t", page: "p", kind: "data", p0_ppm: 800000, b_micro: "1000000", planner_sig_hex: "ab" } } };
@@ -155,7 +156,7 @@ test("/new: a refusal is said plainly, and the planner being offline is a state"
   await page.goto("/new");
   await page.fill("#claim", "Anything.");
   await page.getByRole("button", { name: "Price it" }).click();
-  await expect(page.getByRole("alert")).toContainText("Too many pastes");
+  await expect(page.locator(".notice.err")).toContainText("Too many pastes");
   await page.unroute("**/api/paste");
   await page.route("**/api/paste", (r) => r.fulfill({ json: { ...PASTE, planner: "unavailable", message: "Pricing soon.", sentences: [{ index: 0, text: "Anything.", status: "pricing_soon", label: null }] } }));
   await page.getByRole("button", { name: "Price it" }).click();
