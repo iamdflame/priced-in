@@ -101,6 +101,7 @@ main.wrap { flex: 1; padding-bottom: 56px; }
 
 /* Popover */
 .pop { position: fixed; z-index: 60; max-width: min(340px, calc(100vw - 24px)); background: var(--surface3); color: var(--ink); border-radius: 14px; box-shadow: var(--lift), inset 0 0 0 1px var(--line-strong); padding: 14px 16px; font-size: 14px; line-height: 1.45; }
+[data-theme='light'] .pop { background: var(--surface); }
 .pop { white-space: normal; font-weight: 400; text-align: left; }
 .pop b { font-weight: 600; }
 .pop-in { padding-right: 32px; }

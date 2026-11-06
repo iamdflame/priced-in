@@ -11,7 +11,7 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`)
 
 const THEMES: Record<string, string> = {
   dark: "--bg:#13181D;--ink:#F5F7F9;--ink2:#B9BEC6;--yes:#4BDE81;--yesbg:#4BDE8121;--no:#FF7072;--nobg:#FF707221;--line:#FFFFFF26",
-  light: "--bg:#FFFFFF;--ink:#11161E;--ink2:#474E57;--yes:#007B3D;--yesbg:#00A1511F;--no:#C9222B;--nobg:#DE3B3D1A;--line:#1B222B2B",
+  light: "--bg:#FFFFFF;--ink:#131922;--ink2:#4C535D;--yes:#00783B;--yesbg:#DFFAE5;--no:#C51D28;--nobg:#FFEEED;--line:#1B222B2B",
 };
 
 function page(theme: string, body: string) {
@@ -35,7 +35,7 @@ const respond = (html: string, status = 200) => new Response(html, { status, hea
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const raw = new URL(req.url).searchParams.get("theme");
-  const theme = raw === "light" ? "light" : "dark";
+  const theme = raw === "dark" ? "dark" : "light"; // light by default, like the site
   const site = await getSite();
   const f = /^\d{1,9}$/.test(id) ? site.facts.find((x) => x.id === Number(id)) : undefined;
   if (!f) return respond(page(theme, `<div class="c"><p class="q">We couldn’t find that fact.</p><div class="f"><a href="${SITE_URL}" target="_blank" rel="noopener">Priced In</a></div></div>`), site.ok ? 404 : 503);

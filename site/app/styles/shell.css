@@ -81,7 +81,7 @@
 .ft-legal { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 4px; font-size: 14px; color: var(--ink2); }
 .ft-legal span { font-weight: 600; color: var(--ink); }
 .ft-legal a { display: inline-flex; align-items: center; min-height: 40px; color: var(--ink2); }
-.ft-legal a::before { content: '·'; margin: 0 8px 0 4px; color: var(--ink3); }
+.ft-legal a::before { content: ''; width: 3px; height: 3px; margin: 0 9px 0 5px; border-radius: 50%; background: var(--ink3); } /* a shape, not a character: it stays out of the link's name */
 .ft-theme { flex: none; margin-right: -10px; }
 .ft-fine { margin-top: 14px; max-width: 132ch; font-size: 12.5px; line-height: 1.65; color: var(--ink3); text-wrap: pretty; }
 .ft-fine + .ft-fine { margin-top: 6px; }

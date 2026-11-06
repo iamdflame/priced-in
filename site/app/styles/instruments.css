@@ -48,6 +48,7 @@
 .chart .rule { stroke: var(--no); stroke-width: 1.5; stroke-dasharray: 3 4; }
 .chart .rulet { fill: var(--no); font-weight: 600; }
 .charttip { position: absolute; pointer-events: none; transform: translate(-50%, calc(-100% - 12px)); background: var(--surface3); color: var(--ink); font-size: 12.5px; line-height: 1.35; padding: 7px 10px; border-radius: 10px; box-shadow: var(--lift); white-space: nowrap; z-index: 2; }
+[data-theme='light'] .charttip { background: var(--surface); }
 
 
 @media (max-width: 760px) {

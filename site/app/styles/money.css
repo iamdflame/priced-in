@@ -90,6 +90,7 @@
 .m-wallets button { display: flex; align-items: center; gap: 14px; width: 100%; min-height: 64px; padding: 10px 14px; border-radius: 16px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); text-align: left; transition: background var(--color); }
 .m-wallets button:hover:not(:disabled) { background: var(--surface2); box-shadow: inset 0 0 0 1px var(--line-strong); }
 .m-wallets img, .m-wallets .wi { width: 40px; height: 40px; border-radius: 12px; flex: none; background: var(--surface2); display: grid; place-items: center; font: 700 15px var(--disp); color: var(--ink2); object-fit: contain; }
+.m-wallets img[src*='herewallet'] { background: oklch(.21 .02 258); } /* HOT's mark is white on nothing */
 .m-wallets .n { font: 600 16px var(--disp); }
 .m-wallets .d { font-size: 13px; color: var(--ink3); }
 .m-wallets .go { margin-left: auto; color: var(--ink3); }

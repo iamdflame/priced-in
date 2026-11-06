@@ -30,7 +30,7 @@ const GROUPS: { title: string; links: FootLink[] }[] = [
     { href: "/help", label: "Help center" },
     { href: "/status", label: "Status" },
     { href: "/trust", label: "Trust" },
-    { href: "/stats#rulings", label: "Accuracy" },
+    { href: "/accuracy", label: "Accuracy" },
     { href: REPLAY_HREF, label: "Watch a replay" },
   ] },
   { title: "Developers", links: [

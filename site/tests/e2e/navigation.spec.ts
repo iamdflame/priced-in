@@ -20,7 +20,7 @@ function walk(main: (page: Page, name: string) => Promise<unknown>): Step[] {
     ["Trust, from the footer", (p) => foot(p, "Trust"), /\/trust$/],
     ["home again, by the back button", (p) => p.goBack(), /:\d+\/$/],
     ["Trust, by the forward button", (p) => p.goForward(), /\/trust$/],
-    ["Accuracy, from the footer", (p) => foot(p, "Accuracy"), /\/stats#rulings$/],
+    ["Accuracy, from the footer", (p) => foot(p, "Accuracy"), /\/accuracy$/],
     ["Truth API, from the footer", (p) => foot(p, "Truth API"), /\/developers/],
     ["Encyclopedia, from the footer", (p) => foot(p, "Encyclopedia"), /\/p$/],
     ["an article, from its card", (p) => p.locator("a.pagec").first().click(), /\/p\/[\w-]+$/],
@@ -45,7 +45,7 @@ const SIZES = [
   { name: "phone", width: 390, height: 844, main: (p: Page, name: string) => p.locator(".pnav").getByRole("link", { name, exact: true }).click() },
 ];
 
-const ROUTES = ["/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/portfolio"];
+const ROUTES = ["/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
 
 // the founder's trigger: the logo, from any page, must land on the same home a fresh load gives
 for (const size of SIZES) {
