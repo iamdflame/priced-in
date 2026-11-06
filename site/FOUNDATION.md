@@ -61,30 +61,24 @@ Env (`.env.example`): `API_ORIGIN` (default `https://isitpriced.com`), `NEAR_NET
 5. Share card: add `opengraph-image.tsx` next to the page (see `app/c/[id]/opengraph-image.tsx`).
 6. Check 360/390/1440 in both themes (`?theme=light`), no overflow, 44 px targets.
 
-## Real money (, )
+## Real money (`lib/money/`, `components/money/`)
 
-The person's own NEAR wallet signs every transaction; the site never holds a key. One rule to a file, each with its test beside it (, run by Unknown command: "test"
-
-
-Did you mean this?
-  npm test # Test a package
-To see a list of supported npm commands, run:
-  npm help):
+The person's own NEAR wallet signs every transaction; the site never holds a key. One rule to a file, each with its test beside it (`*.test.ts`, run by `npm test`):
 
 | File | The one thing it decides |
 |---|---|
-|  | Accounts, RPCs, gas per call (mainnet and testnet). |
-|  | Amounts: exact bigint parsing and formatting, never a float. |
-|  | Wallet quotes: the contract's own / with the fee, and the slippage floor (, ). Equal to the fill on every crate vector. |
-|  | Every go or no-go (region, caps, balance, market status), as a sentence or null. The caps live here only. |
-|  +  | The geofence rule and its list, with sources.  sets the  cookie and refuses  server-side. |
-|  | The transactions, as plain data, each with the sentence the person approves. |
-|  | Read-only views, and what an outcome means (every receipt counts; unknown is never success). |
-|  | NEAR Wallet Selector (HOT, Meteor, MyNearWallet, Intear), one approval per step, stop at the first failure.  replaces it in tests. |
-| , ,  | NEAR Intents 1Click: curated routes and address checks; the server builds every request (, optional ); the browser's calls. |
-| , ,  | This browser's tx log and deposits in flight; the portfolio's view model; React bridges and the open sheet. |
+| `config.ts` | Accounts, RPCs and gas per call, for mainnet and testnet. |
+| `units.ts` | Amounts: exact bigint parsing and formatting, never a float. |
+| `quotes.ts` | Wallet quotes: the contract's own `fillBuy`/`fillSell` with the fee, and the slippage floor (`min_shares_micro`, `min_proceeds_micro`). Equal to the fill on every crate vector. |
+| `rules.ts` | Every go or no-go (region, caps, balance, market status), as a sentence or null. The caps live here only. |
+| `geo.ts` + `data/restricted-regions.json` | The geofence rule and its list, with sources. `proxy.ts` sets the `pi_geo` cookie and refuses `/bridge/quote` server-side. |
+| `tx.ts` | The transactions, as plain data, each with the sentence the person approves. |
+| `chain.ts` | Read-only views, and what an outcome means: every receipt counts, and an unknown outcome is never success. |
+| `wallet.ts` | NEAR Wallet Selector (HOT, Meteor, MyNearWallet, Intear): one approval per step, stopping at the first failure. `window.__PI_MOCK_WALLET__` replaces it in tests. |
+| `oneclick.ts`, `oneclick-server.ts`, `bridge.ts` | NEAR Intents 1Click: curated routes and address checks; the server builds every request (`/bridge/*`, optional `ONECLICK_JWT`); the browser's calls. |
+| `ledger.ts`, `portfolio.ts`, `hooks.ts` | This browser's tx log and deposits in flight; the portfolio's view model; React bridges and the open sheet. |
 
-Open a money flow from anywhere with ;  (mounted once in the nav) loads the sheets on first use. E2E:  (mock wallet and a pretend chain in ; nothing is signed).
+Open a money flow from anywhere with `openSheet({ kind: "trade" | "deposit" | "withdraw" | "collect" | "connect", ... })`. `MoneyLayer`, mounted once in the nav, loads the sheets on first use. E2E: `npm run e2e:money` (a mock wallet and a pretend chain in `tests/e2e/money/`; nothing is signed).
 
 ## The proof pages
 
