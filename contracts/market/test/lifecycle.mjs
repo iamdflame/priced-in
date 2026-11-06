@@ -9,19 +9,29 @@
 //   an agent betting with its function-call key, refused withdraw, charged, closed;
 //   house agents that must opt in before an operator can charge them, and can leave;
 //   a buy fifty times the liquidity that stops at the price cap and keeps the rest;
-//   a failed withdraw refunded; pause, which also holds the treasury, the council and deposits.
+//   a failed withdraw refunded; pause, which also holds the treasury, the council and deposits;
+//   the taker fee on buys, sales and the lane's credit, at every rate from 0 to its cap;
+//   set_swarm, which takes one name, once, from swarm.<owner> or swarm.<the market's parent>;
+//   every quote against its fill: the browser's port (web/src/core/lmsr.ts) from get_claim alone,
+//   and the contract's own quote_buy and quote_sell views, to the micro.
 // After each stage it checks the books: the USDC the market holds equals every bucket, and every
-// bucket equals the sum of the items in it. At the end it rebuilds every balance and position
-// from the events alone. It deletes its accounts back to the funder, sweeping the market's
-// state first (contracts/sweeper) because NEAR won't delete an account with large state.
-// No secrets needed.
+// bucket equals the sum of the items in it. At the end it rebuilds every balance, every position,
+// the treasury and the fees from the events alone. It deletes its accounts back to the funder,
+// sweeping the market's state first (contracts/sweeper) because NEAR won't delete an account with
+// large state. No secrets needed.
 //
 // The swarm runs first, on purpose: a real 5 NEAR spawn and the market's storage don't both fit
 // in the test funder, and sweeping the escrow to the treasury (the funder) pays for the market.
+// It is swarm.<council>, a sub-account of the market's owner, because set_swarm takes no other.
 import { Account, JsonRpcProvider, KeyPair, KeyPairSigner, baseEncode } from "near-api-js";
 import nacl from "tweetnacl";
 import { createHash } from "node:crypto";
 import fs from "node:fs";
+import path from "node:path";
+import { pathToFileURL } from "node:url";
+
+// the browser's own quoting code, unchanged: Node runs its TypeScript directly
+const lmsr = await import(pathToFileURL(path.resolve("web/src/core/lmsr.ts")).href);
 
 const TGAS = 1_000_000_000_000n;
 const NEAR = 1_000_000_000_000_000_000_000_000n;
@@ -77,11 +87,11 @@ else { console.error("no funder: set FUNDER_ID and FUNDER_KEY (about 14 NEAR)");
 const funder = new Account(funderId, provider, new KeyPairSigner(KeyPair.fromString(funderKey)));
 const created = [];
 fs.mkdirSync(".apex-test", { recursive: true });
-async function sub(prefix, nearAmount) {
+async function sub(prefix, nearAmount, { parent = funder, exact = false } = {}) {
   const kp = KeyPair.fromRandom("ed25519");
-  const name = `${prefix}${Date.now().toString(36)}`;
-  await funder.createSubAccount({ accountOrPrefix: name, publicKey: kp.getPublicKey(), nearToTransfer: near(nearAmount) });
-  const id = `${name}.${funder.accountId}`;
+  const name = exact ? prefix : `${prefix}${Date.now().toString(36)}`;
+  await parent.createSubAccount({ accountOrPrefix: name, publicKey: kp.getPublicKey(), nearToTransfer: near(nearAmount) });
+  const id = `${name}.${parent.accountId}`;
   created.push({ id, sk: kp.toString() });
   fs.writeFileSync(recordFile, JSON.stringify(created, null, 1)); // git-ignored, so a crashed run can be reclaimed
   return new Account(id, provider, new KeyPairSigner(kp));
@@ -198,7 +208,7 @@ async function books(stage) {
     bounties += BigInt(c.bounty_micro);
   }
   const ok = held === b("held_micro") && held === buckets && items === b("balances_micro") && collected === b("collected_micro") && payouts === b("payouts_micro") && bounties === b("bounties_micro");
-  check(`books close (${stage})`, ok, `held ${held}, buckets ${buckets}, balances ${items}/${s.balances_micro}, collected ${collected}/${s.collected_micro}, payouts ${payouts}/${s.payouts_micro}, bounties ${bounties}/${s.bounties_micro}`);
+  check(`books close (${stage})`, ok, `held ${held}, buckets ${buckets}, balances ${items}/${s.balances_micro}, collected ${collected}/${s.collected_micro}, payouts ${payouts}/${s.payouts_micro}, bounties ${bounties}/${s.bounties_micro}, fees taken ${s.fees_micro} (inside the treasury's ${s.treasury_micro})`);
   return s;
 }
 
@@ -206,8 +216,8 @@ let T;
 async function main() {
   // ---------- swarm: a stranger's agent, one transaction, 5 NEAR ----------
   const token = await sub("pt", 2.0);
-  const swarm = await sub("ps", 2.3);
-  const council = await sub("pc", 0.3);
+  const council = await sub("pc", 2.65);
+  const swarm = await sub("swarm", 2.3, { parent: council, exact: true });
   const stranger = await sub("px", 5.2);
   const market = await sub("pm", 0.05);
   M = market.accountId; T = token.accountId;
@@ -253,7 +263,7 @@ async function main() {
   check("a top-up wakes the agent", (await view(S, "get_agent", { agent_id: AG })).sleeping === false);
 
   // ---------- the market ----------
-  await funder.transfer({ receiverId: M, amount: near(4.4) });
+  await funder.transfer({ receiverId: M, amount: near(4.6) });
   const lane = await sub("pl", 0.3);
   const alice = await sub("pa", 0.4);
   const bob = await sub("pb", 0.3);
@@ -274,7 +284,54 @@ async function main() {
   const setTimes = (jury) => call(council, M, "set_resolution", { jury_deadline_secs: jury, dispute_tiers: [["2000000", LOW]], dispute_top_secs: TOP, bounty_ttl_secs: TTL });
   await setTimes(JURY);
   await call(council, M, "set_limits", { reserve_cap_micro: "50000000", lane_budget_micro: "5000000", lane_credit_micro: "1000000", challenge_bond_micro: "1000000" });
+
+  // ---------- the swarm: one name, once, and only in a namespace the deployment holds ----------
+  // unset, as on mainnet: nobody is a swarm agent, whatever its name
+  check("with the swarm unset nobody is a swarm agent, as on mainnet", r0.swarm === null && (await view(M, "get_house_agent", { account: AG })).chargeable === false);
+  await refused("with the swarm unset an operator can't charge an agent", () => call(council, M, "charge_inference", { agent: AG, amount_micro: "1", usage_hash: sha("unset") }), /not an agent/);
+  await refused("with the swarm unset nobody can release an agent's balance", () => call(swarm, M, "release_agent", { agent: AG, to: O, amount_micro: null }), /swarm only/);
+  await refused("only the owner sets the swarm", () => call(alice, M, "set_swarm", { swarm: S }), /owner only/);
+  const SWARM_RULE = /the swarm must be swarm\.<owner> or swarm\.<the market's parent account>/;
+  for (const [what, name] of [
+    ["the top-level account near, which would make every *.near trader chargeable", "near"],
+    ["the top-level account testnet", "testnet"],
+    ["swarm under a top-level account", "swarm.testnet"],
+    ["an ordinary trader", A],
+    ["the owner itself", O],
+    ["swarm under an ordinary trader", `swarm.${A}`],
+    ["another label under the owner", `notswarm.${O}`],
+    ["a sub-account of the real swarm", `a0.${S}`],
+  ]) await refused(`set_swarm refuses ${what}`, () => call(council, M, "set_swarm", { swarm: name }), SWARM_RULE);
+  check("every refused name left the swarm unset", (await view(M, "get_resolution")).swarm === null);
   await call(council, M, "set_swarm", { swarm: S });
+  check("set_swarm accepts swarm.<owner> and logs it", (await view(M, "get_resolution")).swarm === S && events.filter((e) => e.event === "swarm").at(-1)?.swarm === S, S);
+  const PARENT = M.slice(M.indexOf(".") + 1);
+  await refused("a second set is refused, even to the same name", () => call(council, M, "set_swarm", { swarm: S }), /set once and can't be changed/);
+  await refused("a second set is refused, even to the other valid name", () => call(council, M, "set_swarm", { swarm: `swarm.${PARENT}` }), /set once and can't be changed/);
+  const chargeable = async (account) => (await view(M, "get_house_agent", { account })).chargeable;
+  check("a direct sub-account of the swarm is an agent", await chargeable(AG), AG);
+  for (const [what, name] of [
+    ["the swarm itself", S],
+    ["a sub-account of an agent", `x.${AG}`],
+    ["the swarm's parent, the owner", O],
+    ["a name that only ends like the swarm", `x${S}`],
+    ["a sub-account of that look-alike", `a0.x${S}`],
+    ["a top-level account", "testnet"],
+    ["an implicit account", "a".repeat(64)],
+    ["an ordinary trader", A],
+  ]) check(`${what} is never a swarm agent`, !(await chargeable(name)));
+
+  // the deployed shape: market.<root> takes swarm.<root>, the market's parent, whoever the owner is
+  const sibling = await sub("pn", 4.6);
+  await sibling.deployContract(wasm("pricedin_market"));
+  await call(sibling, sibling.accountId, "new", { owner: O, usdc: T, lane: L });
+  const SIB_PARENT = sibling.accountId.slice(sibling.accountId.indexOf(".") + 1);
+  await refused("swarm under anyone else is refused here too", () => call(council, sibling.accountId, "set_swarm", { swarm: S.replace(O, "x") }), SWARM_RULE);
+  await call(council, sibling.accountId, "set_swarm", { swarm: `swarm.${SIB_PARENT}` });
+  check("set_swarm accepts swarm.<the market's parent account>", (await view(sibling.accountId, "get_resolution")).swarm === `swarm.${SIB_PARENT}`, `swarm.${SIB_PARENT}`);
+  await sibling.deleteAccount(funder.accountId);
+  created.splice(created.findIndex((c) => c.id === sibling.accountId), 1);
+
   const planner = nacl.sign.keyPair();
   await call(council, M, "set_planner_key", { key_hex: hex(planner.publicKey) });
 
@@ -316,14 +373,72 @@ async function main() {
   const verdict = async (ch, i, line) => call(alice, M, "submit_verdict", await signed(ch, i, { content: `VERDICT: ${line}\nOne sentence.` }), { tgas: 30n });
   const quorum = async (ch, line) => { await verdict(ch, 0, line); await verdict(ch, 1, line); };
 
+  // ---------- every quote against its fill ----------
+  const ppmOf = (m) => Number(lmsr.priceYes(m) / lmsr.MICRO);
+  const treasury = async () => BigInt((await view(M, "stats")).treasury_micro);
+  const potOf = async (id) => BigInt((await view(M, "get_claim", { claim_id: id })).collected_micro);
+  // The browser quotes from get_claim alone. Then the trade fills, and all three must agree to the
+  // micro: the browser's port, the contract's quote view and the fill.
+  const quotedBuy = async (name, id, who, side, amount, opts = {}) => {
+    const v = await view(M, "get_claim", { claim_id: id });
+    const m = lmsr.marketFromClaim(v);
+    const q = lmsr.contractBuy(m, side, BigInt(amount), lmsr.feeBpsOf(v));
+    const cq = await view(M, "quote_buy", { claim_id: id, side, amount_micro: String(amount) });
+    const t = await call(who, M, "buy", { claim_id: id, side, amount_micro: String(amount), min_shares_micro: "0" }, { tgas: 30n, ...opts });
+    const browser = q.sharesMicro === BigInt(t.shares_micro) && q.paidMicro === BigInt(t.amount_micro) && q.feeMicro === BigInt(t.fee_micro) && ppmOf(q.after) === t.price_yes_ppm_after;
+    const contract = cq.shares_micro === t.shares_micro && cq.amount_micro === t.amount_micro && cq.fee_micro === t.fee_micro && cq.price_yes_ppm_after === t.price_yes_ppm_after && cq.price_yes_ppm_before === t.price_yes_ppm_before;
+    check(`${name}: the browser's quote from get_claim equals the fill to the micro`, browser, `${q.sharesMicro} shares for ${q.paidMicro}, fee ${q.feeMicro}; filled ${t.shares_micro} for ${t.amount_micro}, fee ${t.fee_micro}`);
+    check(`${name}: the contract's quote_buy equals the fill`, contract, `${cq.shares_micro} for ${cq.amount_micro}, fee ${cq.fee_micro}`);
+    return { t, cost: q.costMicro };
+  };
+  const quotedSell = async (name, id, who, side, shares, opts = {}) => {
+    const v = await view(M, "get_claim", { claim_id: id });
+    const m = lmsr.marketFromClaim(v);
+    const q = lmsr.contractSell(m, side, BigInt(shares), lmsr.feeBpsOf(v));
+    const cq = await view(M, "quote_sell", { claim_id: id, side, shares_micro: String(shares) });
+    const t = await call(who, M, "sell", { claim_id: id, side, shares_micro: String(shares), min_proceeds_micro: "0" }, { tgas: 30n, ...opts });
+    const browser = q.receivedMicro === BigInt(t.amount_micro) && q.feeMicro === BigInt(t.fee_micro) && ppmOf(q.after) === t.price_yes_ppm_after;
+    const contract = cq.amount_micro === t.amount_micro && cq.fee_micro === t.fee_micro && cq.price_yes_ppm_after === t.price_yes_ppm_after && cq.side === t.side;
+    check(`${name}: the browser's quote from get_claim equals the fill to the micro`, browser, `${q.receivedMicro} received, fee ${q.feeMicro}; filled ${t.amount_micro}, fee ${t.fee_micro}`);
+    check(`${name}: the contract's quote_sell equals the fill`, contract, `${cq.amount_micro}, fee ${cq.fee_micro}`);
+    return { t, gross: q.proceedsMicro };
+  };
+
   // ---------- trades, lane, receipts ----------
+  const fee0 = await view(M, "stats");
+  check("the fee defaults to 100 bps with nothing taken yet", fee0.fee_bps === 100 && fee0.fees_micro === "0");
+  await refused("only the owner sets the fee", () => call(alice, M, "set_fee_bps", { fee_bps: 50 }), /owner only/);
+  await refused("the fee can't pass its 300 bps cap", () => call(council, M, "set_fee_bps", { fee_bps: 301 }), /at most 300 bps/);
   const c0 = await open("A");
   const v0 = await view(M, "get_claim", { claim_id: c0 });
   check("claim opened at 50% with cost-to-move figures", v0.price_yes_ppm === 500000 && Number(v0.cost_up_10_micro) > 0, `up10 $${Number(v0.cost_up_10_micro) / 1e6}`);
-  const t1 = await call(bob, M, "buy", { claim_id: c0, side: "yes", amount_micro: "1000000", min_shares_micro: "0" }, { tgas: 30n });
+  check("get_claim exposes b, d0, both quantities and the fee", v0.b_micro === "1000000" && v0.q_yes_micro === "0" && v0.q_no_micro === "0" && v0.d0 === String(lmsr.openMarket(1_000_000n * lmsr.MICRO, 500_000n * lmsr.MICRO).d0) && v0.fee_bps === 100);
+  const bobF = await bal(B), treF = await treasury();
+  const { t: t1, cost: cost1 } = await quotedBuy("a $1 buy", c0, bob, "yes", 1_000_000);
   check("buy moves the price up", t1.price_yes_ppm_after > 500000, `${t1.price_yes_ppm_before / 1e4}% -> ${t1.price_yes_ppm_after / 1e4}%`);
-  const t2 = await call(bob, M, "sell", { claim_id: c0, side: "yes", shares_micro: String(BigInt(t1.shares_micro) / 4n), min_proceeds_micro: "0" }, { tgas: 30n });
+  const fee1 = BigInt(t1.fee_micro);
+  check("a buy pays 1% of its cost, rounded up, on top of it and inside the order", fee1 === (cost1 + 99n) / 100n && BigInt(t1.amount_micro) === cost1 + fee1 && BigInt(t1.amount_micro) <= 1_000_000n, `cost ${cost1}, fee ${fee1}, paid ${t1.amount_micro} of 1000000`);
+  check("the buy's fee is booked to the treasury and its cost to the claim's pot", (await treasury()) === treF + fee1 && (await potOf(c0)) === cost1 && (await bal(B)) === bobF - cost1 - fee1 && BigInt(t1.balance_micro) === bobF - cost1 - fee1, `treasury +${fee1}, pot +${cost1}`);
+  const tradeEvent = events.filter((e) => e.event === "trade").at(-1);
+  check("the trade event carries fee_micro, and its amount is what the balance paid", tradeEvent.fee_micro === t1.fee_micro && tradeEvent.amount_micro === t1.amount_micro);
+  const treS = await treasury(), bobS = await bal(B);
+  const { t: t2, gross: gross2 } = await quotedSell("a sale", c0, bob, "yes", BigInt(t1.shares_micro) / 4n);
   check("sell returns USDC and moves the price down", Number(t2.amount_micro) > 0 && t2.price_yes_ppm_after < t1.price_yes_ppm_after);
+  const fee2 = BigInt(t2.fee_micro);
+  check("a sale pays 1% of its proceeds, rounded up, out of them", fee2 === (gross2 + 99n) / 100n && BigInt(t2.amount_micro) === gross2 - fee2, `proceeds ${gross2}, fee ${fee2}, received ${t2.amount_micro}`);
+  check("the sale's fee is booked to the treasury, and the pot pays the whole proceeds", (await treasury()) === treS + fee2 && (await potOf(c0)) === cost1 - gross2 && (await bal(B)) === bobS + gross2 - fee2, `treasury +${fee2}, pot -${gross2}`);
+  const vT = await view(M, "get_claim", { claim_id: c0 });
+  check("get_claim's quantities are the shares outstanding", BigInt(vT.q_yes_micro) === BigInt(t1.shares_micro) - BigInt(t2.shares_micro) && vT.q_no_micro === "0", `q_yes ${vT.q_yes_micro}`);
+  check("stats add the fees up", (await view(M, "stats")).fees_micro === String(fee1 + fee2));
+  await refused("min_proceeds bounds what the seller receives, after the fee", async () => {
+    const q = await view(M, "quote_sell", { claim_id: c0, side: "yes", shares_micro: "100000" });
+    await call(bob, M, "sell", { claim_id: c0, side: "yes", shares_micro: "100000", min_proceeds_micro: String(BigInt(q.amount_micro) + 1n) }, { tgas: 30n });
+  }, /proceeds below minimum/);
+  await refused("min_shares bounds the shares a buy gets after the fee", async () => {
+    const q = await view(M, "quote_buy", { claim_id: c0, side: "yes", amount_micro: "100000" });
+    await call(bob, M, "buy", { claim_id: c0, side: "yes", amount_micro: "100000", min_shares_micro: String(BigInt(q.shares_micro) + 1n) }, { tgas: 30n });
+  }, /fewer shares than min_shares/);
+  await refused("quote_sell refuses more shares than are outstanding", () => view(M, "quote_sell", { claim_id: c0, side: "no", shares_micro: "1" }), /not enough shares/);
 
   const laneKey = async () => {
     const k = KeyPair.fromRandom("ed25519");
@@ -333,22 +448,49 @@ async function main() {
     return { acct: new Account(L, provider, new KeyPairSigner(k)), id };
   };
   const v1 = await laneKey();
-  const t3 = await call(v1.acct, M, "buy", { claim_id: c0, side: "yes", amount_micro: "400000", min_shares_micro: "0" }, { tgas: 30n, tag: "buy (lane, first, with credit)" });
+  const treL = await treasury();
+  const { t: t3, cost: cost3 } = await quotedBuy("a lane key's first bet", c0, v1.acct, "yes", 400_000, { tag: "buy (lane, first, with credit)" });
   check("a lane key bets with no wallet, credited from the treasury", t3.trader === v1.id && t3.balance_micro === String(1_000_000 - Number(t3.amount_micro)));
+  check("the lane's credit pays the fee: the treasury lends $1 and takes the fee back", BigInt(t3.fee_micro) === (cost3 + 99n) / 100n && BigInt(t3.fee_micro) > 0n && (await treasury()) === treL - 1_000_000n + BigInt(t3.fee_micro) && BigInt(t3.amount_micro) === cost3 + BigInt(t3.fee_micro), `fee ${t3.fee_micro} of a ${t3.amount_micro} bet, ${t3.balance_micro} left of the credit`);
+  await refused("the credit can't be overspent: an order above it is refused, fee or no fee", () => call(v1.acct, M, "buy", { claim_id: c0, side: "yes", amount_micro: "1000000", min_shares_micro: "0" }, { tgas: 30n }), /not enough balance/);
 
   const text = "Bananas are botanically berries.";
   const receipt = hex(nacl.sign.detached(Buffer.from(`open:paste:${sha(Buffer.from(text))}:document:600000:1000000`), planner.secretKey));
   const receiptArgs = { text, page: "paste", kind: "document", p0_ppm: 600000, b_micro: "1000000", planner_sig_hex: receipt, side: "yes" };
   const v2 = await laneKey();
   await refused("open_and_buy with zero amount is refused", () => call(v2.acct, M, "open_and_buy", { ...receiptArgs, amount_micro: "0" }, { tgas: 30n }), /not enough balance/);
+  // a market that hasn't opened has no view: the browser quotes it from the planner's receipt
+  const fromReceipt = lmsr.contractBuy(lmsr.marketFromReceipt(600_000, 1_000_000), "yes", 500_000n, 100);
   const opened = await call(v2.acct, M, "open_and_buy", { ...receiptArgs, amount_micro: "500000" }, { tgas: 40n });
   claimIds.add(opened.claim_id);
   check("a lane key opens a pasted sentence's market with its first bet", opened.price_yes_ppm_before >= 599000 && opened.claim_id === c0 + 1);
+  check("the browser's quote from the receipt equals open_and_buy's fill, fee included", fromReceipt.sharesMicro === BigInt(opened.shares_micro) && fromReceipt.paidMicro === BigInt(opened.amount_micro) && fromReceipt.feeMicro === BigInt(opened.fee_micro) && BigInt(opened.fee_micro) > 0n, `${opened.shares_micro} shares for ${opened.amount_micro}, fee ${opened.fee_micro}`);
+  const vOpen = await view(M, "get_claim", { claim_id: opened.claim_id });
+  check("get_claim's d0 is the opening log-odds, to the last unit, off 50%", vOpen.d0 === String(lmsr.openMarket(1_000_000n * lmsr.MICRO, 600_000n * lmsr.MICRO).d0) && vOpen.d0 !== "0", `d0 ${vOpen.d0}`);
   await refused("a forged planner receipt is refused", () => call(v2.acct, M, "open_and_buy", { ...receiptArgs, text: "Forged", amount_micro: "100000" }, { tgas: 30n }), /planner signature does not verify/);
   const again = await call(bob, M, "open_and_buy", { ...receiptArgs, amount_micro: "100000" }, { tgas: 40n });
   const claimsNow = (await view(M, "stats")).claims;
   check("a receipt opens one market: replayed, it bets on that market", again.claim_id === opened.claim_id && claimsNow === opened.claim_id + 1, `claim ${again.claim_id}, ${claimsNow} claims`);
-  await books("trades and lane");
+
+  // a lane key's whole credit in one order: the fee comes out of the same dollar
+  const v4 = await laneKey();
+  const { t: whole, cost: costW } = await quotedBuy("a lane key's whole $1", opened.claim_id, v4.acct, "no", 1_000_000);
+  check("a lane key betting its whole $1 pays the fee from it and never goes below zero", BigInt(whole.amount_micro) <= 1_000_000n && BigInt(whole.balance_micro) === 1_000_000n - BigInt(whole.amount_micro) && BigInt(whole.fee_micro) === (costW + 99n) / 100n, `cost ${costW}, fee ${whole.fee_micro}, ${whole.balance_micro} left`);
+
+  // the owner moves the fee: it applies from the next trade, at every rate up to the cap
+  const lastFee = () => events.filter((e) => e.event === "fee").at(-1);
+  await call(council, M, "set_fee_bps", { fee_bps: 300 });
+  check("the owner can set the cap; the event, stats and get_claim all say so", lastFee()?.fee_bps === 300 && (await view(M, "stats")).fee_bps === 300 && (await view(M, "get_claim", { claim_id: opened.claim_id })).fee_bps === 300);
+  const { t: t300, cost: cost300 } = await quotedBuy("a buy at the 300 bps cap", opened.claim_id, bob, "yes", 250_000);
+  check("at 300 bps a buy pays 3% of its cost", BigInt(t300.fee_micro) === (cost300 * 3n + 99n) / 100n && BigInt(t300.amount_micro) <= 250_000n, `cost ${cost300}, fee ${t300.fee_micro}`);
+  await call(council, M, "set_fee_bps", { fee_bps: 0 });
+  const fees0 = (await view(M, "stats")).fees_micro, tre0 = await treasury();
+  const { t: tFree, cost: costFree } = await quotedBuy("a buy with the fee off", opened.claim_id, bob, "yes", 250_000);
+  const { t: sFree, gross: grossFree } = await quotedSell("a sale with the fee off", opened.claim_id, bob, "yes", 50_000);
+  check("at 0 bps nothing is taken: stats and the treasury don't move", tFree.fee_micro === "0" && sFree.fee_micro === "0" && BigInt(tFree.amount_micro) === costFree && BigInt(sFree.amount_micro) === grossFree && (await view(M, "stats")).fees_micro === fees0 && (await treasury()) === tre0);
+  await call(council, M, "set_fee_bps", { fee_bps: 100 });
+  check("the fee goes back to 100 bps, written this time, not defaulted", (await view(M, "stats")).fee_bps === 100 && lastFee()?.fee_bps === 100);
+  await books("trades, lane and fees");
 
   // ---------- a buy far above the liquidity: to the price cap, the rest never charged ----------
   // $5 on b = $0.10 is 50 b. Before crates/lmsr checked the cap first, this overflowed i128.
@@ -357,11 +499,13 @@ async function main() {
   const aliceBig = await bal(A);
   const huge = await call(alice, M, "buy", { claim_id: cBig, side: "yes", amount_micro: "5000000", min_shares_micro: "0" }, { tgas: 30n, tag: "buy (50 b, to the cap)" });
   check("a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing", huge.price_yes_ppm_after >= 999_800 && Number(huge.shares_micro) > 0, `${huge.price_yes_ppm_before / 1e4}% -> ${huge.price_yes_ppm_after / 1e4}%, ${Number(huge.shares_micro) / 1e6} shares`);
-  check("only the shares up to the cap are charged; the rest stays in the balance", huge.amount_micro === "851720" && (await bal(A)) === aliceBig - 851_720n, `$${Number(huge.amount_micro) / 1e6} of $5 charged, b ln(0.5 / 0.0001) = $0.851720`);
-  await refused("at the cap a further buy is refused, not charged", () => call(alice, M, "buy", { claim_id: cBig, side: "yes", amount_micro: "5000000", min_shares_micro: "0" }, { tgas: 30n }), /price is at its cap|amount too small/);
-  const noBack = await call(bob, M, "buy", { claim_id: cBig, side: "no", amount_micro: "100000", min_shares_micro: "0" }, { tgas: 30n });
+  check("only the shares up to the cap are charged, and the fee is on that cost; the rest stays in the balance", huge.amount_micro === "860238" && huge.fee_micro === "8518" && (await bal(A)) === aliceBig - 860_238n, `$${Number(huge.amount_micro) / 1e6} of $5 charged: b ln(0.5 / 0.0001) = $0.851720 and a fee of $0.008518`);
+  await refused("at the cap a further buy is refused, not charged", () => call(alice, M, "buy", { claim_id: cBig, side: "yes", amount_micro: "5000000", min_shares_micro: "0" }, { tgas: 30n }), /price is at its cap/);
+  const capQuote = await view(M, "quote_buy", { claim_id: cBig, side: "yes", amount_micro: "5000000" });
+  check("at the cap quote_buy says zero shares for zero, the same answer as the browser", capQuote.shares_micro === "0" && capQuote.amount_micro === "0" && lmsr.atCap(lmsr.marketFromClaim(await view(M, "get_claim", { claim_id: cBig })), "yes"));
+  const { t: noBack } = await quotedBuy("a buy back from the cap", cBig, bob, "no", 100_000);
   check("the other side still trades at the cap", Number(noBack.shares_micro) > 0 && noBack.price_yes_ppm_after < huge.price_yes_ppm_after);
-  check("the refused buy charged nothing", (await bal(A)) === aliceBig - 851_720n);
+  check("the refused buy charged nothing", (await bal(A)) === aliceBig - 860_238n);
   await books("a buy to the cap");
 
   // ---------- the dispute path: models rule FALSE, a bonded person flips it, it stands ----------
@@ -731,6 +875,23 @@ async function main() {
   }
   check("every balance and position rebuilds exactly from the events", wrong === 0 && mismatched === 0, `${events.length} events, ${traders.size} traders, ${shares.size} positions`);
   check("an agent's P&L comes from its events", pnl.get(AG) === BigInt(ar) + BigInt(as.amount_micro) - BigInt(ab.amount_micro), `agent trading P&L $${Number(pnl.get(AG)) / 1e6}, inference charged $0.25`);
+
+  // the fees and the treasury from the events alone: every way into or out of the treasury bucket
+  let rebuilt = 0n, fees = 0n, feeTrades = 0;
+  for (const e of events) {
+    const amt = e.amount_micro === undefined ? 0n : BigInt(e.amount_micro);
+    switch (e.event) {
+      case "treasury": case "charge": case "bond_forfeit": rebuilt += amt; break;
+      case "lane_credit": case "treasury_withdraw": rebuilt -= amt; break;
+      case "open": rebuilt -= BigInt(e.reserve_micro); break;
+      case "settle": rebuilt += BigInt(e.treasury_micro); break;
+      case "trade": { const f = BigInt(e.fee_micro); rebuilt += f; fees += f; if (f > 0n) feeTrades++; break; }
+      default: break;
+    }
+  }
+  const last = await view(M, "stats");
+  check("the fees add up from the events: every one in stats, every trade carrying its fee", fees === BigInt(last.fees_micro) && events.filter((e) => e.event === "trade").every((e) => e.fee_micro !== undefined), `$${Number(fees) / 1e6} over ${feeTrades} trades`);
+  check("the treasury rebuilds exactly from the events, fees included", rebuilt === BigInt(last.treasury_micro), `rebuilt ${rebuilt}, stats ${last.treasury_micro}`);
 }
 
 let xCh, xClaim;
