@@ -31,6 +31,7 @@ const { checkLmsr } = await import("./checks/lmsr.mjs");
 const { checkRules } = await import("./checks/rules.mjs");
 const { checkRepro, checkBooks, checkRewrite, reproBuild } = await import("./checks/chain.mjs");
 const { checkOneClick, checkCorpus, checkSuites, checkSite } = await import("./checks/offchain.mjs");
+const { checkAttestations } = await import("./checks/attestation.mjs");
 const { Rpc, MAINNET_RPCS } = await import("./lib/near.mjs");
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
@@ -55,6 +56,7 @@ const CHECKS = [
   [7, "the measured number", () => checkCorpus(REPO, "16 of 232")],
   [8, "unit suites: AI, API, web", () => suites],
   [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set (the hosted demo's URL is not public yet)", see: "SITE_URL=<live url> npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
+  [10, "attested models, verified offline, registered on mainnet", () => checkAttestations(REPO, { mainnet, offline: OFFLINE })],
 ];
 
 const results = [];
