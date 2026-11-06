@@ -1,5 +1,5 @@
-// Copied unchanged from web/src/core/config.ts (the proven engine). Fix bugs there first, then copy.
-// Site configuration, from the build environment (web/.env.example lists every value).
+// The engine (one copy, here): its tests are tests/unit/core/config.test.ts.
+// Engine configuration. The site passes its values in (lib/client/engine.ts maps NEXT_PUBLIC_NEAR_NETWORK).
 // Testnet unless NEAR_NETWORK=mainnet (or VITE_NEAR_NETWORK=mainnet) is set explicitly; the
 // tests never set it. Anything that belongs to the other network is refused, so a testnet
 // build can never sign for a mainnet account or talk to a mainnet RPC.

@@ -1,7 +1,7 @@
 // A wallet quote is the chain's fill, to the micro: checked against every step of the vectors generated
 // from crates/lmsr, the same code the contract runs, with and without the taker fee.
 import { describe, expect, test } from "vitest";
-import vectors from "../../../web/test/vectors/lmsr.json";
+import vectors from "@/tests/vectors/lmsr.json";
 import { feeOn } from "../core/lmsr";
 import { DEFAULT_SLIPPAGE_BPS, floorBy, isFail, quoteWalletBuy, quoteWalletSell } from "./quotes";
 

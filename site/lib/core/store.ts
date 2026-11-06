@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/store.ts (the proven engine), except defaultLoadAudit below.
+// The engine (one copy, here): its tests are tests/unit/core/store.test.ts.
 // Page state, live updates, and the doubt flow as an explicit state machine.
 //
 // The doubt machine (doubtReducer) is pure:

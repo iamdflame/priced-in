@@ -149,7 +149,7 @@ fn main() {
                     Ok(v) => v,
                     Err(_) => {
                         // i128 overflow inside the fixed-point maths: the contract would panic too.
-                        // Since quote_buy checks the cap first no vector lands here; the web test
+                        // Since quote_buy checks the cap first no vector lands here; the site's lmsr test
                         // requires that there are none
                         steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"amount_micro\":\"{}\",\"fee_bps\":{},\"overflow\":true,\"price_yes_after\":{}}}", state, side_str(side), s(spend), amount_micro, fee_bps, s(m.price_yes())));
                         continue;
@@ -225,5 +225,5 @@ fn main() {
     let (sh, ch) = m.quote_buy(Side::Yes, SCALE);
     out.push(format!("\"architect\":{{\"shares\":{},\"charged\":{}}}", s(sh), s(ch)));
 
-    println!("{{\"generator\":\"web/tools/lmsr-vectors (crates/lmsr)\",\"scale\":{},{}}}", s(SCALE), out.join(","));
+    println!("{{\"generator\":\"tools/judge/lmsr-vectors (crates/lmsr)\",\"scale\":{},{}}}", s(SCALE), out.join(","));
 }

@@ -1,6 +1,6 @@
-// Copied unchanged from web/src/core/lmsr.ts (the proven engine). Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/lmsr.test.ts.
 // Client-side LMSR quotes: a line-for-line port of crates/lmsr to BigInt, so a quote in the
-// browser is the number the contract will compute, to the last unit (test/vectors/lmsr.json,
+// browser is the number the contract will compute, to the last unit (tests/vectors/lmsr.json,
 // generated from the Rust crate, proves it). Integer division truncates toward zero in both.
 // The contract's release build checks i128 overflow, so this port throws LmsrOverflow where
 // the contract would panic.

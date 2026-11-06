@@ -1,4 +1,4 @@
-// Copied from web/src/core/api.ts (the proven engine), plus Rationale.persona. Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/api.test.ts. Rationale.persona is the site's one addition.
 // A typed client for services/api and the routes services/ai mounts on it. One base URL.
 // Nothing here throws into a view: every call resolves to a Result, and every failure is
 // mapped to a designed state with plain words (the server's own message when it has one).

@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/verify.ts (the proven engine). Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/verify.test.ts.
 // In-browser verification of a rewrite's provenance, from its own bytes:
 //   1. the exact request and response bytes are present;
 //   2. sha256 of each matches the recorded hash;

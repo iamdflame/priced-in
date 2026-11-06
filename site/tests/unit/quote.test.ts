@@ -1,8 +1,8 @@
 // The quote on every Yes/No button is the contract's fill, to the micro: checked against the vectors
-// generated from crates/lmsr (web/test/vectors/lmsr.json), against a real logged trade, and on the
+// generated from crates/lmsr (tests/vectors/lmsr.json, npm run vectors:lmsr at the root), against a real logged trade, and on the
 // live claim views (a snapshot of mainnet's /claims, with the 1% taker fee).
 import { describe, expect, test } from "vitest";
-import vectors from "../../../web/test/vectors/lmsr.json";
+import vectors from "@/tests/vectors/lmsr.json";
 import claimsSnap from "./fixtures/claims.json";
 import { feeBpsOf, fillBuy, marketFromClaim, priceYes } from "@/lib/core/lmsr";
 import { backUsd, payoutWords, quoteClaim, quoteSide } from "@/lib/quote";

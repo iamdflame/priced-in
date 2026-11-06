@@ -1,5 +1,6 @@
-# Generates web/test/vectors/lmsr.json from the real crate, so web/src/core/lmsr.ts is
+# Generates site/tests/vectors/lmsr.json from the real crate, so site/lib/core/lmsr.ts is
 # proven equal to crates/lmsr. Standalone (its own [workspace]) so the repo workspace is untouched.
+#   npm run vectors:lmsr   (node tools/judge/lmsr-vectors/generate.mjs)
 [package]
 name = "lmsr-vectors"
 version = "0.1.0"

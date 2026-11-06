@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/router.ts (the proven engine). Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/router.test.ts.
 // Routes. A post opens by its own link with x.com changed to our domain, so /:user/status/:id
 // (and X's /i/status/:id, /i/web/status/:id, trailing /photo/1 and /video/1) is a post page,
 // read through services/api's GET /post/:id. /x/:id is the short form.

@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/rpc.ts (the proven engine). Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/lane.test.ts (sendRace, failover).
 // NEAR JSON-RPC from the browser: reads with failover, and a transaction send raced across
 // two RPCs (a synchronous send to one, an async broadcast to the other, and status polls on
 // both every 250 ms), the way services/api sends the lane's own transactions.

@@ -1,6 +1,7 @@
 {
   "name": "pricedin-site",
   "private": true,
+  "type": "module",
   "description": "Priced In: the product site in the Pulse brand. Next.js App Router, server-rendered from the live API.",
   "scripts": {
     "dev": "next dev -p 3100",

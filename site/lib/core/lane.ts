@@ -1,4 +1,4 @@
-// Copied unchanged from web/src/core/lane.ts (the proven engine). Fix bugs there first, then copy.
+// The engine (one copy, here): its tests are tests/unit/core/lane.test.ts.
 // The no-wallet bet. The browser makes its own ed25519 key, keeps it (localStorage, or memory
 // when storage is blocked), and asks services/api to add it to the pooled lane account as a
 // function-call key on the market (POST /lane/key). That happens at page load, so by the
