@@ -3,7 +3,8 @@ import vectors from "./vectors/lmsr.json";
 import {
   SCALE, MICRO, mul, div, exp, expm1, ln, softplus, sigmoid, openMarket, priceYes, priceNo, cost, costOpen,
   quoteBuyRaw, quoteSellRaw, maxLoss, contractBuy, contractSell, costToMoveMicro, quoteBuy, quoteSell, costToMove,
-  marketFromPrice, marketFromReceipt, impliedBMicro, priceNumber, LmsrOverflow, type Market, type Side,
+  marketFromPrice, marketFromReceipt, marketFromClaim, feeBpsOf, impliedBMicro, priceNumber, LmsrOverflow,
+  feeOn, fillBuy, fillSell, atCap, applyBuy, type ClaimMarket, type Market, type Side,
 } from "../src/core/lmsr";
 
 const B = (s: string) => BigInt(s);
@@ -30,7 +31,7 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
   });
 
   test("markets: open, price, cost, max loss, every quote and fill, cost to move", () => {
-    let trades = 0, overflows = 0, worstFloat = 0, huge = 0;
+    let trades = 0, overflows = 0, worstFloat = 0, huge = 0, feeBuys = 0, feeSells = 0;
     for (const v of vectors.markets) {
       const open = openMarket(B(v.b), B(v.p0));
       expect(open).toEqual(mk(v.open));
@@ -57,18 +58,26 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
           const [sh, ch] = quoteBuyRaw(m, side, B(st.spend));
           expect(sh).toBe(B(st.shares));
           expect(ch).toBe(B(st.charged));
-          const r = contractBuy(m, side, B(st.amount_micro));
+          const r = contractBuy(m, side, B(st.amount_micro), st.fee_bps);
           expect(r.sharesMicro).toBe(B(st.shares_micro));
           expect(r.chargedMicro).toBe(B(st.charged_micro));
-          const q = quoteBuy(m, side, Number(st.amount_micro) / 1e6);
+          expect(r.feeMicro).toBe(B(st.fee_micro));
+          expect(r.paidMicro).toBe(B(st.paid_micro));
+          expect(r.paidMicro).toBeLessThanOrEqual(B(st.amount_micro));
+          if (st.fee_bps > 0 && r.feeMicro > 0n) feeBuys++;
+          const q = quoteBuy(m, side, Number(st.amount_micro) / 1e6, st.fee_bps);
           expect(q.sharesMicro).toBe(B(st.shares_micro));
+          expect(q.paidMicro).toBe(B(st.paid_micro));
           worstFloat = Math.max(worstFloat, Math.abs(q.priceAfter - f(B(st.price_yes_after))));
           m = r.after;
         } else {
           const p = quoteSellRaw(m, side, B(st.shares));
           expect(p).toBe(B(st.proceeds));
-          const r = contractSell(m, side, B(st.shares) / MICRO);
+          const r = contractSell(m, side, B(st.shares) / MICRO, st.fee_bps);
           expect(r.proceedsMicro).toBe(B(st.proceeds_micro));
+          expect(r.feeMicro).toBe(B(st.fee_micro));
+          expect(r.receivedMicro).toBe(B(st.received_micro));
+          if (st.fee_bps > 0 && r.feeMicro > 0n) feeSells++;
           m = r.after;
         }
         expect(priceYes(m)).toBe(B(st.price_yes_after));
@@ -82,6 +91,28 @@ describe("lmsr: equal to crates/lmsr on the generated vectors", () => {
     expect(overflows).toBe(0);
     expect(huge).toBeGreaterThan(20);
     expect(worstFloat).toBeLessThan(1e-9);
+    // the walks trade at fees from 0 to the 300 bps cap, on both buys and sales
+    expect(feeBuys).toBeGreaterThan(50);
+    expect(feeSells).toBeGreaterThan(10);
+  });
+
+  test("fee_on: every row, rounded up", () => {
+    for (const [amount, bps, fee] of vectors.fee_on as [string, number, string][]) expect(feeOn(B(amount), BigInt(bps))).toBe(B(fee));
+    expect(vectors.fee_on.length).toBeGreaterThan(50);
+  });
+
+  test("fills the walks rarely reach: stepped back from a rounded cost, at the cap, too small", () => {
+    const rows = vectors.fills as Record<"stepped_back" | "at_cap" | "too_small", any[]>;
+    for (const r of [...rows.stepped_back, ...rows.at_cap, ...rows.too_small]) {
+      const m = mk(r.market);
+      expect(fillBuy(m, r.side, B(r.amount_micro), r.fee_bps)).toEqual({ sharesMicro: B(r.shares_micro), costMicro: B(r.cost_micro), feeMicro: B(r.fee_micro), paidMicro: B(r.paid_micro) });
+      expect(atCap(m, r.side)).toBe(r.at_cap);
+    }
+    // these rows are the point: the floored shares cost a micro over budget, so the crate gave one back
+    expect(rows.stepped_back.length).toBeGreaterThanOrEqual(20);
+    for (const r of rows.stepped_back) expect(B(r.raw_shares_micro)).toBeGreaterThan(B(r.shares_micro));
+    expect(rows.at_cap.every((r) => r.shares_micro === "0" && r.paid_micro === "0")).toBe(true);
+    expect(rows.too_small.every((r) => r.shares_micro === "0" && r.paid_micro === "0")).toBe(true);
   });
 
   test("the architect's number: b = $3 at 50%, $1 on YES", () => {
@@ -161,5 +192,46 @@ describe("lmsr: the numbers the views use", () => {
     expect(quoteBuy(q.after, "yes", 5).capped).toBe(true);
     expect(quoteBuy(m, "yes", 1).overflow).toBe(false);
     expect(quoteBuy(m, "yes", 0).shares).toBe(0);
+  });
+
+  test("the fee: on top of a buy's cost, out of a sale's proceeds, inside the amount", () => {
+    const m = marketFromReceipt(500_000, 3_000_000);
+    const q = quoteBuy(m, "yes", 1, 100);
+    expect(q.chargedMicro).toBeLessThanOrEqual(990_099n); // floor($1 / 1.01): the pot's budget
+    expect(q.feeMicro).toBe(feeOn(q.chargedMicro, 100n));
+    expect(q.paidMicro).toBe(q.chargedMicro + q.feeMicro);
+    expect(q.paidMicro).toBeLessThanOrEqual(1_000_000n);
+    expect(q.paid).toBe(Number(q.paidMicro) / 1e6);
+    expect(q.avgPrice).toBeCloseTo(q.paid / q.shares, 12);
+    // the same order with no fee buys more shares for the same dollar
+    const free = quoteBuy(m, "yes", 1);
+    expect(free.sharesMicro).toBeGreaterThan(q.sharesMicro);
+    expect([free.feeMicro, free.paidMicro]).toEqual([0n, free.chargedMicro]);
+    const s = quoteSell(q.after, "yes", q.sharesMicro, 100);
+    expect(s.feeMicro).toBe(feeOn(s.proceedsMicro, 100n));
+    expect(s.receivedMicro).toBe(s.proceedsMicro - s.feeMicro);
+    // a round trip pays both fees, and the pot keeps its rounding
+    expect(s.receivedMicro + q.feeMicro + s.feeMicro).toBeLessThanOrEqual(q.paidMicro);
+    // the fee on a capped buy is on what it cost, not on the order
+    const capped = quoteBuy(marketFromReceipt(500_000, 100_000), "yes", 5, 100);
+    expect([capped.chargedMicro, capped.feeMicro, capped.paidMicro]).toEqual([851_720n, 8_518n, 860_238n]);
+  });
+
+  test("a claim view carries the exact market; a view from before v3 doesn't, and charges no fee", () => {
+    const opened = marketFromReceipt(620_000, 1_450_000);
+    const traded = contractBuy(opened, "no", 400_000n, 100).after;
+    const view = { b_micro: "1450000", d0: String(opened.d0), q_yes_micro: "0", q_no_micro: String(traded.qNo / MICRO), fee_bps: 100 };
+    expect(marketFromClaim(view)).toEqual(traded);
+    expect(feeBpsOf(view)).toBe(100n);
+    // so its quote is the fill itself, where a market rebuilt from the price is only close
+    const m = marketFromClaim(view)!;
+    const exact = fillBuy(m, "yes", 1_000_000n, feeBpsOf(view));
+    expect(exact).toEqual(fillBuy(traded, "yes", 1_000_000n, 100));
+    expect(fillSell(m, "no", 1000n, 100)).toEqual(fillSell(traded, "no", 1000n, 100));
+    const rebuilt = marketFromPrice(Number(priceYes(traded) / MICRO), 1_450_000);
+    expect(applyBuy(m, "yes", 0n)).not.toEqual(rebuilt);
+    const old: ClaimMarket = JSON.parse('{"price_yes_ppm":620000,"cost_up_10_micro":"1","cost_down_10_micro":"1"}');
+    expect(marketFromClaim(old)).toBeNull();
+    expect(feeBpsOf(old)).toBe(0n);
   });
 });

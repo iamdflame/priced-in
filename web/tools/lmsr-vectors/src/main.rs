@@ -1,11 +1,10 @@
 //! Prints LMSR test vectors as JSON, computed by crates/lmsr itself.
 //! Every amount is an i128 at SCALE (1e12), written as a decimal string.
 //! `cost_to_move` is the market contract's view (contracts/market/src/lib.rs), copied verbatim
-//! because it lives in the contract, not the crate.
+//! because it lives in the contract, not the crate. The fills are the crate's own `fill_buy` and
+//! `fill_sell`, the code the contract runs for every trade, at a fee that varies step by step.
 
-use lmsr::{Market, Side, SCALE};
-
-const MICRO: i128 = 1_000_000;
+use lmsr::{Market, Side, MICRO, SCALE};
 
 struct Rng(u64);
 impl Rng {
@@ -57,18 +56,14 @@ fn cost_to_move(m: &Market, up: bool) -> u128 {
     ((after.cost() - m.cost()).max(0) / MICRO) as u128
 }
 
-/// The contract's whole-micro buy: shares floored to micro, charged the exact cost rounded up.
-fn contract_buy(m: &Market, side: Side, amount_micro: i128) -> (i128, i128) {
-    let (shares, _charged) = m.quote_buy(side, amount_micro * MICRO);
-    let shares_micro = shares / MICRO;
-    if shares_micro <= 0 {
-        return (0, 0);
+/// The fee a step trades at: none, the default, the cap, or anything between.
+fn fee_for(rng: &mut Rng) -> u128 {
+    match rng.below(4) {
+        0 => 0,
+        1 => 100,
+        2 => 300,
+        _ => rng.below(301) as u128,
     }
-    let mut after = *m;
-    after.apply_buy(side, shares_micro * MICRO);
-    let exact = after.cost() - m.cost();
-    let charged_micro = (exact.max(0) + MICRO - 1) / MICRO;
-    (shares_micro, charged_micro)
 }
 
 fn main() {
@@ -131,10 +126,12 @@ fn main() {
                 // sell a whole-micro share count, as the contract does
                 let sh_micro = ((held / MICRO) as u64 * (1 + rng.below(1000)) / 1000).max(1) as i128;
                 let shares = sh_micro * MICRO;
+                let fee_bps = fee_for(&mut rng);
                 let proceeds = m.quote_sell(side, shares);
+                let fill = m.fill_sell(side, sh_micro as u128, fee_bps);
                 m.apply_sell(side, shares);
                 if side == Side::Yes { held_yes -= shares } else { held_no -= shares }
-                steps.push(format!("{{{},\"op\":\"sell\",\"side\":\"{}\",\"shares\":{},\"proceeds\":{},\"proceeds_micro\":\"{}\",\"price_yes_after\":{}}}", state, side_str(side), s(shares), s(proceeds), proceeds.max(0) / MICRO, s(m.price_yes())));
+                steps.push(format!("{{{},\"op\":\"sell\",\"side\":\"{}\",\"shares\":{},\"proceeds\":{},\"fee_bps\":{},\"proceeds_micro\":\"{}\",\"fee_micro\":\"{}\",\"received_micro\":\"{}\",\"price_yes_after\":{}}}", state, side_str(side), s(shares), s(proceeds), fee_bps, fill.proceeds_micro, fill.fee_micro, fill.received_micro(), s(m.price_yes())));
             } else {
                 // spends from one cent to $20, sometimes a big one that runs into the price cap,
                 // and now and then a huge one ($1,000 to $10^9): far above 33 b, where the old
@@ -145,23 +142,26 @@ fn main() {
                     _ => 10_000 + rng.below(20_000_000) as i128,
                 };
                 let spend = amount_micro * MICRO;
+                let fee_bps = fee_for(&mut rng);
                 let mm = m;
-                let r = std::panic::catch_unwind(move || (mm.quote_buy(side, spend), contract_buy(&mm, side, amount_micro)));
-                let ((shares, charged), (sh_micro, charged_micro)) = match r {
+                let r = std::panic::catch_unwind(move || (mm.quote_buy(side, spend), mm.fill_buy(side, amount_micro as u128, fee_bps)));
+                let ((shares, charged), fill) = match r {
                     Ok(v) => v,
                     Err(_) => {
                         // i128 overflow inside the fixed-point maths: the contract would panic too.
                         // Since quote_buy checks the cap first no vector lands here; the web test
                         // requires that there are none
-                        steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"amount_micro\":\"{}\",\"overflow\":true,\"price_yes_after\":{}}}", state, side_str(side), s(spend), amount_micro, s(m.price_yes())));
+                        steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"amount_micro\":\"{}\",\"fee_bps\":{},\"overflow\":true,\"price_yes_after\":{}}}", state, side_str(side), s(spend), amount_micro, fee_bps, s(m.price_yes())));
                         continue;
                     }
                 };
+                let sh_micro = fill.shares_micro as i128;
                 if sh_micro > 0 {
                     m.apply_buy(side, sh_micro * MICRO);
                     if side == Side::Yes { held_yes += sh_micro * MICRO } else { held_no += sh_micro * MICRO }
                 }
-                steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"shares\":{},\"charged\":{},\"amount_micro\":\"{}\",\"shares_micro\":\"{}\",\"charged_micro\":\"{}\",\"price_yes_after\":{}}}", state, side_str(side), s(spend), s(shares), s(charged), amount_micro, sh_micro, charged_micro, s(m.price_yes())));
+                // shares and charged are quote_buy on the whole amount; the rest is the contract's fill
+                steps.push(format!("{{{},\"op\":\"buy\",\"side\":\"{}\",\"spend\":{},\"shares\":{},\"charged\":{},\"amount_micro\":\"{}\",\"fee_bps\":{},\"shares_micro\":\"{}\",\"charged_micro\":\"{}\",\"fee_micro\":\"{}\",\"paid_micro\":\"{}\",\"price_yes_after\":{}}}", state, side_str(side), s(spend), s(shares), s(charged), amount_micro, fee_bps, sh_micro, fill.cost_micro, fill.fee_micro, fill.paid_micro(), s(m.price_yes())));
             }
         }
         markets.push(format!(
@@ -172,6 +172,53 @@ fn main() {
         ));
     }
     out.push(format!("\"markets\":[{}]", markets.join(",")));
+
+    // ---- fee_on ----
+    let mut rng = Rng(0xfee0_0f_0a11);
+    let mut fee_rows: Vec<String> = [(0u128, 300u128), (1, 1), (1, 100), (99, 100), (100, 100), (101, 100), (10_000, 100), (10_001, 100), (1_000_000, 300), (7, 10_000)].iter().map(|&(a, b)| format!("[\"{}\",{},\"{}\"]", a, b, lmsr::fee_on(a, b))).collect();
+    for _ in 0..60 {
+        let (a, b) = (rng.below(10_000_000_000) as u128, rng.below(301) as u128);
+        fee_rows.push(format!("[\"{}\",{},\"{}\"]", a, b, lmsr::fee_on(a, b)));
+    }
+    out.push(format!("\"fee_on\":[{}]", fee_rows.join(",")));
+
+    // ---- fills the random walks above rarely reach ----
+    // Near a price cap fill_buy steps back when rounding puts the cost a micro over budget, and at
+    // the cap it fills nothing: both are searched for here, on the contract's liquidity range.
+    let (mut stepped, mut at_cap, mut tiny): (Vec<String>, Vec<String>, Vec<String>) = (vec![], vec![], vec![]);
+    let mut rng = Rng(0x57e9_bacc_fee1);
+    for _ in 0..2_000_000 {
+        if stepped.len() >= 24 && at_cap.len() >= 12 && tiny.len() >= 12 {
+            break;
+        }
+        let b = (100_000 + rng.below(99_900_001)) as i128 * MICRO;
+        let p0 = (rng.below(600_001) as i128 + 200_000) * MICRO;
+        let mut m = Market::open(b, p0);
+        let pushes = rng.below(4);
+        for _ in 0..pushes {
+            let side = if rng.below(2) == 0 { Side::Yes } else { Side::No };
+            let f = m.fill_buy(side, 1 + rng.below((40 * b / MICRO) as u64) as u128, 0);
+            m.apply_buy(side, f.shares_micro as i128 * MICRO);
+        }
+        let side = if rng.below(2) == 0 { Side::Yes } else { Side::No };
+        let amount = 1 + (10f64.powf((rng.below(1_000_000) as f64 / 1_000_000.0) * 12.0)) as u128;
+        let fee_bps = fee_for(&mut rng);
+        let f = m.fill_buy(side, amount, fee_bps);
+        let budget = amount * lmsr::BPS / (lmsr::BPS + fee_bps);
+        let raw = if budget > 0 { (m.quote_buy(side, budget as i128 * MICRO).0 / MICRO) as u128 } else { 0 };
+        let row = format!(
+            "{{\"market\":{},\"side\":\"{}\",\"amount_micro\":\"{}\",\"fee_bps\":{},\"raw_shares_micro\":\"{}\",\"shares_micro\":\"{}\",\"cost_micro\":\"{}\",\"fee_micro\":\"{}\",\"paid_micro\":\"{}\",\"at_cap\":{}}}",
+            market_json(&m), side_str(side), amount, fee_bps, raw, f.shares_micro, f.cost_micro, f.fee_micro, f.paid_micro(), m.at_cap(side)
+        );
+        if raw > f.shares_micro && f.shares_micro > 0 && stepped.len() < 24 {
+            stepped.push(row);
+        } else if m.at_cap(side) && at_cap.len() < 12 {
+            at_cap.push(row);
+        } else if f.shares_micro == 0 && !m.at_cap(side) && tiny.len() < 12 {
+            tiny.push(row);
+        }
+    }
+    out.push(format!("\"fills\":{{\"stepped_back\":[{}],\"at_cap\":[{}],\"too_small\":[{}]}}", stepped.join(","), at_cap.join(","), tiny.join(",")));
 
     // ---- the architect's number: b = $3, p0 = 0.5, $1 on YES ----
     let m = Market::open(3 * SCALE, SCALE / 2);

@@ -5,18 +5,25 @@
 // the contract would panic.
 //
 // Units: amounts are bigint at SCALE = 1e12 per dollar (or per share). One share pays $1.
-// The contract trades whole micro-USDC (1e-6): see contractBuy / contractSell.
+// The contract trades whole micro-USDC (1e-6), with a taker fee: see fillBuy / fillSell, which
+// are the crate's fill_buy / fill_sell, and marketFromClaim, which reads the exact market off a
+// claim view. Fed those two, a quote here equals the fill on chain to the micro.
 
 export const SCALE = 1_000_000_000_000n;
 export const LN2 = 693_147_180_560n;
 export const MICRO = 1_000_000n;
+/** Basis points in a whole: a fee of `bps` takes bps / 10,000 of an amount. */
+export const BPS = 10_000n;
 const EXP_MAX = 40n * SCALE;
 const I128_MAX = (1n << 127n) - 1n;
 const I128_MIN = -(1n << 127n);
+const U128_MAX = (1n << 128n) - 1n;
 export const P_MIN = SCALE / 5n;
 export const P_MAX = SCALE - SCALE / 5n;
 export const D_CAP = 9_210_240_366_976n;
 const P_FLOOR = 1_000_000n;
+/** The most micro-shares fillBuy steps back when rounding puts the cost a micro over budget. */
+export const FILL_STEPS = 16;
 
 export class LmsrOverflow extends Error {
   constructor() {
@@ -142,11 +149,16 @@ function withShares(m: Market, side: Side, delta: bigint): Market {
 export const applyBuy = (m: Market, side: Side, shares: bigint): Market => withShares(m, side, shares);
 export const applySell = (m: Market, side: Side, shares: bigint): Market => withShares(m, side, -shares);
 
+/** Shares `side` can still buy before the price cap. */
+const roomOf = (m: Market, side: Side): bigint => (side === "yes" ? mul(D_CAP - dOf(m), m.b) : mul(D_CAP + dOf(m), m.b));
+
+/** The crate's at_cap: not one whole micro-share is left to buy, so every fill on that side is empty. */
+export const atCap = (m: Market, side: Side): boolean => roomOf(m, side) - 4n < MICRO;
+
 /** The crate's quote_buy: (shares, charged) with charged <= spend, at SCALE. */
 export function quoteBuyRaw(m: Market, side: Side, spend: bigint): [bigint, bigint] {
   if (spend <= 0n) throw new RangeError("spend must be positive");
-  const d = dOf(m);
-  const room = side === "yes" ? mul(D_CAP - d, m.b) : mul(D_CAP + d, m.b);
+  const room = roomOf(m, side);
   if (room <= 4n) return [0n, 0n];
   // the cap first: a spend that reaches it buys to it and the rest is never charged, and the
   // closed form below only ever sees a spend under the cost to the cap (no i128 overflow)
@@ -186,21 +198,77 @@ export function maxLoss(m: Market, side: Side): bigint {
   return mul(m.b, -ln(side === "yes" ? p0 : SCALE - p0));
 }
 
-/** The contract's buy in whole micro-USDC: shares floored to micro, charged the exact cost rounded up. */
-export function contractBuy(m: Market, side: Side, amountMicro: bigint): { sharesMicro: bigint; chargedMicro: bigint; after: Market } {
-  const [shares] = quoteBuyRaw(m, side, amountMicro * MICRO);
-  const sharesMicro = shares / MICRO;
-  if (sharesMicro <= 0n) return { sharesMicro: 0n, chargedMicro: 0n, after: m };
-  const after = applyBuy(m, side, sharesMicro * MICRO);
-  const exact = cost(after) - cost(m);
-  const chargedMicro = (max(exact, 0n) + MICRO - 1n) / MICRO;
-  return { sharesMicro, chargedMicro, after };
+/** The crate's fee_on: amount * bps / 10,000, rounded up. */
+export const feeOn = (amountMicro: bigint, feeBps: bigint): bigint => (amountMicro * feeBps + BPS - 1n) / BPS;
+
+/** The crate's BuyFill. costMicro goes into the claim's pot, feeMicro to the treasury; paidMicro is both. */
+export interface BuyFill {
+  sharesMicro: bigint;
+  costMicro: bigint;
+  feeMicro: bigint;
+  paidMicro: bigint;
 }
 
-/** The contract's sell of whole-micro shares: proceeds floored to micro. */
-export function contractSell(m: Market, side: Side, sharesMicro: bigint): { proceedsMicro: bigint; after: Market } {
-  const proceeds = quoteSellRaw(m, side, sharesMicro * MICRO);
-  return { proceedsMicro: max(proceeds, 0n) / MICRO, after: applySell(m, side, sharesMicro * MICRO) };
+/** The crate's SellFill. The pot pays proceedsMicro, feeMicro comes out of it, the trader gets receivedMicro. */
+export interface SellFill {
+  proceedsMicro: bigint;
+  feeMicro: bigint;
+  receivedMicro: bigint;
+}
+
+const NO_FILL: BuyFill = { sharesMicro: 0n, costMicro: 0n, feeMicro: 0n, paidMicro: 0n };
+
+/**
+ * The crate's fill_buy, which the contract runs for every buy: the trader pays at most
+ * amountMicro, the fee included. The pot's budget leaves room for the fee, its shares are floored
+ * to whole micro-shares and charged their exact cost rounded up, and near a price cap, where the
+ * cost's rounding can put that a micro over budget, it steps back a micro-share at a time.
+ */
+export function fillBuy(m: Market, side: Side, amountMicro: bigint, feeBps: bigint | number = 0n): BuyFill {
+  const bps = BigInt(feeBps);
+  const product = amountMicro * BPS;
+  const budget = (product > U128_MAX ? U128_MAX : product) / (BPS + bps);
+  const most = I128_MAX / MICRO;
+  const spend = (budget < most ? budget : most) * MICRO;
+  if (spend <= 0n) return NO_FILL;
+  let sharesMicro = quoteBuyRaw(m, side, spend)[0] / MICRO;
+  const before = cost(m);
+  for (let step = 0; step <= FILL_STEPS; step++) {
+    if (sharesMicro <= 0n) break;
+    const exact = cost(applyBuy(m, side, sharesMicro * MICRO)) - before;
+    const costMicro = (max(exact, 0n) + MICRO - 1n) / MICRO;
+    if (costMicro <= budget) {
+      const feeMicro = feeOn(costMicro, bps);
+      return { sharesMicro, costMicro, feeMicro, paidMicro: costMicro + feeMicro };
+    }
+    sharesMicro -= 1n;
+  }
+  return NO_FILL;
+}
+
+/** The crate's fill_sell, which the contract runs for every sale. */
+export function fillSell(m: Market, side: Side, sharesMicro: bigint, feeBps: bigint | number = 0n): SellFill {
+  const proceedsMicro = max(quoteSellRaw(m, side, sharesMicro * MICRO), 0n) / MICRO;
+  const feeMicro = feeOn(proceedsMicro, BigInt(feeBps));
+  return { proceedsMicro, feeMicro, receivedMicro: proceedsMicro - feeMicro };
+}
+
+/**
+ * The contract's buy and the market after it. chargedMicro is the pot's cost, without the fee;
+ * paidMicro is what leaves the trader's balance and the trade's amount_micro. feeBps defaults to
+ * 0, so pass the claim view's fee_bps (feeBpsOf) to quote a live market.
+ */
+export function contractBuy(m: Market, side: Side, amountMicro: bigint, feeBps: bigint | number = 0n): BuyFill & { chargedMicro: bigint; after: Market } {
+  const f = fillBuy(m, side, amountMicro, feeBps);
+  return { ...f, chargedMicro: f.costMicro, after: f.sharesMicro > 0n ? applyBuy(m, side, f.sharesMicro * MICRO) : m };
+}
+
+/**
+ * The contract's sale of whole-micro shares and the market after it. proceedsMicro is what the
+ * pot pays, before the fee; receivedMicro is what reaches the trader and the trade's amount_micro.
+ */
+export function contractSell(m: Market, side: Side, sharesMicro: bigint, feeBps: bigint | number = 0n): SellFill & { after: Market } {
+  return { ...fillSell(m, side, sharesMicro, feeBps), after: applySell(m, side, sharesMicro * MICRO) };
 }
 
 /** The contract's cost_to_move view: micro-USDC to push YES up (or down) 10 points; 0 near the edges. */
@@ -219,6 +287,29 @@ export function costToMoveMicro(m: Market, up: boolean): bigint {
 
 const toNum = (x: bigint) => Number(x) / 1e12;
 
+/** What a claim view carries for an exact quote (the market contract's get_claim and get_claims, v3). */
+export interface ClaimMarket {
+  b_micro?: string | number | null;
+  /** opening log-odds at SCALE */
+  d0?: string | number | null;
+  q_yes_micro?: string | number | null;
+  q_no_micro?: string | number | null;
+  fee_bps?: string | number | null;
+}
+
+/**
+ * The exact market behind a claim view: b, d0 and both quantities as the contract stores them, so
+ * fillBuy and fillSell on it equal the fill to the micro. Null for a view from a contract before
+ * v3, which has none of them: fall back to marketFromPrice, which is approximate.
+ */
+export function marketFromClaim(v: ClaimMarket): Market | null {
+  if (v.b_micro == null || v.d0 == null || v.q_yes_micro == null || v.q_no_micro == null) return null;
+  return { b: BigInt(v.b_micro) * MICRO, d0: BigInt(v.d0), qYes: BigInt(v.q_yes_micro) * MICRO, qNo: BigInt(v.q_no_micro) * MICRO };
+}
+
+/** The taker fee on a claim view, in basis points. A view from before v3 has none, and that contract charges none. */
+export const feeBpsOf = (v: ClaimMarket): bigint => BigInt(v.fee_bps ?? 0);
+
 /** A market equivalent to a claim view: the same price and liquidity, so quotes match the chain's. */
 export function marketFromPrice(priceYesPpm: number, bMicro: bigint | number | string): Market {
   const ppm = BigInt(Math.min(999_900, Math.max(100, Math.round(priceYesPpm))));
@@ -231,8 +322,8 @@ export const marketFromReceipt = (p0Ppm: number, bMicro: bigint | number | strin
   openMarket(BigInt(bMicro) * MICRO, BigInt(p0Ppm) * MICRO);
 
 /**
- * The liquidity implied by a claim view's cost-to-move figures, in whole micro-USDC
- * (the contract's ClaimView has no b). Buying YES from p to p + 0.1 costs b ln((1 - p) / (0.9 - p)).
+ * The liquidity implied by a claim view's cost-to-move figures, in whole micro-USDC, for a view
+ * from before v3 (a newer one has b_micro). Buying YES from p to p + 0.1 costs b ln((1 - p) / (0.9 - p)).
  */
 export function impliedBMicro(priceYes: number, upMicro: number, downMicro: number): number | null {
   let est: number | null = null;
@@ -248,10 +339,17 @@ export interface BuyQuote {
   side: Side;
   amountMicro: bigint;
   sharesMicro: bigint;
+  /** the pot's cost, without the fee */
   chargedMicro: bigint;
+  feeMicro: bigint;
+  /** what leaves the balance: the cost and the fee */
+  paidMicro: bigint;
   /** dollars */
   shares: number;
   cost: number;
+  fee: number;
+  paid: number;
+  /** what a share really costs: paid / shares */
   avgPrice: number;
   priceBefore: number;
   priceAfter: number;
@@ -262,28 +360,36 @@ export interface BuyQuote {
   capped: boolean;
 }
 
-/** What `amountUsd` buys on `side`, exactly as the contract will fill it. */
-export function quoteBuy(m: Market, side: Side, amountUsd: number): BuyQuote {
+/** What `amountUsd`, the fee included, buys on `side`, exactly as the contract will fill it. */
+export function quoteBuy(m: Market, side: Side, amountUsd: number, feeBps: bigint | number = 0n): BuyQuote {
   const amountMicro = BigInt(Math.round(amountUsd * 1e6));
   const before = toNum(priceYes(m));
   const base = { side, amountMicro, priceBefore: before };
-  if (amountMicro <= 0n) return { ...base, sharesMicro: 0n, chargedMicro: 0n, shares: 0, cost: 0, avgPrice: 0, priceAfter: before, after: m, overflow: false, capped: false };
+  const none = { sharesMicro: 0n, chargedMicro: 0n, feeMicro: 0n, paidMicro: 0n, shares: 0, cost: 0, fee: 0, paid: 0, avgPrice: 0, priceAfter: before, after: m };
+  if (amountMicro <= 0n) return { ...base, ...none, overflow: false, capped: false };
   try {
-    const r = contractBuy(m, side, amountMicro);
+    const r = contractBuy(m, side, amountMicro, feeBps);
     const shares = Number(r.sharesMicro) / 1e6;
-    const c = Number(r.chargedMicro) / 1e6;
-    return { ...base, sharesMicro: r.sharesMicro, chargedMicro: r.chargedMicro, shares, cost: c, avgPrice: shares > 0 ? c / shares : 0, priceAfter: toNum(priceYes(r.after)), after: r.after, overflow: false, capped: r.sharesMicro === 0n };
+    const paid = Number(r.paidMicro) / 1e6;
+    return { ...base, sharesMicro: r.sharesMicro, chargedMicro: r.chargedMicro, feeMicro: r.feeMicro, paidMicro: r.paidMicro, shares, cost: Number(r.chargedMicro) / 1e6, fee: Number(r.feeMicro) / 1e6, paid, avgPrice: shares > 0 ? paid / shares : 0, priceAfter: toNum(priceYes(r.after)), after: r.after, overflow: false, capped: r.sharesMicro === 0n };
   } catch (e) {
     if (!(e instanceof LmsrOverflow)) throw e;
-    return { ...base, sharesMicro: 0n, chargedMicro: 0n, shares: 0, cost: 0, avgPrice: 0, priceAfter: before, after: m, overflow: true, capped: false };
+    return { ...base, ...none, overflow: true, capped: false };
   }
 }
 
 export interface SellQuote {
   side: Side;
   sharesMicro: bigint;
+  /** what the pot pays, before the fee */
   proceedsMicro: bigint;
+  feeMicro: bigint;
+  /** what reaches the balance: the proceeds less the fee */
+  receivedMicro: bigint;
+  /** dollars */
   proceeds: number;
+  fee: number;
+  received: number;
   priceBefore: number;
   priceAfter: number;
   after: Market;
@@ -294,11 +400,11 @@ export interface SellQuote {
  * shares are unknown, so the position is credited to the market first: selling it back moves
  * the price the way the chain does, whatever the history.
  */
-export function quoteSell(m: Market, side: Side, sharesMicro: bigint): SellQuote {
+export function quoteSell(m: Market, side: Side, sharesMicro: bigint, feeBps: bigint | number = 0n): SellQuote {
   const held = side === "yes" ? m.qYes : m.qNo;
   const mm = held >= sharesMicro * MICRO ? m : withShares({ ...m, d0: m.d0 - (side === "yes" ? div(sharesMicro * MICRO, m.b) : -div(sharesMicro * MICRO, m.b)) }, side, sharesMicro * MICRO);
-  const r = contractSell(mm, side, sharesMicro);
-  return { side, sharesMicro, proceedsMicro: r.proceedsMicro, proceeds: Number(r.proceedsMicro) / 1e6, priceBefore: toNum(priceYes(mm)), priceAfter: toNum(priceYes(r.after)), after: r.after };
+  const r = contractSell(mm, side, sharesMicro, feeBps);
+  return { side, sharesMicro, proceedsMicro: r.proceedsMicro, feeMicro: r.feeMicro, receivedMicro: r.receivedMicro, proceeds: Number(r.proceedsMicro) / 1e6, fee: Number(r.feeMicro) / 1e6, received: Number(r.receivedMicro) / 1e6, priceBefore: toNum(priceYes(mm)), priceAfter: toNum(priceYes(r.after)), after: r.after };
 }
 
 /** What moving the price `points` costs, in dollars, up and down. 10 points matches the contract's view exactly. */

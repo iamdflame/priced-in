@@ -43,19 +43,32 @@ export async function checkLmsr(repo) {
         }
         const [sh, ch] = L.quoteBuyRaw(m, st.side, B(st.spend));
         eq("shares", sh, B(st.shares)); eq("charged", ch, B(st.charged));
-        const r = L.contractBuy(m, st.side, B(st.amount_micro));
+        const r = L.contractBuy(m, st.side, B(st.amount_micro), st.fee_bps);
         eq("shares_micro", r.sharesMicro, B(st.shares_micro)); eq("charged_micro", r.chargedMicro, B(st.charged_micro));
+        eq("fee_micro", r.feeMicro, B(st.fee_micro)); eq("paid_micro", r.paidMicro, B(st.paid_micro));
         m = r.after;
       } else {
         eq("proceeds", L.quoteSellRaw(m, st.side, B(st.shares)), B(st.proceeds));
-        const r = L.contractSell(m, st.side, B(st.shares) / L.MICRO);
+        const r = L.contractSell(m, st.side, B(st.shares) / L.MICRO, st.fee_bps);
         eq("proceeds_micro", r.proceedsMicro, B(st.proceeds_micro));
+        eq("fee_micro", r.feeMicro, B(st.fee_micro)); eq("received_micro", r.receivedMicro, B(st.received_micro));
         m = r.after;
       }
       eq("price_yes_after", L.priceYes(m), B(st.price_yes_after));
       trades++;
     }
     rows++; if (!same(m, mv.final)) miss.push("final state");
+  }
+  for (const [amount, bps, fee] of v.fee_on) eq(`fee_on(${amount}, ${bps})`, L.feeOn(B(amount), BigInt(bps)), B(fee));
+  // the fills random walks rarely reach: a cost rounded a micro over budget, the cap, a tiny order
+  let fills = 0;
+  for (const r of [...v.fills.stepped_back, ...v.fills.at_cap, ...v.fills.too_small]) {
+    const m = { b: B(r.market.b), d0: B(r.market.d0), qYes: B(r.market.q_yes), qNo: B(r.market.q_no) };
+    const f = L.fillBuy(m, r.side, B(r.amount_micro), r.fee_bps);
+    eq("fill shares_micro", f.sharesMicro, B(r.shares_micro)); eq("fill cost_micro", f.costMicro, B(r.cost_micro));
+    eq("fill fee_micro", f.feeMicro, B(r.fee_micro)); eq("fill paid_micro", f.paidMicro, B(r.paid_micro));
+    eq("at_cap", L.atCap(m, r.side), r.at_cap);
+    fills++;
   }
   if (miss.length) return { status: "FAIL", detail: `the port differs from crates/lmsr on ${miss.length} of ${rows} vector values: ${miss.slice(0, 3).join("; ")}` };
 
@@ -119,6 +132,6 @@ export async function checkLmsr(repo) {
   if (bad.length) return { status: "FAIL", detail: bad.slice(0, 3).join("; ") };
   return {
     status: "PASS",
-    detail: `web/src/core/lmsr.ts is bit-exact with crates/lmsr on ${rows} vector values (${trades} trades, ${overflows} refused overflows); 10,000 random sequences, ${nTrades} trades: prices sum to one within ${worstSum}e-12, cost path-independent (collected - [C(end) - C(open)] <= ${worstSlack}e-12, always in the market's favour), maker's loss <= b ln(1/p0) in both outcomes`,
+    detail: `web/src/core/lmsr.ts is bit-exact with crates/lmsr on ${rows} vector values (${trades} trades at fees from 0 to 300 bps, ${fills} edge fills, ${overflows} refused overflows); 10,000 random sequences, ${nTrades} trades: prices sum to one within ${worstSum}e-12, cost path-independent (collected - [C(end) - C(open)] <= ${worstSlack}e-12, always in the market's favour), maker's loss <= b ln(1/p0) in both outcomes`,
   };
 }
