@@ -76,6 +76,10 @@ const rpc = (method, params) => retry(async () => {
 });
 const WASM = "target/wasm32-unknown-unknown/release";
 const wasm = (n) => new Uint8Array(fs.readFileSync(`${WASM}/${n}.wasm`));
+// MARKET_WASM tests exact bytes, such as the reproducible build that goes on chain
+// (target/judge-repro/wasm32-unknown-unknown/release/pricedin_market.wasm, from tools/judge/repro.mjs)
+// instead of the plain build beside it, which differs in its panic paths.
+const marketWasm = () => new Uint8Array(fs.readFileSync(process.env.MARKET_WASM || `${WASM}/pricedin_market.wasm`));
 
 // ---------- accounts ----------
 const spikeFile = ".apex/spikes/s3-lane/testnet-accounts.json";
@@ -270,7 +274,8 @@ async function main() {
   const carol = await sub("pd", 0.3);
   const dave = await sub("pe", 0.1);
   const L = lane.accountId, A = alice.accountId, B = bob.accountId, C = carol.accountId, D = dave.accountId, O = council.accountId;
-  await market.deployContract(wasm("pricedin_market"));
+  await market.deployContract(marketWasm());
+  console.log(`market under test: ${baseEncode(createHash("sha256").update(marketWasm()).digest())}`);
   await call(market, M, "new", { owner: O, usdc: T, lane: L });
   await call(token, T, "register", { account_id: M });
   await call(token, T, "register", { account_id: O });
@@ -323,7 +328,7 @@ async function main() {
 
   // the deployed shape: market.<root> takes swarm.<root>, the market's parent, whoever the owner is
   const sibling = await sub("pn", 4.6);
-  await sibling.deployContract(wasm("pricedin_market"));
+  await sibling.deployContract(marketWasm());
   await call(sibling, sibling.accountId, "new", { owner: O, usdc: T, lane: L });
   const SIB_PARENT = sibling.accountId.slice(sibling.accountId.indexOf(".") + 1);
   await refused("swarm under anyone else is refused here too", () => call(council, sibling.accountId, "set_swarm", { swarm: S.replace(O, "x") }), SWARM_RULE);

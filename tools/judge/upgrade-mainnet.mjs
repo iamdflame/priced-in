@@ -8,7 +8,8 @@
 // from .env, only once every read-only check has passed; it must be a full-access key on the
 // market and on its owner. The market is paused for the upgrade, about a minute, unless --no-pause.
 // A failure after the pause leaves it paused, on purpose: no USDC can leave while it is looked at.
-// --finish completes a run that was cut off after the code was deployed. deployments/mainnet.json
+// --finish takes over a pause an earlier run left, before or after its deploy, and carries on from
+// there; without it a run never lifts a pause it did not place. deployments/mainnet.json
 // takes the new code hash and an upgrades[] entry.
 import { upgradeMarket } from "./lib/upgrade.mjs";
 

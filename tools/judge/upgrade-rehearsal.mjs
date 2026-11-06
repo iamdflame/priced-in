@@ -15,7 +15,9 @@
 //    lane key's credit, every quote equal to its fill, the books closing, the swarm immutable, the
 //    house agent's consent carried over. Then the hole itself, on a second throwaway market: the
 //    old bytes take set_swarm("testnet") and make alice.testnet chargeable; the new bytes, on that
-//    same state, make it not;
+//    same state, make it not. That market is left paused first and upgraded with --finish, and the
+//    first market is left paused on the new code and finished the same way, so both places a
+//    stopped run can leave a market are proven before mainnet could need them;
 // 5. with --lock: deploy.mjs --lock removes the root's key, then it checks that the market and
 //    swarm have no keys, that the root key can no longer deploy, that operator calls from the
 //    owner's account still work, and that the API's lane key still adds judges' keys that bet.
@@ -196,28 +198,45 @@ try {
   const big = await call(root, M, "buy", { claim_id: c1, side: "yes", amount_micro: "5000000", min_shares_micro: "0" });
   ok("a $5 buy on b = $0.10 stops at the cap: $0.851720 and a 1% fee on that", big.amount_micro === "860238" && big.fee_micro === "8518" && big.price_yes_ppm_after >= 999_800, `${big.price_yes_ppm_after / 1e4}%`);
 
-  // the hole itself: the old bytes on a market of their own, which an upgrade can't take back
-  const funder = funder0;
-  const holeName = `pih${Date.now().toString(36)}`, HOLE = `${holeName}.${spike.id}`, victim = "alice.testnet";
-  await retry(() => funder.createSubAccount({ accountOrPrefix: holeName, publicKey: kp.getPublicKey(), nearToTransfer: NEAR * 47n / 10n }));
-  const hole = as(HOLE);
+  // the hole itself, on a second market of the old bytes, because a bad swarm can't be taken back.
+  // Its owner pauses it, which is where a run that stopped before its deploy leaves a market, and
+  // --finish upgrades it from there through the same tool, which waits for the code at finality.
+  const holeName = `pih${Date.now().toString(36)}`, HR = `${holeName}.${spike.id}`, HM = `market.${HR}`, victim = "alice.testnet";
+  await retry(() => funder0.createSubAccount({ accountOrPrefix: holeName, publicKey: kp.getPublicKey(), nearToTransfer: NEAR * 48n / 10n }));
+  const holeRoot = as(HR), hole = as(HM);
+  const holeState = path.join(STAGE, ".apex-test", "hole-state.json"), holeDep = path.join(STAGE, "hole-deployment.json");
   try {
+    await retry(() => holeRoot.createSubAccount({ accountOrPrefix: "market", publicKey: kp.getPublicKey(), nearToTransfer: NEAR * 47n / 10n }));
     await hole.deployContract(new Uint8Array(old.market));
-    await call(hole, HOLE, "new", { owner: R, usdc: T, lane: L });
-    await call(root, HOLE, "set_swarm", { swarm: "testnet" });
-    ok(`the hole, on the old bytes: set_swarm("testnet") makes ${victim} chargeable`, (await view(HOLE, "get_house_agent", { account: victim })).chargeable === true);
-    const newMarket = fs.readFileSync(path.join(REPO, "target/judge-repro/wasm32-unknown-unknown/release/pricedin_market.wasm"));
-    if (codeHash(newMarket) !== rec.code.market.code_hash) throw new Error("target/judge-repro holds another market build than the one deployed");
-    await hole.deployContract(new Uint8Array(newMarket));
-    ok("the same state on the new bytes: no account is an agent of a swarm that isn't swarm.<...>", (await view(HOLE, "get_house_agent", { account: victim })).chargeable === false && (await view(HOLE, "get_resolution")).swarm === "testnet");
-    await refused("and the bad name can't be swapped for another", () => call(root, HOLE, "set_swarm", { swarm: `swarm.${R}` }), /set once and can't be changed/);
+    await call(hole, HM, "new", { owner: R, usdc: T, lane: L });
+    await call(root, HM, "set_swarm", { swarm: "testnet" });
+    ok(`the hole, on the old bytes: set_swarm("testnet") makes ${victim} chargeable`, (await view(HM, "get_house_agent", { account: victim })).chargeable === true);
+    await call(root, HM, "pause", { paused: true });
+    fs.writeFileSync(holeState, JSON.stringify({ root: HR, key: st.key }));
+    fs.writeFileSync(holeDep, JSON.stringify({ network: "testnet", accounts: { market: HM, lane: L, usdc: T }, code: { market: { ...dep.code.market, source_rev: FROM } } }));
+    console.log("\n$ node tools/judge/upgrade-testnet.mjs --finish --no-record   (a market left paused on the old code)");
+    const fin = run("tools/judge/upgrade-testnet.mjs", ["--state", holeState, "--deployment", holeDep, "--from-rev", FROM, "--finish", "--no-record"], { NEAR_TESTNET_RPC: RPC });
+    const holeCode = (await retry(() => provider.query({ request_type: "view_account", finality: "final", account_id: HM }))).code_hash;
+    ok("--finish upgrades a market left paused on the old code, and lifts the pause", fin === 0 && holeCode === rec.code.market.code_hash && (await view(HM, "stats")).paused === false, holeCode);
+    const hv2 = await view(HM, "get_house_agent", { account: victim }), r2 = await view(HM, "get_resolution");
+    ok("the same state on the new bytes: no account is an agent of a swarm that isn't swarm.<...>", hv2.chargeable === false && r2.swarm === "testnet", `${victim} chargeable: ${hv2.chargeable}, stored swarm: ${r2.swarm}`);
+    await refused("and the bad name can't be swapped for another", () => call(root, HM, "set_swarm", { swarm: `swarm.${R}` }), /set once and can't be changed/);
   } finally {
+    fs.rmSync(holeState, { force: true });
     await retry(() => hole.deleteAccount(spike.id));
+    await retry(() => holeRoot.deleteAccount(spike.id));
   }
 
   await call(root, M, "pause", { paused: true });
   await refused("paused, the owner's treasury withdrawal waits", () => call(root, M, "withdraw_treasury", { amount_micro: "1" }, 0n, 60n), /paused/);
-  await call(root, M, "pause", { paused: false });
+  // a run that stopped after its deploy: the new code, still paused
+  console.log("\n$ node tools/judge/upgrade-testnet.mjs --no-record   (a market left paused on the new code)");
+  const plain = runOut("tools/judge/upgrade-testnet.mjs", [...upArgs, "--no-record"], { NEAR_TESTNET_RPC: RPC });
+  ok("a plain run says the market is paused and leaves it so: it never lifts a pause it didn't place", plain.status === 0 && /IT IS PAUSED/.test(plain.out) && (await view(M, "stats")).paused === true);
+  console.log("$ node tools/judge/upgrade-testnet.mjs --finish --no-record");
+  const finished = run("tools/judge/upgrade-testnet.mjs", [...upArgs, "--finish", "--no-record"], { NEAR_TESTNET_RPC: RPC });
+  ok("--finish re-checks a market left paused on the new code, and lifts the pause", finished === 0 && (await view(M, "stats")).paused === false);
+  ok("the books close once more, after everything above", await booksClose());
 
   // ---------- 5. --lock ----------
   if (LOCK) {

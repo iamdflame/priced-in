@@ -24,9 +24,12 @@
 //     and quotes as quote_buy does.
 //  8. --set-fee-bps <n>: the owner sets the fee. The STATE bytes must not move: the fee lives
 //     outside the state struct.
-//  9. Unpauses, if it paused, and records the upgrade in the deployment file (unless --no-record).
+//  9. Unpauses, if this run owns the pause, and records the upgrade in the deployment file (unless
+//     --no-record).
 // A step that fails after the pause leaves the market paused, on purpose, and says so.
-// --finish completes steps 8 and 9 after a run that was cut off once the code was deployed.
+// --finish takes over a pause an earlier run left behind and carries on from where that run
+// stopped, before or after its deploy, then unpauses. Without --finish a run never lifts a pause
+// it didn't place: someone else may have paused the market for a reason.
 import { Account, KeyPair, KeyPairSigner } from "near-api-js";
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -294,7 +297,7 @@ export async function upgradeMarket(network) {
   const asOwner = (methodName, args) => retry(() => owner.callFunction({ contractId: M, methodName, args, gas: 30n * TGAS }));
   const untilFinal = async (test) => { for (let i = 0; i < 30; i++) { if (await test()) return true; await sleep(1500); } return false; };
   const stuck = (why) => { console.error(`${why}${paused ? `\nTHE MARKET IS STILL PAUSED, on purpose: no USDC can leave it. Fix the cause, then run again with --finish, or call pause {"paused":false} as ${d.owner}.` : ""}`); process.exit(1); };
-  let paused = false, txHash = null;
+  let paused = FINISH && before.stats.paused, txHash = null; // whether this run lifts the pause
   const L = await import(pathToFileURL(path.join(REPO, "web/src/core/lmsr.ts")).href);
   // what the new views say, against raw storage and against the browser's port: run after a
   // deploy, and again by --finish, which has no snapshot from before it
@@ -334,7 +337,7 @@ export async function upgradeMarket(network) {
     txHash = tx?.transaction?.hash || tx?.transaction_outcome?.id || null;
     const failure = tx?.status?.Failure || tx?.receipts_outcome?.find((r) => r.outcome.status?.Failure)?.outcome.status.Failure;
     if (failure) stuck(`deploy failed: ${JSON.stringify(failure).slice(0, 300)}`);
-    console.log(`     tx ${txHash}`);
+    console.log(`     tx ${txHash ?? "unknown: the answer was lost, and the code hash below is the proof"}`);
     if (!(await untilFinal(async () => (await liveHash(M)) === wasm.hash))) stuck(`${wasm.hash} never reached finality on ${M}`);
 
     // ---------- 7. verify ----------
@@ -354,8 +357,7 @@ export async function upgradeMarket(network) {
     await checkViews(after.claims, stored);
     if (bad) stuck(`not finished: ${bad} check${bad === 1 ? "" : "s"} failed above`);
   } else {
-    // --finish: steps 1 and 2 above have just re-proved the state and the stored claims
-    paused = before.stats.paused;
+    // --finish on the new code: steps 1 and 2 above have just re-proved the state and the claims
     await checkViews(liveClaims, stored);
     if (bad) stuck(`not finished: ${bad} check${bad === 1 ? "" : "s"} failed above`);
   }
@@ -386,7 +388,7 @@ export async function upgradeMarket(network) {
     await asOwner("pause", { paused: false });
     if (!(await untilFinal(async () => (await view("stats")).paused === false))) { console.error("the unpause never reached finality"); process.exit(1); }
     ok("the market is live again", true);
-  }
+  } else if (end.paused) console.log(`     the market was already paused before this run and stays paused: --finish lifts a pause left by an earlier run`);
   if (RECORD && !bad && dep.code.market.code_hash !== wasm.hash) {
     dep.upgrades = [...(dep.upgrades || []), { account: M, from: dep.code.market.code_hash, to: wasm.hash, tx: txHash, at: new Date().toISOString(), source_rev: head, ...(FEE === null ? {} : { fee_bps: FEE }), note: `same state layout: code replaced in place, no migration (tools/judge/upgrade-${network}.mjs)` }];
     dep.code.market = { ...dep.code.market, code_hash: wasm.hash, sha256: wasm.sha256, ...(dep.code.market.size ? { size: wasm.size } : {}), source_rev: head };
