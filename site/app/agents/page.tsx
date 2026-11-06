@@ -30,7 +30,7 @@ const ABOUT: Record<string, string> = {
 export default async function AgentsPage() {
   const site = await getSite();
   const ag = await proof.agents();
-  if (!ag.ok) return <main id="main" className="wrap"><Head /><div className="result-gap"><ErrorState message={ag.error} /></div></main>;
+  if (!ag.ok) return <main id="main" className="wrap pg"><Head /><div className="result-gap"><ErrorState message={ag.error} /></div></main>;
   const agents = ag.value.agents;
   const [pfs, rats] = await Promise.all([Promise.all(agents.map((a) => proof.portfolio(a.account_id))), proof.rationales()]);
   const pf = new Map<string, Portfolio | null>(agents.map((a, i) => [a.account_id, pfs[i].ok ? pfs[i].value : null]));
@@ -57,7 +57,7 @@ export default async function AgentsPage() {
   })).sort((a, b) => b.at - a.at);
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <Head side={
         <div className="clockc">
           <span className="k"><span className="dot" aria-hidden="true" />Standings right now</span>

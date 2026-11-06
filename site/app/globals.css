@@ -1,18 +1,22 @@
 /* Priced In: Pulse. Graphite instrument panel, one luminous cyan for action and the live pulse.
    Ported from the kit (.apex/design/brand/pulse/assets/kit.css). Tokens live in styles/tokens.css as
    CSS variables for both themes; Tailwind reads them through @theme, so utilities and the component
-   classes in styles/ share one source. Route-owned sheets (styles/pages.css, styles/money.css) are
-   imported by their routes. */
+   classes in styles/ share one source. The shared sheets (base, shell, instruments, cards, kit, feedback)
+   load on every page. A route's sheet keeps every rule inside its root class (home.css in .home, market.css
+   and receipt.css in .market, pages.css in .pg), so it can't reach another route, whatever was visited
+   first: tests/unit/css-scope.test.ts holds that. Only pages.css is imported by its routes. */
 @import "tailwindcss";
 @import "./styles/tokens.css";
 @import "./styles/base.css";
 @import "./styles/shell.css";
 @import "./styles/instruments.css";
 @import "./styles/cards.css";
+@import "./styles/kit.css";
 @import "./styles/home.css";
 @import "./styles/market.css";
 @import "./styles/receipt.css";
 @import "./styles/feedback.css";
+@import "./styles/money.css";
 
 @custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
 

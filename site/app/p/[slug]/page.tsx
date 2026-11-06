@@ -26,7 +26,7 @@ export default async function ArticlePage({ params }: Params) {
   const { slug } = await params;
   if (!ARTICLES.some((a) => a.slug === slug)) notFound();
   const site = await getSite();
-  if (!site.ok) return <main id="main" className="wrap"><ErrorState message={site.error ?? "The prices didn’t load."} /></main>;
+  if (!site.ok) return <main id="main" className="wrap pg"><ErrorState message={site.error ?? "The prices didn’t load."} /></main>;
   const article = await articleOf(slug, site.facts, site.rulings?.rulings ?? []);
   if (!article) notFound();
   const facts = site.facts.filter((f) => f.page === slug);
@@ -36,7 +36,7 @@ export default async function ArticlePage({ params }: Params) {
   const signed = rewrites.ok ? rewrites.value.filter((r) => r.status === "signed") : [];
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <div className="enc">
         <div className="panel">
           <header className="enc-head">

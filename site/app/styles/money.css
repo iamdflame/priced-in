@@ -1,6 +1,7 @@
 /* Real money: the wallet button and menu, the money sheets (connect, deposit, trade, collect, withdraw),
    the portfolio and the terms. Same tokens and voice as the kit: graphite panels, one cyan action,
-   green and red only for Yes and No. Imported by the money components, so it ships with them. */
+   green and red only for Yes and No. The sheets open outside any route, so every class here carries a
+   money prefix (m-, w-, pf-, legal). */
 
 /* ---------- the wallet button in the nav ---------- */
 .wbtn { display: inline-flex; align-items: center; gap: 9px; height: 44px; padding: 0 6px 0 14px; border-radius: 999px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); color: var(--ink); font: 600 14.5px var(--disp); white-space: nowrap; }
@@ -65,7 +66,7 @@
 .m-get .v { font: 700 32px/1 var(--disp); letter-spacing: -.03em; color: var(--yes); white-space: nowrap; }
 .m-get .v.ink { color: var(--ink); }
 .m-rows { display: flex; flex-direction: column; gap: 2px; }
-.m-rows .kv b.mono, .mono { font-family: var(--mono); font-size: 13px; font-weight: 500; }
+.m-rows .kv b.mono { font-family: var(--mono); font-size: 13px; font-weight: 500; }
 
 /* what you're approving */
 .m-approve { display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 16px; background: var(--brand-soft); color: var(--ink); }
@@ -135,7 +136,6 @@
 .wentry .held b { color: var(--ink); }
 
 /* ---------- portfolio ---------- */
-.pf { padding-bottom: 48px; }
 .pf-top { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin: 28px 0 16px; flex-wrap: wrap; }
 .pf-top h1 { font: 700 36px/1.05 var(--disp); letter-spacing: -.025em; }
 .pf-top p { color: var(--ink2); margin-top: 6px; }

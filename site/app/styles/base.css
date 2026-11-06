@@ -24,7 +24,7 @@
 .num { font-feature-settings: 'tnum'; }
 .skip { position: absolute; left: 12px; top: -60px; z-index: 100; background: var(--brand); color: var(--brand-ink); padding: 10px 16px; border-radius: 999px; font-weight: 600; }
 .skip:focus { top: 12px; }
-main { flex: 1; padding-bottom: 56px; }
+main.wrap { flex: 1; padding-bottom: 56px; }
 .pagegap { padding-top: 32px; }
 .gap { margin-top: 12px; }
 .link { color: var(--brand-text); text-decoration: underline; text-decoration-color: color-mix(in oklch, var(--brand-text) 40%, transparent); text-underline-offset: 3px; }

@@ -49,7 +49,7 @@ export default async function DevelopersPage() {
   const exactQuote = quote?.ok && quote.value.quote.fee_bps !== undefined ? quote.value.quote : null;
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <PageHero
         kick="Developers · the truth API"
         title="Ask the market if it’s true."

@@ -23,7 +23,7 @@ export default async function EncyclopediaPage() {
     .filter((a) => a.facts.length > 0)
     .sort((a, b) => b.facts.length - a.facts.length);
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <PageHero kick="The encyclopedia, priced" title="Read Wikipedia with the odds on." lede={<>Every sentence with a market is tinted by what the money says: <b>red if it looks false, green if it looks true</b>. Tap one to bet.</>} />
       {site.ok ? (
         <div className="pagelist shelf">

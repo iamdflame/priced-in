@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "../Icon";
-import "@/app/styles/money.css";
 import { canAddMoney } from "@/lib/money/geo";
 import { openSheet, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
 import { fmtMicro } from "@/lib/money/units";

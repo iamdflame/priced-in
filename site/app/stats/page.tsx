@@ -28,7 +28,7 @@ const usd = (micro: string | number) => Number(micro) / 1e6;
 export default async function StatsPage() {
   const site = await getSite();
   const [st, ag, ev] = await Promise.all([proof.stats(), proof.agents(), api.events()]);
-  if (!site.ok) return <main id="main" className="wrap"><Head asOf={null} /><div className="result-gap"><ErrorState message={site.error ?? "The numbers didn’t load."} /></div></main>;
+  if (!site.ok) return <main id="main" className="wrap pg"><Head asOf={null} /><div className="result-gap"><ErrorState message={site.error ?? "The numbers didn’t load."} /></div></main>;
   const pfs = ag.ok ? await Promise.all(ag.value.agents.map((a) => proof.portfolio(a.account_id))) : [];
   const agentPnl = pfs.reduce((n, p) => n + (p.ok ? p.value.totals.pnl_usd : 0), 0);
   const agentPnlKnown = pfs.length > 0 && pfs.every((p) => p.ok);
@@ -78,7 +78,7 @@ export default async function StatsPage() {
   const thinking = ag.ok ? Object.values(ag.value.state.inference ?? {}).reduce((n, x) => n + (x.cost_usd ?? 0), 0) : null;
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <Head asOf={site.asOf} side={s ? (
         <div className="clockc">
           <span className="k"><Icon name="shield" />USDC held by the market contract</span>

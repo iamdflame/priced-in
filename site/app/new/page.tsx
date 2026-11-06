@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function NewFactPage() {
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <PageHero
         live={false}
         kick="Price your own claim"

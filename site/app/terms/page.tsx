@@ -2,7 +2,6 @@
 // read from where the site enforces them, so this page can't drift from the rules.
 import type { Metadata } from "next";
 import Link from "next/link";
-import "../styles/money.css";
 import { REGIONS } from "@/lib/money/geo";
 import { LIMITS } from "@/lib/money/rules";
 import { MARKET_ID } from "@/lib/nav";

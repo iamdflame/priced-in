@@ -2,7 +2,6 @@
 // The market ticket's real-money line, next to the free $1: bet with the wallet, sell what you hold, or
 // collect what you won. It reads this wallet's position in this market from the chain.
 import { useEffect, useState } from "react";
-import "@/app/styles/money.css";
 import { moneyChain, type Position } from "@/lib/money/chain";
 import { canAddMoney, canTakeOut } from "@/lib/money/geo";
 import { openSheet, useGeo, useWallet, type SheetReq } from "@/lib/money/hooks";

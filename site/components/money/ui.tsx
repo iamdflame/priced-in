@@ -2,7 +2,6 @@
 // The money screens' parts: the sheet (a dialog on desktop, a bottom sheet on the phone), the approval
 // box that says in plain sentences what the wallet is about to sign, the amount field, the region line,
 // the QR code and the copyable address.
-import "@/app/styles/money.css";
 import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import QRCode from "qrcode";

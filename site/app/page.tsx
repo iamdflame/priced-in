@@ -23,7 +23,7 @@ function freeBetsOffReason({ lane }: Site): string | null {
 
 export default async function Home() {
   const site = await getSite();
-  if (!site.ok) return <main id="main" className="wrap"><Intro /><ErrorState message={site.error ?? "The market didn’t answer."} /></main>;
+  if (!site.ok) return <main id="main" className="wrap home"><Intro /><ErrorState message={site.error ?? "The market didn’t answer."} /></main>;
   const byId = new Map(site.facts.map((f) => [f.id, f]));
   const lead = leadFact(site.facts);
   const ruling = leadRuling(site.settled, (id) => byId.get(id)?.trades ?? 0);

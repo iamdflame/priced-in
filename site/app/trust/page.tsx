@@ -68,7 +68,7 @@ function ProofCard({ p }: { p: Proof }) {
   const good = p.verified && p.registered?.match;
   const line = (ok: boolean | undefined, text: ReactNode) => <li className={ok ? "" : "fail"}><Icon name={ok ? "check" : "x"} /><span>{text}</span></li>;
   return (
-    <article className="panel proof">
+    <article className="panel proofc">
       <ModelBadge model={p.model} />
       <p className={`sig ${good ? "" : "bad"}`}><Icon name={good ? "check" : "alert"} />{good ? "Attested, and the key matches mainnet" : "A check failed"}</p>
       <ul className="checks">
@@ -111,7 +111,7 @@ export default async function TrustPage() {
   ];
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <PageHero
         kick="Trust · check it yourself"
         title="Nobody can change the rules quietly. Not even us."

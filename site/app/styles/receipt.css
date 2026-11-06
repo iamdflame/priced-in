@@ -1,14 +1,12 @@
 /* The receipt after a bet. */
-/* Receipt */
+
+:where(.market) {
 .sheet { width: min(1120px, calc(100vw - 48px)); max-height: calc(100dvh - 48px); margin: auto; padding: 0; border: 0; overflow-y: auto; border-radius: var(--r-xl); background: var(--bg); color: var(--ink); box-shadow: var(--lift), inset 0 0 0 1px var(--line-strong); }
 .sheet[open] { animation: rise .45s var(--ease-out); }
 .sheet::backdrop { background: var(--scrim); backdrop-filter: blur(6px); }
 .sheet-close { position: sticky; top: 10px; z-index: 3; margin: 10px 10px -54px auto; }
 .rc { display: grid; grid-template-columns: 480px minmax(0, 1fr); gap: 16px; padding: 16px; align-items: stretch; }
 .slip { position: relative; padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; overflow: hidden; background: radial-gradient(90% 60% at 50% 30%, var(--glow), transparent 72%), var(--panel); }
-.ok { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: var(--yes); font-size: 14px; }
-.ok .ic { width: 18px; height: 18px; stroke-width: 2.4; }
-.ok.wait { color: var(--ink2); }
 .slip h2 { font: 700 30px/1.05 var(--disp); letter-spacing: -.026em; margin-top: 2px; padding-right: 36px; }
 .slip .lq { font-size: 14.5px; line-height: 1.4; color: var(--ink2); margin-top: -6px; }
 .move { display: grid; grid-template-columns: 180px minmax(0, 1fr); gap: 18px; align-items: center; }
@@ -17,30 +15,12 @@
 .big-move i { font-style: normal; font-size: .54em; }
 .move .lab { font-size: 13.5px; }
 .lines { display: flex; flex-direction: column; gap: 2px; }
-.hashv { font: 500 13px var(--mono); color: var(--ink2); }
-.acts { display: flex; gap: 8px; margin-top: auto; flex-wrap: wrap; }
-.acts .primary { flex: 1; }
 .side { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .side .panel { padding: 16px 20px; }
 .ph { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; }
 .ph h3 { font: 600 16px var(--disp); }
-.sig { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; color: var(--yes); white-space: nowrap; min-height: 32px; }
-.sig.wait { color: var(--ink3); font-weight: 500; }
-.sig.bad { color: var(--no); }
-.sig .ic { width: 15px; height: 15px; stroke-width: 2.4; }
-.ba { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px 12px; font: 400 15.5px/1.4 var(--quote); }
-.ba span { font: 500 12.5px/1.8 var(--text); color: var(--ink3); }
-.ba del { color: var(--ink2); text-decoration-color: var(--no); text-decoration-thickness: 1.5px; }
-.ba ins { text-decoration: none; background: var(--yes-bg); border-radius: 4px; padding: 0 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 .chipline { display: flex; gap: 6px; margin-top: 10px; font-size: 12.5px; color: var(--ink3); align-items: center; }
 .chipline .ic { width: 16px; height: 16px; }
-.checks { margin-top: 10px; display: flex; flex-direction: column; gap: 4px; font-size: 12.5px; color: var(--ink2); }
-.checks li { display: flex; gap: 8px; align-items: flex-start; }
-.checks .ic { width: 14px; height: 14px; margin-top: 2px; stroke-width: 2.6; color: var(--yes); }
-.checks .skip .ic { color: var(--ink3); } .checks .fail .ic { color: var(--no); }
-.waiting { display: flex; align-items: center; gap: 10px; font-size: 14px; color: var(--ink3); padding: 6px 0; }
-.spin { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--line-strong); border-top-color: var(--brand); animation: pi-spin .8s linear infinite; flex: none; }
-@keyframes pi-spin { to { transform: rotate(360deg); } }
 
 
 @media (max-width: 1240px) {
@@ -54,8 +34,6 @@
   .slip h2 { font-size: 26px; }
   .move { grid-template-columns: 120px minmax(0, 1fr); gap: 12px; }
   .big-move { font-size: 46px; } .big-move .arr { width: 18px; height: 18px; }
-  .acts .primary { flex: 1 1 100%; }
-  .acts .btn:not(.primary) { flex: 1; }
   .side .panel { padding: 14px 16px; }
-  .ba { grid-template-columns: 1fr; gap: 2px; }
+}
 }

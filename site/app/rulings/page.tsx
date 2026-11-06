@@ -36,7 +36,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const site = await getSite();
   const R = site.rulings;
   if (!site.ok || !R) {
-    return <main id="main" className="wrap"><Head next={null} checker={null} /><div className="result-gap"><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
+    return <main id="main" className="wrap pg"><Head next={null} checker={null} /><div className="result-gap"><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
   }
   const byId = new Map(site.facts.map((f) => [f.id, f]));
   const { all, settled, medianMs, paidUsd, unanimous } = rulingRecord(R.rulings);
@@ -48,7 +48,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const reopened = all.flatMap((r) => (r.correction ? [r.correction.claim_id] : []));
 
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap pg">
       <Head next={R.next_ruling_at} checker={R.checker ?? null} live={live} />
       <Kpis label="The record so far" items={[
         { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled on-chain" },
@@ -166,7 +166,7 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
       </div>
       {f && (
         <div className="case-side">
-          <div className="feature-dial"><Dial p={f.price} label="chance it’s true" sizes="230px" /></div>
+          <div className="case-dial"><Dial p={f.price} label="chance it’s true" sizes="230px" /></div>
           <p className="dialcap"><b>What the market said</b>{plural(f.trades, "bet")}, before the judges ruled it {verdict.toLowerCase()}</p>
         </div>
       )}

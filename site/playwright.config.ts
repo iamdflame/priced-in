@@ -12,11 +12,18 @@ export default defineConfig({
   workers: 1,
   reporter: [["list"]],
   outputDir: "e2e-results",
-  use: { baseURL: BASE_URL, trace: "retain-on-failure" },
+  use: { baseURL: BASE_URL, trace: "retain-on-failure", actionTimeout: 20_000 },
   webServer: { command: "npm run start", url: BASE_URL, reuseExistingServer: true, timeout: 60_000 },
   projects: [
     { name: "desktop", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, testMatch: /flow.spec/ },
     { name: "phone", use: { ...devices["Pixel 7"], viewport: { width: 390, height: 844 } }, testMatch: /layout\.spec/ },
     { name: "pages", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, testMatch: /pages\.spec/ },
+    { name: "navigation", use: { ...devices["Desktop Chrome"] }, testMatch: /navigation.spec/ },
+    { name: "widths", use: { ...devices["Desktop Chrome"] }, testMatch: /widths.spec/ },
+    { name: "click", use: { ...devices["Desktop Chrome"] }, testMatch: /click.spec/ },
+    // judges use Safari: the main flows again in every engine
+    { name: "firefox", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } }, testMatch: /(flow|browsers).spec/ },
+    { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } }, testMatch: /(flow|browsers).spec/ },
+    { name: "iphone", use: { ...devices["iPhone 14"] }, testMatch: /browsers.spec/ },
   ],
 });

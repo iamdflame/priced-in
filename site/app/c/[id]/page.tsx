@@ -40,7 +40,7 @@ export default async function MarketPage({ params, searchParams }: { params: Par
   const claim = recorded ? preBetClaim() : r.value;
   const side = search.side === "yes" || search.side === "no" ? search.side : null;
   return (
-    <main id="main" className="wrap">
+    <main id="main" className="wrap market">
       <div className="mk">
         <MarketHead f={toFact(claim)} />
         <Suspense fallback={<MarketSkeleton />}>

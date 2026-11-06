@@ -19,7 +19,7 @@ export default async function PostPage({ params }: Params) {
   const { user, id } = await params;
   if (!HANDLE.test(user) || !POST_ID.test(id)) notFound();
   return (
-    <main id="main" className="wrap narrow">
+    <main id="main" className="wrap narrow pg">
       <h1 className="pagetitle">Fact-check this post</h1>
       <PostCheck user={user} id={id} />
     </main>

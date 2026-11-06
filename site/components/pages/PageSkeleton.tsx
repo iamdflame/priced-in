@@ -4,7 +4,7 @@ import { Sk } from "../States";
 
 export function PageSkeleton({ kpis = 5 }: { kpis?: number }) {
   return (
-    <main id="main" className="wrap" aria-busy="true" aria-label="Loading">
+    <main id="main" className="wrap pg" aria-busy="true" aria-label="Loading">
       <section className="phero" aria-hidden="true">
         <div className="sk-stack"><Sk w={220} h={14} /><Sk w="70%" h={48} /><Sk w="50%" h={48} /><Sk w="80%" h={18} /></div>
         <div className="phero-side"><Sk h={170} r={20} /></div>

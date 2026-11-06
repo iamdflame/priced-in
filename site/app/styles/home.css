@@ -1,13 +1,13 @@
 /* The home page: the promise, the numbers, the lead, the rails. Composed so that at 1440x900 the lead
    and the first row of cards share the first screen, and on a phone the lead's Yes/No does. */
 
+:where(.home) {
 /* The promise and the three steps */
 .intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 0 10px; }
 .intro h1 { font: 700 36px/1.04 var(--disp); letter-spacing: -.03em; }
 .intro p { margin-top: 4px; font: 500 16.5px/1.4 var(--text); color: var(--ink2); }
 .introside { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
-.judgesline, .intro .judgesline { display: flex; gap: 6px; align-items: center; margin: 0; font: 400 13px/1.4 var(--text); color: var(--ink2); }
-.judgesline .ic { width: 15px; height: 15px; color: var(--ink3); }
+.intro .judgesline { display: flex; gap: 6px; align-items: center; margin: 0; font: 400 13px/1.4 var(--text); color: var(--ink2); }
 .steps { display: flex; gap: 8px; flex: none; }
 .steps li { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 8px; height: 44px; border-radius: 999px; background: var(--surface); box-shadow: var(--card-shadow); font: 600 14.5px/1.2 var(--disp); color: var(--ink); white-space: nowrap; }
 .steps .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface2); font: 700 13px var(--disp); }
@@ -33,7 +33,6 @@
 .feature .bet { min-height: 58px; padding: 8px 16px; }
 .feature .bet b { font-size: 17px; } .feature .bet small { font-size: 13.5px; }
 .payline { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
-.freecash-text { color: inherit; }
 .fside { display: grid; grid-template-columns: 150px 200px; gap: 18px; align-items: center; }
 .feature-dial { width: 100%; max-width: 150px; }
 .feature-dial .scale { display: none; }
@@ -42,8 +41,6 @@
 .feature-dial.phone .mini { display: block; }
 .fstats { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; }
 .fstats .dialcap { text-align: left; }
-.dialcap { text-align: center; font-size: 12.5px; line-height: 1.35; color: var(--ink3); }
-.dialcap b { display: block; font: 600 14.5px/1.3 var(--disp); color: var(--ink); }
 .lastbets { width: 100%; font-size: 12px; line-height: 1.4; color: var(--ink2); display: flex; flex-direction: column; gap: 2px; }
 .lastbets li { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 
@@ -54,28 +51,31 @@
 .railcard h2 { font: 500 12.5px var(--text); color: var(--ink3); display: flex; align-items: center; gap: 6px; }
 .railcard h2 .ic { width: 14px; height: 14px; }
 .railcard p { font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
-.rbody > .rq { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 2px 0; font: 500 14px/1.3 var(--text); color: var(--ink2); }
+.rbody > .rq { display: block; padding: 2px 0; font: 500 14px/1.3 var(--text); color: var(--ink2); }
 .rbody > .rq:hover { color: var(--brand-text); }
 .ruled .rs { font-size: 12.5px; color: var(--ink3); }
 .rlinks { display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .rlinks a { min-height: 28px; display: inline-flex; align-items: center; }
-.verdict { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; font: 700 12px var(--disp); letter-spacing: .02em; }
-.verdict.false { background: var(--no-bg); color: var(--no); } .verdict.true { background: var(--yes-bg); color: var(--yes); }
-.deciding .timer { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.deciding .timer .big { font: 600 18px/1 var(--disp); letter-spacing: -.01em; font-feature-settings: 'tnum'; color: var(--ink2); }
-.deciding .timer .sm { font-size: 12.5px; color: var(--ink3); }
+.deciding .timer { min-height: 1.4em; font-size: 12.5px; line-height: 1.4; color: var(--ink3); font-feature-settings: 'tnum'; }
+.deciding .timer .num { color: var(--ink2); }
 
-/* The grid's heading carries its filters, so the first row of cards stays on the first screen */
-.home .sec { margin: 12px 0 0; flex-wrap: wrap; align-items: center; }
-.home .sec h2 { font-size: 22px; }
-.home .sec .tabs { padding: 0; }
-.home .sec .tab { height: 36px; padding: 0 12px; font-size: 14px; }
+
+/* The grid shows about three rows, then a button expands the rest in place, so the footer is close */
+.grid.clamped > :nth-child(n+13) { display: none; }
+.seeall { display: flex; justify-content: center; margin-top: 18px; }
+.grid.clamped:not(:has(> :nth-child(13))) + .seeall { display: none; }
 
 @media (max-width: 1240px) {
+  .grid.clamped > :nth-child(n+10) { display: none; }
+  .grid.clamped:has(> :nth-child(10)) + .seeall { display: flex; }
   .intro { flex-direction: column; align-items: flex-start; gap: 12px; }
   .introside { align-items: flex-start; }
   .hero { grid-template-columns: 1fr; }
   .rail { display: grid; grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 1000px) {
+  .grid.clamped > :nth-child(n+7) { display: none; }
+  .grid.clamped:has(> :nth-child(7)) + .seeall { display: flex; }
 }
 @media (max-width: 1100px) {
   .fside { grid-template-columns: 150px; }
@@ -84,12 +84,8 @@
 }
 /* Phone: the lead and its Yes/No on the first screen; the numbers just below */
 @media (max-width: 760px) {
-  .home { display: flex; flex-direction: column; }
-  .home > .intro { order: 1; }
-  .home > .hero { order: 2; }
-  .home > .proof { order: 3; padding: 14px 0 0; gap: 4px 14px; }
-  .home > .notice { order: 2; margin-bottom: 10px; }
-  .home > section, .home > div:not(.hero) { order: 4; }
+  .grid.clamped > :nth-child(n+5) { display: none; }
+  .grid.clamped:has(> :nth-child(5)) + .seeall { display: flex; }
   .proof .pub { margin-left: 0; }
   .proof .pub a { min-height: 44px; }
   .intro { padding: 12px 0 10px; gap: 8px; }
@@ -111,11 +107,27 @@
   .feature .bet { min-height: 56px; padding: 8px 10px; }
   .feature .bet b { font-size: 15.5px; } .feature .bet small { font-size: 12px; }
   .rail { display: flex; flex-direction: column; margin-top: 12px; gap: 12px; }
-  .home .sec { margin-top: 20px; }
-  .home .sec .tab { height: 44px; }
 }
 @media (max-width: 380px) {
   .fhd { grid-template-columns: minmax(0, 1fr) 80px; gap: 8px; }
   .feature-dial.phone { max-width: 80px; }
   .feature h2 { font-size: 19px; }
+}
+}
+
+/* Rules on the route's root itself */
+/* The grid's heading carries its filters, so the first row of cards stays on the first screen */
+.home .sec { margin: 12px 0 0; flex-wrap: wrap; align-items: center; }
+.home .sec h2 { font-size: 22px; }
+.home .sec .tabs { padding: 0; }
+.home .sec .tab { height: 36px; padding: 0 12px; font-size: 14px; }
+@media (max-width: 760px) {
+  .home { display: flex; flex-direction: column; }
+  .home > .intro { order: 1; }
+  .home > .hero { order: 2; }
+  .home > .proof { order: 3; padding: 14px 0 0; gap: 4px 14px; }
+  .home > .notice { order: 2; margin-bottom: 10px; }
+  .home > section, .home > div:not(.hero) { order: 4; }
+  .home .sec { margin-top: 20px; }
+  .home .sec .tab { height: 44px; }
 }
