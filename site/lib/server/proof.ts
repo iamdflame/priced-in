@@ -1,4 +1,4 @@
-// Server-side reads the proof pages need beyond getSite(): the activity log, every agent's reasons,
+// The reads the proof pages need beyond getSite(): the activity log, every agent's reasons,
 // portfolios, attestation proofs, the truth API's own answers, and the few things only the chain
 // can say honestly (the market's `stats`, its code hash, its keys, a model's registered key, and a
 // verdict transaction's own arguments). Every read returns a Res (never throws) with a short timeout
@@ -7,7 +7,7 @@ import "server-only";
 import { cache } from "react";
 import { API_ORIGIN, type Res } from "./api";
 import { MARKET_ID } from "../nav";
-import type { Rationale } from "../core/api";
+import type { PostResult, Rationale } from "../core/api";
 
 async function get<T>(path: string, revalidate = 15, timeoutMs = 8000): Promise<Res<T>> {
   try {
@@ -85,19 +85,30 @@ export interface Proof {
   gpu?: { verified?: boolean; overall?: boolean; arch?: string; gpus?: number; [k: string]: unknown } | null;
 }
 
-export const more = {
+/** The truth API's terms: GET /v1. `payments` is null while x402 is off. */
+export interface TruthTerms { name: string; network: string; contract: string; credence: { path: string; free_per_ip_per_day: number; payments: unknown | null }; quote: string; mcp: string }
+
+export interface CredenceClaim {
+  claim_id: number; text: string; page: string; credence: number; summary: string; trades: number; volume_usd: number; open_interest_usd: number;
+  match?: { kind: string; score: number };
+  resolution: { state: string; status: string; note: string };
+}
+
+export interface Credence { query?: string; matched: number; answer: string; claims: CredenceClaim[]; free?: { limit: number; remaining: number } }
+
+export interface TruthQuote { text: string; quote: { claim_id: number; side: string; amount_usd: number; shares: number; avg_price: number; payout_if_right_usd: number; price_yes_before: number; price_yes_after: number } }
+
+export const proof = {
   activity: (limit = 200) => get<{ activity: ActivityItem[]; asOf: number }>(`/api/activity?limit=${limit}`, 15),
   rationales: (q = "") => get<{ rationales: (Rationale & { policy?: { reason?: string; edge?: number }; source_checked?: { status: number } })[] }>(`/api/rationales${q}`, 30),
   agents: () => get<AgentsDoc>("/api/agents", 60),
   portfolio: (trader: string) => get<Portfolio>(`/api/portfolio?trader=${encodeURIComponent(trader)}`, 60),
   attestations: () => get<{ proofs: Proof[]; files: string[]; check?: string }>("/api/attestations", 600),
-  v1: () => get<Record<string, any>>("/api/v1", 300),
-  credence: (q: string) => get<Record<string, any>>(`/api/v1/credence?${q}`, 300),
-  quote: (claim: number, side: "yes" | "no", usd: number) => get<Record<string, any>>(`/api/v1/quote?claim=${claim}&side=${side}&amount_usd=${usd}`, 60),
-  post: (id: string) => get<Record<string, any>>(`/api/post/${encodeURIComponent(id)}`, 300, 20000),
-  rewrites: (page: string) => get<{ rewrites: any[] }>(`/api/rewrites?page=${encodeURIComponent(page)}`, 60),
+  truthTerms: () => get<TruthTerms>("/api/v1", 300),
+  credence: (query: string) => get<Credence>(`/api/v1/credence?${query}`, 300),
+  quote: (claim: number, side: "yes" | "no", usd: number) => get<TruthQuote>(`/api/v1/quote?claim=${claim}&side=${side}&amount_usd=${usd}`, 60),
+  post: (id: string) => get<PostResult>(`/api/post/${encodeURIComponent(id)}`, 300, 20000),
   stats: () => view<MarketStats>("stats", {}, MARKET_ID, 30),
-  getModel: (model: string) => view<{ signing_address_hex: string; extras_json?: string } | null>("get_model", { model }, MARKET_ID, 600),
   account: (account: string) => rpc<{ code_hash: string; amount: string; storage_usage: number; block_height: number }>("query", { request_type: "view_account", finality: "final", account_id: account }, 300),
   keys: (account: string) => rpc<{ keys: { public_key: string; access_key: { nonce: number; permission: "FullAccess" | { FunctionCall: { receiver_id: string; method_names: string[]; allowance: string | null } } } }[] }>("query", { request_type: "view_access_key_list", finality: "final", account_id: account }, 300),
 };

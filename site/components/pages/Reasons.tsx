@@ -6,13 +6,7 @@ import { useState } from "react";
 import { Ago } from "../Live";
 import { Icon } from "../Icon";
 import { explorerTx, money } from "@/lib/format";
-
-export interface ReasonItem {
-  persona: string; claimId: number; question: string; side: string; sizeUsd: number; credence: number; priceBefore: number;
-  priceAfter: number | null; rationale: string; why: string | null; at: number; tx: string | null; source: string | null; sourceTitle: string | null;
-}
-
-export const isBet = (s: string) => s === "yes" || s === "no" || s.startsWith("sell");
+import { isBetSide, type ReasonItem } from "@/lib/reasons";
 
 function sideWords(r: ReasonItem) {
   if (r.side === "yes") return <span className="chip yes">Bet {money(r.sizeUsd)} on true</span>;
@@ -25,9 +19,9 @@ function sideWords(r: ReasonItem) {
 export function Reasons({ items, limit = 30 }: { items: ReasonItem[]; limit?: number }) {
   const [f, setF] = useState<"all" | "bets" | "held">("all");
   const [more, setMore] = useState(false);
-  const all = items.filter((r) => (f === "all" ? true : f === "bets" ? isBet(r.side) : !isBet(r.side)));
+  const all = items.filter((r) => (f === "all" ? true : f === "bets" ? isBetSide(r.side) : !isBetSide(r.side)));
   const list = more ? all : all.slice(0, limit);
-  const n = { all: items.length, bets: items.filter((r) => isBet(r.side)).length, held: items.filter((r) => !isBet(r.side)).length };
+  const n = { all: items.length, bets: items.filter((r) => isBetSide(r.side)).length, held: items.filter((r) => !isBetSide(r.side)).length };
   return (
     <div>
       <div className="tabs" role="tablist" aria-label="Filter reasons">
@@ -51,7 +45,7 @@ export function Reasons({ items, limit = 30 }: { items: ReasonItem[]; limit?: nu
               <p className="t">{r.rationale}</p>
               {(r.why || r.tx || r.source) && (
                 <p className="why">
-                  {r.why && !isBet(r.side) ? <>Why it held off: {r.why}. </> : null}
+                  {r.why && !isBetSide(r.side) ? <>Why it held off: {r.why}. </> : null}
                   {r.source ? <a className="link" href={r.source} target="_blank" rel="noopener">{r.sourceTitle ?? "Its source"}</a> : null}
                   {r.tx ? <> · <a className="link" href={explorerTx(r.tx)} target="_blank" rel="noopener">the bet on NEAR</a></> : null}
                 </p>

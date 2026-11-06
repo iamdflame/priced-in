@@ -8,6 +8,9 @@ export const pctOf = (p: number, live = true) => {
 
 export const money = (usd: number, digits = 2) => `$${usd.toFixed(digits)}`;
 
+/** +$0.20, −$0.27, and $0.00 for anything that rounds to nothing. */
+export const signedMoney = (usd: number) => (Math.abs(usd) < 0.005 ? "$0.00" : `${usd > 0 ? "+" : "−"}${money(Math.abs(usd))}`);
+
 export const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** FGFhi1…BBvc6 */

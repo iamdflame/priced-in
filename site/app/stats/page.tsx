@@ -4,16 +4,17 @@
 // each visit; small numbers are shown as they are.
 import "../styles/pages.css";
 import type { Metadata } from "next";
-import type React from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { ErrorState } from "@/components/States";
 import { Kpis, PageHero, SHead } from "@/components/pages/Kit";
 import { Calibration, Spread, TopicBars, VolumeChart } from "@/components/pages/StatCharts";
-import { clockUtc, dayTimeUtc, explorerAccount, money, plural, span } from "@/lib/format";
+import { clockUtc, dayTimeUtc, explorerAccount, money, plural, signedMoney, span } from "@/lib/format";
 import { MARKET_ID } from "@/lib/nav";
+import { rulingRecord } from "@/lib/record";
 import { api } from "@/lib/server/api";
-import { more } from "@/lib/server/more";
+import { proof } from "@/lib/server/proof";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 30;
@@ -26,9 +27,9 @@ const usd = (micro: string | number) => Number(micro) / 1e6;
 
 export default async function StatsPage() {
   const site = await getSite();
-  const [st, ag, ev] = await Promise.all([more.stats(), more.agents(), api.events()]);
+  const [st, ag, ev] = await Promise.all([proof.stats(), proof.agents(), api.events()]);
   if (!site.ok) return <main id="main" className="wrap"><Head asOf={null} /><div style={{ marginTop: 16 }}><ErrorState message={site.error ?? "The numbers didn’t load."} /></div></main>;
-  const pfs = ag.ok ? await Promise.all(ag.value.agents.map((a) => more.portfolio(a.account_id))) : [];
+  const pfs = ag.ok ? await Promise.all(ag.value.agents.map((a) => proof.portfolio(a.account_id))) : [];
   const agentPnl = pfs.reduce((n, p) => n + (p.ok ? p.value.totals.pnl_usd : 0), 0);
   const agentPnlKnown = pfs.length > 0 && pfs.every((p) => p.ok);
   const s = st.ok ? st.value : null;
@@ -55,10 +56,7 @@ export default async function StatsPage() {
   const feeSince = feeEv?.blockTimestampMs ?? null;
   const betsSinceFee = feeSince ? bets.filter((b) => b.at > feeSince).length : null;
 
-  const rulings = site.rulings?.rulings ?? [];
-  const settledR = rulings.filter((r) => r.status === "settled" && r.settled_at);
-  const times = settledR.map((r) => r.settled_at! - r.opened_at).sort((a, b) => a - b);
-  const med = times.length ? times[Math.floor((times.length - 1) / 2)] : null;
+  const record = rulingRecord(site.rulings?.rulings ?? []);
   const settled = site.facts.filter((f) => f.status === "settled" && f.outcome !== null);
   const cal = settled.map((f) => ({ id: f.id, p: f.price, o: f.outcome ? 1 : 0 }));
   const brier = cal.length ? cal.reduce((n, x) => n + (x.p - x.o) ** 2, 0) / cal.length : null;
@@ -72,7 +70,7 @@ export default async function StatsPage() {
     ["bonds_micro", "Challenge bonds", "posted against doubted facts"],
     ["bounties_micro", "Bounties", "rewards for finding wrong facts"],
   ] as const : [];
-  const sum = s ? buckets.reduce((n, [k]) => n + BigInt((s as any)[k]), 0n) : 0n;
+  const sum = s ? buckets.reduce((n, [k]) => n + BigInt(s[k]), BigInt(0)) : BigInt(0);
   const closes = s ? sum === BigInt(s.held_micro) : false;
   const thinking = ag.ok ? Object.values(ag.value.state.inference ?? {}).reduce((n, x) => n + (x.cost_usd ?? 0), 0) : null;
 
@@ -90,7 +88,7 @@ export default async function StatsPage() {
         { v: site.totals.trades, l: "bets placed", s: `${agentBets} by AI traders, ${visitors} free $1 bets` },
         { v: money(volume), l: "bet so far", s: "real USDC, every bet on-chain" },
         { v: s ? money(usd(s.fees_micro)) : "—", l: "fees collected", s: s ? `${s.fee_bps / 100}% per bet${feeSince ? `, since ${dayTimeUtc(feeSince)}` : ""}` : "couldn’t read the contract" },
-        { v: agentPnlKnown ? `${agentPnl < -0.004 ? "−" : agentPnl > 0.004 ? "+" : ""}${money(Math.abs(agentPnl))}` : "—", l: "AI traders’ profit", s: "all three together", tone: agentPnl > 0.004 ? "pos" : agentPnl < -0.004 ? "neg" : undefined },
+        { v: agentPnlKnown ? signedMoney(agentPnl) : "—", l: "AI traders’ profit", s: "all three together", tone: agentPnl >= 0.005 ? "pos" : agentPnl <= -0.005 ? "neg" : undefined },
       ]} />
       {s && usd(s.fees_micro) === 0 && betsSinceFee === 0 && (
         <p className="fine" style={{ marginTop: 8 }}>No fee yet: the 1% fee was switched on {feeSince ? clockUtc(feeSince) : "recently"}, and no bet has been placed since. The first one will show here.</p>
@@ -117,11 +115,11 @@ export default async function StatsPage() {
       <div className="charts2">
         <div className="panel chartc">
           <h3>From doubt to paid</h3>
-          <p className="sub">{settledR.length ? `${plural(settledR.length, "ruling")} settled` : "No ruling has settled yet"}</p>
+          <p className="sub">{record.settled.length ? `${plural(record.settled.length, "ruling")} settled` : "No ruling has settled yet"}</p>
           <div className="books" style={{ marginTop: 14, gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
-            <div><b>{rulings.length}</b><span>{rulings.length === 1 ? "fact challenged" : "facts challenged"}</span></div>
-            <div><b>{med ? span(med) : "—"}</b><span>{times.length > 1 ? "median, doubt to paid" : "doubt to paid"}</span></div>
-            <div><b>{money(settledR.reduce((n, r) => n + (r.payout_usd ?? 0), 0))}</b><span>paid to winners</span></div>
+            <div><b>{record.all.length}</b><span>{record.all.length === 1 ? "fact challenged" : "facts challenged"}</span></div>
+            <div><b>{record.medianMs === null ? "—" : span(record.medianMs)}</b><span>{record.settled.length > 1 ? "median, doubt to paid" : "doubt to paid"}</span></div>
+            <div><b>{money(record.paidUsd)}</b><span>paid to winners</span></div>
           </div>
           <p className="note">Each ruling: three AI judges sign verdicts within minutes, then 10 minutes for objections, then the keeper settles. <Link className="link" href="/rulings">See every ruling</Link></p>
         </div>
@@ -144,7 +142,7 @@ export default async function StatsPage() {
         <div className="panel" style={{ padding: 16 }}>
           <div className="books">
             <div style={{ background: "var(--surface2)" }}><b>{money(usd(s.held_micro))}</b><span>USDC held by the contract</span></div>
-            {buckets.map(([k, l, d]) => <div key={k}><b>{money(usd((s as any)[k]))}</b><span><b style={{ display: "inline", font: "inherit", color: "var(--ink2)" }}>{l}</b>: {d}</span></div>)}
+            {buckets.map(([k, l, d]) => <div key={k}><b>{money(usd(s[k]))}</b><span><b style={{ display: "inline", font: "inherit", color: "var(--ink2)" }}>{l}</b>: {d}</span></div>)}
           </div>
           <p className="closes">
             {closes ? <span className="ok"><Icon name="check" />The books close: the seven parts add up to exactly what the contract holds.</span> : <span className="sig bad"><Icon name="alert" />The parts don’t add up to what’s held. Check the contract.</span>}
@@ -157,13 +155,13 @@ export default async function StatsPage() {
   );
 }
 
-function Head({ asOf, side }: { asOf: number | null; side?: React.ReactNode }) {
+function Head({ asOf, side }: { asOf: number | null; side?: ReactNode }) {
   return (
     <PageHero
       kick={<>Live numbers{asOf ? ` · read ${clockUtc(asOf)}` : ""}</>}
       side={side}
       title="The whole market, in public."
-      lede={<>Every number here is read from the market contract and its event log on each visit. <b>Small numbers are shown as they are</b>: this market opened on 5 November 2026.</>}
+      lede={<>Every number here is read from the market contract and its event log on each visit. <b>Small numbers are shown as they are</b>: this market is days old, and you should see that.</>}
     />
   );
 }

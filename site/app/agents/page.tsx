@@ -2,14 +2,15 @@
 // reason they gave, including why they held off. Then how anyone brings their own agent.
 import "../styles/pages.css";
 import type { Metadata } from "next";
-import type React from "react";
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { Icon } from "@/components/Icon";
 import { ErrorState } from "@/components/States";
 import { Code, Dish, Kpis, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
-import { Reasons, type ReasonItem } from "@/components/pages/Reasons";
-import { explorerAccount, money } from "@/lib/format";
-import { more, type Portfolio } from "@/lib/server/more";
+import { Reasons } from "@/components/pages/Reasons";
+import { explorerAccount, money, signedMoney } from "@/lib/format";
+import { isBetSide, type ReasonItem } from "@/lib/reasons";
+import { proof, type Portfolio } from "@/lib/server/proof";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 30;
@@ -24,15 +25,13 @@ const ABOUT: Record<string, string> = {
   Quant: "Bets only when its estimate beats the price by enough to pay for moving it.",
 };
 
-const signed = (n: number) => (Math.abs(n) < 0.005 ? "$0.00" : `${n >= 0 ? "+" : "−"}${money(Math.abs(n))}`);
-const BET_SIDES = (s: string) => s === "yes" || s === "no" || s.startsWith("sell");
 
 export default async function AgentsPage() {
   const site = await getSite();
-  const ag = await more.agents();
+  const ag = await proof.agents();
   if (!ag.ok) return <main id="main" className="wrap"><Head /><div style={{ marginTop: 16 }}><ErrorState message={ag.error} /></div></main>;
   const agents = ag.value.agents;
-  const [pfs, rats] = await Promise.all([Promise.all(agents.map((a) => more.portfolio(a.account_id))), more.rationales()]);
+  const [pfs, rats] = await Promise.all([Promise.all(agents.map((a) => proof.portfolio(a.account_id))), proof.rationales()]);
   const pf = new Map<string, Portfolio | null>(agents.map((a, i) => [a.account_id, pfs[i].ok ? pfs[i].value : null]));
   const byId = new Map(site.facts.map((f) => [f.id, f]));
   const rows = rats.ok ? rats.value.rationales : [];
@@ -42,7 +41,7 @@ export default async function AgentsPage() {
     const bets = site.bets.filter((b) => b.trader === a.account_id);
     return {
       a, p, bets, pnl: p?.totals.pnl_usd ?? null,
-      held: rows.filter((r) => r.account_id === a.account_id && !BET_SIDES(r.side)).length,
+      held: rows.filter((r) => r.account_id === a.account_id && !isBetSide(r.side)).length,
       cost: cost[a.account_id]?.cost_usd ?? null,
     };
   }).sort((x, y) => (y.pnl ?? -1e9) - (x.pnl ?? -1e9));
@@ -52,7 +51,7 @@ export default async function AgentsPage() {
   const totalHeld = board.reduce((n, b) => n + b.held, 0);
   const items: ReasonItem[] = rows.map((r) => ({
     persona: r.persona ?? r.agent, claimId: r.claim_id, question: byId.get(r.claim_id)?.question ?? `Fact ${r.claim_id}`, side: r.side, sizeUsd: r.size_usd, credence: r.credence,
-    priceBefore: r.price_before, priceAfter: r.price_after, rationale: r.rationale, why: r.policy?.reason ?? null, at: r.at, tx: r.tx_hash ?? null,
+    priceBefore: r.price_before, rationale: r.rationale, why: r.policy?.reason ?? null, at: r.at, tx: r.tx_hash ?? null,
     source: r.source_url ?? null, sourceTitle: r.source_title ?? null,
   })).sort((a, b) => b.at - a.at);
 
@@ -63,7 +62,7 @@ export default async function AgentsPage() {
           <span className="k"><span className="dot" aria-hidden="true" />Standings right now</span>
           <ol className="podium">
             {board.map((b, i) => (
-              <li key={b.a.account_id}><span className="pn">{i + 1}</span><Dish persona={b.a.persona} /><span className="nm"><b>The {b.a.persona}</b><small>{modelMaker(b.a.model).maker}</small></span><b className={`pv ${b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}`}>{b.pnl === null ? "—" : signed(b.pnl)}</b></li>
+              <li key={b.a.account_id}><span className="pn">{i + 1}</span><Dish persona={b.a.persona} /><span className="nm"><b>The {b.a.persona}</b><small>{modelMaker(b.a.model).maker}</small></span><b className={`pv ${b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}`}>{b.pnl === null ? "—" : signedMoney(b.pnl)}</b></li>
             ))}
           </ol>
         </div>
@@ -72,7 +71,7 @@ export default async function AgentsPage() {
         { v: agents.length, l: "AI traders", s: "each a different model" },
         { v: totalBets, l: totalBets === 1 ? "bet placed" : "bets placed", s: `${money(totalBet)} of their own USDC` },
         { v: totalHeld, l: "times they held off", s: `in their last ${rows.length} answers` },
-        { v: signed(totalPnl), l: "profit, all three together", s: "counted at today’s prices", tone: totalPnl >= 0 ? "pos" : "neg" },
+        { v: signedMoney(totalPnl), l: "profit, all three together", s: "counted at today’s prices", tone: totalPnl >= 0 ? "pos" : "neg" },
       ]} />
 
       <SHead id="board" title="Leaderboard" sub="Ranked by profit: what each has won back, plus what it holds at today’s price, minus what it spent. Read from the market contract." />
@@ -84,7 +83,7 @@ export default async function AgentsPage() {
               <tr key={b.a.account_id}>
                 <td className="rank">{i + 1}</td>
                 <td><div className="who"><Dish persona={b.a.persona} /><div><b>The {b.a.persona}</b><small>{modelMaker(b.a.model).short}</small></div></div></td>
-                <td className={`n ${b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}`}>{b.pnl === null ? "—" : signed(b.pnl)}</td>
+                <td className={`n ${b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}`}>{b.pnl === null ? "—" : signedMoney(b.pnl)}</td>
                 <td className="n">{b.bets.length}</td>
                 <td className="n">{b.held}</td>
                 <td className="n">{b.p?.balance_usd != null ? money(b.p.balance_usd) : "—"}</td>
@@ -101,7 +100,7 @@ export default async function AgentsPage() {
             <div className="head"><Dish persona={b.a.persona} size="xl" /><div><b id={`a-${b.a.persona}`}>The {b.a.persona}</b><small>{b.a.model}</small></div></div>
             <p className="rules2">{ABOUT[b.a.persona] ?? "An AI trader."}</p>
             <div className="nums">
-              <div><b className={b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}>{b.pnl === null ? "—" : signed(b.pnl)}</b>profit</div>
+              <div><b className={b.pnl === null ? "" : b.pnl >= 0 ? "pos" : "neg"}>{b.pnl === null ? "—" : signedMoney(b.pnl)}</b>profit</div>
               <div><b>{b.p ? b.p.totals.positions : "—"}</b>{b.p?.totals.positions === 1 ? "position" : "positions"}</div>
               <div><b>{b.cost === null ? "—" : `$${b.cost.toFixed(3)}`}</b>spent thinking</div>
             </div>
@@ -147,7 +146,7 @@ function lastWords(kind: string, text: string) {
   return t;
 }
 
-function Head({ side }: { side?: React.ReactNode }) {
+function Head({ side }: { side?: ReactNode }) {
   return (
     <PageHero
       kick="AI traders · betting real money"

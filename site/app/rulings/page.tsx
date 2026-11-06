@@ -14,21 +14,20 @@ import { Countdown } from "@/components/Live";
 import { ReplayRuling } from "@/components/ReplayRuling";
 import { RulingBlock } from "@/components/Ruling";
 import { ErrorState } from "@/components/States";
-import { Kpis, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
+import { Kpis, ModelBadge, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
+import { rulingRecord } from "@/lib/record";
 import type { Ruling } from "@/lib/server/api";
-import { judgeWords, verdictTx } from "@/lib/server/more";
+import { judgeWords, verdictTx } from "@/lib/server/proof";
 import { agentsByClaim, getSite } from "@/lib/server/site";
 
 export const revalidate = 15;
 export const metadata: Metadata = {
   title: "Results: facts decided by three AI judges",
-  description: "Every doubted fact on Priced In, decided by three attested AI models that sign their verdicts on NEAR. The first: Tether’s T-Bills fact, ruled false in 20 minutes, $4.93 paid.",
+  description: "Every doubted fact on Priced In, decided by three attested AI models that sign their verdicts on NEAR, with the money paid and the corrected fact reopened.",
 };
-
-const median = (xs: number[]) => { if (!xs.length) return null; const s = [...xs].sort((a, b) => a - b); const m = s.length >> 1; return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2; };
 
 export default async function RulingsPage({ searchParams }: { searchParams: Promise<{ recorded?: string }> }) {
   const { recorded } = await searchParams;
@@ -36,16 +35,13 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const site = await getSite();
   const R = site.rulings;
   if (!site.ok || !R) {
-    return <main id="main" className="wrap"><Head next={null} note={null} checker={null} /><div style={{ marginTop: 16 }}><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
+    return <main id="main" className="wrap"><Head next={null} checker={null} /><div style={{ marginTop: 16 }}><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
   }
   const byId = new Map(site.facts.map((f) => [f.id, f]));
-  const all = [...R.rulings].sort((a, b) => b.opened_at - a.opened_at);
-  const settled = all.filter((r) => r.status === "settled");
-  const hero = settled.find((r) => r.claim_id === 18) ?? settled[0] ?? null;
+  const { all, settled, medianMs, paidUsd, unanimous } = rulingRecord(R.rulings);
+  // the first ruling on real money leads; the record below carries the rest
+  const hero = settled.at(-1) ?? null;
   const live = R.ruling_now ?? all.find((r) => r.status === "jury" || r.status === "window") ?? null;
-  const times = settled.filter((r) => r.settled_at).map((r) => r.settled_at! - r.opened_at);
-  const paid = settled.reduce((n, r) => n + (r.payout_usd ?? 0), 0);
-  const agreed = settled.filter((r) => r.verdicts.length >= 3 && new Set(r.verdicts.map((v) => v.verdict)).size === 1).length;
   const ruledIds = new Set(all.map((r) => r.claim_id));
   const queue = site.facts.filter((f) => f.caught && f.status === "open" && !ruledIds.has(f.id)).sort((a, b) => b.trades - a.trades || a.id - b.id);
   const byClaim = agentsByClaim(site.bets);
@@ -53,12 +49,12 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main id="main" className="wrap">
-      <Head next={R.next_ruling_at} note={R.next_ruling_note ?? null} checker={R.checker ?? null} live={live} />
+      <Head next={R.next_ruling_at} checker={R.checker ?? null} live={live} />
       <Kpis label="The record so far" items={[
         { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled and paid" },
-        { v: times.length ? span(median(times)!) : "—", l: "from doubt to paid", s: times.length > 1 ? "median" : "the one so far" },
-        { v: money(paid), l: "paid to the winners", s: "in USDC, on-chain" },
-        { v: <>{agreed}<i> of {settled.length}</i></>, l: "with all three judges agreeing", s: "each verdict signed separately" },
+        { v: medianMs === null ? "—" : span(medianMs), l: "from doubt to paid", s: settled.length > 1 ? "the median" : "the one so far" },
+        { v: money(paidUsd), l: "paid to the winners", s: "in USDC, on-chain" },
+        { v: <>{unanimous}<i> of {settled.length}</i></>, l: "with all three judges agreeing", s: "each verdict signed separately" },
         { v: queue.length, l: "facts Wikipedia may have wrong", s: "queued for the Checker" },
       ]} />
 
@@ -106,7 +102,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   );
 }
 
-function Head({ next, note, checker, live }: { next: number | null; note: string | null; checker: { account: string; balance_usd: number; lines_left: number; note?: string } | null; live?: Ruling | null }) {
+function Head({ next, checker, live }: { next: number | null; checker: { account: string; balance_usd: number; lines_left: number; note?: string } | null; live?: Ruling | null }) {
   return (
     <PageHero
       kick="Results · decided by three AI judges"
@@ -149,7 +145,7 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
         <div className="chips">
           <span className={`verdict-big ${verdict === "TRUE" ? "true" : ""}`}><Icon name="gavel" />Ruled {verdict}</span>
           {f && <span className="chip"><TopicIcon icon={f.icon} />{f.topic}</span>}
-          <span className="chip">The first ruling on real money · {dayTimeUtc(r.opened_at)}</span>
+          <span className="chip">First ruling on real money · {dayTimeUtc(r.opened_at)}</span>
         </div>
         <h2 id="case-h">{f ? <Link href={`/c/${r.claim_id}`}>{f.question}</Link> : r.claim}</h2>
         <div className="ba">
@@ -190,7 +186,7 @@ async function Judges({ r }: { r: Ruling }) {
         return (
           <article key={v.tx} className="panel jcard" aria-label={`${m.short}: ${v.verdict}`}>
             <div className="top">
-              <div className="who"><span className="mk" aria-hidden="true">{m.mark}</span><div><b title={v.model}>{m.short}</b><small>{m.maker} · judge {i + 1} of 3</small></div></div>
+              <ModelBadge model={v.model} note={`judge ${i + 1} of ${r.verdicts.length}`} />
               <span className={`verdict ${v.verdict === "TRUE" ? "true" : "false"}`}>{v.verdict}</span>
             </div>
             {words ? <blockquote>{words}</blockquote> : <p className="fine">The judge’s words are in its transaction; open it below.</p>}
@@ -210,7 +206,7 @@ async function Judges({ r }: { r: Ruling }) {
 
 function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
   const verdict = (r.outcome ?? r.provisional ?? "").toUpperCase();
-  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)}${r.payout_usd ? ` · ${money(r.payout_usd)} paid` : ""}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
+  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
   return (
     <div className="rrow">
       {f ? <span className="ti" aria-hidden="true"><Image src={`/art/${f.art}.webp`} alt="" width={72} height={72} style={{ objectFit: "cover" }} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
