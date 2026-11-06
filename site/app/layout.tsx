@@ -32,6 +32,11 @@ export const viewport: Viewport = {
 // mark is hidden for a visitor who dismissed it or has bet (keys: Live.tsx COACH_KEY, lib/client/mybets).
 const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pi-coach-v1')||localStorage.getItem('pricedin.bets.v1'))document.documentElement.dataset.coach='off'}catch(e){}`;
 
+/** The nav reads the URL in the browser; until then, bars of the same height on every screen, so nothing moves. */
+function NavPlaceholder() {
+  return <><div className="nav" style={{ height: 69 }} /><div className="pbar" /></>;
+}
+
 /** The strip reads the market on its own, so a slow API never holds up the page. */
 async function LiveBets() {
   const site = await getSite();
@@ -54,7 +59,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <a className="skip" href="#main">Skip to content</a>
         <Toasts>
-          <Suspense fallback={<div className="nav" style={{ height: 69 }} />}>
+          <Suspense fallback={<NavPlaceholder />}>
             <Nav />
           </Suspense>
           <Suspense fallback={<LiveStripSkeleton />}>
