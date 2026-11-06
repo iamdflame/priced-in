@@ -62,13 +62,13 @@ export default function AccuracyPage() {
       <section aria-labelledby="test">
         <SHead id="test" title="The test" sub="Two of three models must match, as on the chain. The right answers come from our corpus, checked against primary sources before this test existed." />
         <div className="panel boardwrap">
-          <table className="board">
+          <table className="board stack">
             <thead><tr><th scope="col">Who ruled</th><th scope="col" className="n">Right</th><th scope="col" className="n">Wrong</th><th scope="col" className="n">No ruling</th><th scope="col" className="n">Right when it ruled</th></tr></thead>
             <tbody>
-              <tr><td><b>The jury, with sources</b></td><td className="n">{s.right}</td><td className="n">{s.wrong}</td><td className="n">{s.declined}</td><td className="n">{pct(s.right, s.ruled)}</td></tr>
-              <tr><td>The jury, with no sources</td><td className="n">{n.right}</td><td className="n">{n.wrong}</td><td className="n">{n.declined}</td><td className="n">{pct(n.right, n.ruled)}</td></tr>
+              <tr><td><b>The jury, with sources</b></td><td className="n" data-l="Right">{s.right}</td><td className="n" data-l="Wrong">{s.wrong}</td><td className="n" data-l="No ruling">{s.declined}</td><td className="n" data-l="Right when it ruled">{pct(s.right, s.ruled)}</td></tr>
+              <tr><td>The jury, with no sources</td><td className="n" data-l="Right">{n.right}</td><td className="n" data-l="Wrong">{n.wrong}</td><td className="n" data-l="No ruling">{n.declined}</td><td className="n" data-l="Right when it ruled">{pct(n.right, n.ruled)}</td></tr>
               {Object.entries(s.single_models).map(([m, v]) => (
-                <tr key={m}><td>{short(m)} alone, with sources</td><td className="n">{v.right}</td><td className="n">{v.wrong}</td><td className="n">{v.abstained}</td><td className="n">{pct(v.right, v.right + v.wrong)}</td></tr>
+                <tr key={m}><td>{short(m)} alone, with sources</td><td className="n" data-l="Right">{v.right}</td><td className="n" data-l="Wrong">{v.wrong}</td><td className="n" data-l="No ruling">{v.abstained}</td><td className="n" data-l="Right when it ruled">{pct(v.right, v.right + v.wrong)}</td></tr>
               ))}
             </tbody>
           </table>
@@ -81,15 +81,15 @@ export default function AccuracyPage() {
       <section aria-labelledby="wrong">
         <SHead id="wrong" title="Every wrong ruling" sub="A wrong ruling can be disputed with a bond while its window is open. These would have needed one." />
         <div className="panel boardwrap">
-          <table className="board">
+          <table className="board stack">
             <thead><tr><th scope="col">The line</th><th scope="col">Our record</th><th scope="col">The jury</th><th scope="col">What happened</th></tr></thead>
             <tbody>
               {bench.wrong_rulings.map((w) => (
                 <tr key={w.id}>
                   <td className="last"><b>{w.claim}</b><br /><small>From Wikipedia: {w.article}</small></td>
-                  <td>{w.record === "current" ? "True" : "Out of date"}</td>
-                  <td>{w.panel === "TRUE" ? "True" : "False"}</td>
-                  <td className="last">{WHY[w.id] ?? "Not reviewed yet."}</td>
+                  <td data-l="Our record">{w.record === "current" ? "True" : "Out of date"}</td>
+                  <td data-l="The jury">{w.panel === "TRUE" ? "True" : "False"}</td>
+                  <td className="last long" data-l="What happened">{WHY[w.id] ?? "Not reviewed yet."}</td>
                 </tr>
               ))}
             </tbody>
@@ -100,11 +100,11 @@ export default function AccuracyPage() {
       <section aria-labelledby="liar">
         <SHead id="liar" title="Can someone lie to the jury?" sub="We attacked it ourselves, with the jury’s exact request. Two of three models decide." />
         <div className="panel boardwrap">
-          <table className="board">
+          <table className="board stack">
             <thead><tr><th scope="col">What the jury was given</th><th scope="col">The right result</th><th scope="col" className="n">Ruled false</th></tr></thead>
             <tbody>
               {SETS.map((x) => (
-                <tr key={x.key}><td>{x.label}</td><td>{x.want}</td><td className="n">{test.sets[x.key].panel_false} of {test.sets[x.key].cases}</td></tr>
+                <tr key={x.key}><td>{x.label}</td><td data-l="The right result">{x.want}</td><td className="n" data-l="Ruled false">{test.sets[x.key].panel_false} of {test.sets[x.key].cases}</td></tr>
               ))}
             </tbody>
           </table>
@@ -117,11 +117,11 @@ export default function AccuracyPage() {
       <section aria-labelledby="ask">
         <SHead id="ask" title="Can’t I just ask an AI?" sub="Yes, and it’s how you win. We tried it on the 10 lines we caught and 6 we know are true." />
         <div className="panel boardwrap">
-          <table className="board">
+          <table className="board stack">
             <thead><tr><th scope="col">Asked</th><th scope="col">On the 10 caught lines</th><th scope="col">On the 6 true lines</th></tr></thead>
             <tbody>
-              <tr><td>One AI with web search, one run</td><td>Found {web.caught.found_the_mistake}, unsure on {web.caught.unsure}, repeated {web.caught.repeated_the_error}</td><td>{web.control.right} right, unsure on {web.control.unsure}, {web.control.wrongly_doubted} wrongly doubted</td></tr>
-              <tr><td>Three AIs with no web, 3 runs each</td><td>Repeated the mistake in {noWeb.caught.repeated_the_error} of {noWeb.caught.answers} answers</td><td>Wrongly doubted {noWeb.control.wrongly_doubted} of {noWeb.control.answers} answers</td></tr>
+              <tr><td>One AI with web search, one run</td><td data-l="On the 10 caught lines">Found {web.caught.found_the_mistake}, unsure on {web.caught.unsure}, repeated {web.caught.repeated_the_error}</td><td data-l="On the 6 true lines">{web.control.right} right, unsure on {web.control.unsure}, {web.control.wrongly_doubted} wrongly doubted</td></tr>
+              <tr><td>Three AIs with no web, 3 runs each</td><td data-l="On the 10 caught lines">Repeated the mistake in {noWeb.caught.repeated_the_error} of {noWeb.caught.answers} answers</td><td data-l="On the 6 true lines">Wrongly doubted {noWeb.control.wrongly_doubted} of {noWeb.control.answers} answers</td></tr>
             </tbody>
           </table>
         </div>

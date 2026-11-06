@@ -368,6 +368,18 @@
   .rrow { grid-template-columns: 36px minmax(0, 1fr); padding: 12px 14px; }
   .rrow .r { grid-column: 1 / -1; }
   .board th:nth-child(n+5), .board td:nth-child(n+5) { display: none; }
+  /* /accuracy: long cells don't fit a phone's columns, so each row stacks into a labelled block */
+  .board.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  .board.stack, .board.stack tbody, .board.stack tr { display: block; }
+  .board.stack tr { padding: 14px 16px; border-bottom: 1px solid var(--line); }
+  .board.stack tr:last-child { border-bottom: 0; }
+  .board.stack td, .board.stack td:nth-child(n+5) { display: flex; justify-content: space-between; gap: 16px; padding: 3px 0; border: 0; text-align: right; font-size: 14.5px; color: var(--ink); white-space: normal; max-width: none; }
+  .board.stack td::before { content: attr(data-l); flex: none; font-size: 13.5px; color: var(--ink3); text-align: left; }
+  .board.stack td:first-child { display: block; padding: 0 0 6px; text-align: left; line-height: 1.35; font-weight: 500; }
+  .board.stack td:first-child::before { content: none; }
+  .board.stack td small { font-size: 13px; font-weight: 400; color: var(--ink3); }
+  .board.stack td.long { display: block; margin-top: 4px; text-align: left; color: var(--ink2); line-height: 1.45; }
+  .board.stack td.long::before { display: block; margin-bottom: 1px; }
   .board td, .board th { padding: 12px 10px; }
   .board .rank { width: 24px; font-size: 15px; }
   .rsn { padding: 12px 14px; grid-template-columns: 28px minmax(0, 1fr); gap: 10px; }
