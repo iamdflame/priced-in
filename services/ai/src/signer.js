@@ -13,17 +13,20 @@
 //     limited to buy, sell and redeem.
 //   - legacy agents with their own accounts (SIGNER_KEYS_FILE), under the same rule.
 //   - the operator's function-call keys (operator-market.json: anchor_rewrite and
-//     charge_inference; operator-swarm.json: sweep_escrow). A key allowing anything else is
-//     refused.
+//     charge_inference; operator-swarm.json: sweep_escrow; operator-keeper.json: finalize,
+//     expire_challenge and open_claim; operator-checker.json: challenge, on the Checker's own
+//     account). A key allowing anything else is refused.
 //
-// Requests: agents | trade | redeem | bill | anchor | issue_key | outcome. Every money request
+// Requests: agents | trade | redeem | bill | anchor | keep | open_claim | challenge | issue_key |
+// outcome. Every money request
 // carries an intent id. The intent and each signed transaction hash are journaled
 // (SIGNER_JOURNAL) BEFORE broadcast, the outcome after, so a restart neither forgets a spend nor
 // sends the same intent twice: a known intent returns its recorded outcome, and an intent whose
 // outcome is unknown is looked up on-chain by its hashes instead of being re-sent.
 //
 // Caps enforced here, whatever the agent process asks: $2 per bet, a daily spend cap per agent
-// (buys), a daily inference-bill cap per agent, buy/sell/redeem only for agents, and the
+// (buys), a daily inference-bill cap per agent, buy/sell/redeem only for agents, five corrected
+// lines opened and six challenges posted a day, at most $5 of liquidity on an opened line, and the
 // daily totals survive restarts because they are rebuilt from the journal.
 
 import { fork } from "node:child_process";
@@ -39,7 +42,32 @@ import { loadKeystore, newRunnerKey } from "./keystore.js";
 export const HARD_MAX_BET_MICRO = 2_000_000n; // $2: the policy cap, enforced again here
 export const HARD_MAX_BILL_MICRO = 5_000_000n; // $5 in one inference bill
 export const AGENT_METHODS = ["buy", "sell", "redeem"];
-export const OPERATOR_METHODS = { market: ["anchor_rewrite", "charge_inference"], swarm: ["sweep_escrow"] };
+// keeper: the ruling loop's permissionless steps plus opening a corrected line (an operator call);
+// checker: the Checker account's bond, one challenge at a time. Each key may call nothing else.
+export const OPERATOR_METHODS = { market: ["anchor_rewrite", "charge_inference"], swarm: ["sweep_escrow"], keeper: ["finalize", "expire_challenge", "open_claim"], checker: ["challenge"] };
+export const HARD_MAX_OPEN_B_MICRO = 5_000_000n; // a corrected line opens with at most $5 of liquidity
+const PAGE_RE = /^[a-z0-9-]{1,64}$/;
+
+/** Strict check of an open_claim for a corrected line. */
+export function validateOpen(o, { maxBMicro = HARD_MAX_OPEN_B_MICRO } = {}) {
+  if (!o || typeof o.text !== "string" || !o.text.trim()) throw new Error("open: text is required");
+  if (Buffer.byteLength(o.text, "utf8") > 600) throw new Error("open: text must be at most 600 bytes");
+  if (typeof o.page !== "string" || !PAGE_RE.test(o.page)) throw new Error("open: page must be a slug");
+  if (!["data", "document", "judgment"].includes(o.kind)) throw new Error("open: kind must be data, document or judgment");
+  if (!Number.isSafeInteger(o.p0_ppm) || o.p0_ppm < 1 || o.p0_ppm > 999_999) throw new Error("open: p0_ppm must be 1..999999");
+  if (!digits(o.b_micro, 12)) throw new Error("open: b_micro must be a decimal string");
+  const b = BigInt(o.b_micro), cap = maxBMicro < HARD_MAX_OPEN_B_MICRO ? maxBMicro : HARD_MAX_OPEN_B_MICRO;
+  if (b < 100_000n || b > cap) throw new Error(`open: b_micro must be 100000..${cap}`);
+  return { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro };
+}
+
+/** Strict check of the Checker's challenge. */
+export function validateChallenge(c) {
+  if (!c || !Number.isSafeInteger(c.claim_id) || c.claim_id < 0) throw new Error("challenge: claim_id must be a whole number");
+  if (typeof c.claimed_outcome !== "boolean") throw new Error("challenge: claimed_outcome must be true or false");
+  if (typeof c.evidence !== "string" || !c.evidence.trim() || Buffer.byteLength(c.evidence, "utf8") > 4000) throw new Error("challenge: evidence must be 1..4000 bytes");
+  return { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence };
+}
 export const DECISION_FIELDS = ["agent", "claim_id", "action", "side", "amount_micro", "min_shares_micro", "shares_micro", "min_proceeds_micro"];
 const SELF = fileURLToPath(import.meta.url);
 const ACCOUNT_RE = /^(?=.{2,64}$)(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/;
@@ -148,6 +176,9 @@ export class SignerClient {
       SIGNER_YOCTO_PER_MICRO: String(o.yoctoPerMicro ?? 0),
       SIGNER_MAX_ISSUED: String(o.maxIssued ?? 50),
       SIGNER_SUPERSEDED_AFTER_MS: String(o.supersededAfterMs ?? 120_000),
+      SIGNER_DAILY_OPENS: String(o.dailyOpens ?? 5),
+      SIGNER_DAILY_CHALLENGES: String(o.dailyChallenges ?? 6),
+      SIGNER_MAX_OPEN_B_MICRO: String(o.maxOpenBMicro ?? Number(HARD_MAX_OPEN_B_MICRO)),
     };
     this.child = fork(SELF, ["--signer-child"], { env, stdio: ["ignore", "pipe", "pipe", "ipc"], execArgv: [] });
     this.child.stdout.on("data", (d) => String(d).split("\n").filter(Boolean).forEach((l) => this.log(`signer: ${l}`)));
@@ -202,6 +233,12 @@ export class SignerClient {
   redeem(intent, agent, claim_id) { return this.request({ type: "redeem", intent, agent, claim_id }); }
   bill(intent, bill) { return this.request({ type: "bill", intent, bill: { agent: bill.agent, route: bill.route, amount_micro: bill.amount_micro, usage_hash: bill.usage_hash } }); }
   anchor(intent, a) { return this.request({ type: "anchor", intent, anchor: a }); }
+  /** The keeper's permissionless steps: finalize or expire_challenge. */
+  keep(intent, method, challenge_id) { return this.request({ type: "keep", intent, method, challenge_id }); }
+  /** Open a corrected line (the keeper key, an operator call). */
+  openClaim(intent, o) { return this.request({ type: "open_claim", intent, open: { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro } }); }
+  /** The Checker's challenge, bonded from its own balance. */
+  challenge(intent, c) { return this.request({ type: "challenge", intent, challenge: { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence } }); }
   issueKey(persona_hash) { return this.request({ type: "issue_key", persona_hash }); }
   outcome(intent) { return this.request({ type: "outcome", intent }); }
   spent() { return this.request({ type: "spent" }); }
@@ -232,6 +269,9 @@ async function runChild() {
   const dailyBillCap = BigInt(env.SIGNER_DAILY_BILL_MICRO || 2_000_000);
   const yoctoPerMicro = BigInt(env.SIGNER_YOCTO_PER_MICRO || 0);
   const maxIssued = Number(env.SIGNER_MAX_ISSUED || 50);
+  const dailyOpens = Number(env.SIGNER_DAILY_OPENS || 5);
+  const dailyChallenges = Number(env.SIGNER_DAILY_CHALLENGES || 6);
+  const maxOpenB = BigInt(env.SIGNER_MAX_OPEN_B_MICRO || HARD_MAX_OPEN_B_MICRO);
   const ksDir = env.KEYSTORE_DIR || null;
   const rpc = new Rpc(config.rpcUrls, { timeoutMs: 8000 });
   const journal = new Journal(env.SIGNER_JOURNAL || null);
@@ -313,10 +353,10 @@ async function runChild() {
     lastRefresh = Date.now();
     const ks = loadKeystore(ksDir);
     keystoreErrors = ks.errors;
-    for (const role of ["market", "swarm"]) {
+    for (const role of Object.keys(OPERATOR_METHODS)) {
       const k = ks.operator[role];
       if (!k || operator[role]?.publicKey === k.publicKey && operator[role].ok) continue;
-      const receiver = role === "market" ? marketId : swarmId;
+      const receiver = role === "swarm" ? swarmId : marketId;
       const entry = { role, accountId: k.accountId, publicKey: k.publicKey, ok: false, error: null };
       try {
         if (!receiver) throw new Error("SWARM_CONTRACT_ID is not set");
@@ -430,6 +470,8 @@ async function runChild() {
     if (!a || !a.ok) throw new Error(`no usable key for agent ${account}${a?.error ? ` (${a.error})` : ""}`);
     return a;
   };
+  /** Intents of one kind today that did not clearly fail: the daily caps on opens and challenges. */
+  const countToday = (kind) => [...intents.values()].filter((x) => x.intent.kind === kind && x.intent.day === day() && !(x.outcome?.final && !x.outcome.ok)).length;
   const opEntry = (role) => {
     const o = operator[role];
     if (!o?.ok) throw new Error(`no usable operator key for the ${role} (${o?.error || "none in the keystore"})`);
@@ -483,6 +525,24 @@ async function runChild() {
         const a = validateAnchor(m.anchor);
         const o = opEntry("market");
         return once(m.intent, "anchor", { agent: null, signer: o.accountId, sender: o.sender, method: "anchor_rewrite", args: a, gasTgas: 50 });
+      }
+      case "keep": {
+        if (m.method !== "finalize" && m.method !== "expire_challenge") throw new Error("keep: finalize or expire_challenge only");
+        if (!Number.isSafeInteger(m.challenge_id) || m.challenge_id < 0) throw new Error("keep: challenge_id must be a whole number");
+        const o = opEntry("keeper");
+        return once(m.intent, "keep", { agent: null, signer: o.accountId, sender: o.sender, method: m.method, args: { challenge_id: m.challenge_id }, gasTgas: 60 });
+      }
+      case "open_claim": {
+        const a = validateOpen(m.open, { maxBMicro: maxOpenB });
+        const o = opEntry("keeper");
+        if (!intents.has(m.intent) && countToday("open_claim") >= dailyOpens) throw new Error(`open: ${dailyOpens} corrected lines already opened today`);
+        return once(m.intent, "open_claim", { agent: null, signer: o.accountId, sender: o.sender, method: "open_claim", args: a, gasTgas: 30 });
+      }
+      case "challenge": {
+        const c = validateChallenge(m.challenge);
+        const o = opEntry("checker");
+        if (!intents.has(m.intent) && countToday("challenge") >= dailyChallenges) throw new Error(`challenge: ${dailyChallenges} challenges already posted today`);
+        return once(m.intent, "challenge", { agent: o.accountId, signer: o.accountId, sender: o.sender, method: "challenge", args: c, gasTgas: 30 });
       }
       case "issue_key": {
         if (!ksDir) throw new Error("no KEYSTORE_DIR: this signer cannot issue runner keys");

@@ -9,6 +9,11 @@
 //   operator-swarm.json              { kind: "operator", role: "swarm",  ... }
 //       the operator's function-call keys: anchor_rewrite and charge_inference on the market,
 //       sweep_escrow on the swarm. None of them can move money anywhere but the treasury.
+//   operator-keeper.json             { kind: "operator", role: "keeper",  ... }
+//       finalize, expire_challenge and open_claim on the market, on the owner's account
+//   operator-checker.json            { kind: "operator", role: "checker", ... }
+//       challenge on the market, on the Checker's own account: it can post the Checker's bond and
+//       nothing else, so the bond balance is all it can ever lose
 
 import fs from "node:fs";
 import path from "node:path";

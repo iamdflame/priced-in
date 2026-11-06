@@ -380,3 +380,63 @@ test("every house model's credence request keeps reasoning short, so the JSON fi
     if (kw[a.model]) assert.deepEqual(r.chat_template_kwargs, kw[a.model]);
   }
 });
+
+test("the keeper's and the Checker's keys: each may do its one job, capped, and nothing else", async () => {
+  const c = await swarmChain();
+  const fc = (receiver_id, method_names) => ({ nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id, method_names } } });
+  const checker = "checker.house.testnet";
+  const kk = operatorKey(c.ks, "keeper", { accountId: c.ops, receiverId: c.market, methods: OPERATOR_METHODS.keeper }).rec;
+  const ck = operatorKey(c.ks, "checker", { accountId: checker, receiverId: c.market, methods: OPERATOR_METHODS.checker }).rec;
+  c.rpc.st.keys.set(`${c.ops}|${kk.publicKey}`, fc(c.market, OPERATOR_METHODS.keeper));
+  c.rpc.st.keys.set(`${checker}|${ck.publicKey}`, fc(c.market, OPERATOR_METHODS.checker));
+  const base = c.rpc.st.onCall;
+  c.rpc.st.onCall = (x) => (x.method === "finalize" ? (c.sent.push(x), { value: false }) : x.method === "open_claim" ? (c.sent.push(x), { value: 42 }) : x.method === "challenge" ? (c.sent.push(x), { value: 3 }) : base(x));
+  const signer = c.client({ dailyOpens: 2, dailyChallenges: 1 });
+  try {
+    await signer.start();
+    const l = await signer.listAgents({ force: true });
+    assert.equal(l.operator.keeper.ok, true, l.operator.keeper.error);
+    assert.equal(l.operator.checker.ok, true, l.operator.checker.error);
+    assert.deepEqual(l.operator.keeper.methods, ["finalize", "expire_challenge", "open_claim"]);
+    const f = await signer.keep("keep:finalize:7:1", "finalize", 7);
+    assert.equal(f.ok, true, f.error);
+    assert.deepEqual([c.sent.at(-1).method, c.sent.at(-1).signer, c.sent.at(-1).args], ["finalize", c.ops, { challenge_id: 7 }]);
+    assert.match((await signer.keep("keep:redeem:7:1", "redeem", 7)).error, /finalize or expire_challenge only/);
+    const open = { text: "A corrected line.", page: "tether", kind: "document", p0_ppm: 700000, b_micro: "1450000" };
+    const o = await signer.openClaim("open:18:700000:1", open);
+    assert.equal(o.ok, true, o.error);
+    assert.equal(o.value, 42);
+    assert.deepEqual(c.sent.at(-1).args, open);
+    assert.match((await signer.openClaim("open:18:bad-1", { ...open, b_micro: "9000000" })).error, /b_micro must be/);
+    assert.match((await signer.openClaim("open:18:bad-2", { ...open, kind: "opinion" })).error, /kind must be/);
+    assert.match((await signer.openClaim("open:18:bad-3", { ...open, text: "x".repeat(601) })).error, /at most 600 bytes/);
+    assert.equal((await signer.openClaim("open:19:700000:1", open)).ok, true);
+    assert.match((await signer.openClaim("open:20:700000:1", open)).error, /already opened today/, "the signer's daily cap on opened lines");
+    const ch = await signer.challenge("checker:18:0:d", { claim_id: 18, claimed_outcome: false, evidence: "the source says otherwise" });
+    assert.equal(ch.ok, true, ch.error);
+    assert.equal(ch.value, 3);
+    assert.deepEqual([c.sent.at(-1).method, c.sent.at(-1).signer], ["challenge", checker]);
+    assert.match((await signer.challenge("checker:19:0:d", { claim_id: 19, claimed_outcome: false, evidence: "again" })).error, /already posted today/);
+    assert.match((await signer.challenge("checker:20:0:d", { claim_id: 20, claimed_outcome: false, evidence: "x".repeat(4001) })).error, /1\.\.4000 bytes/);
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("a keeper or Checker key that allows more than its job is refused", async () => {
+  const c = await swarmChain();
+  const fc = (receiver_id, method_names) => ({ nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id, method_names } } });
+  const kk = operatorKey(c.ks, "keeper", { accountId: c.ops, receiverId: c.market, methods: OPERATOR_METHODS.keeper }).rec;
+  c.rpc.st.keys.set(`${c.ops}|${kk.publicKey}`, fc(c.market, [...OPERATOR_METHODS.keeper, "withdraw_treasury"]));
+  const ck = operatorKey(c.ks, "checker", { accountId: "checker.house.testnet", receiverId: c.market, methods: OPERATOR_METHODS.checker }).rec;
+  c.rpc.st.keys.set(`checker.house.testnet|${ck.publicKey}`, fc(c.market, ["challenge", "withdraw"]));
+  const signer = c.client();
+  try {
+    await signer.start();
+    const l = await signer.listAgents({ force: true });
+    assert.equal(l.operator.keeper.ok, false);
+    assert.match(l.operator.keeper.error, /withdraw_treasury/);
+    assert.equal(l.operator.checker.ok, false);
+    assert.match(l.operator.checker.error, /withdraw/);
+    assert.match((await signer.keep("keep:finalize:1:1", "finalize", 1)).error, /no usable operator key/);
+    assert.match((await signer.challenge("checker:1:0:d", { claim_id: 1, claimed_outcome: false, evidence: "x" })).error, /no usable operator key/);
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
