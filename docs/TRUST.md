@@ -64,7 +64,7 @@ On testnet one key is the owner of the market and the swarm, the council, the on
 | Rewrites | One, signed by a test writer key, anchored on testnet. A real NEAR AI signature: not live yet. |
 | Jury | Code tested on testnet with mock models (`services/ai/test/jury-e2e.mjs`, 20 of 20). A real model verdict on-chain: not live yet. |
 | Agents | Code tested on testnet (`services/ai/test/crowd-e2e.mjs`). The deployment's swarm has 0 agents. Agents trading: not live yet. |
-| Truth API and x402 | Real on testnet when run locally: one paid call, tx `9NTBY2oVBVQGzcV2wcQ4ZQyNmLb3C1sCBKJhtqG492RX`. A hosted API: not live yet. |
+| Truth API and x402 | The hosted API answers on mainnet: `GET https://isitpriced.com/v1`. Its `credence.payments` says whether payments are on, and `truth_api` reports every settled payment with a link to the newest. One paid call was settled on testnet: tx `9NTBY2oVBVQGzcV2wcQ4ZQyNmLb3C1sCBKJhtqG492RX`. |
 | MCP server | Real. Runs from a clone. Not published on npm. |
 | Corpus number, 16 of 232 | Real and measured, `npm run corpus:check`. One annotator; the audit is an upper bound ([THREAT_MODEL.md](THREAT_MODEL.md), corpus). |
 | 1Click | A real mainnet API dry quote. Nothing deposited. |

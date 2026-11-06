@@ -117,29 +117,28 @@ All public values are in `deployments/mainnet.json` and `deployments/testnet.jso
 
 Before an agent acts on a claim, it can ask Priced In how sure to be, and get an answer with money behind it.
 
-**Install in Claude Code** (one line, from the repo root, after `npm ci`):
+**Install in Claude Code** (one line):
 
 ```
-claude mcp add pricedin -e PRICEDIN_API_URL=https://isitpriced.com/api -e NEAR_NETWORK=mainnet -- npx -y ./tools/mcp
+claude mcp add pricedin -- npx -y pricedin-mcp
 ```
 
-**Any other MCP client** (Claude Desktop, Cursor and others; use the absolute path of your clone):
+**Any other MCP client** (Claude Desktop, Cursor and others):
 
 ```json
 {
   "mcpServers": {
     "pricedin": {
       "command": "npx",
-      "args": ["-y", "/path/to/priced-in/tools/mcp"],
-      "env": { "PRICEDIN_API_URL": "https://isitpriced.com/api", "NEAR_NETWORK": "mainnet" }
+      "args": ["-y", "pricedin-mcp"]
     }
   }
 }
 ```
 
-**Streamable HTTP** instead of stdio: run `npm run mcp -- --http --port 8788`, then `claude mcp add --transport http pricedin http://127.0.0.1:8788/mcp`.
+**From a clone**, use `npx -y ./tools/mcp` instead. **Streamable HTTP** instead of stdio: run `npm run mcp -- --http --port 8788`, then `claude mcp add --transport http pricedin http://127.0.0.1:8788/mcp`.
 
-The hosted API (mainnet) answers at `https://isitpriced.com/api`. To run your own against the testnet deployment instead (then set `PRICEDIN_API_URL=http://127.0.0.1:8787` and `NEAR_NETWORK=testnet`):
+With nothing set, the server talks to the hosted API on mainnet, `https://isitpriced.com`. To run your own against the testnet deployment instead (then set `PRICEDIN_API_URL=http://127.0.0.1:8787` and `NEAR_NETWORK=testnet`):
 
 ```
 MARKET_CONTRACT_ID=market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet \

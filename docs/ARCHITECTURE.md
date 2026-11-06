@@ -49,7 +49,7 @@ Read it top to bottom: a person or an agent signs with its own key; the services
 - **Markets.** One binary LMSR market per sentence. The maths is `crates/lmsr`, pure Rust with no dependencies. Claims open by `open_claim` (operators) or `open_and_buy` (anyone holding a planner-signed receipt). The exact rules are in [SPEC.md](SPEC.md).
 - **Rulings.** `challenge`, `submit_verdict`, `dispute`, `finalize`, `council_settle`, `expire_challenge`. The verdict reading, bond split and dispute table are pure functions in `crates/rules`, which the contract calls. Check: `cargo test -p rules --release`, and judge check 2 (17,722 vectors made by the crate).
 - **Provenance.** `anchor_rewrite` verifies a writer model's signature and logs the record. It stores only a counter.
-- **Events.** Every change is an `EVENT_JSON` log, standard `pricedin`, version `2.0.0` (the `log` helper).
+- **Events.** Every change is an `EVENT_JSON` log, standard `pricedin`, version `2.1.0` (the `log` helper).
 
 ### Swarm (`contracts/swarm/src/lib.rs`) and agent wallet (`contracts/agent-wallet/src/lib.rs`)
 
@@ -76,6 +76,7 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 | `src/posts.mjs` | Reads public X posts through `publish.x.com/oembed`. The HTML is untrusted data. |
 | `src/match.mjs`, `src/credence.mjs` | The truth API: lexical matching of a question to claims, then the answer with price, open interest, cost to move, rationales, resolution and provenance. |
 | `src/x402.mjs` | x402 v2, NEAR `exact` scheme: verify, answer, then settle. Our facilitator runs in-process with `@fastnear/x402/facilitator`. |
+| `src/meter.mjs` | What the truth API counts: free calls, the relayer's turn, settled payments. In memory here; `api/_lib/meter.mjs` is the same shape over the store. |
 | `src/config.mjs` | Every setting from env. Testnet unless `NEAR_NETWORK=mainnet`. Accounts and RPCs of the other network are refused at start. |
 
 ### services/ai
@@ -109,8 +110,9 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 
 - `GET /v1/credence?q=` matches a question to claims (`match.mjs`, lexical, no embeddings) and answers with the on-chain price and its provenance (`credence.mjs`).
 - Each address gets 20 free calls a day (`CREDENCE_FREE_PER_IP_PER_DAY`). After that a call costs $0.01 by x402. `npm run truth:smoke` paid once on testnet: tx `9NTBY2oVBVQGzcV2wcQ4ZQyNmLb3C1sCBKJhtqG492RX` (`.apex/streams/truthapi-result.md`).
+- On the hosted API, the free tier, the relayer's turn and the payment record all go through the store (`api/_lib/meter.mjs`), so they hold across function instances. USDC lands at `isitpriced.near`, which holds no hot key; the relayer `x402.isitpriced.near` holds only gas money (`scripts/mainnet/x402.mjs`).
 - `tools/mcp` serves `ask`, `get_claim`, `quote` and `bet` over stdio and streamable HTTP. `bet` signs with the caller's own key and is refused without one. One live MCP bet on testnet: tx `G3h31QRytntLETdcYSsxMUkeYCroJQsFFzDqf8fFWLEz`.
-- The hosted API is not live yet. Run it locally with the command in the README.
+- The hosted API is live at `https://isitpriced.com/v1`. `docs/API.md` has its paths, pricing and the mainnet smoke test.
 
 ## The corpus (`corpus/`)
 
@@ -123,8 +125,8 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 
 | Part | Where it runs today |
 |---|---|
-| market, swarm, lane, tusdc | NEAR testnet, accounts in `deployments/testnet.json`. Mainnet: not live yet. |
-| services/api and services/ai | Your machine (`npm run api` or `npm run ai`). Hosted: not live yet. |
+| market, swarm, lane, tusdc | NEAR testnet, accounts in `deployments/testnet.json`. Mainnet: market and lane live with real USDC, accounts in `deployments/mainnet.json` (no swarm on mainnet). |
+| services/api and services/ai | Hosted on Vercel functions (`api/`) at `https://isitpriced.com`, on mainnet. Locally: `npm run api` or `npm run ai`. |
 | signer | A child process of services/ai (`signer.js` forks itself). |
 | Models | NEAR AI Cloud, in TEEs. The three jury models' attestations were verified with `npm run ai:attest` (`services/ai/attestations/`). Completions: not live yet, no key. |
 | web | Your browser through `npm run web:dev`. Hosted: not live yet. |
@@ -144,7 +146,7 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 | Runner keys | The signer's keystore (`KEYSTORE_DIR`). | `buy, sell, redeem` for one agent. | Added by `spawn_agent`; `checkPermission` in `signer.js` |
 | Operator function-call keys | The signer's keystore (`operator-market.json`, `operator-swarm.json`). | `anchor_rewrite`, `charge_inference`, `sweep_escrow` only. | `OPERATOR_METHODS` in `signer.js` |
 | Jury runner key | services/ai env `JURY_PRIVATE_KEY`. Any account works: `submit_verdict` is open to anyone. | Relay signed verdicts. It cannot forge one. | `submit_verdict` verifies the model's signature |
-| x402 relayer key | services/api env `X402_RELAYER_PRIVATE_KEY`. | Pay gas to settle payments to us. The facilitator routes refuse other payees (`sameRequirements`). | `/x402/*` in `services/api/src/app.mjs` |
+| x402 relayer key | services/api env `X402_RELAYER_PRIVATE_KEY`, on its own account `x402.isitpriced.near`. It must be full-access, because NEAR takes a delegate action from no other kind, so that account holds only gas money. | Pay gas to settle payments to us. The facilitator routes refuse other payees (`sameRequirements`), and the hosted API turns them off. | `/x402/*` in `services/api/src/app.mjs` |
 | Model signing keys | NEAR AI Cloud, inside the TEE. We never hold them. | Sign completions. | Public halves registered with `register_model`, a trust step ([TRUST.md](TRUST.md)) |
 | Writer key on testnet | Nobody. It was a throwaway key made in memory by `services/ai/test/mock-nearai.mjs` (`nacl.sign.keyPair()`), and `tools/judge/seed.mjs` never writes its private half to disk. | Its public half is registered for `z-ai/glm-5.3-flash`. | `get_model` returns `49468af2...512c` |
 | Caller keys | The MCP user (`NEAR_ACCOUNT_ID`, `NEAR_PRIVATE_KEY`). | Their own bets and payments. | `tools/mcp/src/near.mjs` |
