@@ -60,7 +60,7 @@ export interface ActivityItem {
 export interface AgentFull {
   account_id: string; name: string; label: string; house: boolean; model: string; persona: string; awake: boolean;
   limits: { max_bet_usd: number; daily_loss_limit_usd: number; kelly_fraction: number };
-  last_action: { at: string; kind: string; claim_id: number; text: string; tx_hash: string | null; credence: number } | null;
+  last_action: { at: string; kind: string; claim_id: number; text?: string; reason?: string; tx_hash?: string | null; credence: number } | null;
 }
 
 export interface AgentsDoc {

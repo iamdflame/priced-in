@@ -87,7 +87,7 @@ export default async function AgentsPage() {
                 <td className="n">{b.bets.length}</td>
                 <td className="n">{b.held}</td>
                 <td className="n">{b.p?.balance_usd != null ? money(b.p.balance_usd) : "—"}</td>
-                <td className="last">{b.a.last_action ? lastWords(b.a.last_action.kind, b.a.last_action.text) : "—"}</td>
+                <td className="last">{b.a.last_action ? lastWords(b.a.last_action.kind, b.a.last_action.text ?? b.a.last_action.reason) : "—"}</td>
               </tr>
             ))}
           </tbody>
@@ -140,9 +140,10 @@ export default async function AgentsPage() {
   );
 }
 
-function lastWords(kind: string, text: string) {
-  const t = text.replace(/^no bet: /, "").replace(/\s*\(agent [^)]*\)/, "").replace(/the bet was not placed\s*/, "").replace(/would pass its daily spend cap of \d+ micro-USDC/, "it reached today’s spending limit").trim();
-  if (kind === "no_bet") return <><span className="chip warn" style={{ marginRight: 6 }}>Held off</span>{t || "no edge"}</>;
+function lastWords(kind: string, text: string | undefined) {
+  // a "looked" action carries a reason and no text
+  const t = (text ?? "").replace(/^no bet: /, "").replace(/\s*\(agent [^)]*\)/, "").replace(/the bet was not placed\s*/, "").replace(/would pass its daily spend cap of \d+ micro-USDC/, "it reached today’s spending limit").trim();
+  if (kind === "no_bet" || kind === "looked") return <><span className="chip warn" style={{ marginRight: 6 }}>Held off</span>{t || "no edge"}</>;
   return t;
 }
 
