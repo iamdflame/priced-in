@@ -10,3 +10,7 @@ out/
 *.wav
 *.mp3
 .remotion/
+public/blender/
+public/site/
+blender/fonts/
+blender/out/

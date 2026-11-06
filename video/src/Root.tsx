@@ -10,6 +10,7 @@ import {VerdictStamp} from './pieces/VerdictStamp';
 import {TEST_REEL_FRAMES, TestReel} from './reels/TestReel';
 import {ChartSteps, Countdown, Payout, ProofStack} from './pieces/Beats';
 import {BOARD} from './storyboard';
+import {Film, durationOf} from './film/Film';
 
 loadBrandFonts();
 
@@ -37,6 +38,11 @@ export const Root: React.FC = () => (
   <>
     <Composition id="TestReel" component={TestReel} durationInFrames={TEST_REEL_FRAMES} fps={FPS} {...WIDE} />
     <Composition id="TestReelVertical" component={TestReel} durationInFrames={TEST_REEL_FRAMES} fps={FPS} {...TALL} />
+    <Folder name="Film">
+      <Composition id="FilmMain" component={Film} defaultProps={{cut: 'main'}} durationInFrames={durationOf('main')} fps={FPS} {...WIDE} />
+      <Composition id="Film15s" component={Film} defaultProps={{cut: 'c15'}} durationInFrames={durationOf('c15')} fps={FPS} {...WIDE} />
+      <Composition id="FilmVertical" component={Film} defaultProps={{cut: 'v30'}} durationInFrames={durationOf('v30')} fps={FPS} {...TALL} />
+    </Folder>
     <Folder name="Wide">
       {pieces.map((p) => (
         <Composition key={p.id} id={`${p.id}-16x9`} component={p.component} defaultProps={p.props ?? {}} durationInFrames={Math.round(p.seconds * FPS)} fps={FPS} {...WIDE} />

@@ -9,8 +9,8 @@ const AFTER =
 
 /** S09 · "The page fixes itself": $72.6 billion strikes through and morphs, character by character,
  * into $122.84 billion, then the real corrected sentence appears under it. Film timing: 8 s shot. */
-export const PageFix: React.FC<{tempo?: number}> = ({tempo = 1}) => {
-  const t = useT() * tempo;
+export const PageFix: React.FC<{tempo?: number; delay?: number}> = ({tempo = 1, delay = 0}) => {
+  const t = Math.max(0, useT() * tempo - delay);
   const v = useVertical();
   const s = v ? 1.2 : 1;
   const strike = prog(t, 0.35, 0.5, EASE.inOut);
