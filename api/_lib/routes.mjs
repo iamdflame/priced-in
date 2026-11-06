@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { raceView } from "./snapshot.mjs";
 import { REPO } from "./runtime.mjs";
-import { activityOf, downsample, parseTrader, portfolioOf, priceHistory } from "./views.mjs";
+import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, timeOf } from "./views.mjs";
 import { namesOf, readRulings } from "./rulings.mjs";
 import { rulingClock } from "./keeper.mjs";
 import { parsePublicKey } from "../../services/api/src/lane.mjs";
@@ -40,6 +40,22 @@ export async function historyRoute(url, p) {
   return { status: 200, body: { claim: id, points: series.get(id) || [], format: "[t_ms, price_yes_ppm]", asOf: snap.at }, headers };
 }
 
+const MONEY_EVENTS = { deposit: "deposit", withdraw: "withdraw", withdraw_refunded: "refund", redeem: "collect" };
+
+/** A trader's money moves, newest first, each with its transaction, for the portfolio's history. */
+export function traderHistory(events, trader, limit = 50) {
+  const rows = [];
+  for (const e of chronological(events)) {
+    const d = e.data || {};
+    if (d.trader !== trader) continue;
+    const sold = e.event === "trade" && String(d.side).startsWith("sell_");
+    const kind = e.event === "trade" ? (sold ? "sell" : "buy") : MONEY_EVENTS[e.event];
+    if (!kind) continue;
+    rows.push({ kind, claim_id: d.claim_id ?? null, side: d.side ? String(d.side).replace("sell_", "") : null, amount_usd: Number(d.amount_micro) / 1e6, shares: d.shares_micro ? Number(d.shares_micro) / 1e6 : null, tx: e.txHash ?? null, at: timeOf(e) });
+  }
+  return rows.reverse().slice(0, limit);
+}
+
 /** GET /portfolio?trader=<lane:ed25519:... | ed25519:... | account>. */
 export async function portfolioRoute(url, p) {
   const who = parseTrader(url.searchParams.get("trader"));
@@ -55,7 +71,7 @@ export async function portfolioRoute(url, p) {
   const positions = new Map();
   ids.forEach((id, i) => { if (held[i]) positions.set(id, held[i]); });
   const body = portfolioOf({ ...who, events: all, claims: snap.claims, positions, balanceMicro: balance });
-  return { status: 200, body: { ...body, asOf: snap.at }, headers: { "cache-control": READ_CACHE.portfolio } };
+  return { status: 200, body: { ...body, history: traderHistory(all, who.trader), asOf: snap.at }, headers: { "cache-control": READ_CACHE.portfolio } };
 }
 
 /** GET /activity?limit=: the latest trades, rewrites, agents' answers and rulings. */

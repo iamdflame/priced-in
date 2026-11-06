@@ -9,7 +9,7 @@ import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
 import { bOf, checkerCandidates, checkerEvidence, corpusRecord, correctedWording, keeperRound, nextTick, planKeeper, rulingClock } from "../../../api/_lib/keeper.mjs";
-import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "../../../api/_lib/routes.mjs";
+import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
 import { corpusEvidence } from "../../ai/src/evidence.js";
 import { Rpc } from "../src/rpc.mjs";
@@ -641,6 +641,27 @@ test("GET /portfolio reads the chain for what is held and refuses a bad trader",
     assert.equal((await portfolioRoute(new URL("http://x/portfolio?trader=nope!"), p)).status, 400);
     assert.deepEqual((await portfolioRoute(new URL("http://x/portfolio?trader=fresh.testnet"), p)).body.positions, []);
   } finally { await mock.close(); }
+});
+
+test("a trader's history: money moves only, their own, newest first, each with its transaction", () => {
+  const me = "me.near";
+  const events = [
+    ev("deposit", { to: me, trader: me, amount_micro: "5000000", balance_micro: "5000000" }, 100),
+    ev("trade", { claim_id: 1, trader: me, side: "no", shares_micro: "2000000", amount_micro: "1000000", fee_micro: "10000", price_yes_ppm: 300000 }, 110),
+    ev("trade", { claim_id: 1, trader: "other.near", side: "yes", shares_micro: "1000000", amount_micro: "500000", price_yes_ppm: 310000 }, 115),
+    ev("trade", { claim_id: 1, trader: me, side: "sell_no", shares_micro: "500000", amount_micro: "250000", price_yes_ppm: 305000 }, 120),
+    ev("redeem", { claim_id: 1, trader: me, side: "no", shares_micro: "1500000", amount_micro: "1500000" }, 130),
+    ev("challenge", { challenge_id: 0, claim_id: 1, trader: me, amount_micro: "1000000" }, 135),
+    ev("withdraw", { trader: me, amount_micro: "2000000", balance_micro: "0" }, 140),
+    ev("withdraw_refunded", { to: me, trader: me, amount_micro: "2000000", balance_micro: "2000000" }, 141),
+  ];
+  const h = traderHistory(events, me);
+  assert.deepEqual(h.map((r) => r.kind), ["refund", "withdraw", "collect", "sell", "buy", "deposit"]);
+  assert.deepEqual([h[3].side, h[3].amount_usd, h[3].shares, h[3].claim_id], ["no", 0.25, 0.5, 1]);
+  assert.deepEqual([h[5].claim_id, h[5].side, h[5].shares], [null, null, null]);
+  assert.ok(h.every((r) => r.tx && r.at));
+  assert.equal(traderHistory(events, me, 2).length, 2);
+  assert.deepEqual(traderHistory(events, "nobody.near"), []);
 });
 
 test("GET /rulings: the chain's live view, the clock and the Checker's state", async () => {
