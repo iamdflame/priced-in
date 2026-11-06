@@ -72,6 +72,8 @@ if (MAIN) Object.assign(plain, {
   AGENT_DAILY_LOSS_USD: "1",
   // the market's taker fee (v3): an agent's edge must beat it; before the upgrade this only asks a little more edge
   AGENT_FEE_POINTS: "0.01",
+  // small bets, so the daily cap reaches the whole catalog: at $0.75 a day, 6 or 7 bets each instead of 2
+  AGENT_MAX_BET_USD: "0.12",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
 }, x402.plain);

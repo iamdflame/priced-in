@@ -351,7 +351,10 @@ export class Crowd {
   async sweep(max = 3) {
     const all = (await this.claims.all()).filter((c) => c.status === "Open");
     const age = (c) => Math.max(0, ...this.roster.map((a) => this.last.get(`${a.accountId}|${c.id}`) || 0));
-    const picks = all.sort((x, y) => age(x) - age(y)).slice(0, max);
+    // a line nobody has bet on goes first, then the line looked at longest ago: a day's budget spreads
+    // across the catalog instead of going to the lines that come first in the list
+    const bet = (c) => (Number(c.trades) > 0 ? 1 : 0);
+    const picks = all.sort((x, y) => bet(x) - bet(y) || age(x) - age(y)).slice(0, max);
     for (const c of picks) await this.round(c, c.price_yes_ppm / 1e6, { kind: "sweep", seenAtMs: this.now() }, this.cooldownMs);
   }
 
@@ -384,7 +387,8 @@ export class Crowd {
             this.stats.errors++;
             e.betError = r.error;
             this.log(`agents: ${e.agent.name}'s ${d.action} on claim ${claim.id} was not placed: ${r.error}`);
-            posted.push(this.post(e, claim, before, { side: "no_bet", text: `no bet: the ${d.action === "sell" ? "sale" : "bet"} was not placed (${String(r.error).slice(0, 120)})` }, trigger));
+            const spent = /daily spend cap/.test(String(r.error));
+            posted.push(this.post(e, claim, before, { side: "no_bet", text: spent ? "no bet today: it has used its daily limit" : `no bet: the ${d.action === "sell" ? "sale" : "bet"} was not placed (${String(r.error).slice(0, 120)})` }, trigger));
             continue;
           }
           const t = r.value || {};

@@ -84,7 +84,8 @@ export function loadAiConfig(env = process.env) {
       useWebSearch: env.AGENT_WEB_SEARCH !== "0",
       sweepMs: num(env.AGENT_SWEEP_MS, 15 * 60_000),
       // AGENT_FEE_POINTS: what a trade pays the market, as a fraction (0.01 once a 1% taker fee is on)
-      policy: { ...DEFAULT_POLICY, feePoints: num(env.AGENT_FEE_POINTS, DEFAULT_POLICY.feePoints), dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
+      // AGENT_MAX_BET_USD: the most one bet can be, so a daily spend cap covers more than a few lines
+      policy: { ...DEFAULT_POLICY, feePoints: num(env.AGENT_FEE_POINTS, DEFAULT_POLICY.feePoints), maxBetUsd: num(env.AGENT_MAX_BET_USD, DEFAULT_POLICY.maxBetUsd), dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
       dailySpendMicro: num(env.SIGNER_DAILY_SPEND_MICRO, 10_000_000),
     },
     jury: {

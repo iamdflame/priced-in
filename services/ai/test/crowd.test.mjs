@@ -210,6 +210,30 @@ test("an agent that owes its bankroll an inference bill sleeps until it can pay"
   } finally { crowd.stop(); await mock.close(); }
 });
 
+test("a sweep takes a line nobody has bet on first, so a day's budget reaches the whole catalog", async () => {
+  const a = await setup({ agents: house3().slice(0, 1), credences: { [MOCK_MODELS[1]]: 0.5 } });
+  try {
+    const seen = [];
+    const round = a.crowd.round.bind(a.crowd);
+    a.crowd.round = async (c, ...rest) => { seen.push(c.id); return { claim_id: c.id, posted: [] }; };
+    a.crowd.claims.all = async () => [{ id: 1, status: "Open", trades: 7, price_yes_ppm: 500000 }, { id: 2, status: "Open", trades: 0, price_yes_ppm: 500000 }, { id: 3, status: "Settled", trades: 0, price_yes_ppm: 500000 }];
+    await a.crowd.sweep(1);
+    assert.deepEqual(seen, [2], "the open line with no bets, not the busy one or the settled one");
+    a.crowd.round = round;
+  } finally { a.crowd.stop(); await a.mock.close(); }
+});
+
+test("an agent past its daily spend cap says so in plain words", async () => {
+  const a = await setup({ agents: house3().slice(0, 1), credences: { [MOCK_MODELS[1]]: 0.9 } });
+  try {
+    a.signer.trade = async () => ({ ok: false, error: "agent a0 would pass its daily spend cap of 750000 micro-USDC" });
+    await a.crowd.sweep(1);
+    const e = a.events.find((x) => x.side === "no_bet");
+    assert.ok(e, "the answer is posted");
+    assert.equal(e.text, "no bet today: it has used its daily limit");
+  } finally { a.crowd.stop(); await a.mock.close(); }
+});
+
 test("a sweep posts its answers too: a no-bet with the policy's reason, an agreement, and each reaches recent()", async () => {
   const two = () => [swarmAgent(0, { model: MOCK_MODELS[1], persona_hash: H("house-archivist") }), swarmAgent(1, { model: MOCK_MODELS[2], persona_hash: H("house-quant") })];
   const a = await setup({ agents: two(), credences: { [MOCK_MODELS[1]]: 0.51, [MOCK_MODELS[2]]: 0.9 }, bank: 0 });
