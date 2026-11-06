@@ -1,0 +1,124 @@
+// NEAR Intents 1Click (https://docs.near-intents.org/integration/distribution-channels/1click-api):
+// money in from another chain and out to another chain, through public endpoints only.
+//  - GET  /v0/tokens   the assets it routes, with prices
+//  - POST /v0/quote    a quote; dry:false also issues a one-time deposit address and a deadline
+//  - GET  /v0/status   PENDING_DEPOSIT, KNOWN_DEPOSIT_TX, PROCESSING, SUCCESS, INCOMPLETE_DEPOSIT, REFUNDED, FAILED
+//  - POST /v0/deposit/submit   optional: tells 1Click the deposit's tx hash, to speed it up
+// No key is needed. Without a partner JWT 1Click adds a 0.25% platform fee to each quote (its docs,
+// "API Keys"); set ONECLICK_JWT on the server to use the partner schedule. The browser only ever talks
+// to this site's /bridge routes, which build every request themselves from a few checked fields.
+
+export const ONECLICK = "https://1click.chaindefuser.com/v0";
+
+export type AddrKind = "evm" | "sol" | "btc" | "tron" | "near";
+
+export interface Route {
+  /** "base:USDC" */
+  key: string;
+  chain: string;
+  chainName: string;
+  symbol: string;
+  assetId: string;
+  decimals: number;
+  /** USD per unit, from 1Click */
+  price: number | null;
+  addr: AddrKind;
+  /** can money come in from it, go out to it */
+  in: boolean;
+  out: boolean;
+  /** a typical confirmation wait on the origin chain, for the deadline */
+  slowMin: number;
+}
+
+/** The routes this site offers, by 1Click (blockchain, symbol). Anything 1Click stops listing drops out. */
+export const CURATED: { chain: string; chainName: string; symbol: string; addr: AddrKind; in: boolean; out: boolean; slowMin: number; assetId?: string }[] = [
+  { chain: "base", chainName: "Base", symbol: "USDC", addr: "evm", in: true, out: true, slowMin: 5 },
+  { chain: "eth", chainName: "Ethereum", symbol: "USDC", addr: "evm", in: true, out: true, slowMin: 10 },
+  { chain: "arb", chainName: "Arbitrum", symbol: "USDC", addr: "evm", in: true, out: true, slowMin: 5 },
+  { chain: "sol", chainName: "Solana", symbol: "USDC", addr: "sol", in: true, out: true, slowMin: 5 },
+  { chain: "eth", chainName: "Ethereum", symbol: "USDT", addr: "evm", in: true, out: true, slowMin: 10 },
+  { chain: "tron", chainName: "Tron", symbol: "USDT", addr: "tron", in: true, out: true, slowMin: 10 },
+  { chain: "sol", chainName: "Solana", symbol: "USDT", addr: "sol", in: true, out: true, slowMin: 5 },
+  { chain: "base", chainName: "Base", symbol: "ETH", addr: "evm", in: true, out: false, slowMin: 5 },
+  { chain: "eth", chainName: "Ethereum", symbol: "ETH", addr: "evm", in: true, out: false, slowMin: 10 },
+  { chain: "arb", chainName: "Arbitrum", symbol: "ETH", addr: "evm", in: true, out: false, slowMin: 5 },
+  { chain: "sol", chainName: "Solana", symbol: "SOL", addr: "sol", in: true, out: false, slowMin: 5 },
+  { chain: "btc", chainName: "Bitcoin", symbol: "BTC", addr: "btc", in: true, out: false, slowMin: 90 },
+  { chain: "near", chainName: "NEAR", symbol: "USDT", addr: "near", in: true, out: false, slowMin: 5, assetId: "nep141:usdt.tether-token.near" },
+];
+
+export interface TokenRow { assetId: string; decimals: number; blockchain: string; symbol: string; price?: number | null }
+
+/** The curated routes that 1Click lists today, with their asset ids, decimals and prices. */
+export function routesFrom(tokens: TokenRow[]): Route[] {
+  const out: Route[] = [];
+  for (const c of CURATED) {
+    const t = tokens.find((x) => (c.assetId ? x.assetId === c.assetId : x.blockchain === c.chain && x.symbol === c.symbol && x.assetId.startsWith("nep141:")));
+    if (!t) continue;
+    out.push({ key: `${c.chain}:${c.symbol}`, chain: c.chain, chainName: c.chainName, symbol: c.symbol, assetId: t.assetId, decimals: t.decimals, price: typeof t.price === "number" ? t.price : null, addr: c.addr, in: c.in, out: c.out, slowMin: c.slowMin });
+  }
+  return out;
+}
+
+const ADDR: Record<AddrKind, RegExp> = {
+  evm: /^0x[0-9a-fA-F]{40}$/,
+  sol: /^[1-9A-HJ-NP-Za-km-z]{32,44}$/,
+  btc: /^(bc1[02-9ac-hj-np-z]{11,71}|[13][1-9A-HJ-NP-Za-km-z]{25,34})$/,
+  tron: /^T[1-9A-HJ-NP-Za-km-z]{33}$/,
+  near: /^(([a-z\d]+[-_])*[a-z\d]+\.)*([a-z\d]+[-_])*[a-z\d]+$/,
+};
+export const validAddress = (kind: AddrKind, a: string) => ADDR[kind].test(a.trim()) && (kind !== "near" || (a.length >= 2 && a.length <= 64));
+export const validNearAccount = (a: string) => validAddress("near", a);
+
+/** Base units from a decimal string ("12.5" with 6 decimals is "12500000"); null if it isn't a number. */
+export function toBaseUnits(amount: string, decimals: number): string | null {
+  const s = amount.trim();
+  if (!/^\d*(\.\d*)?$/.test(s) || s === "" || s === ".") return null;
+  const [w, f = ""] = s.split(".");
+  if (f.length > decimals) return null;
+  const v = BigInt(w || "0") * 10n ** BigInt(decimals) + BigInt((f + "0".repeat(decimals)).slice(0, decimals) || "0");
+  return v > 0n ? v.toString() : null;
+}
+
+export type BridgeStatus = "PENDING_DEPOSIT" | "KNOWN_DEPOSIT_TX" | "PROCESSING" | "SUCCESS" | "INCOMPLETE_DEPOSIT" | "REFUNDED" | "FAILED";
+
+export interface BridgeQuote {
+  dir: "in" | "out";
+  route: string;
+  depositAddress: string | null;
+  depositMemo: string | null;
+  amountIn: string;
+  amountInFormatted: string;
+  amountOut: string;
+  amountOutFormatted: string;
+  minAmountOut: string;
+  timeEstimate: number;
+  deadline: string | null;
+  recipient: string;
+  refundTo: string;
+  /** the partner JWT was used (else 1Click's 0.25% unauthenticated fee applies) */
+  authenticated: boolean;
+}
+
+export interface BridgeStatusView {
+  status: BridgeStatus;
+  amountOutFormatted: string | null;
+  refundedFormatted: string | null;
+  refundReason: string | null;
+  originTx: string | null;
+  destinationTx: string | null;
+  nearTxs: string[];
+}
+
+/** What each 1Click status means, said plainly. */
+export const STATUS_WORDS: Record<BridgeStatus, string> = {
+  PENDING_DEPOSIT: "Waiting for your deposit",
+  KNOWN_DEPOSIT_TX: "Deposit seen, waiting for confirmations",
+  PROCESSING: "Swapping and delivering",
+  SUCCESS: "Delivered",
+  INCOMPLETE_DEPOSIT: "Less than the quoted amount arrived: it will be refunded",
+  REFUNDED: "Refunded",
+  FAILED: "It failed: anything sent is refunded",
+};
+
+export const bridgeDone = (s: BridgeStatus) => s === "SUCCESS" || s === "REFUNDED" || s === "FAILED";

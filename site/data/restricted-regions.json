@@ -1,0 +1,35 @@
+{
+  "about": "Where real-money actions are restricted on this site. The free $1 (score, not cash) works everywhere. One file, read by proxy.ts (the geofence), the money screens and /terms. Change it here only.",
+  "policy": {
+    "blocked": "No real-money action at all: no deposit, bet, sale, collection or withdrawal through this site.",
+    "close_only": "Existing money can leave (sell, collect, withdraw) but no new money goes in (no deposit, no new bet)."
+  },
+  "sources": [
+    {
+      "name": "Polymarket, Geographic Restrictions (geoblock) documentation",
+      "url": "https://docs.polymarket.com/developers/CLOB/geoblock",
+      "retrieved": "2026-11-06",
+      "used_for": "The blocked list (OFAC-sanctioned countries and regions) and the close-only list (Polymarket's countries restricted on both its frontend and its API, and its four Canadian provinces), taken as published."
+    },
+    {
+      "name": "Kalshi Help Center, Can I trade on Kalshi from outside the United States?",
+      "url": "https://help.kalshi.com/en/articles/14026044-can-i-trade-on-kalshi-from-outside-the-united-states",
+      "retrieved": "2026-11-06",
+      "used_for": "Reference only: Kalshi publishes its restricted jurisdictions in its Member Agreement, which changes over time. Nothing was added from secondary lists."
+    }
+  ],
+  "note": "This list mirrors a large operator's published practice; it is not legal advice and makes no claim about the law of any place. The founder must have it reviewed by counsel before limits are raised.",
+  "blocked": {
+    "countries": ["CU", "IR", "KP", "SY"],
+    "regions": ["UA-43", "UA-14", "UA-09"]
+  },
+  "close_only": {
+    "countries": ["AR", "AU", "BY", "BE", "BI", "BR", "CF", "CD", "ET", "FR", "DE", "IQ", "IT", "LB", "LY", "MM", "NZ", "NI", "PL", "RU", "SG", "SO", "SK", "SS", "SD", "TW", "TH", "GB", "US", "UM", "VE", "YE", "ZW"],
+    "regions": ["CA-BC", "CA-ON", "CA-AB", "CA-QC"]
+  },
+  "limits": {
+    "about": "The micro-stakes research preview's per-action caps, enforced by this site's screens (the contract itself has no per-person cap).",
+    "max_bet_usd": 100,
+    "max_deposit_usd": 500
+  }
+}
