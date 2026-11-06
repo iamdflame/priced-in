@@ -55,7 +55,8 @@
   "checker_public_key": "ed25519:6ikQ8SZDcj4pp6qTTGPCGC7kdzWRq768d14SmipiMRnQ",
   "checker_methods": [
    "challenge"
-  ]
+  ],
+  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr"
  },
  "models": [
   {
@@ -749,5 +750,14 @@
    "fee_bps": 100,
    "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-mainnet.mjs)"
   }
- ]
+ ],
+ "x402": {
+  "protocol": "x402 v2, NEAR exact",
+  "facilitator": "in-process: @fastnear/x402/facilitator inside the API function",
+  "pay_to": "isitpriced.near",
+  "relayer": "x402.isitpriced.near",
+  "price_micro": 10000,
+  "rpc": "https://rpc.fastnear.com",
+  "at": "2026-11-06T14:01:29.132Z"
+ }
 }
