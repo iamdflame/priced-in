@@ -1,5 +1,6 @@
 // The judges' lane: adds a visitor's browser-held key to the pooled lane account as a
-// function-call key on the market (buy, sell, open_and_buy, redeem, claim_lane; 0.25 NEAR allowance),
+// function-call key on the market (buy, sell, open_and_buy, redeem; 0.25 NEAR allowance; never
+// claim_lane, so a free bet's winnings stay in the market as score),
 // so the visitor's first bet needs no wallet. Requests that arrive while a transaction is in
 // flight ride the next one together (one AddKey action each), so a burst of judges costs
 // one round trip per batch instead of one each, and nonces never race.

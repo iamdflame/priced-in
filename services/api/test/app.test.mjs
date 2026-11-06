@@ -142,7 +142,7 @@ test("/lane/key adds a function-call key and returns what the browser needs to s
   assert.match(r.json.nonce, /^\d+$/);
   assert.ok(r.json.blockHash.length >= 32);
   assert.equal(r.json.rpc, mock.url);
-  assert.deepEqual(r.json.methods, ["buy", "sell", "open_and_buy", "redeem", "claim_lane"]);
+  assert.deepEqual(r.json.methods, ["buy", "sell", "open_and_buy", "redeem"]);
   assert.equal(r.json.allowanceYocto, "250000000000000000000000");
   const key = mock.st.keys.get(`lane.testnet|${visitor}`);
   assert.equal(key.permission.FunctionCall.receiver_id, "market.testnet");

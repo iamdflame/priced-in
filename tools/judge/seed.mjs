@@ -120,7 +120,7 @@ if (!fs.existsSync(laneSt)) {
   const k = KeyPair.fromRandom("ed25519");
   fs.writeFileSync(laneSt, JSON.stringify({ sk: k.toString() }));
   const laneAdmin = new Account(L, provider, new KeyPairSigner(kp));
-  await laneAdmin.addFunctionCallAccessKey({ publicKey: k.getPublicKey(), contractId: M, methodNames: ["buy", "sell", "open_and_buy", "redeem", "claim_lane"], allowance: NEAR / 20n });
+  await laneAdmin.addFunctionCallAccessKey({ publicKey: k.getPublicKey(), contractId: M, methodNames: ["buy", "sell", "open_and_buy", "redeem"], allowance: NEAR / 20n });
   const visitor = new Account(L, provider, new KeyPairSigner(k));
   const stale = byVerdict("stale")[0];
   await call(visitor, M, "buy", { claim_id: claimOf.get(stale.text), side: "no", amount_micro: "1000000", min_shares_micro: "0" }, { tgas: 30n, tag: `trade: a no-wallet $1 lane bet, NO (${stale.id})` });

@@ -59,9 +59,12 @@ export function loadConfig(env = process.env) {
     lane: {
       accountId: (env.LANE_ACCOUNT_ID || "").trim() || null,
       privateKey: (env.LANE_PRIVATE_KEY || "").trim() || null,
-      methods: ["buy", "sell", "open_and_buy", "redeem", "claim_lane"],
+      // no claim_lane: a free bet's winnings stay in the market as score and never leave it
+      methods: ["buy", "sell", "open_and_buy", "redeem"],
       allowanceYocto: laneAllowanceYocto,
-      perIpPerDay: num("LANE_KEYS_PER_IP_PER_DAY", 3),
+      // the allowance is one $1 per browser key; this cap (per address, per /64 on IPv6) and the
+      // total below are the abuse checks, sized so a venue's shared network can still play
+      perIpPerDay: num("LANE_KEYS_PER_IP_PER_DAY", 10),
       perDay: num("LANE_KEYS_PER_DAY", 1000),
       batchMax: num("LANE_BATCH_MAX", 10),
       issueDeadlineMs: num("LANE_ISSUE_DEADLINE_MS", 12000),
