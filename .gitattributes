@@ -1,0 +1,4 @@
+# Every checkout is byte-for-byte the commit. Git for Windows defaults to core.autocrlf=true, which
+# rewrites LF to CRLF on clone, and the judge hashes these files: the attestation bundles, the evidence
+# and the signed records must keep their exact bytes (check 10 fails on a converted copy).
+* -text
