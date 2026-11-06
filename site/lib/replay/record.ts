@@ -3,7 +3,7 @@
 // read back from the chain. Safe on the server and in the browser; lib/replay/engine.ts plays it.
 import rehearsal from "@/data/rehearsal-mainnet.json";
 import type { Rationale, Rewrite } from "../core/api";
-import { marketFromClaim, priceYes } from "../core/lmsr";
+import { cost, costOpen, MICRO, marketFromClaim, priceYes } from "../core/lmsr";
 import type { ClaimView } from "../model";
 
 interface BetStep { kind: "bet"; at: number; claim_id: number; side: "yes" | "no"; shares: number; price_after: number; chain: { tx: string; block_height: number } }
@@ -50,10 +50,13 @@ const BETS_BEFORE = 5;
 
 export function preBetClaim(): ClaimView {
   const market = { b_micro: "1450000", d0: "0", q_yes_micro: String(FINAL_Q_YES), q_no_micro: String(FINAL_Q_NO - LATER_NO), fee_bps: 0 };
-  const ppm = Number(priceYes(marketFromClaim(market)!) / 1_000_000n);
+  const m = marketFromClaim(market)!;
+  const ppm = Number(priceYes(m) / 1_000_000n);
+  // only buys had reached this market and the fill was fee-free, so what was bet is what the market cost
+  const volumeMicro = (cost(m) - costOpen(m)) / MICRO;
   return {
     ...market, id: RECORD.claim.id, text: RECORD.claim.text, page: RECORD.claim.page, kind: RECORD.claim.kind, price_yes_ppm: ppm, cost_up_10_micro: "0", cost_down_10_micro: "0",
-    status: "Open", outcome: null, provisional: null, trades: BETS_BEFORE, volume_micro: "0", challenge_id: null, prev: null, next: null,
-    price_yes: ppm / 1e6, cost_to_move: { up_10_points_usd: 0, down_10_points_usd: 0 }, volume_usd: 0,
+    status: "Open", outcome: null, provisional: null, trades: BETS_BEFORE, volume_micro: String(volumeMicro), challenge_id: null, prev: null, next: null,
+    price_yes: ppm / 1e6, cost_to_move: { up_10_points_usd: 0, down_10_points_usd: 0 }, volume_usd: Number(volumeMicro) / 1e6,
   };
 }

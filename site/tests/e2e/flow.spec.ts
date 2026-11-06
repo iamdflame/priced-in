@@ -73,12 +73,17 @@ test("the replay of the real mainnet run: bet, signed rewrite verified in the br
   await page.goto("/c/18?recorded=1");
   await expect(page.getByText("Replay of a real mainnet run.")).toBeVisible();
   await expect(page.getByRole("heading", { name: "Replay the free $1" })).toBeVisible();
+  // the chart's caption: the replay's real amount, never $0.00 beside a count of bets
+  const caption = page.locator(".chartp .hd");
+  await expect(caption).toContainText(/\$\d+\.\d\d bet so far · \d+ bets/);
+  await expect(caption).not.toContainText("$0.00");
   await page.getByRole("button", { name: /No, it’s false/ }).first().click();
   await page.getByTestId("confirm").click();
   const receipt = page.getByRole("dialog", { name: /You bet \$1 that it’s false/ });
   await expect(receipt).toBeVisible({ timeout: 20_000 });
   await expect(receipt.getByText(/Replay · final on NEAR in block 223,236,617/)).toBeVisible();
-  await expect(receipt.getByText("23%", { exact: true })).toBeVisible();
+  // the count tweens from the old price, so for a moment two elements say "23%": read the stable label
+  await expect(receipt.locator(".big-move")).toHaveAttribute("aria-label", /^23% to \d+% chance it’s true$/);
   // the rewrite NEAR AI Cloud signed, 4.3 s after the bet, checked here against the model's key on the market
   await expect(receipt.getByText(/U.S. T-Bills, which Tether's attestation report/)).toBeVisible({ timeout: 20_000 });
   await expect(receipt.getByTestId("sig-ok")).toBeVisible({ timeout: 30_000 });
@@ -105,11 +110,13 @@ test("film mode: no replay bar, still countdowns and strip, carried across links
   const g = await guard(page);
   await page.goto("/?film=1");
   await expect(page.locator("html")).toHaveAttribute("data-film", "1");
-  const clock = page.locator("#deciding .big");
+  const clock = page.locator("#deciding .timer .num");
   const strip = page.locator(".tape");
-  const [c0, s0] = [await clock.textContent(), await strip.textContent()];
+  // the rail shows a time only while one is ahead
+  const timed = (await clock.count()) > 0;
+  const [c0, s0] = [timed ? await clock.textContent() : null, await strip.textContent()];
   await page.waitForTimeout(6_500);
-  expect(await clock.textContent()).toBe(c0);
+  if (timed) expect(await clock.textContent()).toBe(c0);
   expect(await strip.textContent()).toBe(s0);
   // carried across an internal link, the replay bar stays hidden and a pick asks for no key
   await page.goto("/c/18?recorded=1");

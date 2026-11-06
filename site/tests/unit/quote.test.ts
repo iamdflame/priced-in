@@ -4,7 +4,7 @@
 import { describe, expect, test } from "vitest";
 import vectors from "@/tests/vectors/lmsr.json";
 import claimsSnap from "./fixtures/claims.json";
-import { feeBpsOf, fillBuy, marketFromClaim, priceYes } from "@/lib/core/lmsr";
+import { cost, costOpen, feeBpsOf, fillBuy, marketFromClaim, priceYes } from "@/lib/core/lmsr";
 import { backUsd, payoutWords, quoteClaim, quoteSide } from "@/lib/quote";
 import type { ClaimView } from "@/lib/model";
 import { preBetClaim, REPLAY } from "@/lib/replay/record";
@@ -41,6 +41,18 @@ describe("quoteClaim equals the contract's fill on the crate's vectors", () => {
 describe("the replay's claim is the chain's", () => {
   test("claim 18 before the free $1: 23.18% chance it's true", () => {
     expect(preBetClaim().price_yes_ppm).toBe(231763);
+  });
+
+  test("the replay's caption has the real amount: what the market cost, never $0.00 with bets on it", () => {
+    const pre = preBetClaim();
+    expect(pre.trades).toBeGreaterThan(0);
+    expect(pre.volume_usd).toBeGreaterThan(0);
+    // the same sum on the final quantities gives the chain's own volume for claim 18, $4.077497
+    const final = marketFromClaim({ b_micro: "1450000", d0: "0", q_yes_micro: "1740974", q_no_micro: "4930100" })!;
+    expect(Number((cost(final) - costOpen(final)) / 1_000_000n) / 1e6).toBeCloseTo(4.077497, 4);
+    // the free $1 and the Archivist's bet came after: what's left is under the final total by about that
+    expect(pre.volume_usd!).toBeLessThan(4.077497 - 1);
+    expect(pre.volume_usd!).toBeGreaterThan(2);
   });
   test("a $1 No on it buys 1.203049 shares: exactly the logged trade (tx FGFhi1W9…)", () => {
     const q = quoteClaim(preBetClaim(), 1)!;
