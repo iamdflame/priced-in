@@ -86,7 +86,8 @@ const data = arg("--store") ? await fromStore(arg("--store")) : await fromApi(ar
 
 // ---------- the run ----------
 
-const signedFor = (id) => data.rewrites.filter((r) => r.status === "signed" && r.sentences?.some((s) => s.claim_id === id) && r.trigger?.txHash).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+// newest first, a rewrite a bet caused before one a ruling asked for
+const signedFor = (id) => data.rewrites.filter((r) => r.status === "signed" && r.sentences?.some((s) => s.claim_id === id)).sort((a, b) => Number(Boolean(b.trigger?.txHash)) - Number(Boolean(a.trigger?.txHash)) || (b.createdAt || 0) - (a.createdAt || 0));
 const pick = arg("--claim");
 const hero = pick !== undefined ? Number(pick)
   : (data.rulings.find((r) => r.status === "settled" && signedFor(r.claim_id).length)?.claim_id
@@ -96,13 +97,14 @@ if (hero === undefined || Number.isNaN(hero)) { console.error("no line has a sig
 const claim = data.claims.find((c) => c.id === hero);
 const rewrite = signedFor(hero).find((r) => r.trigger.claim_id === hero) || signedFor(hero)[0];
 if (!rewrite) { console.error(`claim ${hero} has no signed rewrite caused by a bet yet`); process.exit(2); }
-const betTx = rewrite.trigger.txHash;
+const newestBet = data.trades.filter((t) => t.claim_id === hero).sort((a, b) => (b.at || 0) - (a.at || 0))[0] || null;
+const betTx = rewrite.trigger?.txHash || newestBet?.tx || null;
 const trade = data.trades.find((t) => t.tx === betTx) || null;
-const answer = data.rationales.filter((a) => a.trigger?.tx_hash === betTx).sort((a, b) => (a.at || 0) - (b.at || 0))[0]
+const answer = data.rationales.filter((a) => betTx && a.trigger?.tx_hash === betTx).sort((a, b) => (a.at || 0) - (b.at || 0))[0]
   || data.rationales.filter((a) => a.claim_id === hero).sort((a, b) => (b.at || 0) - (a.at || 0))[0] || null;
 const ruling = data.rulings.filter((r) => r.claim_id === hero).sort((a, b) => (b.opened_at || 0) - (a.opened_at || 0))[0] || null;
 
-const bettor = trade?.trader ?? rewrite.trigger.trader ?? null;
+const bettor = trade?.trader ?? rewrite.trigger?.trader ?? null;
 const bet = await onChain(betTx, !bettor || bettor.startsWith("lane:") ? dep.accounts.lane : bettor);
 const betEvent = bet?.events?.find((e) => e.event === "trade" && e.data.claim_id === hero) || null;
 const anchor = rewrite.anchor?.tx_hash ? await onChain(rewrite.anchor.tx_hash, dep.root) : null;
@@ -111,9 +113,9 @@ const sig = verifyProvenance(rewrite.provenance);
 const steps = [
   {
     kind: "bet", at: bet?.block_time ? Date.parse(bet.block_time) : rewrite.createdAt, claim_id: hero,
-    trader: betEvent?.data?.trader ?? rewrite.trigger.trader, free_bet: String(betEvent?.data?.trader ?? rewrite.trigger.trader ?? "").startsWith("lane:"),
+    trader: betEvent?.data?.trader ?? bettor, free_bet: String(betEvent?.data?.trader ?? bettor ?? "").startsWith("lane:"),
     side: betEvent?.data?.side ?? null, amount_usd: betEvent ? Number(betEvent.data.amount_micro) / 1e6 : null, shares: betEvent ? Number(betEvent.data.shares_micro) / 1e6 : null,
-    price_after: betEvent ? betEvent.data.price_yes_ppm / 1e6 : rewrite.trigger.price_yes_ppm / 1e6, chain: bet,
+    price_after: betEvent ? betEvent.data.price_yes_ppm / 1e6 : (rewrite.trigger?.price_yes_ppm ?? 0) / 1e6, chain: bet,
   },
   {
     kind: "rewrite", at: rewrite.createdAt, signed_after_ms: rewrite.latency_ms?.signed ?? null, id: rewrite.id, status: rewrite.status,
@@ -132,7 +134,7 @@ const out = {
   note: `One complete real run on NEAR ${NET}, recorded from ${data.source} and read back from the chain. Replay it in order; every transaction carries its network and links, so a ${NET} record is checked against ${NET}.`,
   network: NET, market: MARKET, rpc: RPCS, explorer: EXPLORER, recorded_at: new Date().toISOString(),
   claim: claim ? { id: claim.id, text: claim.text, page: claim.page, kind: claim.kind, status: claim.status, outcome: claim.outcome, price_yes_ppm: claim.price_yes_ppm, trades: claim.trades } : { id: hero },
-  timings_ms: { bet_to_rewrite_signed: rewrite.latency_ms?.signed ?? null, bet_to_answer: answer && steps[0].at ? answer.at - steps[0].at : null, challenge_to_provisional: ruling?.provisional_at && ruling.opened_at ? ruling.provisional_at - ruling.opened_at : null, challenge_to_settled: ruling?.settled_at && ruling.opened_at ? ruling.settled_at - ruling.opened_at : null },
+  timings_ms: { bet_to_rewrite_signed: rewrite.trigger?.txHash ? rewrite.latency_ms?.signed ?? null : null, bet_to_answer: answer && steps[0].at ? answer.at - steps[0].at : null, challenge_to_provisional: ruling?.provisional_at && ruling.opened_at ? ruling.provisional_at - ruling.opened_at : null, challenge_to_settled: ruling?.settled_at && ruling.opened_at ? ruling.settled_at - ruling.opened_at : null },
   steps,
   verify: { transactions: "EXPERIMENTAL_tx_status on the record's own network (rpc above)", rewrite: "sha256 of request_b64 and response_b64, then ed25519 over <model>:<request_hash>:<response_hash> against the attested signing key (services/ai/src/nearai.js verifyProvenance)", verdicts: "the market verified each model's signature on-chain when it accepted the verdict" },
   problems: bad,
