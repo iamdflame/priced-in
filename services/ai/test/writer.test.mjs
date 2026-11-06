@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { NearAI, Attestor, verifyProvenance } from "../src/nearai.js";
-import { Writer, band, templateSentence, wordDiff, parseRewriteReply, paragraphsOf, rewriteRequest } from "../src/writer.js";
+import { Writer, band, templateSentence, wordDiff, parseRewriteReply, paragraphsOf, rewriteRequest, validateRewrite, isListOrCompound, WRITER_PROMPT } from "../src/writer.js";
 import { corpusEvidence } from "../src/evidence.js";
 import { Ledger } from "../src/ledger.js";
 import { EventHub } from "../../api/src/events.mjs";
@@ -55,7 +55,7 @@ test("bands: assert at 0.85 and above, disputed near 0.5, hedge from 0.4, negate
   assert.equal(templateSentence("X is Y.", 0.9), "X is Y.");
   assert.equal(templateSentence("X is Y.", 0.75), "X is Y (likely, 75%).");
   assert.equal(templateSentence("X is Y.", 0.5), "Disputed (50%): X is Y.");
-  assert.equal(templateSentence("X is Y.", 0.2), "Probably not true (20% likely): X is Y.");
+  assert.equal(templateSentence("X is Y.", 0.2), "Traders doubt this line: X is Y.");
 });
 
 test("word diff: both sides rebuild from the ops", () => {
@@ -235,4 +235,86 @@ test("evidence: a sentence our measurement found stale is corrected to the sourc
   assert.deepEqual(sent[0].evidence, { source: "Tether's attestation report", value_today: ev.value_today, value_on_page: ev.value_on_page, checked_on: "2026-11-05" });
   assert.equal(sent[1].evidence, undefined, "no evidence, no field");
   assert.match(body.messages[0].content, /Use only the evidence given/);
+});
+
+// ---------- the check on a model's sentence ----------
+
+const LIST = "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Near, Polygon and Solana.";
+const COMPOUND = "Kalshi is a U.S. CFTC-regulated betting market and available only for U.S. residents.";
+const STALE = "The majority of Tether's reserves are U.S. T-Bills, accounting for $72.6 billion.";
+const EV_STALE = { source_name: "Tether's attestation report", value_today: "$122.84 billion at 30 September 2026", value_on_page: "$72.6 billion in U.S. T-Bills, stated without a date", checked_on: "2026-11-05" };
+const EV_LIST = { source_name: "Tether", value_today: "No longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand", value_on_page: "Tether issues on 13 chains, including Algorand, EOS and Bitcoin Cash SLP", checked_on: "2026-11-05" };
+
+test("without evidence the doubt is attributed and the claim is intact, in the template and the prompt", () => {
+  for (const p of [0.39, 0.2, 0.01]) assert.equal(templateSentence(LIST, p), `Traders doubt this line: ${LIST}`);
+  assert.doesNotMatch(templateSentence(LIST, 0.2), /not true|false/i);
+  assert.match(WRITER_PROMPT, /Traders doubt this line/);
+  assert.match(WRITER_PROMPT, /never negate it or any part of it/);
+  assert.doesNotMatch(WRITER_PROMPT, /say the claim is probably not true/i);
+});
+
+test("the check: a list or a compound sentence negated with no evidence is refused", () => {
+  assert.equal(isListOrCompound(LIST), true);
+  assert.equal(isListOrCompound(COMPOUND), true);
+  assert.equal(isListOrCompound("NEAR Intents launched in 2024."), false);
+  assert.match(validateRewrite({ claim: LIST, band: "negate" }, "Tether probably does not issue tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Near, Polygon and Solana."), /negates the line/);
+  assert.match(validateRewrite({ claim: COMPOUND, band: "negate" }, "Kalshi is not a U.S. CFTC-regulated betting market and is not available only for U.S. residents."), /negates the line/);
+  assert.match(validateRewrite({ claim: "X launched in 2024.", band: "negate" }, "X never launched in 2024."), /negates the line/);
+  assert.match(validateRewrite({ claim: LIST, band: "negate" }, `It is false that ${LIST}`), /negates the line/);
+});
+
+test("the check: attributed doubt and a negation the claim already has both pass", () => {
+  assert.equal(validateRewrite({ claim: LIST, band: "negate" }, `Traders doubt this line: ${LIST}`), null);
+  assert.equal(validateRewrite({ claim: "Tether has not published an audit.", band: "hedge" }, "Tether reportedly has not published an audit."), null);
+  assert.equal(validateRewrite({ claim: "X is Y.", band: "disputed" }, "It is disputed whether X is Y."), null);
+});
+
+test("the check: a figure found in neither the claim nor the evidence is refused", () => {
+  assert.match(validateRewrite({ claim: "Reserves are about $72.6 billion.", band: "hedge" }, "Reserves are likely about $80 billion."), /adds a figure/);
+  assert.match(validateRewrite({ claim: "Reserves are large.", band: "hedge" }, "Reserves are likely large (72%)."), /adds a figure/);
+  assert.match(validateRewrite({ claim: STALE, band: "correct", evidence: EV_STALE }, "The majority of Tether's reserves are U.S. T-Bills, which the report puts at $130 billion."), /adds a figure/);
+  assert.equal(validateRewrite({ claim: "It has 1,000 users.", band: "hedge" }, "It reportedly has 1000 users."), null);
+});
+
+test("the check: the live correction passes, figures, date and all", () => {
+  const live = "The majority of Tether's reserves are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026.";
+  assert.equal(validateRewrite({ claim: STALE, band: "correct", evidence: EV_STALE }, live), null);
+});
+
+test("the check: with evidence, its own negation may stand, but not over parts of a list it does not mention", () => {
+  const good = "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Near, Polygon and Solana; Tether says it is no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand.";
+  assert.equal(validateRewrite({ claim: LIST, band: "correct", evidence: EV_LIST }, good), null);
+  const whole = "Tether is no longer issuing tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Near, Polygon and Solana.";
+  assert.match(validateRewrite({ claim: LIST, band: "correct", evidence: EV_LIST }, whole), /negates part of a list/);
+  assert.match(validateRewrite({ claim: LIST, band: "correct", evidence: EV_LIST }, "Tether does not issue tokens on Avalanche."), /negates the line/);
+});
+
+test("a reply that negates a true list gets one corrective retry and then falls back to the template", async () => {
+  const claims = [{ id: 0, page: "near-intents", text: LIST, price_yes_ppm: 200000 }];
+  const { mock, writer } = await setup({ claims: fakeClaims(claims), pagesDoc: null, evidence: null });
+  try {
+    const bad = JSON.stringify({ sentences: [{ claim_id: 0, text: "Tether probably does not issue tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Near, Polygon and Solana." }] });
+    let calls = 0;
+    mock.behave(M, { content: () => { calls++; return bad; } });
+    const rec = await writer.onTrade(trade(0, 200000));
+    assert.equal(calls, 2, "one corrective retry, no more");
+    assert.equal(rec.status, "template");
+    assert.equal(rec.sentences[0].text, `Traders doubt this line: ${LIST}`);
+    assert.match(rec.provenance.reason, /negates the line/);
+  } finally { writer.stop(); await mock.close(); }
+});
+
+test("a reply that adds a figure is corrected by the retry, and the retry's bytes are what is signed", async () => {
+  const text = "NEAR Intents has reportedly processed more than $10 billion in cumulative volume.";
+  const claims = [{ id: 0, page: "near-intents", text: CLAIMS[0].text, price_yes_ppm: 600000 }];
+  const { mock, writer } = await setup({ claims: fakeClaims(claims), pagesDoc: null, evidence: null });
+  try {
+    mock.behave(M, { content: (body) => JSON.stringify({ sentences: [{ claim_id: 0, text: body.messages.length > 2 ? text : "NEAR Intents has reportedly processed more than $14 billion in cumulative volume." }] }) });
+    const rec = await writer.onTrade(trade(0, 600000));
+    assert.equal(rec.status, "signed");
+    assert.equal(rec.sentences[0].text, text);
+    const req = JSON.parse(Buffer.from(rec.provenance.request_b64, "base64").toString("utf8"));
+    assert.match(req.messages[3].content, /adds a figure/);
+    assert.ok(verifyProvenance(rec.provenance).ok);
+  } finally { writer.stop(); await mock.close(); }
 });
