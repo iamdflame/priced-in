@@ -22,7 +22,7 @@ import { extractMarketEvents } from "../../services/api/src/events.mjs";
 import { RewriteStore } from "../../services/api/src/rewrites.mjs";
 import { mountAi } from "../../services/ai/src/mount.js";
 import { Writer } from "../../services/ai/src/writer.js";
-import { BlobState, JournalDir } from "./store.mjs";
+import { makeState, JournalDir } from "./store.mjs";
 import { installSpendMeter } from "./spend.mjs";
 import { ClaimsSnapshot } from "./snapshot.mjs";
 
@@ -82,7 +82,7 @@ export function prepare() {
   }
   const { api, ai, errors } = loadAiConfig(env);
   if (errors.length) throw new Error(`configuration: ${errors.join("; ")}`);
-  const state = new BlobState({ prefix: `state/${api.network}/${api.marketId || "no-market"}`, log });
+  const state = makeState({ prefix: `state/${api.network}/${api.marketId || "no-market"}`, log });
   const journals = new JournalDir(state, env.DATA_DIR, { log });
   const spend = installSpendMeter({ baseUrl: ai.nearai.baseUrl, capUsd: Number(env.NEARAI_DAILY_CAP_USD || 1), dir: env.DATA_DIR, log });
   const claims = new ClaimsSnapshot({ urls: api.rpcUrls, marketId: api.marketId, state, log });
@@ -251,7 +251,7 @@ export async function runJob(name, work, { lock: lockName = "ai-job", agents = t
       timings.start_ms = Date.now() - tHooks;
     })();
     started.catch((e) => log(`${name}: start: ${e.message}`));
-    const out = await work({ app, layer, p, started, reanchor: reanchor ? reanchorFn : null, deadline: t0 + budgetMs, wanted: async () => { const d = await p.state.getDoc(`locks/${lockName}-wanted.json`).catch(() => null); return d?.value?.at > t0 && d.value.by !== name; } });
+    const out = await work({ app, layer, p, started, reanchor: reanchor ? reanchorFn : null, deadline: t0 + budgetMs, track: (hash, sender) => { if (hash && sender) txs.set(hash, sender); }, wanted: async () => { const d = await p.state.getDoc(`locks/${lockName}-wanted.json`).catch(() => null); return d?.value?.at > t0 && d.value.by !== name; } });
     await started.catch(() => {});
     const settled = await idle(layer, Math.max(t0 + budgetMs, Date.now() + 20_000)); // an anchor already sent is always waited for
     await p.spend.settle();

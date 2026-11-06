@@ -42,7 +42,8 @@ export function extractMarketEvents(tx, marketId) {
   const out = [];
   for (const r of tx?.receipts_outcome || []) {
     const o = r.outcome;
-    if (!o || o.executor_id !== marketId) continue;
+    // a receipt that failed changed nothing: logs it wrote before the panic are not events
+    if (!o || o.executor_id !== marketId || o.status?.Failure) continue;
     for (const e of parseEventLogs(o.logs)) {
       out.push({ ...e, receiptId: r.id, receiptBlockHash: r.block_hash, uid: `${r.id}:${e.logIndex}:${e.dataIndex}` });
     }

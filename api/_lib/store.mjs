@@ -148,6 +148,83 @@ export class BlobState {
     const h = crypto.createHash("sha256").update(`${scope}:${key}`).digest("hex").slice(0, 20);
     await this.updateDoc(`limits/${scope}/${day}.json`, (cur) => (cur?.[h] > 0 ? { ...cur, [h]: cur[h] - 1 } : undefined)).catch(() => {});
   }
+
+  /** How much of `scope` is left for `key` today, without taking any. { used, remaining, retryAfterS }. */
+  async peek(scope, key, limit) {
+    const day = new Date().toISOString().slice(0, 10);
+    const h = crypto.createHash("sha256").update(`${scope}:${key}`).digest("hex").slice(0, 20);
+    const cur = await this.getDoc(`limits/${scope}/${day}.json`);
+    const used = Number(cur?.value?.[h] || 0);
+    const next = Date.parse(`${day}T00:00:00Z`) + 86_400_000;
+    return { used, remaining: Math.max(0, limit - used), retryAfterS: used >= limit ? Math.ceil((next - Date.now()) / 1000) : 0 };
+  }
+}
+
+/**
+ * The same store on the local disk, for local runs and tests (STATE_DIR=<dir>): documents with a
+ * content ETag and compare-and-swap, immutable chunks, and the same locks and daily limits. One
+ * process at a time; never used on Vercel, where BLOB_READ_WRITE_TOKEN selects the Blob store.
+ */
+export class FsState extends BlobState {
+  constructor({ prefix, dir, log = () => {} }) {
+    super({ prefix, token: "local", log });
+    this.dir = dir;
+  }
+
+  file(name) { return path.join(this.dir, ...this.key(name).split("/")); }
+
+  async getDoc(name, { ifNoneMatch } = {}) {
+    this.ops.gets++;
+    const f = this.file(name);
+    if (!fs.existsSync(f)) return null;
+    const buf = fs.readFileSync(f);
+    const etag = `"${sha(buf)}"`;
+    if (ifNoneMatch && ifNoneMatch === etag) return { notModified: true, etag };
+    return { value: JSON.parse(buf.toString("utf8")), etag };
+  }
+
+  async putDoc(name, value, { etag = null } = {}) {
+    this.ops.puts++;
+    const f = this.file(name);
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    const body = Buffer.from(JSON.stringify(value));
+    const exists = fs.existsSync(f);
+    if (!etag && exists) throw Object.assign(new Error("this blob already exists (precondition)"), { name: "BlobPreconditionFailedError" });
+    if (etag && (!exists || `"${sha(fs.readFileSync(f))}"` !== etag)) throw Object.assign(new Error("precondition failed (412)"), { name: "BlobPreconditionFailedError" });
+    const tmp = `${f}.${process.pid}.${crypto.randomBytes(3).toString("hex")}.tmp`;
+    fs.writeFileSync(tmp, body);
+    fs.renameSync(tmp, f);
+    return `"${sha(body)}"`;
+  }
+
+  async putChunk(name, buf) {
+    this.ops.puts++;
+    const f = this.file(name);
+    fs.mkdirSync(path.dirname(f), { recursive: true });
+    fs.writeFileSync(f, buf);
+    this.chunkCache.set(name, Buffer.from(buf));
+  }
+
+  async getChunk(name) {
+    const hit = this.chunkCache.get(name);
+    if (hit) return hit;
+    this.ops.gets++;
+    const f = this.file(name);
+    if (!fs.existsSync(f)) throw new StoreError(`chunk ${name} is missing`);
+    const buf = fs.readFileSync(f);
+    this.chunkCache.set(name, buf);
+    return buf;
+  }
+
+  async deleteChunks(names) {
+    for (const n of names) fs.rmSync(this.file(n), { force: true });
+  }
+}
+
+/** The store for this runtime: the local disk when STATE_DIR is set, else the Vercel Blob store. */
+export function makeState({ prefix, log = () => {}, env = process.env }) {
+  if (env.STATE_DIR) return new FsState({ prefix, dir: env.STATE_DIR, log });
+  return new BlobState({ prefix, log });
 }
 
 // ---------- journals: DATA_DIR rebuilt from chunks, appends uploaded as new chunks ----------
@@ -273,6 +350,20 @@ export class JournalDir {
       try { out.push(JSON.parse(line)); } catch { /* a torn line: skipped, as the Journal class does */ }
     }
     return out;
+  }
+
+  /** The same records, parsed once per change of the file: for read routes on every request. */
+  readCached(file) {
+    const f = path.join(this.dir, file);
+    let st = null;
+    try { st = fs.statSync(f); } catch { return []; }
+    const key = `${st.size}:${st.mtimeMs}`;
+    this.parsed ||= new Map();
+    const hit = this.parsed.get(file);
+    if (hit?.key === key) return hit.list;
+    const list = this.read(file);
+    this.parsed.set(file, { key, list });
+    return list;
   }
 
   append(file, rec) {
