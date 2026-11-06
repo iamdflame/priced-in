@@ -428,7 +428,8 @@
 
 /* Numbers page and feed details */
 .books.three { margin-top: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.books .held { background: var(--surface2); }
+.books .held { margin-top: 0; background: var(--surface2); }
+.books .held b { color: var(--ink); }
 .books em { font-style: normal; color: var(--ink2); }
 .bookspanel { padding: 16px; }
 .calib { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; }

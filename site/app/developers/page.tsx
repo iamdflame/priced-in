@@ -69,7 +69,7 @@ export default async function DevelopersPage() {
             <h3><span className="m">GET</span>/v1/credence</h3>
             <p>Match a question (<span className="tcode">?q=</span>) or read a fact (<span className="tcode">?claim=</span>). Answers with the price, the money behind it, the AI traders’ reasons and how it was decided.</p>
           </div>
-          {first ? <Code label={`Real answer for ?claim=${SAMPLE_CLAIM}, trimmed`}>{pretty({ claim_id: first.claim_id, credence: first.credence, summary: first.summary, volume_usd: first.volume_usd, trades: first.trades, decided: first.resolution.state, outcome: first.resolution.outcome })}</Code> : <p className="fine">The sample didn’t load just now. {sample.ok ? "" : sample.error}</p>}
+          {first ? <Code label={`Real answer for ?claim=${SAMPLE_CLAIM}, trimmed`}>{pretty({ claim_id: first.claim_id, credence: first.credence, summary: first.summary, volume_usd: first.volume_usd, trades: first.trades, decided: first.resolution.state, outcome: first.resolution.outcome })}</Code> : <p className="fine">No sample just now: this page’s free calls are used up for today. <a className="link" href="#try">Try it above</a>, on your own address’s free calls.</p>}
         </section>
         <section className="ep">
           <div>
