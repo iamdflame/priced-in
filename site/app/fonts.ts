@@ -30,10 +30,8 @@ export const geistMono = localFont({
 });
 
 export const amstelvar = localFont({
-  src: [
-    { path: "./fonts/amstelvar-roman.woff2", weight: "100 1000", style: "normal" },
-    { path: "./fonts/amstelvar-italic.woff2", weight: "100 1000", style: "italic" },
-  ],
+  // a static text instance of the variable font (opsz 18, weight 400), Latin only: 17 KB instead of 211
+  src: [{ path: "./fonts/amstelvar-text.woff2", weight: "400", style: "normal" }],
   variable: "--font-amstelvar",
   display: "swap",
   preload: false,

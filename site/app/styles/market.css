@@ -17,7 +17,7 @@
 .wiki { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; padding: 16px 20px; margin-top: 14px; }
 .wiki .h { font-size: 12.5px; color: var(--ink3); margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
 .wiki .h .ic { width: 15px; height: 15px; }
-.quote { font: 400 16.5px/1.45 var(--quote); font-variation-settings: 'opsz' 18; color: var(--ink); }
+.quote { font: 400 16.5px/1.45 var(--quote); color: var(--ink); }
 .wiki .none { font-size: 15px; line-height: 1.45; color: var(--ink2); }
 .wiki .big-v { font: 600 20px/1.25 var(--disp); letter-spacing: -.015em; color: var(--ink); }
 .src { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12.5px; color: var(--brand-text); min-height: 24px; }

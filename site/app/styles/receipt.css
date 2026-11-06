@@ -28,7 +28,7 @@
 .sig.wait { color: var(--ink3); font-weight: 500; }
 .sig.bad { color: var(--no); }
 .sig .ic { width: 15px; height: 15px; stroke-width: 2.4; }
-.ba { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px 12px; font: 400 15.5px/1.4 var(--quote); font-variation-settings: 'opsz' 18; }
+.ba { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 6px 12px; font: 400 15.5px/1.4 var(--quote); }
 .ba span { font: 500 12.5px/1.8 var(--text); color: var(--ink3); }
 .ba del { color: var(--ink2); text-decoration-color: var(--no); text-decoration-thickness: 1.5px; }
 .ba ins { text-decoration: none; background: var(--yes-bg); border-radius: 4px; padding: 0 3px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
