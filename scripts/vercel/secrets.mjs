@@ -8,11 +8,12 @@
 // Sources: .env (NEARAI_API_KEY2, the $20 key for the live site), .apex-test/vercel/ (scripts/vercel/keys.mjs),
 // .apex-test/judge-planner.json (the deployment's test planner key), deployments/testnet.json (public ids).
 // Mainnet is the same code with other values: NEAR_NETWORK=mainnet, mainnet ids, keys and RPCs, no swarm
-// (it stays on testnet), and caps sized to the real money each house agent holds.
+// (it stays on testnet), caps sized to the real money each house agent holds, and the truth API's X402_*
+// values once scripts/mainnet/x402.mjs has made the relayer (deployments/mainnet.json and its key file).
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { ROOT, dotEnv, vercelApi, projectId } from "./env.mjs";
+import { ROOT, dotEnv, vercelApi, projectId, x402Env } from "./env.mjs";
 
 const local = dotEnv();
 const ni = process.argv.indexOf("--network");
@@ -35,6 +36,9 @@ const jury = read(path.join(V, "jury-key.json"));
 const lane = read(path.join(V, "lane-key.json"));
 const planner = read(MAIN ? path.join(V, "planner.json") : path.join(ROOT, ".apex-test/judge-planner.json"));
 if (!local.NEARAI_API_KEY2) throw new Error("NEARAI_API_KEY2 is not set in .env");
+const relayerFile = path.join(V, "x402-relayer-key.json");
+const x402 = x402Env(dep, MAIN && fs.existsSync(relayerFile) ? read(relayerFile) : null);
+if (MAIN && !x402.secret.X402_RELAYER_PRIVATE_KEY) console.log("no x402 relayer yet (node scripts/mainnet/x402.mjs --plan): the truth API stays on its free tier");
 
 const plain = {
   NEAR_NETWORK: NET,
@@ -70,7 +74,7 @@ if (MAIN) Object.assign(plain, {
   AGENT_FEE_POINTS: "0.01",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
-});
+}, x402.plain);
 const secret = {
   NEARAI_API_KEY: local.NEARAI_API_KEY2,
   LANE_PRIVATE_KEY: lane.privateKey,
@@ -78,6 +82,7 @@ const secret = {
   JURY_PRIVATE_KEY: jury.privateKey,
   PRICEDIN_KEYSTORE: bundle,
   CRON_SECRET: null, // made below, once
+  ...x402.secret,
 };
 
 const i = process.argv.indexOf("--local");

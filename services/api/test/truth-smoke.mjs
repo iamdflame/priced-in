@@ -12,7 +12,9 @@
 //    receipt, checked on chain (the payee's balance rose by exactly the price).
 // 6. Replays the same payment: refused, and nothing more moves.
 //
-// Testnet only: it refuses NEAR_NETWORK=mainnet. Offline, it prints SKIP and exits 0.
+// This run is testnet only: it refuses NEAR_NETWORK=mainnet. Offline, it prints SKIP and exits 0.
+// The hosted API on mainnet has its own run: --network mainnet --plan reads and spends nothing,
+// and --network mainnet with CONFIRM_MAINNET=yes pays $0.01 (truth-smoke-mainnet.mjs).
 // Accounts it needs (payee, relayer, payer) are made once from the funder (FUNDER_ID /
 // FUNDER_KEY, or the local spike account) and kept, keys and all, in the git-ignored
 // .apex-test/truth-testnet.json. Without a funder or that file the payment part SKIPs.
@@ -35,6 +37,16 @@ const NEAR = 10n ** 24n;
 const TGAS = 10n ** 12n;
 const QUESTION = "Does Tether issue USDT on NEAR?";
 
+const netArg = process.argv.indexOf("--network");
+if (netArg > 0 && process.argv[netArg + 1] === "mainnet") {
+  const plan = process.argv.includes("--plan");
+  if (!plan && process.env.CONFIRM_MAINNET !== "yes") {
+    console.error("Refusing to spend on mainnet: set CONFIRM_MAINNET=yes to mean it, or use --plan.");
+    process.exit(1);
+  }
+  const { mainnetSmoke } = await import("./truth-smoke-mainnet.mjs");
+  process.exit(await mainnetSmoke({ plan }));
+}
 if ((process.env.NEAR_NETWORK || "testnet") !== "testnet") {
   console.error("truth:smoke runs on testnet only; unset NEAR_NETWORK or set it to testnet.");
   process.exit(1);

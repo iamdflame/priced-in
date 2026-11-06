@@ -19,6 +19,22 @@ export function dotEnv(file = path.join(ROOT, ".env")) {
   return { ...out, ...process.env };
 }
 
+/**
+ * The truth API's payment variables, from the deployment record and the relayer's key file. Empty
+ * until scripts/mainnet/x402.mjs has run: then the API stays on the free tier and answers 429 past it.
+ * X402_FACILITATOR_ROUTES=0: the hosted API settles only its own calls, so settlements take turns
+ * and are all recorded; nothing outside needs /x402/*.
+ */
+export function x402Env(dep, relayerKey) {
+  const x = dep.x402;
+  if (!x || !relayerKey) return { plain: {}, secret: {} };
+  if (relayerKey.accountId !== x.relayer) throw new Error(`the relayer key is for ${relayerKey.accountId}, but the deployment records ${x.relayer}`);
+  return {
+    plain: { X402_PAY_TO: x.pay_to, X402_RELAYER_ACCOUNT_ID: x.relayer, X402_PRICE_MICRO: String(x.price_micro), X402_RPC_URL: x.rpc, X402_FACILITATOR_ROUTES: "0" },
+    secret: { X402_RELAYER_PRIVATE_KEY: relayerKey.privateKey },
+  };
+}
+
 /** The Vercel REST API with the token, scoped to the team. */
 export function vercelApi(env) {
   if (!env.VERCEL_TOKEN) throw new Error("VERCEL_TOKEN is not set in .env");
