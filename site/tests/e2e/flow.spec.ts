@@ -1,0 +1,90 @@
+// Home → market → free bet → receipt (live, with the lane and the chain intercepted), and the replay of
+// the real mainnet run. Neither spends a cent: see guard.ts.
+import { expect, test } from "@playwright/test";
+import { guard, noMoneySpent } from "./guard";
+
+test("home → market → free bet → receipt", async ({ page }) => {
+  const g = await guard(page, { claimId: 24, side: "no", beforePpm: 400000, afterPpm: 318000, sharesMicro: "1398001" });
+  await page.goto("/");
+  await expect(page.getByRole("heading", { level: 1, name: "Bet on whether facts are true." })).toBeVisible();
+  await expect(page.getByText("Pick true or false")).toBeVisible();
+  await expect(page.getByText("3 AI judges decide")).toBeVisible();
+  await expect(page.getByText("Right answers get paid")).toBeVisible();
+  // no key is asked for on a page view
+  expect(g.laneKeys).toBe(0);
+
+  // tap No on the Kalshi card
+  const no = page.locator('a.bet.no[href="/c/24?side=no"]');
+  await expect(no).toContainText("No, it’s false");
+  await expect(no).toContainText(/Bet \$1 → get \$\d\.\d\d/);
+  await no.click();
+  await expect(page).toHaveURL(/\/c\/24\?side=no/);
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Kalshi");
+  await expect(page.getByText("What Wikipedia says (what you’re betting on)")).toBeVisible();
+
+  // the side is picked; the quote says what $1 gets back
+  const pickNo = page.getByRole("button", { name: /No, it’s false/ }).first();
+  await expect(pickNo).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("If you’re right, you get back")).toBeVisible();
+  await page.getByTestId("confirm").click();
+
+  // the receipt
+  const receipt = page.getByRole("dialog", { name: /You bet \$1 that it’s false/ });
+  await expect(receipt).toBeVisible({ timeout: 30_000 });
+  await expect(receipt.getByTestId("settled")).toContainText(/Settled on NEAR in \d+\.\d s/);
+  await expect(receipt.getByText("chance it’s true").first()).toBeVisible();
+  // the hash is the one this browser signed
+  await expect(receipt.locator("a.hashv")).toHaveAttribute("href", /^https:\/\/nearblocks\.io\/txns\/[1-9A-HJ-NP-Za-km-z]{43,44}$/);
+  await expect(receipt.getByRole("button", { name: "Share on X" })).toBeVisible();
+  expect(g.laneKeys).toBe(1);
+  expect(g.sends).toBeGreaterThan(0);
+  noMoneySpent(g);
+
+  // closed, the ticket remembers the free $1 is used
+  await receipt.getByRole("button", { name: "Close the receipt" }).click();
+  await expect(page.getByText(/You’ve placed your free \$1/)).toBeVisible();
+  expect(g.errors, g.errors.join("\n")).toEqual([]);
+});
+
+test("a free bet the lane refuses says why, before and after the tap", async ({ page }) => {
+  const g = await guard(page);
+  await page.route(/\/(api\/)?lane\/key$/, (route) => route.fulfill({ status: 429, json: { error: { code: "lane_daily_cap", message: "Today’s free bets are all taken. Every price still updates live; come back tomorrow." } } }));
+  await page.goto("/c/24");
+  await page.getByRole("button", { name: /Yes, it’s true/ }).first().click();
+  await expect(page.getByText(/Today’s free bets are all taken/)).toBeVisible();
+  await expect(page.getByRole("link", { name: "Watch a replay" }).first()).toBeVisible();
+  noMoneySpent(g);
+});
+
+test("the replay of the real mainnet run: bet, signed rewrite verified in the browser, reply, ruling", async ({ page }) => {
+  const g = await guard(page);
+  await page.goto("/c/18?recorded=1");
+  await expect(page.getByText("Replay of a real mainnet run.")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Replay the free $1" })).toBeVisible();
+  await page.getByRole("button", { name: /No, it’s false/ }).first().click();
+  await page.getByTestId("confirm").click();
+  const receipt = page.getByRole("dialog", { name: /You bet \$1 that it’s false/ });
+  await expect(receipt).toBeVisible({ timeout: 20_000 });
+  await expect(receipt.getByText(/Replay · final on NEAR in block 223,236,617/)).toBeVisible();
+  await expect(receipt.getByText("23%", { exact: true })).toBeVisible();
+  // the rewrite NEAR AI Cloud signed, 4.3 s after the bet, checked here against the model's key on the market
+  await expect(receipt.getByText(/U.S. T-Bills, which Tether's attestation report/)).toBeVisible({ timeout: 20_000 });
+  await expect(receipt.getByTestId("sig-ok")).toBeVisible({ timeout: 30_000 });
+  // the Skeptic's reply, 12 s after the bet
+  await expect(receipt.getByText(/The Skeptic, an AI trader, replied/)).toBeVisible({ timeout: 25_000 });
+  await receipt.getByRole("button", { name: "Close the receipt" }).click();
+  // then the ruling plays
+  await expect(page.getByText("All three AI judges ruled it false")).toBeVisible({ timeout: 40_000 });
+  await expect(page.getByRole("heading", { name: "Ruled FALSE by 3 AI judges" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByRole("link", { name: /See the new market/ })).toHaveAttribute("href", "/c/32");
+  expect(g.laneKeys).toBe(0);
+  expect(g.sends).toBe(0);
+  noMoneySpent(g);
+  expect(g.errors, g.errors.join("\n")).toEqual([]);
+});
+
+test("a fact that doesn't exist is a real 404", async ({ page }) => {
+  const r = await page.goto("/c/99999");
+  expect(r?.status()).toBe(404);
+  await expect(page.getByRole("heading", { name: "There’s no fact here" })).toBeVisible();
+});

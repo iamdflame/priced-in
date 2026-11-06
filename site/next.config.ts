@@ -16,6 +16,8 @@ const config: NextConfig = {
   env: {
     NEXT_PUBLIC_NEAR_NETWORK: process.env.NEAR_NETWORK || process.env.NEXT_PUBLIC_NEAR_NETWORK || "mainnet",
   },
+  // the share cards read the kit's fonts and the dial from lib/og at request time
+  outputFileTracingIncludes: { "/c/[id]/opengraph-image": ["./lib/og/**"], "/opengraph-image": ["./lib/og/**"] },
   images: { formats: ["image/avif", "image/webp"], minimumCacheTTL: 31536000 },
   // near-api-js pulls in a validator whose code generator calls util.format: a tiny browser shim
   turbopack: { root: process.cwd(), resolveAlias: { util: { browser: "./lib/core/util-shim.ts" } } },

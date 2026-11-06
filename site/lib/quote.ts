@@ -25,17 +25,18 @@ export interface ClaimLike extends ClaimMarket {
 
 const DEFAULT_B_MICRO = 1_450_000; // the deployed liquidity, used only for a view without b_micro
 
-/** Both sides of a $amount bet on a claim view. Null when the market can't be quoted. */
-export function quoteClaim(c: ClaimLike, amountUsd = 1): Quotes | null {
+/** One side of a $amount bet on a claim view. Null when that side can't be filled (at the price cap). */
+export function quoteSide(c: ClaimLike, side: "yes" | "no", amountUsd = 1): Quote | null {
   const exact = marketFromClaim(c);
   const m = exact ?? marketFromPrice(c.price_yes_ppm, c.b_micro ?? DEFAULT_B_MICRO);
-  const fee = feeBpsOf(c);
-  const one = (side: "yes" | "no"): Quote | null => {
-    const q = quoteBuy(m, side, amountUsd, fee);
-    if (q.overflow || q.capped || q.sharesMicro <= 0n) return null;
-    return { back: q.shares, sharesMicro: q.sharesMicro.toString(), paid: q.paid, fee: q.fee, priceAfter: q.priceAfter, exact: !!exact };
-  };
-  const yes = one("yes"), no = one("no");
+  const q = quoteBuy(m, side, amountUsd, feeBpsOf(c));
+  if (q.overflow || q.capped || q.sharesMicro <= 0n) return null;
+  return { back: q.shares, sharesMicro: q.sharesMicro.toString(), paid: q.paid, fee: q.fee, priceAfter: q.priceAfter, exact: !!exact };
+}
+
+/** Both sides of a $amount bet on a claim view. Null when the market can't be quoted. */
+export function quoteClaim(c: ClaimLike, amountUsd = 1): Quotes | null {
+  const yes = quoteSide(c, "yes", amountUsd), no = quoteSide(c, "no", amountUsd);
   return yes && no ? { yes, no, amountUsd } : null;
 }
 
