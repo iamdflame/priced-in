@@ -1,0 +1,12 @@
+node_modules/
+# heavy media: synced from the kit or recorded in stage 2, never committed
+public/footage/
+public/audio/
+public/voice/
+out/
+*.mp4
+*.mov
+*.webm
+*.wav
+*.mp3
+.remotion/
