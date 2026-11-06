@@ -44,7 +44,18 @@
   "planner": "a mainnet planner key made for this deployment; its private half is not in git",
   "writer_model": "z-ai/glm-5.3-flash",
   "writer_public_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
-  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation"
+  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation",
+  "keeper_public_key": "ed25519:2q14S2SswDTzexEjG31WkNMXtSvXJhu2S3mGvKgTYbLC",
+  "keeper_methods": [
+   "finalize",
+   "expire_challenge",
+   "open_claim"
+  ],
+  "checker_account": "checker.isitpriced.near",
+  "checker_public_key": "ed25519:6ikQ8SZDcj4pp6qTTGPCGC7kdzWRq768d14SmipiMRnQ",
+  "checker_methods": [
+   "challenge"
+  ]
  },
  "models": [
   {
@@ -288,6 +299,18 @@
    "method": "set_limits",
    "tx": "FBVxEiJwoVShhgsuuEV4A6g8nCHg2G5eiQeN5cmyeyya",
    "link": "https://nearblocks.io/txns/FBVxEiJwoVShhgsuuEV4A6g8nCHg2G5eiQeN5cmyeyya"
+  },
+  {
+   "tag": "create checker.isitpriced.near",
+   "method": "create_account",
+   "tx": "GcaqUqu68bNSfkVM1Ldcker1wxi9zJ6m6pWN7z51yzCr",
+   "link": "https://nearblocks.io/txns/GcaqUqu68bNSfkVM1Ldcker1wxi9zJ6m6pWN7z51yzCr"
+  },
+  {
+   "tag": "bond checker.isitpriced.near $3.00",
+   "method": "ft_transfer_call",
+   "tx": "AdK88kQaR59nEfJQdWwTA1xp5JJPM3MHE7nje6RhdSbm",
+   "link": "https://nearblocks.io/txns/AdK88kQaR59nEfJQdWwTA1xp5JJPM3MHE7nje6RhdSbm"
   }
  ],
  "keys_set_at": "2026-11-05T22:06:38.206Z",
@@ -709,5 +732,10 @@
    "tx": "C9a4N2cLE7u8mtgSMJ69ZpKc8ybnygGqzMjDrHKV5WKi",
    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017"
   }
- ]
+ ],
+ "checker": {
+  "account": "checker.isitpriced.near",
+  "bond_micro": "3000000",
+  "at": "2026-11-06T03:13:48.744Z"
+ }
 }
