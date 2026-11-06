@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Icon } from "./Icon";
 import { ago, mmss } from "@/lib/format";
-import { BETS_KEY } from "@/lib/client/mybets";
 import { REPLAY_HREF } from "@/lib/nav";
 
 export function Countdown({ to, done = "any minute now" }: { to: number; done?: string }) {
@@ -29,16 +28,16 @@ export function Ago({ at }: { at: number }) {
   return <time dateTime={new Date(at).toISOString()} suppressHydrationWarning>{ago(at, now ?? Date.now())}</time>;
 }
 
-const COACH = "pi-coach-v1";
+/** Set before paint by app/layout.tsx once dismissed or once this browser has bet, so the coach mark is
+ * rendered on the server and never pushes the page down after load. */
+export const COACH_KEY = "pi-coach-v1";
 
-/** First visit: the free $1 is ready. Hidden once dismissed, or once this browser has bet. */
+/** First visit: the free $1 is ready. Or, when free bets are off, why, with the replay as the way on. */
 export function CoachMark({ open, reason }: { open: boolean; reason: string | null }) {
-  const [show, setShow] = useState(false);
-  useEffect(() => {
-    try { setShow(!localStorage.getItem(COACH) && !localStorage.getItem(BETS_KEY)); } catch { setShow(true); }
-  }, []);
-  if (!show) return null;
-  const close = () => { try { localStorage.setItem(COACH, "1"); } catch { /* private mode */ } setShow(false); };
+  const close = () => {
+    try { localStorage.setItem(COACH_KEY, "1"); } catch { /* private mode: hidden for this visit */ }
+    document.documentElement.dataset.coach = "off";
+  };
   if (!open) {
     return (
       <div className="notice coach-off" role="status">

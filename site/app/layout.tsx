@@ -28,8 +28,9 @@ export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#F8F9FB" }],
 };
 
-// Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default.
-const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still')}catch(e){}`;
+// Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default; and the coach
+// mark is hidden for a visitor who dismissed it or has bet (keys: Live.tsx COACH_KEY, lib/client/mybets).
+const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pi-coach-v1')||localStorage.getItem('pricedin.bets.v1'))document.documentElement.dataset.coach='off'}catch(e){}`;
 
 /** The strip reads the market on its own, so a slow API never holds up the page. */
 async function LiveBets() {

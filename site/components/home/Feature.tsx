@@ -61,7 +61,7 @@ export function RulingFeature({ ruled, corrected, ruling }: { ruled: Fact; corre
               </span>
             </p>
           </div>
-          <div className="feature-dial phone" aria-hidden="true"><Dial p={ruled.price} sizes="104px" /></div>
+          <div className="feature-dial phone"><Dial p={ruled.price} sizes="104px" /><p className="mini">chance it’s true</p></div>
         </div>
         {corrected?.quotes && <Reopened f={corrected} />}
       </div>
@@ -85,7 +85,7 @@ export function PlainFeature({ f }: { f: Fact }) {
         </div>
         <div className="fhd">
           <h2><Link href={`/c/${f.id}`}>{f.question}</Link></h2>
-          <div className="feature-dial phone" aria-hidden="true"><Dial p={f.price} sizes="104px" /></div>
+          <div className="feature-dial phone"><Dial p={f.price} sizes="104px" /><p className="mini">chance it’s true</p></div>
         </div>
         {f.caught && <p className="story">A newer source says {f.caught.today}.</p>}
         <div className="reopen plain">

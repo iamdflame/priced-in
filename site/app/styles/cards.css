@@ -8,11 +8,12 @@
 .tab .n { font-size: 12px; color: inherit; opacity: .65; }
 
 /* Bet buttons: what you pick and what $1 gets back, in words */
-.bets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.bets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .bet { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 2px; min-height: 56px; padding: 8px 13px; border-radius: 14px; text-align: left; transition: transform var(--micro) var(--ease-out), background var(--color), color var(--color); }
 .bet:active { transform: scale(.97); }
 .bet b { font: 600 15.5px var(--disp); }
-.bet small { font-size: 12.5px; opacity: .92; white-space: nowrap; }
+.bet { min-width: 0; }
+.bet small { font-size: 12.5px; opacity: .92; }
 .bet.yes { background: var(--yes-bg); color: var(--yes); }
 .bet.no { background: var(--no-bg); color: var(--no); }
 .bet.yes:hover, .bet.yes[aria-pressed='true'] { background: var(--yes-fill); color: var(--yes-ink); }
