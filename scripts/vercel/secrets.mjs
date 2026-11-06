@@ -74,6 +74,10 @@ if (MAIN) Object.assign(plain, {
   AGENT_FEE_POINTS: "0.01",
   // small bets, so the daily cap reaches the whole catalog: at $0.75 a day, 6 or 7 bets each instead of 2
   AGENT_MAX_BET_USD: "0.12",
+  // the AI jury sits once a day at 15:00 UTC, on the doubted fact with the most bets; a fact with none waits
+  CHECKER_PER_DAY: "1",
+  CHECKER_SITTING_HOUR_UTC: "15",
+  CHECKER_MIN_BETS: "1",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
 }, x402.plain);
