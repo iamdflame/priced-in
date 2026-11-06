@@ -1,5 +1,6 @@
-// Share cards with next/og: the kit's share card (screens/share.html) as 1200x630. Real data only: the
-// question and the % come from the API at request time. Fonts are the kit's, as TTF for the renderer.
+// Share cards with next/og, in the light theme: white paper, ink type, the ceramic dial (dial.png is the
+// light render) with the deep cyan needle. 1200x630. Real data only: the question and the % come from the
+// API at request time. Fonts are the kit's, as TTF for the renderer, which can't read CSS variables.
 import { readFile } from "node:fs/promises";
 import path from "node:path";
 
@@ -24,14 +25,14 @@ export function ogAssets() {
   return assets;
 }
 
-const INK = "#F5F7F9", INK2 = "#B9BEC6", CYAN = "#00ECFF", BG = "#0B0F13";
+const INK = "#131922", INK2 = "#4C535D", MARK = "#00B7C7", NEEDLE = "#008AAB", NO = "#C51D28";
 
 function Mark({ size = 56 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 48 48">
       <path fill={INK} fillRule="evenodd" d="M10 40.25V19A14 14 0 1 1 15.5 30.12V40.25A2.75 2.75 0 0 1 10 40.25ZM24 10.5A8.5 8.5 0 1 0 24 27.5A8.5 8.5 0 1 0 24 10.5Z" />
-      <path fill={CYAN} d="M25.41 20.27L29.14 14.34A0.7 0.7 0 0 0 28.1 13.4L22.59 17.73Z" />
-      <circle fill={CYAN} cx="24" cy="19" r="3" />
+      <path fill={MARK} d="M25.41 20.27L29.14 14.34A0.7 0.7 0 0 0 28.1 13.4L22.59 17.73Z" />
+      <circle fill={MARK} cx="24" cy="19" r="3" />
     </svg>
   );
 }
@@ -43,12 +44,12 @@ function DialArt({ p, dial, size }: { p: number; dial: string; size: number }) {
   return (
     <div style={{ position: "relative", width: size, height: size, display: "flex" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={dial} width={size} height={size} alt="" style={{ borderRadius: size }} />
+      <img src={dial} width={size} height={size} alt="" style={{ borderRadius: size, boxShadow: "0 2px 4px rgba(19,25,34,0.12), 0 22px 44px -18px rgba(19,25,34,0.35)" }} />
       <div style={{ position: "absolute", left: size / 2 - nw / 2, top: size / 2 - nh, width: nw, height: nh, display: "flex", transform: `rotate(${deg}deg)`, transformOrigin: "50% 100%" }}>
-        <svg width={nw} height={nh} viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10 0C10.9 0 11.5.6 11.7 1.5L16 100H4L8.3 1.5C8.5.6 9.1 0 10 0Z" fill={CYAN} /></svg>
+        <svg width={nw} height={nh} viewBox="0 0 20 100" preserveAspectRatio="none"><path d="M10 0C10.9 0 11.5.6 11.7 1.5L16 100H4L8.3 1.5C8.5.6 9.1 0 10 0Z" fill={NEEDLE} /></svg>
       </div>
-      <div style={{ position: "absolute", left: size * 0.44, top: size * 0.44, width: size * 0.12, height: size * 0.12, borderRadius: size, background: "#3a4048", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: size * 0.04, height: size * 0.04, borderRadius: size, background: CYAN }} />
+      <div style={{ position: "absolute", left: size * 0.44, top: size * 0.44, width: size * 0.12, height: size * 0.12, borderRadius: size, backgroundImage: "radial-gradient(circle at 36% 30%, #FFFFFF, #DCDEE1 46%, #9A9FA5)", boxShadow: "0 2px 5px rgba(19,25,34,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: size * 0.04, height: size * 0.04, borderRadius: size, background: NEEDLE }} />
       </div>
     </div>
   );
@@ -57,19 +58,19 @@ function DialArt({ p, dial, size }: { p: number; dial: string; size: number }) {
 export function ShareCard({ title, pct, sub, kicker, dial }: { title: string; pct: number | null; sub: string; kicker?: string | null; dial: string }) {
   const long = title.length > 90;
   return (
-    <div style={{ width: 1200, height: 630, display: "flex", background: BG, backgroundImage: "radial-gradient(60% 90% at 82% 46%, rgba(38,74,92,0.85), rgba(11,15,19,0) 72%)", color: INK, padding: "48px 56px", fontFamily: "General Sans" }}>
+    <div style={{ width: 1200, height: 630, display: "flex", background: "#FFFFFF", backgroundImage: "linear-gradient(180deg, #FFFFFF 0%, #F3F5F7 100%)", color: INK, padding: "48px 56px", fontFamily: "General Sans" }}>
       <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0, paddingRight: 24 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <Mark />
           <span style={{ fontSize: 40, fontWeight: 700, letterSpacing: -1 }}>Priced In</span>
         </div>
         <div style={{ display: "flex", flexDirection: "column", marginTop: "auto", marginBottom: "auto" }}>
-          {kicker && <span style={{ fontSize: 24, fontWeight: 500, color: "#FF7072", marginBottom: 14 }}>{kicker}</span>}
+          {kicker && <span style={{ fontSize: 24, fontWeight: 500, color: NO, marginBottom: 14 }}>{kicker}</span>}
           <span style={{ fontSize: long ? 46 : 58, fontWeight: 700, lineHeight: 1.06, letterSpacing: -1.6 }}>{title}</span>
           <span style={{ marginTop: 22, fontSize: 26, fontWeight: 500, color: INK2 }}>{sub}</span>
         </div>
         <div style={{ display: "flex", fontSize: 24, fontWeight: 500, color: INK2 }}>
-          <span>Is it true?&nbsp;</span><span style={{ color: CYAN }}>Bet on it.</span><span style={{ marginLeft: "auto" }}>Your first $1 is free</span>
+          <span style={{ color: INK }}>Is it true? Bet on it.</span><span style={{ marginLeft: "auto" }}>Your first $1 is free</span>
         </div>
       </div>
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", width: 440, position: "relative" }}>

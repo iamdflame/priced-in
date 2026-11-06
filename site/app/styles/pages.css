@@ -281,6 +281,7 @@
 .pagec { position: relative; display: flex; flex-direction: column; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); box-shadow: var(--card-shadow); }
 .pagec:hover { box-shadow: var(--card-shadow), 0 0 0 1px var(--line-strong); }
 .pagec .art { height: 120px; }
+[data-theme='light'] & .pagec .art img { object-position: 50% 50%; transform-origin: 50% 52%; }
 .pagec .b { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
 .pagec h2 { font: 600 18px/1.2 var(--disp); }
 .pagec p { font-size: 13px; color: var(--ink3); }
