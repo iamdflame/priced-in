@@ -7,6 +7,7 @@
 import { readContext, prepare, sendJson, log } from "./_lib/runtime.mjs";
 import { activityRoute, attestationsRoute, clockOf, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "./_lib/routes.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
+import { PAYMENTS } from "./_lib/meter.mjs";
 import { clientIp, visitorIp } from "../services/api/src/ratelimit.mjs";
 import { parseSigningKey } from "../services/api/src/planner.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
@@ -137,8 +138,10 @@ export default async function handler(req, res) {
         if (status !== 200 || reused) for (const [scope, key] of taken) await p.state.release(scope, key);
       }
       await p.spend.settle();
-      // a read instance uploads only what it wrote itself: the spend records of planner calls
-      if (p.journals.dirty(["spend.jsonl"])) await p.journals.flush({ only: ["spend.jsonl"] }).catch(() => {});
+      // a read instance uploads only what it wrote itself: the spend records of planner calls, and any
+      // payment record whose own upload failed
+      const own = ["spend.jsonl", PAYMENTS];
+      if (p.journals.dirty(own)) await p.journals.flush({ only: own }).catch(() => {});
     })().finally(() => end(body, ...rest));
     return res;
   };
@@ -213,13 +216,15 @@ async function health(res, ctxP) {
   const failures = [];
   // the lane's budget is read once the app is up, alongside the rest (a cached view)
   const ctxLane = ctxP.then(async (c) => [c, c?.app?.lane.enabled ? await withTimeout(c.app.lane.budget().catch((e) => ({ error: e.message })), 800, { error: "the lane budget read timed out" }) : null]);
+  const relayerNear = config.x402.relayerId ? rpc.call("query", { request_type: "view_account", finality: "final", account_id: config.x402.relayerId }, { timeoutMs: 1000 }).then((a) => Number(BigInt(a.amount) / 10n ** 21n) / 1000).catch(() => null) : null;
   const clock = ctxP.then(async (c) => { if (!c) return null; const claims = (await p.claims.decorated()).claims; return clockOf(p, await readRulings(p, claims)); }).catch(() => null);
-  const [probes, [ctx, laneB], snapDoc, cronDoc, ruling] = await Promise.all([
+  const [probes, [ctx, laneB], snapDoc, cronDoc, ruling, relayerBalance] = await Promise.all([
     quickProbe(rpc, 1200),
     ctxLane,
     withTimeout(p.state.getDoc("snapshots/status.json").catch(() => null), 1200, null),
     withTimeout(p.state.getDoc("snapshots/health.json").catch(() => null), 1200, null),
     withTimeout(clock, 1250, null),
+    withTimeout(relayerNear, 1200, null),
   ]);
   const app = ctx?.app ?? null;
   const reachable = probes.filter((x) => x.ok);
@@ -255,6 +260,8 @@ async function health(res, ctxP) {
       rpc: { reachable: reachable.length, urls: probes },
       lane,
       planner,
+      // a low relayer stops revenue, not the site, so it's flagged here and is never a failure
+      x402: config.x402.relayerId ? { pay_to: config.x402.payTo, relayer: config.x402.relayerId, relayer_near: relayerBalance, low: relayerBalance !== null && relayerBalance < config.x402.relayerMinNear } : null,
       outcomes: { last_trade: iso(last.trade), last_rewrite: iso(last.rewrite), last_answer: iso(last.answer), maxAgeH: 26 },
       cron: cron ? { last_run: cron.at, age_s: cronAgeS, ok: cron.ok, failures: cron.failures ?? [] } : { last_run: null },
       spend: p.spend.status(),

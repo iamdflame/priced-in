@@ -14,6 +14,7 @@ import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRI
 import { RewriteStore } from "./rewrites.mjs";
 import { PostStore, parsePostLink, postSlug, pricedText, postNotices } from "./posts.mjs";
 import { createCredence } from "./credence.mjs";
+import { localMeter } from "./meter.mjs";
 import { Paywall, HttpFacilitator, nearFacilitator, paymentHeader, sameRequirements, requirements as x402Requirements, caip2 } from "./x402.mjs";
 
 /** The page's voice line when nothing in a post can be checked. */
@@ -52,7 +53,7 @@ export function createApp(config, deps = {}) {
   const extraHealth = new Map();
 
   // ---------- the truth API: credence answers, free tier, x402 beyond it ----------
-  const credenceIp = new DailyLimiter(config.credence.freePerIpPerDay, { now });
+  const meter = deps.meter || localMeter(config.credence.freePerIpPerDay, { now });
   const credence = createCredence({
     config, claims, hub, rewrites, rpc, now, log,
     // the AI layer's rationale journal, when services/ai is mounted on this app
@@ -73,8 +74,8 @@ export function createApp(config, deps = {}) {
         let f = deps.facilitator || null;
         if (!f && x402.relayerId && x402.relayerKey) f = await nearFacilitator(x402, x402.rpcUrl || config.rpcUrls[0]);
         else if (!f && x402.facilitatorUrl) f = new HttpFacilitator(x402.facilitatorUrl, { fetchImpl: deps.fetchImpl });
-        return new Paywall(x402, f, { log });
-      })().catch((e) => { log(`x402: facilitator unavailable: ${e.message}`); paywallP = null; return new Paywall(x402, null, { log }); });
+        return new Paywall(x402, f, { log, meter });
+      })().catch((e) => { log(`x402: facilitator unavailable: ${e.message}`); paywallP = null; return new Paywall(x402, null, { log, meter }); });
     }
     return paywallP;
   }
@@ -397,8 +398,9 @@ export function createApp(config, deps = {}) {
           path: "/v1/credence?q=<question or claim>", free_per_ip_per_day: config.credence.freePerIpPerDay,
           payments: pw.enabled ? { protocol: "x402", version: 2, ...x402Requirements(x402), usd: x402.priceMicro / 1e6, facilitator: pw.f?.kind ?? null } : null,
         },
+        truth_api: await meter.totals(),
         quote: "/v1/quote?claim=<id>&side=yes|no&amount_usd=<n>",
-        mcp: "From a clone of the repo: claude mcp add pricedin -- npx -y ./tools/mcp (tools: ask, get_claim, quote, bet).",
+        mcp: "claude mcp add pricedin -- npx -y pricedin-mcp (tools: ask, get_claim, quote, bet).",
       });
     }
     if (path === "/v1/credence" && req.method === "GET") {
@@ -426,7 +428,7 @@ export function createApp(config, deps = {}) {
         const r = await pw.charge(String(header), resource, CREDENCE_DESCRIPTION, work);
         return send(res, r.status, r.body, r.headers || {});
       }
-      const lim = credenceIp.take(ip);
+      const lim = await meter.take(ip);
       if (!lim.ok) {
         const pw = await paywall();
         if (pw.enabled) {
@@ -437,7 +439,7 @@ export function createApp(config, deps = {}) {
         throw new ApiError(429, "free_tier_used", `The free tier is ${config.credence.freePerIpPerDay} credence calls a day per address, and this server takes no payments yet. Come back tomorrow.`, { retryAfterS: lim.retryAfterS });
       }
       const r = await work();
-      if (r.status >= 400) credenceIp.release(ip);
+      if (r.status >= 400) await meter.release(ip, lim);
       const remaining = r.status >= 400 ? lim.remaining + 1 : lim.remaining;
       return send(res, r.status, { ...r.body, free: { limit: config.credence.freePerIpPerDay, remaining } }, { "x-free-calls-remaining": String(remaining) });
     }

@@ -221,7 +221,7 @@ export function createCredence(o) {
         status: 200,
         body: {
           network: config.network, contract: config.marketId, text: c.text, quote: qt,
-          call: { contract: config.marketId, method: "buy", args: { claim_id: c.id, side, amount_micro: qt.amount_micro, min_shares_micro: qt.min_shares_micro }, deposit: "0", gas_tgas: 30, note: "Your market balance pays. Deposit test USDC first with ft_transfer_call to the market (msg \"\")." },
+          call: { contract: config.marketId, method: "buy", args: { claim_id: c.id, side, amount_micro: qt.amount_micro, min_shares_micro: qt.min_shares_micro }, deposit: "0", gas_tgas: 30, note: `Your market balance pays. Deposit ${config.network === "mainnet" ? "USDC" : "test USDC"} first with ft_transfer_call to the market (msg "").` },
         },
       };
     } catch (e) {

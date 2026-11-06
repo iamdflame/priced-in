@@ -14,6 +14,7 @@
 // Nothing is settled for an answer that failed, and nothing is answered for a payment that
 // did not settle. The facilitator is in-process when this API holds a relayer key
 // (X402_RELAYER_ACCOUNT_ID / X402_RELAYER_PRIVATE_KEY), or remote (X402_FACILITATOR_URL).
+// Settlements take turns through the meter (meter.mjs), which also records each settled payment.
 
 export const X402_VERSION = 2;
 export const HEADERS = { required: "PAYMENT-REQUIRED", signature: "payment-signature", legacy: "x-payment", response: "PAYMENT-RESPONSE" };
@@ -26,9 +27,13 @@ export function unb64json(s) {
 
 export const caip2 = (network) => `near:${network}`;
 
-// Reasons the NEAR facilitator gives when an RPC read failed (it fails closed): nothing was
-// submitted and the delegate's nonce is unspent, so asking again is safe.
-export const TRANSIENT = /_(lookup_failed|unavailable|check_failed)$/;
+// Reasons the NEAR facilitator gives when an RPC read failed (it fails closed), or when its RPC is
+// a block behind the one the payer read, which makes a fresh delegate look too long-lived: nothing
+// was submitted and the delegate's nonce is unspent, so asking again is safe.
+export const TRANSIENT = /_(lookup_failed|unavailable|check_failed|timeout_window_exceeds_max_timeout)$/;
+// The chain refused the relayer's own transaction because its nonce read was a block old. It never
+// ran, so the delegate is unspent. A failure inside a transaction that ran carries its hash instead.
+const relayerNonceRefused = (s) => s?.errorReason === "settlement_failed" && !s.transaction && /nonce/i.test(s.errorMessage || "");
 const pause = (ms) => new Promise((r) => setTimeout(r, ms));
 export const explorerTx = (network, tx) => `https://${network === "mainnet" ? "" : "testnet."}nearblocks.io/txns/${tx}`;
 
@@ -87,11 +92,12 @@ export function paymentHeader(req) {
  * @param {{ verify: Function, settle: Function }|null} facilitator
  */
 export class Paywall {
-  constructor(x, facilitator, { log = () => {}, retryDelaysMs = [700, 2000] } = {}) {
+  constructor(x, facilitator, { log = () => {}, retryDelaysMs = [700, 2000], meter = null } = {}) {
     this.x = x;
     this.f = facilitator;
     this.log = log;
     this.retryDelaysMs = retryDelaysMs;
+    this.meter = meter;
     this.stats = { challenges: 0, verified: 0, settled: 0, refused: 0, settleFailures: 0, lastTx: null };
   }
 
@@ -127,12 +133,11 @@ export class Paywall {
     const out = await work();
     if (out.status >= 400) return { ...out, body: { ...out.body, payment: { settled: false, note: "The request failed, so the payment was not settled. Nothing was charged." } } };
     let s;
-    for (let i = 0; ; i++) {
-      try { s = await this.f.settle(payload, req); } catch (e) { s = { success: false, errorReason: "settlement_failed", errorMessage: e.message }; }
-      // settle re-verifies first: a failed read there submitted nothing, so it can be retried
-      if (s?.success || !TRANSIENT.test(s?.errorReason || "") || i >= this.retryDelaysMs.length) break;
-      this.log(`x402 settle: ${s.errorReason} before submitting, asking again`);
-      await pause(this.retryDelaysMs[i]);
+    try {
+      s = await (this.meter ? this.meter.exclusive(() => this.settle(payload, req)) : this.settle(payload, req));
+    } catch (e) {
+      this.log(`x402 settle: no turn on the relayer: ${e.message}`);
+      return { status: 503, body: { error: { code: "settlement_busy", message: "Payments are busy. Nothing was charged; try again in a few seconds." } }, headers: { "retry-after": "5" } };
     }
     if (!s?.success) {
       this.stats.settleFailures++;
@@ -146,6 +151,21 @@ export class Paywall {
       amount: req.amount, asset: req.asset, payTo: req.payTo, usd: Number(req.amount) / 1e6,
       explorer: s.transaction ? explorerTx(this.x.network, s.transaction) : null,
     };
+    // the chain holds the payment either way, so a record that failed never costs the caller the answer
+    try {
+      await this.meter?.record({ at: new Date().toISOString(), tx: receipt.transaction, payer: receipt.payer, amount_micro: receipt.amount, asset: receipt.asset, pay_to: receipt.payTo, network: receipt.network });
+    } catch (e) { this.log(`x402 record of ${s.transaction} failed: ${e.message}`); }
     return { status: out.status, body: { ...out.body, payment: receipt }, headers: { ...(out.headers || {}), [HEADERS.response]: b64json(s) } };
+  }
+
+  /** Settle, asking again only where nothing reached the chain. Each try re-verifies, so a spent delegate is refused. */
+  async settle(payload, req) {
+    let s;
+    for (let i = 0; ; i++) {
+      try { s = await this.f.settle(payload, req); } catch (e) { s = { success: false, errorReason: "settlement_failed", errorMessage: e.message }; }
+      if (s?.success || !(TRANSIENT.test(s?.errorReason || "") || relayerNonceRefused(s)) || i >= this.retryDelaysMs.length) return s;
+      this.log(`x402 settle: ${s.errorReason} before anything ran, asking again`);
+      await pause(this.retryDelaysMs[i]);
+    }
   }
 }

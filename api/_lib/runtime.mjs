@@ -25,6 +25,7 @@ import { Writer } from "../../services/ai/src/writer.js";
 import { makeState, JournalDir } from "./store.mjs";
 import { installSpendMeter } from "./spend.mjs";
 import { ClaimsSnapshot } from "./snapshot.mjs";
+import { storeMeter } from "./meter.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, "../..");
@@ -98,7 +99,8 @@ const NO_AGENTS = { listAgents: async () => ({ ok: true, agents: [], unheld: 0 }
 function build({ agents = true } = {}) {
   const p = prepare();
   const { api, ai } = loadAiConfig(p.env);
-  const app = createApp(api, { log });
+  const meter = storeMeter({ state: p.state, journals: p.journals, limit: api.credence.freePerIpPerDay, log });
+  const app = createApp(api, { log, meter });
   const evidence = new Map();
   for (const list of app.rewrites.byKey.values()) for (const r of list) evidence.set(r.id, r);
   // every claims read in this app comes from the snapshot (one get_claims, raced across the RPCs)

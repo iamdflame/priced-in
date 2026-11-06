@@ -125,7 +125,7 @@ export function loadConfig(env = process.env) {
       // JSON files holding signed rewrite records to serve as provenance (e.g. tools/judge/evidence/rewrite.json)
       rewriteEvidence: list(env.REWRITE_EVIDENCE_FILES),
     },
-    // x402 payments beyond the free tier: $0.01 in test USDC on testnet by default
+    // x402 payments beyond the free tier: $0.01 a call, in the network's USDC
     x402: {
       network: net,
       priceMicro: num("X402_PRICE_MICRO", 10_000),
@@ -137,6 +137,8 @@ export function loadConfig(env = process.env) {
       relayerKey: (env.X402_RELAYER_PRIVATE_KEY || "").trim() || null,
       // the RPC our facilitator reads and settles through (default: the first of RPC_URLS)
       rpcUrl: (env.X402_RPC_URL || "").trim() || null,
+      // /health flags the relayer below this: a settlement burns about 0.0003 NEAR
+      relayerMinNear: num("X402_RELAYER_MIN_NEAR", 0.02),
       // with a relayer held here, also serve the facilitator's own HTTP interface at /x402/*
       facilitatorRoutes: env.X402_FACILITATOR_ROUTES !== "0",
     },
