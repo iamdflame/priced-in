@@ -209,3 +209,31 @@ test("an agent that owes its bankroll an inference bill sleeps until it can pay"
     assert.equal(DEFAULT_POLICY.marginPoints, 0.02);
   } finally { crowd.stop(); await mock.close(); }
 });
+
+test("a sweep posts its answers too: a no-bet with the policy's reason, an agreement, and each reaches recent()", async () => {
+  const two = () => [swarmAgent(0, { model: MOCK_MODELS[1], persona_hash: H("house-archivist") }), swarmAgent(1, { model: MOCK_MODELS[2], persona_hash: H("house-quant") })];
+  const a = await setup({ agents: two(), credences: { [MOCK_MODELS[1]]: 0.51, [MOCK_MODELS[2]]: 0.9 }, bank: 0 });
+  try {
+    await a.crowd.sweep(1);
+    assert.equal(a.signer.trades.length, 0);
+    const by = Object.fromEntries(a.events.map((e) => [e.agent, e]));
+    assert.equal(by["house-archivist"].side, "agree");
+    assert.match(by["house-archivist"].policy.reason, /no edge/);
+    assert.equal(by["house-quant"].side, "no_bet");
+    assert.match(by["house-quant"].policy.reason, /no bankroll/);
+    for (const e of a.events) assert.equal(e.trigger.kind, "sweep");
+    assert.equal(a.crowd.recent({ claim: 4 }).length, 2, "what /api/rationales serves");
+    assert.ok(a.crowd.recent({ claim: 4 }).every((r) => r.policy?.reason));
+  } finally { a.crowd.stop(); await a.mock.close(); }
+});
+
+test("a sweep's failed bet is posted as a no-bet, not lost", async () => {
+  const a = await setup({ agents: [swarmAgent(0, { model: MOCK_MODELS[2], persona_hash: H("house-quant") })], credences: { [MOCK_MODELS[2]]: 0.9 } });
+  try {
+    a.signer.fail = true;
+    await a.crowd.sweep(1);
+    assert.equal(a.events.length, 1);
+    assert.equal(a.events[0].side, "no_bet");
+    assert.match(a.events[0].text, /was not placed/);
+  } finally { a.crowd.stop(); await a.mock.close(); }
+});

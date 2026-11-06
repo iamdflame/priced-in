@@ -20,6 +20,7 @@
 //              sized by fractional Kelly with the persona's caps;
 //        agree only when the credence sits at the price (within the margin): "agree at N%";
 //        no_bet it disagrees but can't act (no bankroll, loss limit, a failed transaction);
+//      sweeps post these answers too, so a line nobody bet on still shows why the agents held off;
 //   4. the signer process signs and sends. This process passes it only the decision object.
 // Every rationale is posted on the hub's AI ring and kept in rationales.jsonl; every agent's
 // last action is kept in the ledger, so both survive a restart.
@@ -382,7 +383,7 @@ export class Crowd {
             this.stats.errors++;
             e.betError = r.error;
             this.log(`agents: ${e.agent.name}'s ${d.action} on claim ${claim.id} was not placed: ${r.error}`);
-            if (trigger.kind === "trade") posted.push(this.post(e, claim, before, { side: "no_bet", text: `no bet: the ${d.action === "sell" ? "sale" : "bet"} was not placed (${String(r.error).slice(0, 120)})` }, trigger));
+            posted.push(this.post(e, claim, before, { side: "no_bet", text: `no bet: the ${d.action === "sell" ? "sale" : "bet"} was not placed (${String(r.error).slice(0, 120)})` }, trigger));
             continue;
           }
           const t = r.value || {};
@@ -394,13 +395,13 @@ export class Crowd {
             this.stats.sells++;
             posted.push(this.post(e, claim, before, { side: `sell_${d.side}`, size_usd: Number(t.amount_micro ?? 0) / 1e6, shares: Number(d.shares_micro) / 1e6, tx_hash: r.txHash, price_after: price, text: `sold ${(Number(d.shares_micro) / 1e6).toFixed(2)} ${d.side.toUpperCase()} shares for $${(Number(t.amount_micro ?? 0) / 1e6).toFixed(2)} at ${pct(before)}` }, trigger));
           }
-        } else if (trigger.kind === "trade") {
+        } else {
+          // a look that ends in no trade is posted too, on a sweep as on a trade, with the policy's
+          // reason: every open line shows an agent's answer, even the lines nobody has bet on
           this.stats.noEdge += d.noEdge ? 1 : 0;
           // "agree" only from an agent whose credence sits at the price it sees now
           if (d.noEdge) { this.stats.agrees++; posted.push(this.post(e, claim, before, { side: "agree", text: `agree at ${pct(before)}` }, trigger)); }
           else { this.stats.noBets++; posted.push(this.post(e, claim, before, { side: "no_bet", text: `no bet: ${d.reason}` }, trigger)); }
-        } else {
-          this.ledger.recordAction(e.agent.accountId, { kind: "looked", claim_id: claim.id, credence: e.credence.p, reason: d.reason ?? null });
         }
       }
       return { claim_id: claim.id, trigger, evaluations: evals.map((e) => ({ agent: e.agent.name, account: e.agent.accountId, credence: e.credence?.p ?? null, decision: e.decision ?? null, error: e.error ?? e.betError ?? null })), posted };
