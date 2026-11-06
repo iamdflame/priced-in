@@ -10,7 +10,7 @@ import { FreeBetsOff } from "@/components/Live";
 import { ErrorState } from "@/components/States";
 import { feedOrder, leadFact } from "@/lib/lead";
 import { leadRuling, rulingRecord } from "@/lib/rulings";
-import { getSite, type Site } from "@/lib/server/site";
+import { getSite, proofOf, type Site } from "@/lib/server/site";
 
 export const revalidate = 15;
 
@@ -29,11 +29,10 @@ export default async function Home() {
   const ruling = leadRuling(site.settled, (id) => byId.get(id)?.trades ?? 0);
   const record = rulingRecord(site.rulings?.rulings ?? []);
   const off = freeBetsOffReason(site);
-  const live = site.facts.filter((f) => f.status !== "settled");
   return (
     <main id="main" className="wrap home">
       <Intro />
-      <ProofBar p={{ liveFacts: live.length, topics: new Set(live.map((f) => f.topic)).size, bets: site.totals.trades, paidUsd: record.paidUsd, ruled: record.settled.length }} />
+      <ProofBar p={proofOf(site)} />
       {off && <FreeBetsOff reason={off} />}
       <div className="hero">
         {lead && <Feature f={lead} points={site.history[String(lead.id)] ?? []} bets={site.bets.filter((b) => b.claimId === lead.id).reverse()} />}

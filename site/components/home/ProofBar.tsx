@@ -2,8 +2,7 @@
 import { Icon } from "../Icon";
 import { explorerAccount, money } from "@/lib/format";
 import { MARKET_ID } from "@/lib/nav";
-
-export interface Proof { liveFacts: number; topics: number; bets: number; paidUsd: number; ruled: number }
+import type { Proof } from "@/lib/server/site";
 
 export function ProofBar({ p }: { p: Proof }) {
   return (

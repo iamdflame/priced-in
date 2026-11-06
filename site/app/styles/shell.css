@@ -80,5 +80,13 @@
   .tape .tk { max-width: 100%; }
   .tape .tk > span { overflow: hidden; text-overflow: ellipsis; }
 }
+/* Small phones: one still line of real counts in place of the moving bets */
+.proofline { display: none; }
+@media (max-width: 390px) {
+  .ticker.has-proof .tape, .ticker.has-proof .net { display: none; }
+  .ticker.has-proof .dot { animation: none; }
+  .ticker.has-proof .proofline { display: block; min-width: 0; font-size: 13px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .proofline b { font-weight: 600; color: var(--ink); font-feature-settings: 'tnum'; }
+}
 /* film mode (lib/client/film.ts) */
 [data-film='1'] .replaybar { display: none; }

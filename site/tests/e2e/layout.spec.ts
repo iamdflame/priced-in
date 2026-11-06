@@ -32,6 +32,18 @@ test("the phone header has no theme toggle: it lives in the footer", async ({ pa
   await expect(page.locator(".foot").getByRole("button", { name: /theme/ })).toBeVisible();
 });
 
+for (const width of [360, 390]) {
+  test(`the live strip is one still line of real counts at ${width}px`, async ({ page }) => {
+    await guard(page);
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/");
+    const line = page.locator(".ticker .proofline");
+    await expect(line).toHaveText(/^\d+ live facts · \d+ rulings? · \$\d+\.\d\d paid out$/);
+    await expect(page.locator(".ticker .tape")).toBeHidden();
+    expect(await line.evaluate((el) => el.scrollWidth - el.clientWidth), "the line is cut off").toBeLessThanOrEqual(0);
+  });
+}
+
 test("touch targets are at least 44 px on the phone", async ({ page }) => {
   await guard(page);
   await page.setViewportSize({ width: 390, height: 844 });

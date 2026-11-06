@@ -86,6 +86,7 @@ The boundaries the code keeps (hold reviews to them):
 - The kit's component classes are split by surface in `app/styles/` (`base`, `shell`, `instruments`, `cards`, `home`, `market`, `receipt`, `feedback`), ported from `kit.css`. Reuse them, use Tailwind utilities for one-offs, and keep anything reused out of inline styles.
 - Fonts (`app/fonts.ts`, next/font/local): General Sans (`--disp`) for the voice and big numbers, Geist (`--text`) for reading and every changing number, Geist Mono (`--mono`) for hashes, Amstelvar (`--quote`, a 17 KB static instance) only for what Wikipedia says.
 - Breakpoints: 1240 (tablet), 1000, 760 (the phone, composed for 390) and 380 (the smallest phones). The phone has `.pbar` and `.pnav`. The market ticket docks above the bottom bar (`.ticket.dock`); hide extras there with `.hide-dock`.
+- The live strip: at 390 px and below, the moving bets give way to one still line of counts (`proofOf` in `lib/server/site.ts`, the same numbers as `ProofBar`).
 - Copy rules, from testing: every % says what it means, at every size; "Right: $1 becomes $X", "Wrong: the free $1 is gone"; the free $1 explained once beside its buttons (`FreeCashNote`); the judges' one line (`JudgesLine`) on the home page and near every ticket; one question per card, with its Yes/No directly under it; no "lines", "rulings" or "NEAR" in first-screen copy (NEAR is in the trust line and the footer); every number comes from the chain or the API.
 
 ## Tests

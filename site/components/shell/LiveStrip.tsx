@@ -2,26 +2,30 @@
 // The live strip: the real bets, newest first, from the market contract's own log. Each item reads on its
 // own ("AI trader Skeptic · $0.22 on False · Tether T-Bills $72.6B") and the strip never cuts one in half:
 // only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
-// for the next. It renders from the server's read and refreshes while the tab is visible.
+// for the next. It renders from the server's read and refreshes while the tab is visible. At 390 px and
+// below (SMALL_PHONE, and .proofline in shell.css) the bets give way to one still line of real counts.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TopicIcon } from "../Brand";
 import { bettor, betsFrom, type Bet } from "@/lib/bets";
 import { filming } from "@/lib/client/film";
-import { money, type AgentNames } from "@/lib/format";
+import { money, plural, type AgentNames } from "@/lib/format";
+import type { Proof } from "@/lib/server/site";
 
 export interface StripFact { short: string; icon: string }
 
 const REFRESH_MS = 30_000;
 const SHOWN = 16;
 const ROTATE_MS = 5_000;
+const SMALL_PHONE = "(max-width: 390px)";
+const smallPhone = () => matchMedia(SMALL_PHONE).matches;
 
 /** Step the list round every few seconds, unless the visitor asked for less motion or is reading it. */
 function useRotation<T>(items: T[]) {
   const [start, setStart] = useState(0);
   const [held, setHeld] = useState(false);
   useEffect(() => {
-    if (held || items.length < 2 || matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("still")) return;
+    if (held || items.length < 2 || smallPhone() || matchMedia("(prefers-reduced-motion: reduce)").matches || document.documentElement.classList.contains("still")) return;
     const t = setInterval(() => setStart((s) => (s + 1) % items.length), ROTATE_MS);
     return () => clearInterval(t);
   }, [held, items.length]);
@@ -38,13 +42,13 @@ function BetSentence({ b, f }: { b: Bet; f: StripFact | undefined }) {
   );
 }
 
-export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: Record<number, StripFact>; agents: AgentNames }) {
+export function LiveStrip({ initial, facts, agents, proof }: { initial: Bet[]; facts: Record<number, StripFact>; agents: AgentNames; proof: Proof | null }) {
   const [bets, setBets] = useState(initial);
   const [live, setLive] = useState(true);
   useEffect(() => {
     let stop = false;
     const tick = async () => {
-      if (document.hidden || filming()) return; // film mode keeps the first items
+      if (document.hidden || filming() || (proof && smallPhone())) return; // film mode keeps the first items
       try {
         const r = await fetch("/api/events/recent?since=0", { headers: { accept: "application/json" } });
         if (!r.ok) throw new Error(String(r.status));
@@ -54,10 +58,10 @@ export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: R
     };
     const t = setInterval(tick, REFRESH_MS);
     return () => { stop = true; clearInterval(t); };
-  }, [agents]);
+  }, [agents, proof]);
   const rot = useRotation(bets);
   return (
-    <div className="ticker" aria-label="Live bets">
+    <div className={`ticker ${proof ? "has-proof" : ""}`} aria-label="Live bets">
       <div className="wrap">
         <span className={`live ${live ? "" : "off"}`}><span className="dot" /><span>{live ? <>Live<span className="hide-phone"> · real money</span></> : "Reconnecting…"}</span></span>
         {bets.length ? (
@@ -67,6 +71,7 @@ export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: R
         ) : (
           <span className="net">No bets yet today. Yours could be the first.</span>
         )}
+        {proof && <span className="proofline"><b>{proof.liveFacts}</b> live facts · <b>{plural(proof.ruled, "ruling")}</b> · <b>{money(proof.paidUsd)}</b> paid out</span>}
       </div>
     </div>
   );

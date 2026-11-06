@@ -6,7 +6,7 @@ import { agentNames, api, type Ruling, type Rulings } from "./api";
 import { toFact } from "./facts";
 import { betsFrom, type Bet } from "../bets";
 import type { ClaimView, Fact } from "../model";
-import { correctionsOf, settledRulings } from "../rulings";
+import { correctionsOf, rulingRecord, settledRulings } from "../rulings";
 
 export interface Site {
   ok: boolean;
@@ -26,6 +26,15 @@ export interface Site {
   lane: { open: boolean; creditsLeft: number | null; paused: boolean } | null;
   totals: { facts: number; open: number; topics: number; trades: number; volumeUsd: number };
   asOf: number;
+}
+
+/** The real counts shown as proof: the home page's numbers and the small phone's live strip. */
+export interface Proof { liveFacts: number; topics: number; bets: number; paidUsd: number; ruled: number }
+
+export function proofOf(site: Site): Proof {
+  const live = site.facts.filter((f) => f.status !== "settled");
+  const record = rulingRecord(site.rulings?.rulings ?? []);
+  return { liveFacts: live.length, topics: new Set(live.map((f) => f.topic)).size, bets: site.totals.trades, paidUsd: record.paidUsd, ruled: record.settled.length };
 }
 
 export const getSite = cache(async (): Promise<Site> => {
