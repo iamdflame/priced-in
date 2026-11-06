@@ -36,7 +36,7 @@ export default async function Home() {
       <ProofBar p={{ liveFacts: live.length, topics: new Set(live.map((f) => f.topic)).size, bets: site.totals.trades, paidUsd: record.paidUsd, ruled: record.settled.length }} />
       {off && <FreeBetsOff reason={off} />}
       <div className="hero">
-        {lead && <Feature f={lead} points={site.history[String(lead.id)] ?? []} bets={site.bets.filter((b) => b.claimId === lead.id).reverse()} freeOpen={!off} />}
+        {lead && <Feature f={lead} points={site.history[String(lead.id)] ?? []} bets={site.bets.filter((b) => b.claimId === lead.id).reverse()} />}
         <aside className="rail" aria-label="Rulings">
           {ruling && <RuledCard r={ruling} ruled={byId.get(ruling.claim_id)} corrected={ruling.correction ? byId.get(ruling.correction.claim_id) : undefined} settledCount={record.settled.length} now={site.asOf} />}
           <DecidingCard rulings={site.rulings} facts={byId} />

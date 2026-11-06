@@ -101,11 +101,10 @@ test("a fact that doesn't exist is a real 404", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "There’s no fact here" })).toBeVisible();
 });
 
-test("film mode: no replay bar or hint, still countdowns and strip, carried across links, no key asked for", async ({ page }) => {
+test("film mode: no replay bar, still countdowns and strip, carried across links, no key asked for", async ({ page }) => {
   const g = await guard(page);
   await page.goto("/?film=1");
   await expect(page.locator("html")).toHaveAttribute("data-film", "1");
-  await expect(page.locator(".coach")).toBeHidden();
   const clock = page.locator("#deciding .big");
   const strip = page.locator(".tape");
   const [c0, s0] = [await clock.textContent(), await strip.textContent()];

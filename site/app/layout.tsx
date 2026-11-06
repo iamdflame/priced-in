@@ -29,10 +29,9 @@ export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#F8F9FB" }],
 };
 
-// Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default; and the coach
-// mark is hidden for a visitor who dismissed it or has bet (keys: Live.tsx COACH_KEY, lib/client/mybets);
-// and film mode (lib/client/film.ts).
-const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pi-coach-v1')||localStorage.getItem('pricedin.bets.v1'))document.documentElement.dataset.coach='off';${FILM_SCRIPT}}catch(e){}`;
+// Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default; and film mode
+// (lib/client/film.ts).
+const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');${FILM_SCRIPT}}catch(e){}`;
 
 /** The nav reads the URL in the browser; until then, bars of the same height on every screen, so nothing moves. */
 function NavPlaceholder() {

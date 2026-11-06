@@ -1,5 +1,5 @@
 "use client";
-// Small live pieces: a countdown, a relative time that stays true, and the first-visit coach mark.
+// Small live pieces: a countdown, a relative time that stays true, and the free-bet notes.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Explain, PAYOUT_WHY } from "./Explain";
@@ -29,10 +29,6 @@ export function Ago({ at }: { at: number }) {
   return <time dateTime={new Date(at).toISOString()} suppressHydrationWarning>{ago(at, now ?? Date.now())}</time>;
 }
 
-/** Set before paint by app/layout.tsx once dismissed or once this browser has bet, so the hint is
- * rendered on the server and never moves the page after load. */
-export const COACH_KEY = "pi-coach-v1";
-
 /** What a free bet wins, one plain sentence beside every free-$1 button, with the score and the payout one tap away. */
 export function FreeCashNote() {
   return (
@@ -43,20 +39,6 @@ export function FreeCashNote() {
         <span className="pop-next">{PAYOUT_WHY}</span>
       </Explain>
     </span>
-  );
-}
-
-/** The one-time hint on the lead's Yes/No: shown until dismissed or until this browser has bet. */
-export function CoachHint() {
-  const close = () => {
-    try { localStorage.setItem(COACH_KEY, "1"); } catch { /* private mode: hidden for this visit */ }
-    document.documentElement.dataset.coach = "off";
-  };
-  return (
-    <p className="coach" role="status">
-      <Icon name="gift" /><span>Your free $1 is ready: tap Yes or No.</span>
-      <button type="button" className="iconbtn" aria-label="Hide this hint" onClick={close}><Icon name="x" /></button>
-    </p>
   );
 }
 

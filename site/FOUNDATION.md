@@ -64,7 +64,7 @@ The boundaries the code keeps (hold reviews to them):
 
 ## Film mode
 
-`?film=1` is for recording the demo film. The replay bar and the coach mark are hidden, countdowns freeze at their first value, the live strip holds its first items, and no free-bet key is ever asked for (`liveEngine()` answers the lane itself). It changes no data and appears in no nav, sitemap or share card. The flag is kept for the tab in sessionStorage, so it carries across internal links (`?recorded=1&film=1` films the replay); `?film=0` ends it. The rule lives in `lib/client/film.ts`, and the head script in `app/layout.tsx` applies it before paint. To keep a new moving part still on film, check `filming()` or the `still` class.
+`?film=1` is for recording the demo film. The replay bar is hidden, countdowns freeze at their first value, the live strip holds its first items, and no free-bet key is ever asked for (`liveEngine()` answers the lane itself). It changes no data and appears in no nav, sitemap or share card. The flag is kept for the tab in sessionStorage, so it carries across internal links (`?recorded=1&film=1` films the replay); `?film=0` ends it. The rule lives in `lib/client/film.ts`, and the head script in `app/layout.tsx` applies it before paint. To keep a new moving part still on film, check `filming()` or the `still` class.
 
 ## Components
 
@@ -75,7 +75,7 @@ The boundaries the code keeps (hold reviews to them):
 | `FactCard`, `PctBlock`, `BetLinks` | The card: question, the % with its meaning, evidence, Yes/No with the one-line bet, meta. |
 | `RulingBlock`, `ReplayRuling` | Challenge, three signed verdicts, the objection window, settlement, "Corrected → see the new market". |
 | `States` | `Sk`, `CardSkeleton`, `StateBox`, `ErrorState` (with a retry and the replay), `Retry`. |
-| `Toasts` (`useToast()`), `Explain` (the one-tap "?", with `WhyEstimate`, `WrongExplain` and `JudgesLine`), `Live` (`Countdown`, `Ago`, `CoachHint`, `FreeCashNote`, `FreeBetsOff`), `Icon`, `Brand` | Small shared pieces. |
+| `Toasts` (`useToast()`), `Explain` (the one-tap "?", with `WhyEstimate`, `WrongExplain` and `JudgesLine`), `Live` (`Countdown`, `Ago`, `FreeCashNote`, `FreeBetsOff`), `Icon`, `Brand` | Small shared pieces. |
 | `shell/` | `Nav` (with the replay bar), `Search`, `ThemeToggle`, `PhoneNav`, `LiveStrip`, `Footer`, `OfflineNotice`. |
 | `home/` | `Intro` (the promise and the three steps), `ProofBar` (the real numbers, once), `Feature` (one open question), `Rails` (`RuledCard`, `DecidingCard`), `HomeGrid` (filters, search, live prices). At 1440×900 the lead and the first row of four cards share the first screen: keep it that way. What leads is decided in `lib/lead.ts` from the hand-curated `data/lead.json`: the first open fact in it, preferring any with real bets, and a first row of one fact per topic with the lead's own topic last. |
 | `market/` | `MarketBody` (head, price panel, body, skeleton), `Sources` and `Rules`, `MarketTabs`, `Ticket`, `SettledTicket`, `BetProgress`, `Receipt`, `ReceiptPanels`, `useBetFlow`. |
