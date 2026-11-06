@@ -45,7 +45,7 @@ function HowItWorks({ quotes }: { quotes: Quotes }) {
     <ol className="howto hide-dock" aria-label="How your free $1 works">
       <li><span className="n">1</span><span><b>Pick Yes or No.</b> Your free $1 is made in this browser: no wallet, no sign-up.</span></li>
       <li><span className="n">2</span><span><b>3 AI judges decide</b> when the fact is challenged, signing their verdicts on-chain.</span></li>
-      <li><span className="n">3</span><span><b>Right answers get paid:</b> $1 becomes {payoutWords(quotes.yes).get} on Yes, or {payoutWords(quotes.no).get} on No. Less likely answers pay more.</span></li>
+      <li><span className="n">3</span><span><b>Right answers win:</b> $1 becomes {payoutWords(quotes.yes).get} on Yes, or {payoutWords(quotes.no).get} on No. Less likely answers pay more.</span></li>
     </ol>
   );
 }

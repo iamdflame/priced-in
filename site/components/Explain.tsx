@@ -66,13 +66,16 @@ export function WrongExplain({ caught }: { caught: Caught }) {
   );
 }
 
+/** Why $1 pays less than the odds alone suggest, in the one line every payout "?" uses. */
+export const PAYOUT_WHY = "Less likely answers pay more, and your own bet moves the odds, so a small market pays a little less than the odds alone.";
+
 /** The one trust line for the judges, on the home page and near every ticket. */
 export function JudgesLine({ className = "" }: { className?: string }) {
   return (
     <p className={`judgesline ${className}`}>
       <Icon name="scale" />
       <span>3 AI judges read the sources and rule within minutes. Anyone can object.<Explain label="How does it work?">
-        <b>How it works.</b> You pick true or false. When a fact is challenged, three different AI models read the sources and sign their verdicts on-chain. Anyone can object for 10 minutes, then right answers get paid. Less likely answers pay more. <Link className="link" href="/rulings">See every ruling</Link>
+        <b>How it works.</b> You pick true or false. When a fact is challenged, three different AI models read the sources and sign their verdicts on-chain. Anyone can object for 10 minutes, then right answers win. {PAYOUT_WHY} <Link className="link" href="/rulings">See every ruling</Link>
       </Explain></span>
     </p>
   );

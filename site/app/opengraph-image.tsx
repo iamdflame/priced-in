@@ -8,7 +8,7 @@ export const contentType = "image/png";
 export default async function Image() {
   const { fonts, dial } = await ogAssets();
   return new ImageResponse(
-    <ShareCard title="Bet on whether facts are true." pct={null} sub="Pick true or false · 3 AI judges decide · right answers get paid" dial={dial} />,
+    <ShareCard title="Bet on whether facts are true." pct={null} sub="Pick true or false · 3 AI judges decide · right answers win" dial={dial} />,
     { ...size, fonts },
   );
 }

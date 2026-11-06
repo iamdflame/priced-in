@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const r = await api.claim(id);
   if (!r.ok) return { title: "A fact on Priced In" };
   const f = toFact(r.value);
-  const description = f.status === "settled" ? `Ruled ${f.outcome ? "true" : "false"} by AI judges. ${f.text}` : `${Math.round(f.price * 100)}% chance it’s true. Bet $1 free on Yes or No: three AI judges decide, right answers get paid.`;
+  const description = f.status === "settled" ? `Ruled ${f.outcome ? "true" : "false"} by AI judges. ${f.text}` : `${Math.round(f.price * 100)}% chance it’s true. Bet $1 free on Yes or No: three AI judges decide, right answers win.`;
   return { title: f.question, description, openGraph: { title: f.question, description }, twitter: { title: f.question, description } };
 }
 

@@ -10,7 +10,14 @@ test("home → market → free bet → receipt", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1, name: "Bet on whether facts are true." })).toBeVisible();
   await expect(page.getByText("Pick true or false")).toBeVisible();
   await expect(page.getByText("3 AI judges decide")).toBeVisible();
-  await expect(page.getByText("Right answers get paid")).toBeVisible();
+  await expect(page.getByText("Right answers win")).toBeVisible();
+  await expect(page.getByText("Free play: a right answer adds to your score. Bet real USDC to win real money.")).toBeVisible();
+  await page.getByRole("button", { name: "What is the score, and what does $1 pay?" }).first().click();
+  const score = page.getByRole("dialog", { name: "What is the score, and what does $1 pay?" });
+  await expect(score.getByRole("link", { name: "Portfolio" })).toHaveAttribute("href", "/portfolio");
+  await expect(score).toContainText("can’t be cashed out");
+  await expect(score).toContainText("so a small market pays a little less than the odds alone.");
+  await page.keyboard.press("Escape");
   // no key is asked for on a page view
   expect(g.laneKeys).toBe(0);
 

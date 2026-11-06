@@ -2,7 +2,7 @@
 // Small live pieces: a countdown, a relative time that stays true, and the first-visit coach mark.
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { Explain } from "./Explain";
+import { Explain, PAYOUT_WHY } from "./Explain";
 import { Icon } from "./Icon";
 import { ago, mmss } from "@/lib/format";
 import { REPLAY_HREF } from "@/lib/nav";
@@ -33,13 +33,14 @@ export function Ago({ at }: { at: number }) {
  * rendered on the server and never moves the page after load. */
 export const COACH_KEY = "pi-coach-v1";
 
-/** What the free $1 is, one plain sentence beside every free-$1 button, with the score one tap away. */
+/** What a free bet wins, one plain sentence beside every free-$1 button, with the score and the payout one tap away. */
 export function FreeCashNote() {
   return (
     <span className="freecash">
-      <span className="freecash-text">The free $1 is on us. If you’re right it adds to your score, not your wallet. Bet your own money to cash out.</span>
-      <Explain label="What is the score?">
-        <b>The free $1 is on us.</b> Your score is what your free bets have won. It stays in the market, shows on your Portfolio, and can’t be withdrawn. To cash out, bet your own money: that takes a wallet, and pays in USDC, a digital dollar.
+      <span className="freecash-text">Free play: a right answer adds to your score. Bet real USDC to win real money.</span>
+      <Explain label="What is the score, and what does $1 pay?">
+        <b>Your score</b> adds up what your free bets win. You can see it on your <Link className="link" href="/portfolio">Portfolio</Link>. It isn’t money, so it can’t be cashed out. To win money you can keep, bet real USDC, a digital dollar, from a wallet.
+        <span className="pop-next">{PAYOUT_WHY}</span>
       </Explain>
     </span>
   );

@@ -12,7 +12,7 @@ export function Intro() {
         <ol className="steps" aria-label="How it works">
           <li><span className="n">1</span>Pick true or false</li>
           <li><span className="n">2</span>3 AI judges decide</li>
-          <li><span className="n">3</span>Right answers get paid</li>
+          <li><span className="n">3</span>Right answers win</li>
         </ol>
         <JudgesLine />
       </div>

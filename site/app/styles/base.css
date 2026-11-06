@@ -86,6 +86,7 @@ main { flex: 1; padding-bottom: 56px; }
 .pop { white-space: normal; font-weight: 400; text-align: left; }
 .pop b { font-weight: 600; }
 .pop-in { padding-right: 32px; }
+.pop-next { display: block; margin-top: 8px; }
 .pop .x { position: absolute; top: 2px; right: 2px; }
 
 /* Sections */
