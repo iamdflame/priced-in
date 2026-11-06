@@ -54,6 +54,8 @@ const plain = {
   TRUST_PROXY: "1",
   CORS_ORIGINS: "*",
   POST_SELF_HOSTS: "isitpriced.com,www.isitpriced.com",
+  // the cron calls the jury at this project's own address, whichever project serves the domain
+  SELF_URL: "https://pricedin-fawn.vercel.app",
   // the browser build
   VITE_NEAR_NETWORK: NET,
   VITE_API_BASE: "/api",
