@@ -8,7 +8,7 @@ import { raceView } from "./snapshot.mjs";
 import { REPO } from "./runtime.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, timeOf } from "./views.mjs";
 import { namesOf, readRulings } from "./rulings.mjs";
-import { rulingClock } from "./keeper.mjs";
+import { checkerFacts, checkerQueue, rulingClock, sittingConfig } from "./keeper.mjs";
 import { parsePublicKey } from "../../services/api/src/lane.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
@@ -84,20 +84,23 @@ export async function activityRoute(url, p) {
   return { status: 200, body: { activity: list, count: list.length, asOf: snap.at }, headers: { "cache-control": READ_CACHE.activity } };
 }
 
-/** The clock from the rulings and the cron's record of the Checker. */
-export async function clockOf(p, rulings) {
+/** The clock: the queue as it stands now, the rulings, and the cron's record of the Checker. */
+export async function clockOf(p, rulings, claims) {
   const doc = await p.state.getDoc("snapshots/keeper.json").catch(() => null);
   const k = doc?.value ?? null;
   const c = k?.checker ?? null;
-  const checker = c ? { enabled: c.enabled, gapMs: c.gapMs, lastEndAt: c.lastEndAt, candidates: c.candidates, reason: c.reason } : { enabled: false, reason: "the keeper has not run yet" };
-  return { ...rulingClock({ rulings, nowMs: Date.now(), checker }), checker: c ? { account: c.account, balance_usd: c.balance_micro === null ? null : Number(c.balance_micro) / 1e6, lines_left: c.candidates, note: c.note ?? c.reason ?? null } : null, keeper_ran_at: k?.at ?? null };
+  const nowMs = Date.now();
+  const sitting = sittingConfig();
+  const q = checkerQueue({ claims, rulings, account: c?.account ?? null, nowMs, sitting });
+  const clock = rulingClock({ rulings, nowMs, sitting, checker: checkerFacts(c, q, nowMs) });
+  return { ...clock, checker: c ? { account: c.account, balance_usd: c.balance_micro === null ? null : Number(c.balance_micro) / 1e6, lines_left: clock.queue, note: c.note ?? c.reason ?? null } : null, keeper_ran_at: k?.at ?? null };
 }
 
 /** GET /rulings: live and past challenges, and the clock. */
 export async function rulingsRoute(p) {
   const snap = await p.claims.decorated();
   const rulings = await readRulings(p, snap.claims);
-  const clock = await clockOf(p, rulings);
+  const clock = await clockOf(p, rulings, snap.claims);
   return { status: 200, body: { ...clock, rulings, count: rulings.length, asOf: snap.at }, headers: { "cache-control": READ_CACHE.rulings } };
 }
 

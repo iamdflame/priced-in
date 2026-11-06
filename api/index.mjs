@@ -217,7 +217,7 @@ async function health(res, ctxP) {
   // the lane's budget is read once the app is up, alongside the rest (a cached view)
   const ctxLane = ctxP.then(async (c) => [c, c?.app?.lane.enabled ? await withTimeout(c.app.lane.budget().catch((e) => ({ error: e.message })), 800, { error: "the lane budget read timed out" }) : null]);
   const relayerNear = config.x402.relayerId ? rpc.call("query", { request_type: "view_account", finality: "final", account_id: config.x402.relayerId }, { timeoutMs: 1000 }).then((a) => Number(BigInt(a.amount) / 10n ** 21n) / 1000).catch(() => null) : null;
-  const clock = ctxP.then(async (c) => { if (!c) return null; const claims = (await p.claims.decorated()).claims; return clockOf(p, await readRulings(p, claims)); }).catch(() => null);
+  const clock = ctxP.then(async (c) => { if (!c) return null; const claims = (await p.claims.decorated()).claims; return clockOf(p, await readRulings(p, claims), claims); }).catch(() => null);
   const [probes, [ctx, laneB], snapDoc, cronDoc, ruling, relayerBalance] = await Promise.all([
     quickProbe(rpc, 1200),
     ctxLane,

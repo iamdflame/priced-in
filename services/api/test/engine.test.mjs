@@ -8,16 +8,20 @@ import path from "node:path";
 import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
-import { bOf, checkerCandidates, checkerEvidence, corpusRecord, correctedWording, keeperRound, nextTick, planKeeper, rulingClock } from "../../../api/_lib/keeper.mjs";
+import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, isCapRefusal, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
 import { corpusEvidence } from "../../ai/src/evidence.js";
+import errors from "../../../corpus/ERRORS.json" with { type: "json" };
 import { Rpc } from "../src/rpc.mjs";
 import { startMockRpc, eventLog } from "./mock-rpc.mjs";
 
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "pricedin-engine-"));
 const NS = (ms) => String(BigInt(ms) * 1_000_000n);
 const STALE = "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.";
+const CAUGHT = errors.items.map((e) => e.sentence).find((t) => corpusEvidence(t) && t !== STALE); // a second caught line
+const DAY = Date.UTC(2026, 10, 6); // midnight UTC on a sitting day
+const H = 3600_000;
 const LANE = "lane:ed25519:6237QdS6SP63oys9apSKnmMN9bkcF3MBNyV7dUHr16eT";
 let uid = 0;
 const ev = (event, data, t = 1000, extra = {}) => ({ uid: `r${++uid}:0:0`, event, data, txHash: `tx${uid}`, blockHeight: t, blockTimestampMs: t, ...extra });
@@ -384,14 +388,64 @@ test("the Checker's evidence: the corpus record in plain words, its source, its 
   assert.ok(Buffer.byteLength(checkerEvidence({ ...ev18, receipt_match: "x".repeat(9000), value_today: "y".repeat(9000) }), "utf8") <= 4000);
 });
 
-test("the Checker's lines: open, caught, one try each; an expired one waits a day; never tried first, then the most traded", () => {
+test("the Checker's lines: open, caught, one try each; an expired one waits a day; the most bets first, and on a tie a line never tried", () => {
   const evidenceOf = (t) => (/caught/.test(t) ? { corpus_id: t } : null);
   const now = 100 * 3600_000;
-  const claims = [claim(1, { text: "caught a", trades: 1 }), claim(2, { text: "caught b", trades: 9 }), claim(3, { text: "clean" }), claim(4, { text: "caught c", status: "Challenged" }), claim(5, { text: "caught d" }), claim(6, { text: "caught e" }), claim(7, { text: "caught f" })];
-  const history = [{ claim_id: 5, status: "settled", at: 1 }, { claim_id: 6, status: "expired", at: now - 3600_000 }, { claim_id: 7, status: "expired", at: now - 25 * 3600_000 }];
+  const claims = [claim(1, { text: "caught a", trades: 1 }), claim(2, { text: "caught b", trades: 9 }), claim(3, { text: "clean" }), claim(4, { text: "caught c", status: "Challenged" }), claim(5, { text: "caught d" }), claim(6, { text: "caught e" }), claim(7, { text: "caught f" }), claim(8, { text: "caught g", trades: 1 }), claim(9, { text: "caught h", trades: 20 })];
+  const history = [{ claim_id: 5, status: "settled", at: 1 }, { claim_id: 6, status: "expired", at: now - 3600_000 }, { claim_id: 7, status: "expired", at: now - 25 * 3600_000 }, { claim_id: 8, status: "expired", at: now - 25 * 3600_000 }, { claim_id: 9, status: "expired", at: now - 25 * 3600_000 }];
   const c = checkerCandidates({ claims, history, nowMs: now, evidenceOf });
-  assert.deepEqual(c.map((x) => x.claim.id), [2, 1, 7]);
+  assert.deepEqual(c.map((x) => x.claim.id), [9, 2, 1, 8, 7]);
+  assert.deepEqual(c.map((x) => x.bets), [20, 9, 1, 1, 0]);
   assert.equal(c.at(-1).tries, 1);
+});
+
+test("a bet is a position someone still holds: trades sold back out pay nobody, so they don't count", () => {
+  assert.equal(betsOn(claim(1, { trades: 3 })), 3, "no position fields: the chain's count");
+  assert.equal(betsOn(claim(1, { trades: 2, q_yes_micro: "0", q_no_micro: "0" })), 0, "claim 12 on mainnet: bought and sold back");
+  assert.equal(betsOn(claim(1, { trades: 2, q_yes_micro: "0", q_no_micro: "239652" })), 2);
+  assert.equal(betsOn(claim(1, { trades: 1, q_yes_micro: "529048", q_no_micro: "0" })), 1);
+  assert.equal(betsOn(claim(1, { trades: 0, q_yes_micro: "0", q_no_micro: "0" })), 0);
+});
+
+test("the sitting's config: defaults, CHECKER_* values, and anything out of range keeps the default", () => {
+  assert.deepEqual(sittingConfig({}), { perDay: 1, hourUtc: 15, minBets: 1 });
+  assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "2", CHECKER_SITTING_HOUR_UTC: "0", CHECKER_MIN_BETS: "0" }), { perDay: 2, hourUtc: 0, minBets: 0 });
+  assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "0", CHECKER_SITTING_HOUR_UTC: "24", CHECKER_MIN_BETS: "-1" }), SITTING);
+  assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "x", CHECKER_SITTING_HOUR_UTC: "1.5", CHECKER_MIN_BETS: "" }), SITTING);
+});
+
+test("the Checker's decision: each reason to wait is a quiet note, and it goes only when all of them clear", () => {
+  const ok = { nowMs: DAY + 15 * H, queue: 3, ready: 2, rulingsToday: 0, balance: "2950000", bond: "1000000" };
+  assert.deepEqual(checkerDecision(ok), { go: true, note: null });
+  assert.equal(checkerDecision({ ...ok, nowMs: DAY + 23 * H }).go, true, "the first run at or after the hour: a bet at 23:00 still gets its sitting");
+  const no = (o) => { const d = checkerDecision({ ...ok, ...o }); assert.equal(d.go, false); return d.note; };
+  assert.match(no({ live: { challenge_id: 7 } }), /one at a time/);
+  assert.match(no({ queue: 0, ready: 0 }), /no caught line/);
+  assert.match(no({ ready: 0 }), /3 caught lines wait for bets/);
+  assert.match(no({ queue: 1, ready: 0 }), /1 caught line waits/);
+  assert.match(no({ rulingsToday: 1 }), /today's sitting is done/);
+  assert.match(no({ capped: true }), /daily challenge cap/);
+  assert.match(no({ nowMs: DAY + 15 * H - 1 }), /sitting is at 15:00 UTC/);
+  assert.match(no({ balance: null }), /could not read/);
+  assert.match(no({ bond: null }), /could not read/);
+  assert.match(no({ balance: "999999" }), /waits for funding/);
+  assert.match(no({ left: 1000 }), /out of time/);
+  assert.equal(checkerDecision({ ...ok, sitting: { ...SITTING, perDay: 2 }, rulingsToday: 1 }).go, true, "a second ruling when two a day are set");
+});
+
+test("the Checker's queue: its own rulings today count, UTC days apart, and the lines short of bets stay queued", () => {
+  const claims = [claim(18, { text: STALE, trades: 2 }), claim(19, { text: CAUGHT }), claim(3)];
+  const r = (challenger, opened_at) => ({ challenger, claim_id: 50, status: "settled", opened_at, settled_at: opened_at + 1 });
+  const rulings = [r("checker.near", DAY + 1), r("checker.near", DAY - 1), r("someone.near", DAY + 2)];
+  const q = checkerQueue({ claims, rulings, account: "checker.near", nowMs: DAY + 16 * H });
+  assert.deepEqual([q.candidates.length, q.ready.length, q.rulingsToday], [2, 1, 1]);
+  assert.equal(q.ready[0].claim.id, 18);
+  assert.equal(checkerQueue({ claims, rulings, account: null, nowMs: DAY + 16 * H }).rulingsToday, 0);
+  assert.equal(checkerQueue({ claims, rulings, account: "checker.near", nowMs: DAY + 16 * H, sitting: { ...SITTING, minBets: 3 } }).ready.length, 0);
+  const facts = checkerFacts({ enabled: true, funded: true, refused: null, capped_on: "2026-11-06" }, q, DAY + 16 * H);
+  assert.deepEqual(facts, { enabled: true, queue: 2, waiting_for_bets: 1, rulings_today: 1, funded: true, refused: null, capped: true });
+  assert.equal(checkerFacts({ enabled: true, capped_on: "2026-11-05" }, q, DAY + 16 * H).capped, false, "a cap reached yesterday is over");
+  assert.equal(checkerFacts(null, q, DAY).enabled, false);
 });
 
 test("the corrected wording is the latest signed sentence in the correct band; the liquidity is the old line's", () => {
@@ -407,7 +461,7 @@ test("the corrected wording is the latest signed sentence in the correct band; t
   assert.equal(bOf(claim(1), []), null);
 });
 
-test("the clock: stages of a live ruling, the next slot, and an honest null", () => {
+test("the clock: stages of a live ruling, never a time already past, and never one that slides", () => {
   const every = 600_000;
   assert.equal(nextTick(every * 5, every, 0), every * 5);
   assert.equal(nextTick(every * 5 + 1, every, 45_000), every * 6 + 45_000);
@@ -415,23 +469,88 @@ test("the clock: stages of a live ruling, the next slot, and an honest null", ()
   const jury = rulingClock({ nowMs: now, rulings: [{ status: "jury", challenge_id: 4, claim_id: 18, claim: "x", verdicts: [], opened_at: now - 1000 }] });
   assert.equal(jury.ruling_now.stage, "jury");
   assert.ok(jury.next_ruling_at > now + 600_000 && jury.next_ruling_at <= now + 25 * 60_000);
+  assert.equal(jury.next_challenge_at, null);
+  assert.match(jury.next_ruling_note, /judges are ruling/);
   const win = rulingClock({ nowMs: now, rulings: [{ status: "window", challenge_id: 4, claim_id: 18, claim: "x", verdicts: [{ model: "m", verdict: "FALSE" }], provisional: "FALSE", opened_at: now - 1000, window_ends_at: now + 60_000 }] });
   assert.equal(win.ruling_now.stage, "window");
   assert.equal(win.ruling_now.finalize_due_at, nextTick(now + 60_000));
   assert.equal(win.next_ruling_at, nextTick(now + 60_000));
+  assert.match(win.next_ruling_note, /object/);
   const esc = rulingClock({ nowMs: now, rulings: [{ status: "escalated", challenge_id: 4, verdicts: [] }] });
   assert.equal(esc.next_ruling_at, null);
+  assert.equal(esc.ruling_now.finalize_due_at, null);
   assert.match(esc.next_ruling_note, /council/);
-  const idle = rulingClock({ nowMs: now, rulings: [], checker: { enabled: true, gapMs: 3000_000, lastEndAt: now - 1000_000, candidates: 3 } });
-  assert.equal(idle.ruling_now, null);
-  assert.ok(idle.next_challenge_at >= now - 1000_000 + 3000_000);
-  assert.ok(idle.next_ruling_at > idle.next_challenge_at);
-  assert.equal(rulingClock({ nowMs: now, rulings: [], checker: { enabled: true, gapMs: 1, candidates: 0 } }).next_ruling_at, null);
-  assert.match(rulingClock({ nowMs: now, rulings: [], checker: { enabled: false, reason: "no Checker key" } }).next_ruling_note, /no Checker key/);
+  // the keeper is late with a window that closed: the clock moves on to the next run, not into the past
+  const lateWin = rulingClock({ nowMs: now, rulings: [{ status: "window", challenge_id: 4, verdicts: [], window_ends_at: now - 3 * every }] });
+  assert.ok(lateWin.next_ruling_at > now);
+  // a jury past its three minutes: the one known limit is its deadline, and that doesn't slide
+  const late = (nowMs, jury_deadline_at) => rulingClock({ nowMs, rulings: [{ status: "jury", challenge_id: 4, verdicts: [], opened_at: now - 30 * 60_000, jury_deadline_at }] }).next_ruling_at;
+  assert.equal(late(now, now + 30 * 60_000), nextTick(now + 30 * 60_000));
+  assert.equal(late(now + 60_000, now + 30 * 60_000), late(now, now + 30 * 60_000));
+  assert.equal(late(now, undefined), null, "no deadline known: nothing is promised");
+});
+
+test("the clock when no ruling runs: every state says what is true, in a sentence fit for a visitor", () => {
+  const at = (h, m = 0, s = 0) => DAY + h * H + m * 60_000 + s * 1000;
+  const ready = { enabled: true, queue: 4, waiting_for_bets: 1, rulings_today: 0, funded: true };
+  const clock = (nowMs, o = {}, sitting) => rulingClock({ nowMs, rulings: [], sitting, checker: { ...ready, ...o } });
+  const tomorrow = at(39);
+
+  // before the sitting
+  let c = clock(at(10));
+  assert.deepEqual([c.next_ruling_at, c.next_challenge_at, c.next_ruling_note], [at(15), at(15), "The jury sits daily at 15:00 UTC"]);
+  assert.deepEqual([c.sitting_hour_utc, c.rulings_today, c.per_day, c.queue, c.waiting_for_bets, c.ruling_now], [15, 0, 1, 4, 1, null]);
+  // today's ruling is done, after the hour or before it (today's six ran from 03:30)
+  for (const t of [at(16), at(10)]) {
+    c = clock(t, { rulings_today: 1 });
+    assert.deepEqual([c.next_ruling_at, c.next_ruling_note], [tomorrow, "Today's ruling is done. The next sitting is tomorrow at 15:00 UTC"]);
+  }
+  assert.equal(clock(at(16), { rulings_today: 6 }).rulings_today, 6);
+  assert.equal(clock(at(16), { rulings_today: 2 }, { ...SITTING, perDay: 2 }).next_ruling_note, "Today's rulings are done. The next sitting is tomorrow at 15:00 UTC");
+  // the signer's cap is reached: the same honest answer, whatever per_day says
+  assert.equal(clock(at(16), { rulings_today: 6, capped: true }, { ...SITTING, perDay: 50 }).next_ruling_at, tomorrow);
+  // the sitting is due: the cron run about to act, not a promise of the next one
+  assert.equal(clock(at(15, 0, 5)).next_ruling_at, at(15, 0, 30));
+  assert.equal(clock(at(18, 3)).next_ruling_at, at(18, 10, 30));
+  assert.equal(clock(at(18, 3)).next_ruling_note, "The jury sits within the next 10 minutes");
+  // nothing can happen: no time at all, and the home page's timer reads the same
+  const none = (o, note) => { const n = clock(at(10), o); assert.deepEqual([n.next_ruling_at, n.next_challenge_at, n.next_ruling_note], [null, null, note]); };
+  none({ queue: 0, waiting_for_bets: 0 }, "No doubted fact is waiting for the jury");
+  none({ waiting_for_bets: 4 }, "No doubted fact has a bet yet, so the next sitting waits for one");
+  none({ funded: false }, "The next sitting waits for the Checker's bond to be funded");
+  none({ refused: "Smart contract panicked" }, "Today's sitting is delayed while the keeper tries again");
+  none({ enabled: false }, "The jury isn't sitting right now");
+  assert.equal(rulingClock({ nowMs: at(10), rulings: [] }).next_ruling_at, null);
+  // nothing to rule outranks "done today": tomorrow's sitting would have nothing either
+  assert.equal(clock(at(16), { rulings_today: 6, waiting_for_bets: 4 }).next_ruling_at, null);
+  // an unread balance is not a known shortfall
+  assert.equal(clock(at(10), { funded: null }).next_ruling_at, at(15));
+  // another hour, and across the end of the year
+  assert.equal(clock(at(10), {}, { ...SITTING, hourUtc: 9 }).next_ruling_at, at(10, 0, 30));
+  assert.equal(clock(at(1), {}, { ...SITTING, hourUtc: 9 }).next_ruling_note, "The jury sits daily at 09:00 UTC");
+  assert.equal(clock(Date.UTC(2026, 11, 31, 20), { rulings_today: 1 }).next_ruling_at, Date.UTC(2027, 0, 1, 15));
+});
+
+test("the clock across a whole day: it never reaches a moment and starts again", () => {
+  const ready = { enabled: true, queue: 2, waiting_for_bets: 0, funded: true };
+  const keys = Object.keys(rulingClock({ nowMs: DAY, rulings: [] })).sort();
+  const seen = new Set();
+  for (let t = DAY; t < DAY + 24 * H; t += 60_000) {
+    const done = rulingClock({ nowMs: t, rulings: [], checker: { ...ready, rulings_today: 1 } });
+    assert.equal(done.next_ruling_at, DAY + 39 * H, "done for the day: one fixed time, all day");
+    assert.ok(done.next_ruling_at > t);
+    const stuck = rulingClock({ nowMs: t, rulings: [], checker: { ...ready, waiting_for_bets: 2 } });
+    assert.equal(stuck.next_ruling_at, null, "nothing eligible: no countdown at any hour");
+    const open = rulingClock({ nowMs: t, rulings: [], checker: { ...ready, rulings_today: 0 } });
+    assert.ok(open.next_ruling_at >= t);
+    if (t < DAY + 15 * H) seen.add(open.next_ruling_at);
+    for (const x of [done, stuck, open]) assert.deepEqual(Object.keys(x).sort(), keys);
+  }
+  assert.deepEqual([...seen], [DAY + 15 * H], "before the sitting there is one promise, and it holds still");
 });
 
 /** A chain, a signer and a store in memory: the whole loop without a network. */
-function loopWorld({ keeper = true, checker = true, balance = "1000000", now = 1_000_000_000 } = {}) {
+function loopWorld({ keeper = true, checker = true, balance = "1000000", now = DAY + 15 * H + 5000 } = {}) {
   const w = { now, sent: [], links: [], events: [ev("open", { claim_id: 18, b_micro: "1450000", p0_ppm: 500000 }, 1)], rewrites: [], wanted: [], recorded: [], triggered: [], capped: false };
   w.claims = [claim(18, { text: STALE, price_yes_ppm: 100000, trades: 5 }), claim(3)];
   w.challenges = new Map();
@@ -445,6 +564,7 @@ function loopWorld({ keeper = true, checker = true, balance = "1000000", now = 1
       return { ok: true, txHash: `E${id}` };
     },
     openClaim: async (intent, o) => {
+      if (w.refuseOpen) return { ok: false, final: true, error: w.refuseOpen };
       w.sent.push({ method: "open_claim", intent, ...o });
       if (w.capped && o.p0_ppm !== 500000) return { ok: false, final: true, error: "Smart contract panicked: subsidy cap reached" };
       const id = w.claims.length + 30;
@@ -452,6 +572,7 @@ function loopWorld({ keeper = true, checker = true, balance = "1000000", now = 1
       return { ok: true, txHash: `O${id}`, value: id };
     },
     challenge: async (intent, c) => {
+      if (w.refuse) return { ok: false, final: true, error: w.refuse };
       w.sent.push({ method: "challenge", intent, ...c });
       const id = w.challenges.size;
       const cl = w.claims.find((x) => x.id === c.claim_id);
@@ -551,24 +672,35 @@ test("a line ruled FALSE with no sourced correction opens nothing; TRUE opens no
   assert.deepEqual([r.opened.length, r.waiting.length, w.wanted.length, w.sent.length], [0, 0, 0, 0]);
 });
 
-test("the Checker waits: for funding, for its slot, and for a key; a job out of time stops before a challenge", async () => {
+test("the Checker waits: for funding, for its sitting, and for a key; a job out of time stops before a challenge", async () => {
   let w = loopWorld({ balance: "999999" });
   let r = await w.round();
   assert.equal(r.challenged, null);
   assert.match(r.checker.note, /waits for funding/);
   assert.equal(r.checker.balance_micro, "999999");
-  w = loopWorld();
-  w.events.push(ev("challenge", { challenge_id: 5, claim_id: 3, claimed: false, trader: "checker.owner.near", amount_micro: "1000000", jury_deadline_ns: "1" }, w.now - 3000_000), ev("settle", { claim_id: 3, challenge_id: 5, outcome: true, payout_micro: "0" }, w.now - 60_000));
+  assert.equal(r.checker.funded, false);
+  assert.equal(r.clock.next_ruling_at, null);
+  assert.match(r.clock.next_ruling_note, /bond to be funded/);
+  assert.deepEqual(r.errors, []);
+  // before the hour nothing is sent; the first run at or after it challenges
+  w = loopWorld({ now: DAY + 14 * H + 50 * 60_000 + 5000 });
   r = await w.round();
-  assert.match(r.checker.note, /next slot is in/);
-  assert.ok(r.clock.next_challenge_at > w.now);
-  w.now += 50 * 60_000;
+  assert.equal(r.challenged, null);
+  assert.match(r.checker.note, /sitting is at 15:00 UTC/);
+  assert.equal(r.clock.next_ruling_at, DAY + 15 * H);
+  assert.equal(r.clock.next_ruling_note, "The jury sits daily at 15:00 UTC");
+  w.now += 10 * 60_000;
   r = await w.round();
+  assert.equal(r.challenged.claim_id, 18);
+  // a sitting at another hour
+  w = loopWorld({ now: DAY + 9 * H + 5000 });
+  r = await w.round({ sitting: { ...SITTING, hourUtc: 9 } });
   assert.equal(r.challenged.claim_id, 18);
   w = loopWorld({ checker: false });
   r = await w.round();
   assert.equal(r.checker.enabled, false);
-  assert.match(r.clock.next_ruling_note, /no Checker key/);
+  assert.match(r.checker.reason, /no Checker key/);
+  assert.equal(r.clock.next_ruling_note, "The jury isn't sitting right now");
   w = loopWorld();
   r = await w.round({ left: () => 1000 });
   assert.equal(r.challenged, null);
@@ -577,6 +709,160 @@ test("the Checker waits: for funding, for its slot, and for a key; a job out of 
   r = await w.round({ checkerOn: false });
   assert.equal(r.challenged, null);
   assert.equal(w.sent.length, 0);
+});
+
+test("one sitting a day: after today's ruling the Checker rests, and tomorrow it takes the next", async () => {
+  const w = loopWorld();
+  w.claims.push(claim(19, { text: CAUGHT, trades: 1 }));
+  let r = await w.round();
+  assert.equal(r.challenged.claim_id, 18);
+  // the ruling ends; every later run today stays quiet
+  const c = w.claims.find((x) => x.id === 18);
+  Object.assign(c, { status: "Settled", outcome: true });
+  w.challenges.get(0).resolved = true;
+  w.events.push(ev("settle", { claim_id: 18, challenge_id: 0, outcome: true, payout_micro: "0" }, w.now + 20 * 60_000));
+  for (const later of [H, 3 * H, 8 * H]) {
+    w.now = DAY + 15 * H + later;
+    r = await w.round();
+    assert.equal(r.challenged, null);
+    assert.match(r.checker.note, /today's sitting is done: 1 of 1/);
+    assert.deepEqual(r.errors, []);
+    assert.deepEqual([r.clock.next_ruling_at, r.clock.rulings_today, r.clock.queue], [DAY + 39 * H, 1, 1]);
+    assert.equal(r.clock.next_ruling_note, "Today's ruling is done. The next sitting is tomorrow at 15:00 UTC");
+  }
+  assert.equal(w.sent.filter((x) => x.method === "challenge").length, 1);
+  // the next day: before the hour it waits, at the hour it sits
+  w.now = DAY + 34 * H;
+  r = await w.round();
+  assert.equal(r.challenged, null);
+  assert.equal(r.clock.next_ruling_at, DAY + 39 * H);
+  w.now = DAY + 39 * H + 5000;
+  r = await w.round();
+  assert.equal(r.challenged.claim_id, 19);
+});
+
+test("rule what people bet on: the most bets goes first, and a line with none waits, honestly", async () => {
+  let w = loopWorld();
+  w.claims[0].trades = 2;
+  w.claims.push(claim(19, { text: CAUGHT, trades: 7 }));
+  let r = await w.round();
+  assert.equal(r.challenged.claim_id, 19);
+  // nobody has bet on anything: nothing is challenged, and the clock doesn't count down to it
+  w = loopWorld();
+  w.claims[0].trades = 0;
+  w.claims.push(claim(19, { text: CAUGHT, trades: 2, q_yes_micro: "0", q_no_micro: "0" }));
+  r = await w.round();
+  assert.equal(r.challenged, null);
+  assert.equal(w.sent.length, 0);
+  assert.deepEqual(r.errors, []);
+  assert.match(r.checker.note, /2 caught lines wait for bets/);
+  assert.deepEqual([r.clock.next_ruling_at, r.clock.queue, r.clock.waiting_for_bets], [null, 2, 2]);
+  assert.match(r.clock.next_ruling_note, /No doubted fact has a bet yet/);
+  assert.deepEqual(r.checker.lines.map((x) => x.bets), [0, 0]);
+  // the first bet lands after the hour: the next run sits
+  w.claims[0].trades = 1;
+  w.now += 3 * H;
+  r = await w.round();
+  assert.equal(r.challenged.claim_id, 18);
+  // CHECKER_MIN_BETS sets the bar
+  w = loopWorld();
+  r = await w.round({ sitting: { ...SITTING, minBets: 6 } });
+  assert.equal(r.challenged, null);
+  r = await w.round({ sitting: { ...SITTING, minBets: 5 } });
+  assert.equal(r.challenged.claim_id, 18);
+  // an empty queue
+  w = loopWorld();
+  w.claims = [claim(3)];
+  r = await w.round();
+  assert.match(r.checker.note, /no caught line/);
+  assert.deepEqual([r.clock.next_ruling_at, r.clock.next_ruling_note, r.errors], [null, "No doubted fact is waiting for the jury", []]);
+});
+
+test("a cap is a quiet state: the keeper doesn't try what it knows will be refused, and a real refusal still fails", async () => {
+  // it asks first: nothing is sent, nothing fails, and the clock moves to tomorrow
+  let w = loopWorld();
+  w.signer.caps = async () => ({ ok: true, day: "2026-11-06", challenges: { used: 6, cap: 6 }, opens: { used: 0, cap: 12 } });
+  let r = await w.round({ sitting: { ...SITTING, perDay: 50 } });
+  assert.equal(r.challenged, null);
+  assert.equal(w.sent.length, 0);
+  assert.deepEqual(r.errors, []);
+  assert.match(r.checker.note, /daily challenge cap/);
+  assert.equal(r.clock.next_ruling_at, DAY + 39 * H);
+  // a cap from another day is over
+  w = loopWorld();
+  w.signer.caps = async () => ({ ok: true, day: "2026-11-05", challenges: { used: 6, cap: 6 }, opens: { used: 0, cap: 12 } });
+  r = await w.round();
+  assert.equal(r.challenged.claim_id, 18);
+  // the signer can't say, or refuses at the cap anyway: still quiet
+  w = loopWorld();
+  w.signer.caps = async () => { throw new Error("down"); };
+  w.refuse = "challenge: 6 challenges already posted today";
+  r = await w.round();
+  assert.deepEqual([r.challenged, r.errors], [null, []]);
+  assert.equal(r.checker.capped_on, "2026-11-06");
+  assert.equal(r.checker.refused, null);
+  assert.equal(r.clock.next_ruling_at, DAY + 39 * H);
+  // any other refusal is a failure, and the clock stops promising
+  w = loopWorld();
+  w.refuse = "Smart contract panicked: the claim is paused";
+  r = await w.round();
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /challenge of claim 18: Smart contract panicked/);
+  assert.equal(r.clock.next_ruling_at, null);
+  assert.match(r.clock.next_ruling_note, /delayed/);
+  // it clears on the run that gets through
+  w.refuse = null;
+  w.now += H;
+  r = await w.round();
+  assert.equal(r.challenged.claim_id, 18);
+  assert.equal(r.checker.refused, null);
+});
+
+test("the pending correction: a capped open waits quietly and the keeper opens it once the cap allows", async () => {
+  const settled = () => {
+    const w = loopWorld({});
+    Object.assign(w.claims[0], { status: "Settled", outcome: false, challenge_id: 0 });
+    w.rewrites.push({ id: "t:9:v1", version: 1, status: "signed", createdAt: 5, sentences: [{ claim_id: 18, band: "correct", text: "Fixed." }] });
+    return w;
+  };
+  // the keeper knows the cap is reached: no attempt, no failure, and it's on the list
+  let w = settled();
+  let used = 12;
+  w.signer.caps = async () => ({ ok: true, day: "2026-11-06", challenges: { used: 0, cap: 6 }, opens: { used, cap: 12 } });
+  let r = await w.round();
+  assert.deepEqual([r.opened.length, r.errors, w.sent.filter((x) => x.method === "open_claim").length], [0, [], 0]);
+  assert.match(r.waiting[0].why, /after midnight UTC/);
+  assert.equal(w.links.length, 0);
+  // the next day's count starts again: the same line opens, linked
+  used = 0;
+  w.now += 24 * H;
+  r = await w.round();
+  assert.equal(r.opened.length, 1);
+  assert.deepEqual([w.links[0].old_claim_id, w.links[0].new_claim_id], [18, r.opened[0].new_claim_id]);
+  // two lines and one open left: one opens, the other waits, and neither fails
+  w = settled();
+  w.claims.push(claim(19, { text: CAUGHT, status: "Settled", outcome: false, challenge_id: 1 }));
+  w.events.push(ev("open", { claim_id: 19, b_micro: "1450000", p0_ppm: 500000 }, 1));
+  w.rewrites.push({ id: "t:9:v2", version: 1, status: "signed", createdAt: 6, sentences: [{ claim_id: 19, band: "correct", text: "Also fixed." }] });
+  w.signer.caps = async () => ({ ok: true, day: "2026-11-06", challenges: { used: 0, cap: 6 }, opens: { used: 11, cap: 12 } });
+  r = await w.round();
+  assert.deepEqual([r.opened.length, r.waiting.length, r.errors], [1, 1, []]);
+  // the signer refuses at the cap anyway: quiet, and tried again on the next run
+  w = settled();
+  w.refuseOpen = "open: 12 corrected lines already opened today";
+  r = await w.round();
+  assert.deepEqual([r.opened.length, r.errors], [0, []]);
+  assert.match(r.waiting[0].why, /after midnight UTC/);
+  w.refuseOpen = null;
+  r = await w.round();
+  assert.equal(r.opened.length, 1);
+  // a real refusal still fails
+  w = settled();
+  w.refuseOpen = "Smart contract panicked: paused";
+  r = await w.round();
+  assert.equal(r.errors.length, 1);
+  assert.match(r.errors[0], /open for claim 18: Smart contract panicked/);
+  assert.ok(isCapRefusal("challenge: 6 challenges already posted today") && isCapRefusal("open: 5 corrected lines already opened today") && !isCapRefusal("Smart contract panicked"));
 });
 
 test("the keeper expires a challenge past its deadline; with no keeper key it does nothing and says so", async () => {
@@ -669,8 +955,8 @@ test("GET /rulings: the chain's live view, the clock and the Checker's state", a
   try {
     mock.st.views.set("get_challenge", (a) => (a.challenge_id === 7 ? { claim_id: 6, challenger: "checker.x.near", evidence: "e", verdicts: [{ model: "glm", outcome: "FALSE", request_hash: "a", response_hash: "b" }], resolved: false, disputes: 0, jury_deadline_ns: NS(Date.now() + 1000), stakes: [{ amount_micro: "1000000" }], opened_ns: NS(1000) } : null));
     mock.st.views.set("dispute_ends_ns", () => NS(Date.now() + 500_000));
-    const docs = { "snapshots/keeper.json": { at: "t", checker: { enabled: true, account: "checker.x.near", gapMs: 3000_000, lastEndAt: null, candidates: 2, balance_micro: "1000000", note: null } } };
-    const p = routeWorld(mock, { claims: [claim(6, { status: "Challenged", challenge_id: 7, provisional: false })], docs });
+    const docs = { "snapshots/keeper.json": { at: "t", checker: { enabled: true, account: "checker.x.near", candidates: 2, balance_micro: "1000000", funded: true, refused: null, capped_on: null, note: null } } };
+    const p = routeWorld(mock, { claims: [claim(6, { status: "Challenged", challenge_id: 7, provisional: false }), claim(18, { text: STALE, trades: 5 }), claim(19, { text: CAUGHT })], docs });
     const r = await rulingsRoute(p);
     assert.equal(r.status, 200);
     assert.equal(r.body.count, 1, "known to the chain before the index has it");
@@ -679,10 +965,22 @@ test("GET /rulings: the chain's live view, the clock and the Checker's state", a
     assert.equal(r.body.ruling_now.stage, "window");
     assert.ok(r.body.next_ruling_at > Date.now());
     assert.deepEqual([r.body.checker.account, r.body.checker.balance_usd, r.body.checker.lines_left], ["checker.x.near", 1, 2]);
-    const idle = await rulingsRoute(routeWorld(mock, { claims: [claim(1)], docs }));
+    assert.deepEqual([r.body.sitting_hour_utc, r.body.per_day, r.body.queue, r.body.waiting_for_bets, r.body.rulings_today], [15, 1, 2, 1, 0]);
+    // the exact shape docs/API.md gives
+    assert.deepEqual(Object.keys(r.body).sort(), ["asOf", "checker", "count", "keeper_ran_at", "next_challenge_at", "next_ruling_at", "next_ruling_note", "per_day", "queue", "ruling_now", "rulings", "rulings_today", "sitting_hour_utc", "waiting_for_bets"]);
+    const idle = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE, trades: 5 })], docs }));
     assert.equal(idle.body.ruling_now, null);
     assert.ok(idle.body.next_ruling_at > Date.now());
-    assert.equal((await rulingsRoute(routeWorld(mock, { claims: [claim(1)] }))).body.next_ruling_at, null);
+    assert.equal(idle.body.next_challenge_at, idle.body.next_ruling_at);
+    assert.deepEqual(Object.keys(idle.body).sort(), Object.keys(r.body).sort());
+    // the queue is read as it stands, not as the last cron run left it: 2 in the record, 1 here, no bets on it
+    const noBets = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE })], docs }));
+    assert.deepEqual([noBets.body.next_ruling_at, noBets.body.next_challenge_at, noBets.body.queue, noBets.body.waiting_for_bets, noBets.body.checker.lines_left], [null, null, 1, 1, 1]);
+    assert.match(noBets.body.next_ruling_note, /No doubted fact has a bet yet/);
+    const empty = await rulingsRoute(routeWorld(mock, { claims: [claim(1)], docs }));
+    assert.deepEqual([empty.body.next_ruling_at, empty.body.queue], [null, 0]);
+    const never = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE, trades: 5 })] }));
+    assert.deepEqual([never.body.next_ruling_at, never.body.checker, never.body.next_ruling_note], [null, null, "The jury isn't sitting right now"]);
   } finally { await mock.close(); }
 });
 

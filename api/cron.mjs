@@ -3,7 +3,8 @@
 //   keeper (its own lock; the ruling loop goes first, because money waits on it):
 //     1. finalize every challenge whose window has ended, expire every one past its jury deadline
 //     2. a caught line ruled FALSE opens its corrected wording as a new linked market
-//     3. the Checker challenges the next caught line, one at a time; the jury is called at once
+//     3. the daily sitting: the Checker challenges the caught line with the most bets, one at a
+//        time; the jury is called at once. A cap reached or nothing eligible is quiet, not a failure
 //   writer (the writer's lock, no agent key):
 //     4. a signed correction the keeper asked for (a line ruled FALSE with none yet)
 //     5. anchor any signed rewrite not anchored yet (anchor_rewrite through the signer)
@@ -18,7 +19,7 @@
 
 import { prepare, sendJson, runJob, log, recordEvents, txEvents } from "./_lib/runtime.mjs";
 import { Indexer, sourcesFor } from "./_lib/indexer.mjs";
-import { keeperRound } from "./_lib/keeper.mjs";
+import { keeperRound, sittingConfig } from "./_lib/keeper.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { labelSentences, PRICEABLE } from "../services/api/src/planner.mjs";
@@ -93,7 +94,7 @@ export default async function handler(req, res) {
         trigger: triggerJury,
         rulings: (claims) => readRulings(p, claims),
         plannerP0: pc.apiKey && pc.model && p.spend.status().open ? async (text) => { const [l] = await labelSentences(pc, [text]); return PRICEABLE.has(l?.label) ? l.p0_ppm : null; } : null,
-        gapMs: Number(process.env.CHECKER_GAP_MIN || 50) * 60_000,
+        sitting: sittingConfig(),
         checkerOn: process.env.CHECKER_ENABLED !== "0",
         left: () => deadline - Date.now(),
         log,
