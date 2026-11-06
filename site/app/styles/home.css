@@ -131,4 +131,7 @@
   .home > section, .home > div:not(.hero) { order: 4; }
   .home .sec { margin-top: 20px; }
   .home .sec .tab { height: 44px; }
+  /* one swipeable row of topics, not four wrapped lines */
+  .home .sec .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: calc(100% + var(--gut) * 2); margin: 4px calc(var(--gut) * -1) 0; padding: 0 var(--gut); scroll-padding: 0 var(--gut); }
+  .home .sec .tabs::-webkit-scrollbar { display: none; }
 }
