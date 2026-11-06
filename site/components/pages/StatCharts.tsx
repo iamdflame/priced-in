@@ -21,7 +21,7 @@ export function VolumeChart({ points, start, now }: { points: { at: number; usd:
     <svg viewBox={`0 0 ${W} ${H}`} role="img" aria-label={`Money bet over time: ${money(last?.usd ?? 0)} across ${last?.n ?? 0} bets`}>
       <defs><linearGradient id="vg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".16" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
       {ticks.map((v) => <g key={v}><line className="g" x1={L} x2={W - R} y1={Y(v)} y2={Y(v)} /><text x={W - R + 8} y={Y(v) + 4}>{money(v)}</text></g>)}
-      <path d={`${d}V${Y(0)}H${X(t0)}Z`} fill="url(#vg)" style={{ color: "var(--ink)" }} />
+      <path d={`${d}V${Y(0)}H${X(t0)}Z`} fill="url(#vg)" className="area" />
       <path className="ln" d={d} />
       {last && <circle className="hd" cx={X(t1)} cy={Y(last.usd)} r={4.5} />}
       <text x={L} y={H - 6}>{label(t0)} UTC</text>
@@ -76,10 +76,10 @@ export function Calibration({ pts }: { pts: { p: number; o: number; id: number }
   const S = 220, P = 26;
   const X = (p: number) => P + p * (S - P * 2), Y = (o: number) => S - P - o * (S - P * 2);
   return (
-    <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label={`Calibration: ${pts.length} settled ${pts.length === 1 ? "fact" : "facts"}`} style={{ maxWidth: 260 }}>
+    <svg viewBox={`0 0 ${S} ${S}`} role="img" aria-label={`Calibration: ${pts.length} settled ${pts.length === 1 ? "fact" : "facts"}`} className="calsvg">
       <rect x={P} y={P} width={S - P * 2} height={S - P * 2} fill="none" className="g" stroke="var(--line)" />
       <line className="diag" x1={X(0)} y1={Y(0)} x2={X(1)} y2={Y(1)} />
-      {pts.map((x) => <circle key={x.id} className="pt" cx={X(x.p)} cy={Y(x.o)} r={6} style={{ fill: x.o ? "var(--yes)" : "var(--no)" }}><title>{`Fact ${x.id}: priced ${Math.round(x.p * 100)}%, decided ${x.o ? "true" : "false"}`}</title></circle>)}
+      {pts.map((x) => <circle key={x.id} className="pt" cx={X(x.p)} cy={Y(x.o)} r={6} fill={x.o ? "var(--yes)" : "var(--no)"}><title>{`Fact ${x.id}: priced ${Math.round(x.p * 100)}%, decided ${x.o ? "true" : "false"}`}</title></circle>)}
       <text x={X(0)} y={S - 6}>0%</text><text x={X(1)} y={S - 6} textAnchor="end">100%</text>
       <text x={4} y={Y(1) + 4}>true</text><text x={4} y={Y(0) + 4}>false</text>
     </svg>

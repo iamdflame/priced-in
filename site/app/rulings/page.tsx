@@ -15,6 +15,7 @@ import { ReplayRuling } from "@/components/ReplayRuling";
 import { RulingBlock } from "@/components/Ruling";
 import { ErrorState } from "@/components/States";
 import { Kpis, ModelBadge, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
+import { RulingClock } from "@/components/pages/RulingClock";
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
@@ -113,19 +114,18 @@ function Head({ next, checker, live }: { next: number | null; checker: { account
           {live ? (
             <>
               <span className="k"><span className="dot" aria-hidden="true" />Being decided right now</span>
-              <div className="big">{live.window_ends_at ? <Countdown to={live.window_ends_at} done="settling" /> : "Live"}</div>
-              <p>{live.window_ends_at ? "left for objections, then it settles." : "The AI judges are reading the sources."}</p>
+              <RulingClock windowEndsAt={live.window_ends_at} />
             </>
           ) : next ? (
             <>
               <span className="k"><Icon name="clock" />Next ruling in</span>
-              <div className="big"><Countdown to={next} done="starting now" /></div>
+              <div className="bignum"><Countdown to={next} done="starting now" /></div>
               <p>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges rule within minutes, then 10 minutes for objections.</p>
             </>
           ) : (
             <>
               <span className="k"><Icon name="clock" />Next ruling</span>
-              <div className="big">—</div>
+              <div className="bignum">—</div>
               <p>Nothing is scheduled right now. A ruling starts whenever someone bonds a challenge.</p>
             </>
           )}
@@ -209,8 +209,8 @@ function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
   const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
   return (
     <div className="rrow">
-      {f ? <span className="ti" aria-hidden="true"><Image src={`/art/${f.art}.webp`} alt="" width={72} height={72} style={{ objectFit: "cover" }} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
-      <div style={{ minWidth: 0 }}>
+      {f ? <span className="ti" aria-hidden="true"><Image src={`/art/${f.art}.webp`} alt="" width={72} height={72} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
+      <div className="shrink">
         <Link className="q" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>
         <p className="s">Challenged by {r.challenger_name.replace(/^the /, "the ")} with a {money(r.bond_usd)} bond · {dayTimeUtc(r.opened_at)} · {status}</p>
       </div>

@@ -95,7 +95,7 @@ export default async function AgentsPage() {
         </table>
       </div>
 
-      <div className="agents3" style={{ marginTop: 14 }}>
+      <div className="agents3 result-gap">
         {board.map((b) => (
           <article key={b.a.account_id} className="panel acard" aria-labelledby={`a-${b.a.persona}`}>
             <div className="head"><Dish persona={b.a.persona} size="xl" /><div><b id={`a-${b.a.persona}`}>The {b.a.persona}</b><small>{b.a.model}</small></div></div>
@@ -144,7 +144,7 @@ export default async function AgentsPage() {
 function lastWords(kind: string, text: string | undefined) {
   // a "looked" action carries a reason and no text
   const t = (text ?? "").replace(/^no bet: /, "").replace(/\s*\(agent [^)]*\)/, "").replace(/the bet was not placed\s*/, "").replace(/would pass its daily spend cap of \d+ micro-USDC/, "it reached today’s spending limit").trim();
-  if (kind === "no_bet" || kind === "looked") return <><span className="chip warn" style={{ marginRight: 6 }}>Held off</span>{t || "no edge"}</>;
+  if (kind === "no_bet" || kind === "looked") return <><span className="chip warn chip-lead">Held off</span>{t || "no edge"}</>;
   return t;
 }
 

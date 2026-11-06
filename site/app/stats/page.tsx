@@ -82,7 +82,7 @@ export default async function StatsPage() {
       <Head asOf={site.asOf} side={s ? (
         <div className="clockc">
           <span className="k"><Icon name="shield" />USDC held by the market contract</span>
-          <div className="big">{money(usd(s.held_micro))}</div>
+          <div className="bignum">{money(usd(s.held_micro))}</div>
           <p>{closes ? <><b>The books close</b> to the micro-dollar: every cent is accounted for below.</> : <>The parts don’t add up; see the books below.</>}</p>
         </div>
       ) : null} />
@@ -94,7 +94,7 @@ export default async function StatsPage() {
         { v: agentPnlKnown ? signedMoney(agentPnl) : "—", l: "AI traders’ profit", s: "all three together", tone: agentPnl >= 0.005 ? "pos" : agentPnl <= -0.005 ? "neg" : undefined },
       ]} />
       {s && usd(s.fees_micro) === 0 && betsSinceFee === 0 && (
-        <p className="fine" style={{ marginTop: 8 }}>No fee yet: the 1% fee was switched on {feeSince ? clockUtc(feeSince) : "recently"}, and no bet has been placed since. The first one will show here.</p>
+        <p className="fine result-note">No fee yet: the 1% fee was switched on {feeSince ? clockUtc(feeSince) : "recently"}, and no bet has been placed since. The first one will show here.</p>
       )}
 
       <SHead id="money" title="Money bet, over time" sub="One step for every bet, from the market’s own event log. Sales are left out." right={`${plural(curve.length, "bet")} · ${money(cum)} in`} />
@@ -112,14 +112,14 @@ export default async function StatsPage() {
       </div>
 
       <SHead id="spread" title="What the market thinks" sub="Every open fact, placed by its chance of being true. Filled dots have bets behind them; hollow ones are still at our AI’s starting estimate." right={`${open.length - untouched} with bets · ${untouched} waiting for a first bet`} />
-      <div className="panel chartc"><Spread facts={open} /></div>
+      <div className="panel chartc spreadwrap"><Spread facts={open} /></div>
 
       <SHead id="rulings" title="Rulings and calibration" sub="How fast doubts get decided, and whether the market’s prices turn out right." />
       <div className="charts2">
         <div className="panel chartc">
           <h3>From doubt to paid</h3>
           <p className="sub">{record.settled.length ? `${plural(record.settled.length, "ruling")} settled` : "No ruling has settled yet"}</p>
-          <div className="books" style={{ marginTop: 14, gridTemplateColumns: "repeat(3, minmax(0, 1fr))" }}>
+          <div className="books three">
             <div><b>{record.all.length}</b><span>{record.all.length === 1 ? "fact challenged" : "facts challenged"}</span></div>
             <div><b>{record.medianMs === null ? "—" : span(record.medianMs)}</b><span>{record.settled.length > 1 ? "median, doubt to paid" : "doubt to paid"}</span></div>
             <div><b>{money(record.paidUsd)}</b><span>paid to winners</span></div>
@@ -134,7 +134,7 @@ export default async function StatsPage() {
           </div>
           <p className="note">Three AI judges sign within minutes, then 10 minutes for objections, then the keeper settles. <Link className="link" href="/rulings">See every ruling</Link></p>
         </div>
-        <div className="panel chartc" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 16, alignItems: "center" }}>
+        <div className="panel chartc calib">
           <div>
             <h3>Calibration</h3>
             <p className="sub">Settled facts: last price against the outcome</p>
@@ -150,16 +150,16 @@ export default async function StatsPage() {
 
       <SHead id="books" title="The books" sub="Every dollar the market contract holds, by where it belongs, read from its stats view just now. They must add up to the micro-dollar." />
       {s ? (
-        <div className="panel" style={{ padding: 16 }}>
+        <div className="panel bookspanel">
           <div className="books">
-            <div style={{ background: "var(--surface2)" }}><b>{money(usd(s.held_micro))}</b><span>USDC held by the contract</span></div>
-            {buckets.map(([k, l, d]) => <div key={k}><b>{money(usd(s[k]))}</b><span><b style={{ display: "inline", font: "inherit", color: "var(--ink2)" }}>{l}</b>: {d}</span></div>)}
+            <div className="held"><b>{money(usd(s.held_micro))}</b><span>USDC held by the contract</span></div>
+            {buckets.map(([k, l, d]) => <div key={k}><b>{money(usd(s[k]))}</b><span><em>{l}</em>: {d}</span></div>)}
           </div>
           <p className="closes">
             {closes ? <span className="ok"><Icon name="check" />The books close: the seven parts add up to exactly what the contract holds.</span> : <span className="sig bad"><Icon name="alert" />The parts don’t add up to what’s held. Check the contract.</span>}
             <a className="link" href={explorerAccount(MARKET_ID)} target="_blank" rel="noopener">{MARKET_ID}</a>
           </p>
-          <p className="fine" style={{ marginTop: 6 }}>{plural(s.rewrites_anchored, "corrected sentence")} anchored on-chain · free-bet budget {money(usd(s.lane_budget_micro))}, {money(usd(s.lane_credit_micro))} given out · {s.paused ? "the market is paused" : "the market is live"}{thinking !== null ? <> · the AI traders and judges spent ${thinking.toFixed(3)} thinking today</> : null}.</p>
+          <p className="fine result-note">{plural(s.rewrites_anchored, "corrected sentence")} anchored on-chain · free-bet budget {money(usd(s.lane_budget_micro))}, {money(usd(s.lane_credit_micro))} given out · {s.paused ? "the market is paused" : "the market is live"}{thinking !== null ? <> · the AI traders and judges spent ${thinking.toFixed(3)} thinking today</> : null}.</p>
         </div>
       ) : <ErrorState message={st.ok ? "" : st.error} />}
     </main>

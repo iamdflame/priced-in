@@ -16,7 +16,7 @@
 .clockc { padding: 20px 22px; border-radius: var(--r-lg); background: oklch(from var(--bg) l c h / .55); box-shadow: inset 0 0 0 1px var(--line-strong); }
 [data-theme='light'] .clockc { background: var(--surface); }
 .clockc .k { font-size: 13px; color: var(--ink3); display: flex; align-items: center; gap: 8px; }
-.clockc .big { font: 700 64px/1 var(--disp); letter-spacing: -.04em; font-feature-settings: 'tnum'; margin: 6px 0 8px; }
+.clockc .bignum { font: 700 64px/1 var(--disp); letter-spacing: -.04em; font-feature-settings: 'tnum'; margin: 6px 0 8px; }
 .clockc p { font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
 .clockc p b { color: var(--ink); font-weight: 600; }
 
@@ -341,7 +341,7 @@
   .phero h1 { font-size: 30px; line-height: 1.06; margin: 10px 0 8px; }
   .phero .lede { font-size: 15px; }
   .clockc { padding: 14px 16px; }
-  .clockc .big { font-size: 46px; }
+  .clockc .bignum { font-size: 46px; }
   .kpis { --k: 2 !important; }
   .kpi { padding: 12px 14px; }
   .kpi .v { font-size: 26px; }
@@ -417,4 +417,25 @@ main.wrap { padding-bottom: 56px; }
 @media (max-width: 760px) {
   .pagetitle { font-size: 24px; margin: 14px 0 10px; }
   .attribution { padding: 0 16px 16px; }
+}
+
+/* Numbers page and feed details */
+.books.three { margin-top: 14px; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.books .held { background: var(--surface2); }
+.books em { font-style: normal; color: var(--ink2); }
+.bookspanel { padding: 16px; }
+.calib { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 16px; align-items: center; }
+.calsvg { max-width: 260px; }
+.chartc svg .area { color: var(--ink); }
+.reasons { margin-top: 8px; }
+.rsn .fq { display: block; margin-top: 4px; font-weight: 600; }
+.reasons .emptyfeed { padding: 20px; }
+.chip-lead { margin-right: 6px; }
+.shrink { min-width: 0; }
+.rrow .ti img { object-fit: cover; }
+@media (max-width: 760px) {
+  .calib { grid-template-columns: minmax(0, 1fr); }
+  .calsvg { max-width: 220px; margin: 0 auto; }
+  .spreadwrap { overflow-x: auto; }
+  .spreadwrap svg { min-width: 720px; }
 }

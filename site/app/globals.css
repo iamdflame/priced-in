@@ -61,3 +61,5 @@
   --gut: 40px;
   --max: 1360px;
 }
+/* the phone gutter: base.css sets it too, but this :root comes after the imports and would win */
+@media (max-width: 760px) { :root { --gut: 16px; } }

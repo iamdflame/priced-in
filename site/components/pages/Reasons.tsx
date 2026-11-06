@@ -31,17 +31,17 @@ export function Reasons({ items, limit = 30 }: { items: ReasonItem[]; limit?: nu
           </button>
         ))}
       </div>
-      <div className="panel reasons" style={{ marginTop: 8 }}>
+      <div className="panel reasons">
         {list.length ? list.map((r, i) => (
           <article key={`${r.at}-${r.persona}-${i}`} className="rsn">
             <span className={`ag big ${r.persona}`} aria-hidden="true">{r.persona.charAt(0)}</span>
-            <div style={{ minWidth: 0 }}>
+            <div className="shrink">
               <div className="h">
                 <b>The {r.persona}</b>{sideWords(r)}
                 <span>thinks <b>{Math.round(r.credence * 100)}%</b> chance it’s true; the market said {Math.round(r.priceBefore * 100)}%</span>
                 <span className="when"><Ago at={r.at} /></span>
               </div>
-              <Link className="fq" href={`/c/${r.claimId}`} style={{ display: "block", marginTop: 4, fontWeight: 600 }}>{r.question}</Link>
+              <Link className="fq" href={`/c/${r.claimId}`}>{r.question}</Link>
               <p className="t">{r.rationale}</p>
               {(r.why || r.tx || r.source) && (
                 <p className="why">
@@ -52,10 +52,10 @@ export function Reasons({ items, limit = 30 }: { items: ReasonItem[]; limit?: nu
               )}
             </div>
           </article>
-        )) : <p className="emptyfeed" style={{ padding: 20 }}>Nothing here yet.</p>}
+        )) : <p className="emptyfeed">Nothing here yet.</p>}
       </div>
       {!more && all.length > limit && (
-        <button type="button" className="btn soft" style={{ marginTop: 10 }} onClick={() => setMore(true)}><Icon name="down" />Show all {all.length}</button>
+        <button type="button" className="btn soft result-note" onClick={() => setMore(true)}><Icon name="down" />Show all {all.length}</button>
       )}
     </div>
   );
