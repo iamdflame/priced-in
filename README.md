@@ -35,7 +35,7 @@ Each visitor gets one free $1 bet, in real USDC from the judges' budget (the lan
 ## Check it: one command, no secrets
 
 ```
-git clone <this repo> && cd <repo>
+git clone https://github.com/iamdflame/priced-in && cd priced-in
 npm ci && npm run web:install     # about a minute; Node 22.18 or later
 npm run judge                     # about 1 to 3 minutes; reads testnet and mainnet, sends nothing
 ```
