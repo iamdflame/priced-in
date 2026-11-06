@@ -104,6 +104,13 @@
 .m-timer { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink3); }
 .m-timer .ic { width: 15px; height: 15px; }
 
+.m-qr-side { min-width: 0; width: 100%; display: flex; flex-direction: column; gap: 8px; }
+.m-two { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.m-field .opt { font-weight: 400; color: var(--ink3); }
+.m-amt .side .sym { color: var(--ink2); font-size: 15px; }
+.m-loading { display: flex; align-items: center; gap: 8px; }
+.linkbtn { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; color: inherit; }
+
 /* the one-line notices */
 .m-geo { display: flex; align-items: flex-start; gap: 8px; font-size: 12.5px; line-height: 1.45; color: var(--ink3); }
 .m-geo .ic { width: 15px; height: 15px; margin-top: 1px; flex: none; }

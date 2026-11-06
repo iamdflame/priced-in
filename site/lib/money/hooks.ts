@@ -2,14 +2,13 @@
 // React bridges for real money: the wallet, the visitor's region (from the geofence cookie), the
 // connected account's balances (polled from the chain while the tab is visible), and the open sheet.
 import { useEffect, useSyncExternalStore } from "react";
-import { Chain } from "./chain";
-import { moneyConfig } from "./config";
+import { moneyChain } from "./chain";
 import { decodeGeo, GEO_COOKIE, type Access } from "./geo";
 import { wallet, type WalletState } from "./wallet";
 
 // ---------- the wallet ----------
 
-const SERVER_WALLET: WalletState = { status: "idle", accountId: null, walletId: null, walletName: null, options: [], error: null };
+const SERVER_WALLET: WalletState = { status: "idle", accountId: null, walletName: null, options: [], error: null };
 
 export function useWallet(): WalletState {
   const w = wallet();
@@ -53,8 +52,6 @@ export interface AccountState {
 const EMPTY: AccountState = { accountId: null, balanceMicro: null, usdcMicro: null, canReceiveUsdc: null, loading: false, error: null, at: 0 };
 let acct: AccountState = EMPTY;
 const acctListeners = new Set<() => void>();
-let chain: Chain | null = null;
-export const moneyChain = () => (chain ??= new Chain(moneyConfig()));
 let inflight: Promise<void> | null = null;
 
 function setAcct(p: Partial<AccountState>) { acct = { ...acct, ...p }; for (const f of acctListeners) f(); }
@@ -98,7 +95,7 @@ export type SheetReq =
   | { kind: "deposit"; tab?: "near" | "chain" }
   | { kind: "withdraw"; tab?: "near" | "chain" }
   | { kind: "trade"; claimId: number; question: string; mode: "buy" | "sell"; side?: "yes" | "no" }
-  | { kind: "collect"; claimId: number; question: string; side: "yes" | "no"; sharesMicro: string };
+  | { kind: "collect"; claimId: number; question: string; winMicro: string };
 
 let sheet: SheetReq | null = null;
 const sheetListeners = new Set<() => void>();

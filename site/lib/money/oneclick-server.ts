@@ -2,7 +2,7 @@
 // /bridge routes can't be used as an open proxy, and a partner JWT (ONECLICK_JWT, optional) never
 // reaches the browser.
 import "server-only";
-import { ONECLICK, routesFrom, validAddress, validNearAccount, type BridgeQuote, type BridgeStatusView, type Route, type TokenRow } from "./oneclick";
+import { ONECLICK, routesFrom, validAddress, validNearAccount, type BridgeQuote, type BridgeRoute, type BridgeStatusView, type TokenRow } from "./oneclick";
 import { moneyConfig } from "./config";
 
 const JWT = process.env.ONECLICK_JWT || "";
@@ -17,9 +17,9 @@ export class BridgeError extends Error {
   constructor(readonly status: number, readonly code: string, message: string) { super(message); }
 }
 
-let cache: { at: number; routes: Route[] } | null = null;
+let cache: { at: number; routes: BridgeRoute[] } | null = null;
 
-export async function routes(): Promise<Route[]> {
+export async function routes(): Promise<BridgeRoute[]> {
   if (cache && Date.now() - cache.at < 5 * 60_000) return cache.routes;
   const r = await fetch(`${ONECLICK}/tokens`, { headers: headers(), signal: AbortSignal.timeout(10_000), cache: "no-store" }).catch(() => null);
   if (!r || !r.ok) throw new BridgeError(502, "oneclick_unreachable", "NEAR Intents didn’t answer. Try again in a moment.");
@@ -85,8 +85,8 @@ async function quote(dir: "in" | "out", route: string, body: Record<string, unkn
     depositAddress: q.depositAddress ?? null, depositMemo: q.depositMemo ?? null,
     amountIn: String(q.amountIn), amountInFormatted: String(q.amountInFormatted),
     amountOut: String(q.amountOut), amountOutFormatted: String(q.amountOutFormatted), minAmountOut: String(q.minAmountOut),
-    timeEstimate: Number(q.timeEstimate) || 0, deadline: q.deadline ?? null,
-    recipient: String(body.recipient), refundTo: String(body.refundTo), authenticated: Boolean(JWT),
+    timeEstimate: Number(q.timeEstimate) || 0, sendBy: String(body.deadline),
+    recipient: String(body.recipient), refundTo: String(body.refundTo), refundsInIntents: body.refundType === "INTENTS",
   };
 }
 
@@ -104,10 +104,9 @@ export async function status(depositAddress: string, depositMemo?: string | null
   const first = (a: any) => (Array.isArray(a) && a.length ? String(a[0]?.hash ?? a[0]) : null);
   return {
     status: j.status,
-    amountOutFormatted: d.amountOutFormatted ?? null,
+    amountOut: d.amountOut ?? null,
     refundedFormatted: d.refundedAmountFormatted && d.refundedAmountFormatted !== "0" ? d.refundedAmountFormatted : null,
     refundReason: d.refundReason ?? null,
-    originTx: first(d.originChainTxHashes),
     destinationTx: first(d.destinationChainTxHashes),
     nearTxs: Array.isArray(d.nearTxHashes) ? d.nearTxHashes.map(String) : [],
   };

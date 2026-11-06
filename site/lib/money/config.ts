@@ -42,13 +42,3 @@ export const GAS = { buy: 60n, sell: 60n, redeem: 30n, withdraw: 60n, depositCal
 /** NEP-145 registration on the USDC contract, in yoctoNEAR (0.00125 NEAR): needed once per receiving account. */
 export const USDC_STORAGE_YOCTO = 1_250_000_000_000_000_000_000n;
 export const ONE_YOCTO = 1n;
-
-export const MICRO = 1_000_000n;
-export const usdToMicro = (usd: number): bigint => (Number.isFinite(usd) && usd > 0 ? BigInt(Math.round(usd * 1e6)) : 0n);
-export const microToUsd = (m: bigint | string | number): number => Number(BigInt(m)) / 1e6;
-/** $1.81 from micro-USDC, rounded down to the cent: never promise more than the chain pays. */
-export const fmtMicroDown = (m: bigint | string | number) => `$${(Math.floor(Number(BigInt(m)) / 1e4) / 100).toFixed(2)}`;
-/** $1.81 from micro-USDC, to the nearest cent, for amounts already moved. */
-export const fmtMicro = (m: bigint | string | number) => `$${(Number(BigInt(m)) / 1e6).toFixed(2)}`;
-/** 1.81 shares from micro-shares. */
-export const fmtShares = (m: bigint | string | number) => (Number(BigInt(m)) / 1e6).toFixed(2);

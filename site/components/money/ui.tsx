@@ -10,6 +10,8 @@ import { Icon } from "../Icon";
 import { geoLine } from "@/lib/money/geo";
 import { useGeo } from "@/lib/money/hooks";
 import type { TxSpec } from "@/lib/money/tx";
+import { explorerTx, mmss, shortHash } from "@/lib/format";
+import type { SendState } from "./useSend";
 
 export function Sheet({ title, sub, onClose, children, wide = false, label }: { title: string; sub?: ReactNode; onClose: () => void; children: ReactNode; wide?: boolean; label?: string }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -107,12 +109,12 @@ export function CopyText({ text, label = "Copy" }: { text: string; label?: strin
   );
 }
 
-export function Countdown({ to }: { to: number }) {
+export function Countdown({ to, onEnd }: { to: number; onEnd?: () => void }) {
   const [now, setNow] = useState(() => Date.now());
   useEffect(() => { const t = setInterval(() => setNow(Date.now()), 1000); return () => clearInterval(t); }, []);
-  const s = Math.max(0, Math.floor((to - now) / 1000));
-  const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60), ss = s % 60;
-  return <span className="num">{h ? `${h}:${String(m).padStart(2, "0")}:${String(ss).padStart(2, "0")}` : `${m}:${String(ss).padStart(2, "0")}`}</span>;
+  const left = Math.max(0, Math.floor((to - now) / 1000));
+  useEffect(() => { if (left === 0) onEnd?.(); }, [left, onEnd]);
+  return <span className="num">{mmss(left * 1000)}</span>;
 }
 
 export function Done({ title, children, actions }: { title: string; children?: ReactNode; actions?: ReactNode }) {
@@ -126,6 +128,17 @@ export function Done({ title, children, actions }: { title: string; children?: R
   );
 }
 
-export function Failed({ text }: { text: string }) {
-  return <div className="notice err" role="alert"><Icon name="alert" /><p><b>Nothing went through.</b> {text}</p></div>;
+/** Why it didn't go through. When nobody can say, it never suggests trying again. */
+export function Failed({ state }: { state: Extract<SendState, { phase: "failed" }> }) {
+  const lead = state.unknown ? "We can’t confirm this yet." : state.landed.length ? `Step ${state.landed.length + 1} didn’t go through; the step${state.landed.length > 1 ? "s" : ""} before it did.` : "Nothing went through.";
+  return <div className="notice err" role="alert"><Icon name="alert" /><p><b>{lead}</b> {state.error}</p></div>;
+}
+
+export function TxLink({ hash, label = "See the transaction" }: { hash: string | null; label?: string }) {
+  if (!hash) return null;
+  return <a className="hashv mono" href={explorerTx(hash)} target="_blank" rel="noopener">{label} {shortHash(hash)} <Icon name="ext" /></a>;
+}
+
+export function Loading({ children }: { children: ReactNode }) {
+  return <p className="fine m-loading"><span className="spin" />{children}</p>;
 }

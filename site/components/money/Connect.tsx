@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Icon } from "../Icon";
 import { GeoLine, Sheet } from "./ui";
 import { openSheet, useWallet, type SheetReq } from "@/lib/money/hooks";
-import { wallet, walletError } from "@/lib/money/wallet";
+import { wallet, walletFailure } from "@/lib/money/wallet";
 
 export function ConnectSheet({ then, onClose }: { then?: SheetReq | null; onClose: () => void }) {
   const w = useWallet();
@@ -19,7 +19,7 @@ export function ConnectSheet({ then, onClose }: { then?: SheetReq | null; onClos
   const pick = async (id: string) => {
     setBusy(id);
     setErr(null);
-    try { await wallet().connect(id); } catch (e) { setBusy(null); setErr(walletError(e)); }
+    try { await wallet().connect(id); } catch (e) { setBusy(null); setErr(walletFailure(e).error); }
   };
 
   return (

@@ -4,15 +4,17 @@
 //  - POST /v0/quote    a quote; dry:false also issues a one-time deposit address and a deadline
 //  - GET  /v0/status   PENDING_DEPOSIT, KNOWN_DEPOSIT_TX, PROCESSING, SUCCESS, INCOMPLETE_DEPOSIT, REFUNDED, FAILED
 //  - POST /v0/deposit/submit   optional: tells 1Click the deposit's tx hash, to speed it up
-// No key is needed. Without a partner JWT 1Click adds a 0.25% platform fee to each quote (its docs,
-// "API Keys"); set ONECLICK_JWT on the server to use the partner schedule. The browser only ever talks
-// to this site's /bridge routes, which build every request themselves from a few checked fields.
+// No key is needed. 1Click's docs list a 25 bps fee on quotes without a partner JWT, yet keyless quotes
+// measured on 6 Nov 2026 came back about 1 to 2 bps under the input, so the screens quote no fee rate:
+// the quote's own amounts already include what is charged. ONECLICK_JWT (optional, server only) selects
+// the partner schedule. The browser only talks to this site's /bridge routes, which build every request
+// themselves from a few checked fields.
 
 export const ONECLICK = "https://1click.chaindefuser.com/v0";
 
 export type AddrKind = "evm" | "sol" | "btc" | "tron" | "near";
 
-export interface Route {
+export interface BridgeRoute {
   /** "base:USDC" */
   key: string;
   chain: string;
@@ -50,8 +52,8 @@ export const CURATED: { chain: string; chainName: string; symbol: string; addr: 
 export interface TokenRow { assetId: string; decimals: number; blockchain: string; symbol: string; price?: number | null }
 
 /** The curated routes that 1Click lists today, with their asset ids, decimals and prices. */
-export function routesFrom(tokens: TokenRow[]): Route[] {
-  const out: Route[] = [];
+export function routesFrom(tokens: TokenRow[]): BridgeRoute[] {
+  const out: BridgeRoute[] = [];
   for (const c of CURATED) {
     const t = tokens.find((x) => (c.assetId ? x.assetId === c.assetId : x.blockchain === c.chain && x.symbol === c.symbol && x.assetId.startsWith("nep141:")));
     if (!t) continue;
@@ -70,16 +72,6 @@ const ADDR: Record<AddrKind, RegExp> = {
 export const validAddress = (kind: AddrKind, a: string) => ADDR[kind].test(a.trim()) && (kind !== "near" || (a.length >= 2 && a.length <= 64));
 export const validNearAccount = (a: string) => validAddress("near", a);
 
-/** Base units from a decimal string ("12.5" with 6 decimals is "12500000"); null if it isn't a number. */
-export function toBaseUnits(amount: string, decimals: number): string | null {
-  const s = amount.trim();
-  if (!/^\d*(\.\d*)?$/.test(s) || s === "" || s === ".") return null;
-  const [w, f = ""] = s.split(".");
-  if (f.length > decimals) return null;
-  const v = BigInt(w || "0") * 10n ** BigInt(decimals) + BigInt((f + "0".repeat(decimals)).slice(0, decimals) || "0");
-  return v > 0n ? v.toString() : null;
-}
-
 export type BridgeStatus = "PENDING_DEPOSIT" | "KNOWN_DEPOSIT_TX" | "PROCESSING" | "SUCCESS" | "INCOMPLETE_DEPOSIT" | "REFUNDED" | "FAILED";
 
 export interface BridgeQuote {
@@ -93,19 +85,20 @@ export interface BridgeQuote {
   amountOutFormatted: string;
   minAmountOut: string;
   timeEstimate: number;
-  deadline: string | null;
+  /** the deadline this site asked for. 1Click's own answer runs days later, when refunds begin; the price is only promised to this one */
+  sendBy: string;
   recipient: string;
   refundTo: string;
-  /** the partner JWT was used (else 1Click's 0.25% unauthenticated fee applies) */
-  authenticated: boolean;
+  /** a failed swap refunds inside NEAR Intents, to the NEAR account, not on the origin chain */
+  refundsInIntents: boolean;
 }
 
 export interface BridgeStatusView {
   status: BridgeStatus;
-  amountOutFormatted: string | null;
+  /** base units delivered, once known */
+  amountOut: string | null;
   refundedFormatted: string | null;
   refundReason: string | null;
-  originTx: string | null;
   destinationTx: string | null;
   nearTxs: string[];
 }

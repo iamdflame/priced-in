@@ -18,7 +18,8 @@ export interface TxRecord {
   note?: string;
 }
 
-export interface PendingBridge { quote: BridgeQuote; at: number; account: string; sentTx?: string | null; done?: string | null }
+/** waiting: on its way. landed: the USDC reached the NEAR wallet and still has to move into the balance. */
+export interface PendingBridge { quote: BridgeQuote; at: number; account: string; stage: "waiting" | "landed" }
 
 const TX_KEY = (a: string) => `pricedin.wallet.tx.${a}`;
 const BR_KEY = (a: string) => `pricedin.wallet.bridge.${a}`;

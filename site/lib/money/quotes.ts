@@ -2,8 +2,7 @@
 // market a v3 claim view describes. The number on the confirm button is the chain's, to the micro; the
 // slippage floor (min shares on a buy, min proceeds on a sale) is what the chain enforces if the price
 // moves before the transaction lands. A view without the exact market can't be traded here.
-import { fillBuy, fillSell, marketFromClaim, feeBpsOf, priceYes, applyBuy, applySell, atCap, type ClaimMarket, type Side } from "../core/lmsr";
-import { MICRO } from "./config";
+import { applyBuy, applySell, atCap, feeBpsOf, fillBuy, fillSell, marketFromClaim, MICRO, priceYes, SCALE, type ClaimMarket, type Side } from "../core/lmsr";
 
 export const SLIPPAGE_CHOICES = [50, 100, 200, 500] as const; // basis points
 export const DEFAULT_SLIPPAGE_BPS = 200;
@@ -41,7 +40,7 @@ export interface SellQuote {
 
 export type QuoteFail = { error: "not_exact" | "too_small" | "capped" | "no_shares" | "too_many_shares" };
 
-const toNum = (x: bigint) => Number(x) / 1e12;
+const toNum = (x: bigint) => Number(x) / Number(SCALE);
 
 /** The floor: amount less the slippage, rounded down; never below 1 micro for a real fill. */
 export function floorBy(x: bigint, slippageBps: number): bigint {

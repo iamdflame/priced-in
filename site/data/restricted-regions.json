@@ -20,16 +20,59 @@
   ],
   "note": "This list mirrors a large operator's published practice; it is not legal advice and makes no claim about the law of any place. The founder must have it reviewed by counsel before limits are raised.",
   "blocked": {
-    "countries": ["CU", "IR", "KP", "SY"],
-    "regions": ["UA-43", "UA-14", "UA-09"]
+    "countries": [
+      "CU",
+      "IR",
+      "KP",
+      "SY"
+    ],
+    "regions": [
+      "UA-43",
+      "UA-14",
+      "UA-09"
+    ]
   },
   "close_only": {
-    "countries": ["AR", "AU", "BY", "BE", "BI", "BR", "CF", "CD", "ET", "FR", "DE", "IQ", "IT", "LB", "LY", "MM", "NZ", "NI", "PL", "RU", "SG", "SO", "SK", "SS", "SD", "TW", "TH", "GB", "US", "UM", "VE", "YE", "ZW"],
-    "regions": ["CA-BC", "CA-ON", "CA-AB", "CA-QC"]
-  },
-  "limits": {
-    "about": "The micro-stakes research preview's per-action caps, enforced by this site's screens (the contract itself has no per-person cap).",
-    "max_bet_usd": 100,
-    "max_deposit_usd": 500
+    "countries": [
+      "AR",
+      "AU",
+      "BY",
+      "BE",
+      "BI",
+      "BR",
+      "CF",
+      "CD",
+      "ET",
+      "FR",
+      "DE",
+      "IQ",
+      "IT",
+      "LB",
+      "LY",
+      "MM",
+      "NZ",
+      "NI",
+      "PL",
+      "RU",
+      "SG",
+      "SO",
+      "SK",
+      "SS",
+      "SD",
+      "TW",
+      "TH",
+      "GB",
+      "US",
+      "UM",
+      "VE",
+      "YE",
+      "ZW"
+    ],
+    "regions": [
+      "CA-BC",
+      "CA-ON",
+      "CA-AB",
+      "CA-QC"
+    ]
   }
 }

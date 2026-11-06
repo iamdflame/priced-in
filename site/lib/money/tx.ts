@@ -1,7 +1,8 @@
 // The transactions a wallet signs, as plain data, each with the one sentence the person reads before
 // approving it. Pure functions: the wallet layer turns them into NEAR actions, the tests read them as
 // they are, and the mock wallet in the e2e tests receives exactly this.
-import { GAS, ONE_YOCTO, USDC_STORAGE_YOCTO, fmtMicro, fmtShares, type MoneyConfig } from "./config";
+import { GAS, ONE_YOCTO, USDC_STORAGE_YOCTO, type MoneyConfig } from "./config";
+import { fmtMicro, fmtShares } from "./units";
 
 export interface CallSpec { method: string; args: Record<string, unknown>; gasTgas: string; depositYocto: string }
 export interface TxSpec { receiverId: string; actions: CallSpec[]; says: string }
@@ -87,5 +88,3 @@ export function bridgeOutTxs(c: MoneyConfig, o: { amountMicro: bigint; depositAd
   return out;
 }
 
-/** One line for a set of transactions: what the person approves, in order. */
-export const approvalSentence = (txs: TxSpec[]) => txs.map((t) => t.says).join(" Then: ");

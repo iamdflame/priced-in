@@ -6,7 +6,6 @@ import list from "../../data/restricted-regions.json";
 export type Access = "open" | "close_only" | "blocked" | "unknown";
 
 export const GEO_COOKIE = "pi_geo";
-export const LIMITS = { maxBetUsd: list.limits.max_bet_usd, maxDepositUsd: list.limits.max_deposit_usd };
 export const REGIONS = list;
 
 const norm = (s: string | null | undefined) => (s || "").trim().toUpperCase();
