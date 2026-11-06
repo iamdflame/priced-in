@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Priced In API</title>
+<meta name="description" content="The Priced In API. The product is at isitpriced.com.">
+<meta name="robots" content="noindex">
+<link rel="canonical" href="https://isitpriced.com">
+<style>
+  :root { color-scheme: light dark; --bg: #f6f7f8; --ink: #14171a; --mute: #5b6470; --line: #d9dde2; --cyan: #0a8fb0; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #0e1113; --ink: #eef1f3; --mute: #9aa4ae; --line: #262b30; --cyan: #3cc8ea; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; display: grid; place-items: center; background: var(--bg); color: var(--ink);
+         font: 16px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { width: min(36rem, 100% - 3rem); }
+  h1 { margin: 0 0 .5rem; font-size: 2rem; letter-spacing: -.02em; }
+  p { margin: 0 0 1.5rem; color: var(--mute); }
+  ul { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--line); }
+  li { border-bottom: 1px solid var(--line); }
+  a { display: flex; justify-content: space-between; gap: 1rem; padding: .9rem 0; color: var(--ink); text-decoration: none; }
+  a:hover, a:focus-visible { color: var(--cyan); }
+  a span { color: var(--mute); }
+  code { font: .9em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Priced In API</h1>
+  <p>This origin serves the API's functions: <code>/health</code>, <code>/claims</code>, <code>/events</code>, <code>/v1</code> and <code>/api/*</code>. The product is at isitpriced.com, which forwards those same paths here.</p>
+  <ul>
+    <li><a href="https://isitpriced.com">isitpriced.com <span>the product</span></a></li>
+    <li><a href="https://github.com/iamdflame/priced-in/blob/main/docs/API.md">API docs <span>every endpoint, with real responses</span></a></li>
+    <li><a href="https://isitpriced.com/developers">For developers <span>the truth API, MCP, the embed</span></a></li>
+    <li><a href="/health">/health <span>is it up</span></a></li>
+  </ul>
+</main>
+</body>
+</html>

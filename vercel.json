@@ -1,9 +1,9 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "npm ci --no-audit --no-fund && npm --prefix web ci --no-audit --no-fund",
-  "buildCommand": "npm --prefix web run build",
-  "outputDirectory": "web/dist",
+  "installCommand": "npm ci --no-audit --no-fund",
+  "buildCommand": "",
+  "outputDirectory": "public",
   "regions": ["iad1"],
   "functions": {
     "api/index.mjs": {
@@ -40,11 +40,9 @@
     { "source": "/events/:path*", "destination": "/api/index?__p=/events/:path*" },
     { "source": "/v1", "destination": "/api/index?__p=/v1" },
     { "source": "/v1/:path*", "destination": "/api/index?__p=/v1/:path*" },
-    { "source": "/x402/:path*", "destination": "/api/index?__p=/x402/:path*" },
-    { "source": "/(.*)", "destination": "/index.html" }
+    { "source": "/x402/:path*", "destination": "/api/index?__p=/x402/:path*" }
   ],
   "headers": [
-    { "source": "/assets/(.*)", "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }] },
     { "source": "/(.*)", "headers": [
       { "key": "x-content-type-options", "value": "nosniff" },
       { "key": "referrer-policy", "value": "strict-origin-when-cross-origin" }

@@ -1,4 +1,4 @@
-# Uploaded to Vercel by `vercel deploy`: the web build, api/ and the services it imports.
+# Uploaded to Vercel by `vercel deploy`: the API project (api/, the services it imports, public/index.html).
 # Never secrets, keys, local state or build output.
 .env
 .env.*
@@ -12,11 +12,6 @@ target/
 services/ai/data/
 services/*/test/
 services/*/.env
-web/dist/
-web/ui-shots/
-web/field-shots/
-web/tools/
-web/e2e/
 corpus/raw/
 corpus/work/
 corpus/receipts/
