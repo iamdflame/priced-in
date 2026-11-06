@@ -44,6 +44,18 @@ for (const width of [360, 390]) {
   });
 }
 
+test("the score and payout ? stays on screen in the phone's docked ticket", async ({ page }) => {
+  await guard(page);
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.goto("/c/32");
+  const name = "What is the score, and what does $1 pay?";
+  await page.locator(".ticket").getByRole("button", { name }).click();
+  const box = await page.getByRole("dialog", { name }).boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(800);
+});
+
 test("touch targets are at least 44 px on the phone", async ({ page }) => {
   await guard(page);
   await page.setViewportSize({ width: 390, height: 844 });

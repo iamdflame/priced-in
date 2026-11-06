@@ -1,7 +1,8 @@
 "use client";
 // One-tap explanations: a small "?" that opens a short plain answer, closed by a tap anywhere or Escape.
+// It opens below the "?", or above it when there's no room below, as in the docked ticket on a phone.
 import Link from "next/link";
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
 import type { Caught } from "@/lib/model";
 
@@ -35,6 +36,14 @@ export function Explain({ label, children }: { label: string; children: ReactNod
       document.removeEventListener("keydown", close);
     };
   }, [open, id]);
+  useLayoutEffect(() => {
+    if (!open || !pos) return;
+    const r = btn.current?.getBoundingClientRect();
+    const h = document.getElementById(id)?.offsetHeight;
+    if (!r || !h) return;
+    const top = r.bottom + 10 + h > window.innerHeight - 12 ? Math.max(12, r.top - 10 - h) : r.bottom + 10;
+    if (top !== pos.top) setPos({ left: pos.left, top });
+  }, [open, pos, id]);
   return (
     <>
       <button ref={btn} type="button" className="whyest" aria-label={label} aria-expanded={open} aria-controls={id}
