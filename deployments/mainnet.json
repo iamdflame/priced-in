@@ -14,18 +14,18 @@
  },
  "code": {
   "market": {
-   "code_hash": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
-   "sha256": "eb22fe8f93137ff2476bdbe885f9321b3603a65ee948bdeec69f530362f6e7f8",
-   "size": 419728,
+   "code_hash": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "sha256": "d5fbcbc8422763e43eddf60f1eb56b397782b728aa5bede9765b7c84ec2b9ec5",
+   "size": 435325,
    "source": "contracts/market",
    "build": "node tools/judge/repro.mjs",
-   "source_rev": "da137c6"
+   "source_rev": "d1fd650"
   },
   "toolchain": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
  },
  "swarm": "not on mainnet: the open swarm runs on testnet, where each agent's 5 NEAR escrow costs nothing",
  "deployed_at": "2026-11-05T22:04:08.114Z",
- "verified_at": "2026-11-05T22:04:08.114Z",
+ "verified_at": "2026-11-06T03:53:39.111Z",
  "explorer": {
   "root": "https://nearblocks.io/address/isitpriced.near",
   "market": "https://nearblocks.io/address/market.isitpriced.near",
@@ -737,5 +737,17 @@
   "account": "checker.isitpriced.near",
   "bond_micro": "3000000",
   "at": "2026-11-06T03:13:48.744Z"
- }
+ },
+ "upgrades": [
+  {
+   "account": "market.isitpriced.near",
+   "from": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "to": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "tx": "9cbNBi1DqdJiAhP2xNsAkk4mJ1xmaLZcjZ6BG6YT1gSQ",
+   "at": "2026-11-06T03:53:39.110Z",
+   "source_rev": "d1fd650",
+   "fee_bps": 100,
+   "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-mainnet.mjs)"
+  }
+ ]
 }
