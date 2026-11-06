@@ -130,5 +130,5 @@
 @media (max-width: 760px) {
   .coach { padding: 4px 4px 4px 12px; font-size: 13.5px; gap: 8px; }
   .coach .ic { width: 18px; height: 18px; }
-  .coach .iconbtn { width: 40px; height: 40px; }
+  .coach .iconbtn { width: 44px; height: 44px; margin: -4px -2px -4px 0; }
 }
