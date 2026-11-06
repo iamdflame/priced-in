@@ -48,9 +48,9 @@
 a.q:hover { color: var(--brand-text); }
 .card .q::after { content: ''; position: absolute; inset: 0; z-index: 0; }
 .card .bets, .card .whyest, .card .ev a, .card .fromwiki { position: relative; z-index: 2; }
-a.fromwiki { display: block; font-size: 12.5px; line-height: 1.35; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration-color: transparent; }
+a.fromwiki { display: block; font-size: 12.5px; line-height: 24px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration-color: transparent; }
 a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
-.card .fromwiki { margin-top: -4px; }
+.card .fromwiki { margin-top: -8px; }
 .card .odds { display: none; align-items: flex-end; justify-content: space-between; gap: 10px; }
 .ev { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: var(--ink2); }
 .card .ev span { display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden; }
@@ -82,7 +82,7 @@ a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
   .card .art img { object-position: 50% 50%; }
   .card .cbody { display: contents; }
   .card .q { grid-column: 2; grid-row: 1; padding: 12px 14px 0; font-size: 16px; align-self: start; }
-  .card .fromwiki { grid-column: 2; grid-row: 2; margin: 4px 14px 0; }
+  .card .fromwiki { grid-column: 2; grid-row: 2; margin: 0 14px; }
   .card .odds, .card .bets, .card .meta, .card .ev, .card .result { grid-column: 1 / -1; margin-left: 14px; margin-right: 14px; }
   .card .odds { display: flex; margin-top: 10px; }
   .card .ev { margin-top: 8px; }
