@@ -113,3 +113,13 @@
   .railcard .art { height: 112px; }
   .feature .bet .bk { display: none; }
 }
+/* The smallest phones: the bet stays above the fold. */
+@media (max-width: 380px) {
+  .steps { gap: 4px 8px; }
+  .steps li { font-size: 13px; }
+  .feature .fhd { grid-template-columns: minmax(0, 1fr) 84px; gap: 8px; }
+  .feature-dial.phone { max-width: 84px; }
+  .feature h2 { font-size: 19px; }
+  .feature .story { font-size: 13px; line-height: 1.4; }
+  .reopen h3 { font-size: 15.5px; }
+}

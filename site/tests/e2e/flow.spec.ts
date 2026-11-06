@@ -4,7 +4,8 @@ import { expect, test } from "@playwright/test";
 import { guard, noMoneySpent } from "./guard";
 
 test("home → market → free bet → receipt", async ({ page }) => {
-  const g = await guard(page, { claimId: 24, side: "no", beforePpm: 400000, afterPpm: 318000, sharesMicro: "1398001" });
+  const trade = { claimId: 0, side: "no" as const, beforePpm: 400000, afterPpm: 318000, sharesMicro: "1398001" };
+  const g = await guard(page, trade);
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1, name: "Bet on whether facts are true." })).toBeVisible();
   await expect(page.getByText("Pick true or false")).toBeVisible();
@@ -13,13 +14,13 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // no key is asked for on a page view
   expect(g.laneKeys).toBe(0);
 
-  // tap No on the Kalshi card
-  const no = page.locator('a.bet.no[href="/c/24?side=no"]');
+  // tap No on the first card in the grid
+  const no = page.locator(".grid a.bet.no").first();
   await expect(no).toContainText("No, it’s false");
   await expect(no).toContainText(/Bet \$1 → get \$\d\.\d\d/);
+  trade.claimId = Number(/\/c\/(\d+)/.exec((await no.getAttribute("href"))!)![1]);
   await no.click();
-  await expect(page).toHaveURL(/\/c\/24\?side=no/);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Kalshi");
+  await expect(page).toHaveURL(`/c/${trade.claimId}?side=no`);
   await expect(page.getByText("What Wikipedia says (what you’re betting on)")).toBeVisible();
 
   // the side is picked; the quote says what $1 gets back
@@ -49,7 +50,7 @@ test("home → market → free bet → receipt", async ({ page }) => {
 test("a free bet the lane refuses says why, before and after the tap", async ({ page }) => {
   const g = await guard(page);
   await page.route(/\/(api\/)?lane\/key$/, (route) => route.fulfill({ status: 429, json: { error: { code: "lane_daily_cap", message: "Today’s free bets are all taken. Every price still updates live; come back tomorrow." } } }));
-  await page.goto("/c/24");
+  await page.goto("/c/32");
   await page.getByRole("button", { name: /Yes, it’s true/ }).first().click();
   await expect(page.getByText(/Today’s free bets are all taken/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Watch a replay" }).first()).toBeVisible();

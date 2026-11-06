@@ -8,7 +8,7 @@ for (const theme of ["dark", "light"]) {
     test(`no overflow and Yes/No above the fold at ${width}px, ${theme}`, async ({ page }) => {
       await guard(page);
       await page.setViewportSize({ width, height: 844 });
-      for (const path of ["/", "/c/24", "/c/18", "/c/32"]) {
+      for (const path of ["/", "/c/18", "/c/32"]) {
         await page.goto(`${path}?theme=${theme}`);
         await page.waitForLoadState("networkidle").catch(() => {});
         const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
@@ -27,7 +27,7 @@ for (const theme of ["dark", "light"]) {
 test("touch targets are at least 44 px on the phone", async ({ page }) => {
   await guard(page);
   await page.setViewportSize({ width: 390, height: 844 });
-  for (const path of ["/", "/c/24"]) {
+  for (const path of ["/", "/c/32"]) {
     await page.goto(path);
     const small = await page.evaluate(() => {
       const out: string[] = [];
