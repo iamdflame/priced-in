@@ -45,7 +45,18 @@
   "planner": "TEST planner key, made for this deployment; its private half is not in git",
   "writer_model": "z-ai/glm-5.3-flash",
   "writer_public_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
-  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation (services/ai/attestations/z-ai__glm-5.3-flash.json); the same key rules as a juror"
+  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation (services/ai/attestations/z-ai__glm-5.3-flash.json); the same key rules as a juror",
+  "keeper_public_key": "ed25519:AyxvN4g9153ikstoggSQCSinZqhsgSwbtnkGwgnxFSFA",
+  "keeper_methods": [
+   "finalize",
+   "expire_challenge",
+   "open_claim"
+  ],
+  "checker_account": "checker.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "checker_public_key": "ed25519:A9zrevT3prccCUsA36Fimwq8CYs5NzPwj57PfbR47iqF",
+  "checker_methods": [
+   "challenge"
+  ]
  },
  "seed": {
   "page": "tether",
@@ -520,6 +531,25 @@
    "at": "2026-11-05T22:58:16.339Z",
    "source_rev": "236fbf6",
    "note": "same source, rebuilt on near-sdk 5.30.1: code replaced in place, no migration (tools/judge/upgrade-swarm-testnet.mjs)"
+  }
+ ],
+ "checker": {
+  "account": "checker.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+  "bond_micro": "1000000",
+  "at": "2026-11-06T02:23:30.047Z"
+ },
+ "transactions": [
+  {
+   "tag": "create checker.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "method": "create_account",
+   "tx": "AxqvgibrHgKTj82xrCWqS5xaE47As1gVgHrtFT2tXMLr",
+   "link": "https://testnet.nearblocks.io/txns/AxqvgibrHgKTj82xrCWqS5xaE47As1gVgHrtFT2tXMLr"
+  },
+  {
+   "tag": "bond checker.pimw3dxfzp.basalt-lane-mw2skhdc.testnet $1.00",
+   "method": "ft_transfer_call",
+   "tx": "4WLZtpC5CJdzEhq5uoK7kSAa6AeanmxzWtXLnqTRhYza",
+   "link": "https://testnet.nearblocks.io/txns/4WLZtpC5CJdzEhq5uoK7kSAa6AeanmxzWtXLnqTRhYza"
   }
  ]
 }
