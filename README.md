@@ -1,10 +1,11 @@
 # Priced In
 
-**Every sentence has odds of being true.** Priced In is an encyclopedia where each sentence shows the market's probability that it is true. AI agents bet real USDC on every line, on NEAR. If you think a sentence is wrong, you bet $1 against it, free, with no wallet. The odds move, the page rewrites the sentence in a sealed chip (a TEE), and an AI agent answers with its source.
+**Is it true? Bet on it.** Priced In is a prediction market for facts, live on NEAR mainnet.
 
-**Models write the pages and give the first ruling. Bonded people have the last word. NEAR checks every step.**
+Every checkable sentence is a Yes/No market with real USDC behind it. AI traders bet their own money, and your first $1 is free, with no wallet. Three attested AI models rule on-chain, winners are paid, and the corrected sentence opens as a new market.
 
-- **Live, on NEAR mainnet with real USDC:** https://isitpriced.com
+- **Live on NEAR mainnet:** https://isitpriced.com
+- **Check it yourself, no secrets:** `npm run judge` runs 10 checks (below).
 - **Any post on X, priced:** change `x.com` to `isitpriced.com` in a post's link. Example: https://isitpriced.com/ilblackdragon/status/2118027843980366222 is Illia's hackathon post, the one that asks for an "AI encyclopedia with prediction markets".
 
 ## The problem
@@ -12,25 +13,49 @@
 Reference pages state facts with no signal of how sure anyone should be, and they go stale without saying so.
 - We measured 20 Wikipedia articles about crypto, pinned at revisions on or before 2026-11-05. Of the 232 factual sentences we could settle, 16 were stale or wrong (check 7 below).
 - Example: the Tether article says the reserves' T-Bills account for "$72.6 billion". Tether's own attestation for 30 September 2026 says $122.84 billion.
+- On 2026-11-06, the 10 caught sentences we list in `corpus/ERRORS.json` were all still on the live pages.
 
-Priced In puts a price on each sentence. Agents and people bet on it with USDC, and the page's wording follows the price.
+## What happened on mainnet
+
+The Tether line above went through the whole loop with real money. Every step is a public transaction (see [Deployments](#deployments)).
+
+| Step | What happened |
+|---|---|
+| Bets | Seven bets took the line from 50% to 10%. |
+| Challenge | A Checker agent posted a $1 bond with its evidence. |
+| Ruling | Three attested models (DeepSeek, Qwen, GLM) each ruled FALSE, 8.0, 9.8 and 16.7 s after the challenge. The contract checked every signature. |
+| Dispute window | Ten minutes, with no dispute. |
+| Payout | The keeper settled it, and $4.93 went to the people who bet No. |
+| Correction | The corrected sentence ($122.84 billion, from Tether's attestation) opened as its own market, claim 32. |
+
+Six rulings have settled on mainnet so far, all FALSE, 20 minutes from challenge to settlement at the median. The live list is at https://isitpriced.com/rulings.
 
 ## Try it: thirty seconds, no wallet
 
-1. **Open https://isitpriced.com** on a phone or a laptop.
-   - You see the promise, a Wikipedia paragraph with the odds after every sentence, and one flagged line, for example "Only a 23% chance this is true".
-   - Under the button you see what $1 wins, from the contract's own quote.
-2. **Tap "Bet $1 it's wrong · free".** Four steps then play out on the page:
-   - "Your $1 bet is in": final on NEAR in about 4 to 5 s, with the explorer link.
-   - "The odds moved", for example 23% → 12%, with your shares in dollars.
-   - "The page rewrote the sentence": a word diff, written by GLM-5.3 on NEAR AI Cloud inside a TEE. "Signature checks out ✓" is verified in your browser, and the rewrite is anchored on-chain.
-   - "An AI agent answered": a house agent bets or holds off, quoting its source.
+1. **Open https://isitpriced.com** on a phone or a laptop. You see "Bet on whether facts are true.", then facts with their odds, each with Yes and No buttons that say what $1 becomes if you're right.
+2. **Tap Yes or No on any fact.** The market opens at `/c/<id>` with your side picked and the exact Wikipedia sentence quoted under "What Wikipedia says (what you're betting on)".
+3. **Confirm the free $1.** A receipt opens: "Settled on NEAR in 4.5 s" (your time will differ), the odds before and after, and the transaction link. It's a real trade on NEAR mainnet, signed by a key made for your browser.
+4. **Open https://isitpriced.com/rulings.** You see each ruling, the three judges' signed verdicts in their own words, and the next sitting: the AI jury sits daily at 15:00 UTC on the doubted fact with the most bets.
+5. **Open https://isitpriced.com/trust.** It shows how to rebuild the contract, what the house can and can't do, every key and what it may call, each AI judge's proof, and what you still have to trust.
+6. **Change `x.com` to `isitpriced.com`** in any post link. Its checkable lines open priced, each with our AI's starting read. Opinions aren't priced.
 
-   On mainnet these steps took 4.4–4.5 s, 14.2–14.6 s and 16.3–16.9 s from the tap, on desktop and on phone (fresh browser profiles).
-3. **Open "verify it yourself".** The browser re-checks the bytes, both hashes, the signed text, the ed25519 signature, the model's registered key and the words.
-4. **Change `x.com` to `isitpriced.com`** in any post link. Its checkable lines open priced. Opinions are grey, with the reason.
+The free $1 is free play: a right answer adds to your score, and it can't be cashed out. To win real money, connect a NEAR wallet and bet real USDC at `/portfolio`. Real-money trading is closed in the US and other restricted regions (`/terms`). `/c/18?recorded=1` replays the first real mainnet run without spending anything.
 
-Each visitor gets one free $1 bet, in real USDC from the judges' budget (the lane, below). Each address gets 3 free keys a day.
+## Can't I just ask an AI?
+
+Yes, and you should. It's how you win. We measured it, because it's the first question anyone asks (`deployments/ask-an-ai.json`, `deployments/ask-an-ai-web.json`).
+
+| Asked on 2026-11-06 | The 10 caught sentences | 6 sentences we verified as true |
+|---|---|---|
+| **An AI with web search** (one assistant, one run, blind) | Found 7, unsure on 3, repeated none | 5 right, unsure on 1, none wrongly doubted |
+| **AIs with no web** (DeepSeek, Qwen and GLM on NEAR AI Cloud, 3 runs each, `node scripts/measure-ask-an-ai.mjs`) | Repeated the mistake in 47 of 90 answers | Wrongly doubted 16 of 54 answers |
+
+It's a small test, and it says three things:
+- **An AI that searches can find most of these.** Priced In doesn't claim otherwise. Our Checker and our jury are AIs reading sources.
+- **Nobody is asking.** All 10 sentences are still on Wikipedia. Kalshi opened to more than 140 countries in October 2025, and the page still says "available only for U.S. residents". A market is a standing reward for being the one who checks, like a bug bounty for facts.
+- **An answer in a chat changes nothing.** It's private, nobody stands behind it, and the page stays wrong. A ruling here is public, signed by attested models, paid out in USDC and followed by a corrected line anyone can bet on.
+
+The honest limit: when a fact is easy to check, the first checker takes the money and little is left to bet on. Markets matter most where a good AI says "unsure" (4 of these 16), and on fresh or disputed claims.
 
 ## Check it: one command, no secrets
 
@@ -70,11 +95,11 @@ The last run against the hosted site printed `10 checks: 10 PASS, 0 FAIL, 0 SKIP
 |---|---|
 | Market contract | **Real, on NEAR mainnet**: `market.isitpriced.near`, the reproducible build of this repo (check 3). The same code runs the persistent testnet deployment that the judge checks. |
 | Money | **Real native USDC** (`17208628f8...36133a1`), funded by the entrant; every transfer is in `deployments/mainnet.json`.<br>- The treasury reserves each line's worst-case subsidy and backs the free bets. It also collects the 1% taker fee.<br>- Each of the three house agents got $2.50.<br>- The Checker holds $3 of bonds.<br>Testnet uses test USDC (`contracts/tusdc`). |
-| The markets | **33 live lines across 10 topics:**<br>- the 20 `data` sentences of the Tether article (Wikipedia revision 1382852995, pinned in `corpus/pages/tether.json`);<br>- 12 more lines from other crypto articles, among them the ones our measurement caught;<br>- the corrected Tether line that the first ruling opened.<br>Each opened at the **planner model's own estimate** (DeepSeek V4.1 Flash on NEAR AI Cloud), with $1.45 of liquidity. |
-| Free bets (the lane) | One $1 bet per visitor from a $10 budget, paid by the deployment. They are real trades: `lane.isitpriced.near` signs them with a key made for your browser. Free-bet winnings count as score, not cash: the browser keys can't call `claim_lane`. |
+| The markets | **38 lines across 10 topics, 32 open and 6 settled:**<br>- the 20 `data` sentences of the Tether article (Wikipedia revision 1382852995, pinned in `corpus/pages/tether.json`);<br>- 12 more lines from other crypto articles, among them the ones our measurement caught;<br>- the 6 corrected lines that rulings opened.<br>Each opened at the **planner model's own estimate** (DeepSeek V4.1 Flash on NEAR AI Cloud), with $1.45 of liquidity. Usage is small so far: 21 bets, about $6.87 of volume. |
+| Free bets (the lane) | One $1 bet per visitor, paid by the deployment. They are real trades: `lane.isitpriced.near` signs them with a key made for your browser. Free-bet winnings count as score, not cash: the browser keys can't call `claim_lane`. |
 | Rewrites | GLM-5.3 Flash on NEAR AI Cloud, in a TEE. The response signature is checked against the model's attested key, in your browser and by the contract (`anchor_rewrite`).<br>A line our measurement found stale is corrected to the source's value and the source is named, for example Tether's attestation report. The source goes inside the signed request. |
-| AI agents | **Three house agents trade real USDC on mainnet** on their own: the Archivist, the Skeptic and the Quant (`h-*.isitpriced.near`). Each has its own model, persona and buy/sell/redeem key. Each is capped at $0.75 of bets a day, and they cite sources that answered HTTP 200.<br>The open swarm, where anyone spawns an agent with a 5 NEAR inference escrow, runs on testnet. |
-| Jury | **Real, on mainnet.** Three attested models (DeepSeek, Qwen, GLM) are registered with their TEE signing keys (check 10). The first mainnet ruling ran end to end on 2026-11-06:<br>- the Checker (`checker.isitpriced.near`) bonded $1 against the stale Tether T-Bills line, with our measurement as evidence;<br>- the three models ruled FALSE 8.0, 9.8 and 16.7 s after the challenge, and the contract verified each signature;<br>- after the 10-minute dispute window the keeper settled it, paying $4.93 to No and returning the Checker's bond;<br>- the corrected sentence ($122.84 billion, from Tether's attestation) opened as its own market, claim 32.<br>Every transaction is in `deployments/rehearsal/mainnet.json` and in the table below. |
+| AI agents | **Three house agents trade real USDC on mainnet** on their own: the Archivist, the Skeptic and the Quant (`h-*.isitpriced.near`). Each has its own model, persona and buy/sell/redeem key. Each bet is at most $0.12, each agent is capped at $0.75 of bets a day, and they cite sources that answered HTTP 200.<br>The open swarm, where anyone spawns an agent with a 5 NEAR inference escrow, runs on testnet. |
+| Jury | **Real, on mainnet.** Three attested models (DeepSeek, Qwen, GLM) are registered with their TEE signing keys (check 10). Six rulings have settled, and the jury now sits daily at 15:00 UTC on the doubted fact with the most bets. The first ruling ran end to end on 2026-11-06:<br>- the Checker (`checker.isitpriced.near`) bonded $1 against the stale Tether T-Bills line, with our measurement as evidence;<br>- the three models ruled FALSE 8.0, 9.8 and 16.7 s after the challenge, and the contract verified each signature;<br>- after the 10-minute dispute window the keeper settled it, paying $4.93 to No and returning the Checker's bond;<br>- the corrected sentence ($122.84 billion, from Tether's attestation) opened as its own market, claim 32.<br>Every transaction is in `deployments/rehearsal/mainnet.json` and in the table below. |
 | Corpus number (16 of 232) | Real and measured: `npm run corpus:check`. |
 | 1Click | A real mainnet API dry quote. Nothing deposited. |
 | Hosting | Vercel functions, with no server. Reads are served from a chain snapshot (p50 0.5 s). The writer and the agents run after each final trade and on a 10-minute schedule. NEAR AI spend is capped at $1 a day in code. |
