@@ -43,6 +43,7 @@
     "@vercel/blob": "^2.8.2",
     "@vercel/functions": "^3.10.6",
     "near-api-js": "^7.4.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "unpdf": "1.9.1"
   }
 }

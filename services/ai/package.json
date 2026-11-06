@@ -16,6 +16,7 @@
   "dependencies": {
     "@phala/dcap-qvl": "0.7.1",
     "near-api-js": "^7.4.0",
-    "tweetnacl": "^1.0.3"
+    "tweetnacl": "^1.0.3",
+    "unpdf": "1.9.1"
   }
 }
