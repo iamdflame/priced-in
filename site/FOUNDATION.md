@@ -1,65 +1,102 @@
 # Priced In site: foundation
 
-The product site in the Pulse brand: Next.js 16 (App Router) + TypeScript + Tailwind 4, server-rendered from the live API. Brand spec: `.apex/design/brand/pulse/` (README, tokens, the five screens). Read it before changing the look.
+The product a stranger uses: bet on whether facts are true, with a free $1. Next.js 16 (App Router), TypeScript and Tailwind 4, server-rendered from the live API, in the Pulse brand. The brand spec is `.apex/design/brand/pulse/` (the README, the tokens and the five designed screens): read it before you change how anything looks.
 
-## Run
+## Run it
 
 ```
 cd site
 npm install
-npm run dev          # http://localhost:3100
+npm run dev          # http://localhost:3100, against the live API
 npm run build && npm start
-npm test             # unit: the quote layer against web/test/vectors
-npm run e2e          # Playwright: never spends money (see tests/e2e)
+npm test             # unit tests (vitest): the quote layer, the model, the rulings, the money rules
+npm run e2e          # Playwright against a production build; never spends money
+npm run e2e:money    # the wallet flows, with a mock wallet and a pretend chain
+npm run lint         # tsc --noEmit
 ```
 
-Env (`.env.example`): `API_ORIGIN` (default `https://isitpriced.com`), `NEAR_NETWORK` (default `mainnet`), `SITE_URL` (share links), `PROXY_SECRET` (secret, shared with the API; see below).
+Env (`.env.example`): `API_ORIGIN` (default `https://isitpriced.com`), `NEAR_NETWORK` (default `mainnet`), `SITE_URL` (share links), `PROXY_SECRET` (shared with the API; see below). Nothing needs setting to run it locally.
+
+## The map
+
+```
+app/                 routes; server components unless a file says "use client"
+  layout.tsx         fonts, the theme set before paint, nav, live strip, footer
+  page.tsx           home
+  c/[id]/page.tsx    the market page, with opengraph-image.tsx beside it
+  globals.css        Tailwind and the @theme that maps the tokens; imports styles/*.css by surface
+components/          shared pieces at the root: Dial, Chart, FactCard, Bet, Ruling, States, Icon…
+  shell/ home/ market/ money/ pages/      one folder per surface
+lib/                 shared and browser-safe: model, quote, format, bets, rulings, nav
+  server/            server-only reads and view models (each file imports "server-only")
+  client/            browser-only: the engine, useStore, intent, this browser's bets, browser API calls
+  replay/            the record of the mainnet run, and the engine that plays it
+  core/              the proven engine, copied from web/src/core
+  money/             real money, one rule to a file (see below)
+data/                questions.json, catalog.json, rehearsal-mainnet.json, pages/
+scripts/             build-catalog.mjs, build-pages.mjs, amstelvar-text.py, shoot-receipt.mjs
+tests/unit/          vitest      tests/e2e/   Playwright
+```
+
+The boundaries the code keeps (hold reviews to them):
+
+- `lib/server/*` never reaches the browser. The questions and the catalog are read there, so their JSON is never shipped.
+- `lib/client/engine.ts` (near-api-js and the store) loads through a dynamic `import()` on a person's first pick. No page ships NEAR code just to be read.
+- `lib/core` is a copy. Fix a bug in `web/src/core` and its tests first, then copy the file. Its one addition is `Rationale.persona` in `api.ts`.
+- No `any` outside `lib/core`. A JSON import gets an interface where it is read.
 
 ## How data flows
 
-- **Server components read the API** through `lib/server/api.ts` (`api.claims()`, `api.claim(id)`, `api.history(id)`, `api.rulings()`, `api.events()`, `api.agents()`, `api.rationales(id)`, `api.health()`). Each returns `{ ok, value } | { ok: false, error, status }` and never throws. `lib/server/site.ts` `getSite()` is the one cached read per request (facts, price paths, bets as sentences, agent names, rulings, the lane's state, totals), shared by the layout's live strip and the pages.
-- **The browser talks only to this site.** `next.config.ts` rewrites `/api/*`, `/health`, `/claims`, `/events`, `/lane`, `/v1` and `/post` to `API_ORIGIN`, so the site can take the API's domain later.
+- **One read per request.** Server components read through `lib/server/api.ts`. Every call returns `{ ok: true, value } | { ok: false, error, status }` and never throws. `getSite()` (`lib/server/site.ts`, cached per request) builds what most pages need: Facts, price paths, bets as sentences, agent names, rulings, the free bet's state and the totals. The layout's live strip reads it inside its own Suspense, so a slow API never holds up the page. `getMarket()` (`lib/server/market.ts`) adds what one market page needs.
+- **A Fact is the view model** (`lib/model.ts`): a claim joined with its plain question, its art and its exact $1 quote. `toFact()` (`lib/server/facts.ts`) builds it on the server; `liveNumbers(view)` refreshes its numbers in the browser from a new claim view; `priceWords()` gives every % its meaning ("40% chance it’s true", "No bets yet · our AI’s starting estimate: 40%").
+- **Quotes are exact.** `quoteClaim(view)` (`lib/quote.ts`) runs the contract's own fill (`fillBuy`, fee included) on the market a v3 claim view describes. `backUsd(q)` is the "Bet $1 → get $1.81 back" number, rounded down. Never compute a payout any other way: unit tests pin it to every crate vector and to a real logged trade.
+- **Rulings** are read through `lib/rulings.ts`: `settledRulings`, `leadRuling` (the home lead is the ruling with the most real bets, never one nobody bet on), `rulingRecord` (the counts every page shows) and `resolveRulingNow` (the API sends `ruling_now` as a summary). Never hard-code a count.
+- **The browser talks only to this site.** `next.config.ts` forwards `/api/*`, `/health`, `/claims`, `/events`, `/lane`, `/v1` and `/post` to `API_ORIGIN`, so the site can take the API's domain later.
 - **The API sees the visitor, not the site.** `proxy.ts` runs on every forwarded path and `lib/proxy/forward.ts` holds the rule: the visitor's address (`x-real-ip`, else the first `x-forwarded-for` hop) goes in `x-visitor-ip` and `PROXY_SECRET` in `x-proxy-secret`; a client's own copies are dropped; with no secret set, neither is sent. `visitorIp` in `services/api/src/ratelimit.mjs` trusts the address only with the secret, so set the same value on both projects, or every visitor shares one free-bet bucket. A new forwarded path goes in `next.config.ts`, `API_PATHS` and the matcher in `proxy.ts` (a test holds the last two together).
-- **The view model** is `lib/model.ts`: `toFact(claim, openPpm)` joins a claim with its question (`data/questions.json`, keyed by sha256 of the exact sentence), its art direction (`data/catalog.json`, built by `npm run catalog` from the Pulse kit and the corpus) and its exact $1 quote. `priceWords(fact)` gives the % its meaning ("chance it’s true", "No bets yet · our AI’s starting estimate: 40%").
-- **Quotes are exact.** `lib/quote.ts` `quoteClaim(view)` runs the contract's own fill (`fillBuy`, fee included) on the market a v3 claim view describes (`marketFromClaim`, `feeBpsOf`). `backUsd(q)` is the "get $1.81 back" number, rounded down. Never compute a payout any other way.
-- **The money engine is reused, not rewritten.** `lib/core/` is a copy of `web/src/core` (api, config, lane, lmsr, rpc, store, verify, router) and `web/src/ui/context.ts`'s TradeHistory/AgentBook. Fix bugs in `web/` first, then copy. `lib/engine.ts` wires it for the browser: `liveEngine()` (API through `/api`, polled; the lane's free $1 key) and `recordedEngine()` (the replay). `lib/useStore.ts` bridges the store to React with `useSyncExternalStore`: `useStore(store, s => s.doubt, IDLE)`, `useLane(lane)`. Selectors must return parts of the state, not new objects.
-- **The free $1 key costs the lane gas.** It is asked for only after a person picks Yes or No (`warmLane()`, or `markIntent()` on a card's Yes/No link). Never call `lane.prepare()` on page load.
-- **Replay:** `?recorded=1` on `/c/18` replays `data/rehearsal-mainnet.json` (a copy of `deployments/rehearsal/mainnet.json`): the real free $1, the signed rewrite 4.3 s later, the Skeptic's answer, then the ruling. The nav shows "Replay of a real mainnet run" while it's on.
 
-## Components (`components/`)
+## The free $1 bet
 
-| Component | What it is |
+- `components/market/useBetFlow.ts` holds the ticket's logic: it loads the engine on the first pick, opens the store on the claim, warms the lane, runs `store.doubt(key, side)` and keeps the bet in this browser. `Ticket.tsx` renders every state in plain words: free bet unavailable with its reason (before any tap), picking, sending (`BetProgress`), failed with a retry, done.
+- **Each free $1 key costs the lane gas.** It is asked for only after a person picks a side (`engine.warm()`), or right after they tapped Yes or No on a card (`markIntent()`, then `takeIntent()`). Never call `lane.prepare()` on page load: crawlers, previews and screenshot runs must not spend keys.
+- `useStore(store, select, fallback)` and `useLane(lane)` (`lib/client/useStore.ts`) bridge the engine to React with `useSyncExternalStore`. A selector returns part of the state, never a new object.
+- **The receipt** (`Receipt.tsx`, a native modal `<dialog>`) shows "Settled on NEAR in X s", measured from the tap to final; the needle swinging from the old odds to the new; the signed rewrite, verified in the browser (`store.verify`, `ReceiptPanels.tsx`); an AI trader's reply; and Share on X with the market's card.
+- **The replay:** `?recorded=1` on `/c/18` plays `data/rehearsal-mainnet.json`, a copy of `deployments/rehearsal/mainnet.json` refreshed by `npm run catalog`: the real free $1, the signed rewrite 4.3 s later, the Skeptic's answer 12 s later, then the ruling. `lib/replay/engine.ts` answers the API's routes and subclasses `Lane`, so the store runs unchanged and nothing is sent. The nav says "Replay of a real mainnet run" while it plays.
+
+## Components
+
+| Where | What |
 |---|---|
-| `Dial` | The Blender dial with the live needle. `p` 0..1. Server-safe. |
-| `Chart`, `Spark` | Step chart of the price after each logged bet (hover a step: who bet, how much); sparkline. |
-| `FactCard`, `PctBlock` | The card: question, % with meaning, evidence line, Yes/No with the one-line bet, meta. |
-| `BetLinks` | Yes/No links to `/c/[id]?side=…`, marking intent. |
-| `Ticket` | The market page's bet flow, every state (blocked with reason, picking, sending, failed, done). |
-| `Receipt` | The post-bet sheet: timing, needle swing, signed rewrite verified in the browser, AI reply, share. |
-| `RulingBlock`, `ReplayRuling` | Challenge, three signed verdicts, window, settlement, "Corrected → see the new market". |
-| `MarketTabs` | Activity / Discussion / History. |
-| `Home` | `Intro` (promise + three steps), `RulingFeature`, `PlainFeature`, `DecidingRail`, `ResultsRail`. |
-| `HomeGrid` | Topic tabs, search, live-refreshing grid of cards. |
-| `Chrome` | `Nav`, `PhoneNav`, `ThemeToggle`, `ReplayBar`, `OfflineNotice`. |
-| `LiveStrip`, `Footer` | Real bets as sentences; the trust line. |
-| `Toasts` (`useToast()`), `States` (`Sk`, `CardSkeleton`, `StateBox`, `ErrorState`, `Retry`), `Explain` (one-tap "?"), `Live` (`Countdown`, `Ago`, `CoachMark`), `Icon`, `Brand` (`Lockup`, `TopicIcon`). |
+| `Dial` | The Blender dial with the live needle; `p` is 0..1. Server-safe. |
+| `Chart`, `Spark` | The price after each logged bet. The chart draws at its container's width; hover or the arrow keys read each step. |
+| `FactCard`, `PctBlock`, `BetLinks` | The card: question, the % with its meaning, evidence, Yes/No with the one-line bet, meta. |
+| `RulingBlock`, `ReplayRuling` | Challenge, three signed verdicts, the objection window, settlement, "Corrected → see the new market". |
+| `States` | `Sk`, `CardSkeleton`, `StateBox`, `ErrorState` (with a retry and the replay), `Retry`. |
+| `Toasts` (`useToast()`), `Explain` (the one-tap "?"), `Live` (`Countdown`, `Ago`, `CoachMark`), `Icon`, `Brand` | Small shared pieces. |
+| `shell/` | `Nav` (with the replay bar), `Search`, `ThemeToggle`, `PhoneNav`, `LiveStrip`, `Footer`, `OfflineNotice`. |
+| `home/` | `Intro` (the promise and the three steps), `Feature` (the ruling lead, or the most-bet fact), `Rails` (Being decided, Results), `HomeGrid` (filters, search, live prices). |
+| `market/` | `MarketBody` (head, price panel, body, skeleton), `Sources` and `Rules`, `MarketTabs`, `Ticket`, `SettledTicket`, `BetProgress`, `Receipt`, `ReceiptPanels`, `useBetFlow`. |
 
 ## Styling
 
-- Tokens are CSS variables for both themes (`app/styles/tokens.css`, generated by the kit; dark is the default, `data-theme="light"` on `<html>`). Tailwind reads them through `@theme` in `app/globals.css`: `bg-surface`, `text-ink2`, `text-yes`, `bg-no-bg`, `font-display`, `rounded-xl`…
-- The kit's component classes (`.card`, `.bet`, `.panel`, `.ticket`, `.chip`, `.btn primary|soft|ghost`, `.pct`, `.lab`…) live in `globals.css`, ported from `kit.css`. Reuse them; add Tailwind utilities for one-offs.
-- Fonts: `app/fonts.ts` (next/font/local). `--disp` General Sans for voice and big numbers, `--text` Geist for reading and changing numbers, `--mono` Geist Mono for hashes, `--quote` Amstelvar only for what Wikipedia says.
-- Breakpoints: 1240 (tablet), 1000, 760 (phone, composed for 390). Phone has `.pbar` and `.pnav`; the market ticket docks above the bottom bar (`.ticket.dock`, hide extras with `.hide-dock`).
-- Copy rules (from testing): every % says what it means; "Bet $1 → get $X back"; no "lines", "rulings" or "NEAR" in first-screen copy (NEAR is in the trust line and footer); every number comes from the chain or the API.
+- Tokens are CSS variables for both themes (`app/styles/tokens.css`, generated by the kit). Dark is the default; `data-theme="light"` on `<html>` switches, set before paint from `?theme=` or the saved choice. Tailwind reads the tokens through `@theme` in `globals.css`: `bg-surface`, `text-ink2`, `text-yes`, `bg-no-bg`, `font-display`, `rounded-xl`.
+- The kit's component classes are split by surface in `app/styles/` (`base`, `shell`, `instruments`, `cards`, `home`, `market`, `receipt`, `feedback`), ported from `kit.css`. Reuse them, use Tailwind utilities for one-offs, and keep anything reused out of inline styles.
+- Fonts (`app/fonts.ts`, next/font/local): General Sans (`--disp`) for the voice and big numbers, Geist (`--text`) for reading and every changing number, Geist Mono (`--mono`) for hashes, Amstelvar (`--quote`, a 17 KB static instance) only for what Wikipedia says.
+- Breakpoints: 1240 (tablet), 1000, 760 (the phone, composed for 390) and 380 (the smallest phones). The phone has `.pbar` and `.pnav`. The market ticket docks above the bottom bar (`.ticket.dock`); hide extras there with `.hide-dock`.
+- Copy rules, from testing: every % says what it means, at every size; "Bet $1 → get $X back"; no "lines", "rulings" or "NEAR" in first-screen copy (NEAR is in the trust line and the footer); every number comes from the chain or the API.
+
+## Tests
+
+- `tests/unit/` (vitest, `server-only` stubbed): the quote against every crate vector and every live claim view, the replay's claim against the real logged trade, the model's words and the rulings. Fixtures are real API snapshots (`tests/unit/fixtures/`).
+- `tests/e2e/` (Playwright, against `npm start`). `guard.ts` is the money guard, and every test uses it: it answers `POST /lane/key` with a key for a fake RPC, scripts that RPC, and refuses `send_tx` to every real NEAR RPC. `flow.spec.ts` covers home → market → free bet → receipt, a refused free bet, the replay (with the signature verified in the browser) and a real 404. `layout.spec.ts` checks 360 and 390 px in both themes: no overflow, Yes/No above the fold, 44 px targets. `pages.spec.ts` covers the proof pages.
 
 ## Add a route
 
-1. `app/<route>/page.tsx` as a server component. Read data with `getSite()` or `api.*`; on `!ok`, render `<ErrorState message=… />`; for a missing thing call `notFound()`. Do not add a `loading.tsx` above a route that calls `notFound()` (it would stream a 200).
-2. Wrap content in `<main id="main" className="wrap">`. Use `.sec` for section heads, `.panel` for surfaces, `.grid` + `FactCard` for facts.
-3. Client interactivity goes in a `"use client"` component; live data via the engine (`liveEngine().store`) or a small poll of `/api/...` while `!document.hidden`.
-4. Add the route to `lib/nav.ts` (`NAV`, and `phone: true` for the bottom bar, at most four).
-5. Share card: add `opengraph-image.tsx` next to the page (see `app/c/[id]/opengraph-image.tsx`).
-6. Check 360/390/1440 in both themes (`?theme=light`), no overflow, 44 px targets.
+1. Add `app/<route>/page.tsx` as a server component. Read with `getSite()` or `api.*`. On `!ok`, render `<ErrorState message=… />`. For a missing thing, call `notFound()` before any Suspense boundary streams, and add no `loading.tsx` above the route: it would stream a 200.
+2. Wrap content in `<main id="main" className="wrap">`. Use `.sec` for section heads, `.panel` for surfaces, `.grid` with `FactCard` for facts.
+3. Put interactivity in a `"use client"` component. For live data, use the engine (only after a person acts) or a small poll of `/api/...` while `!document.hidden`.
+4. Add the route to `lib/nav.ts` (`NAV`, with `phone: true` for the bottom bar, at most four).
+5. For a share card, add `opengraph-image.tsx` beside the page (see `app/c/[id]/opengraph-image.tsx` and `lib/og/card.tsx`).
+6. Check 360, 390 and 1440 px in both themes (`?theme=light`): no overflow, 44 px targets, no console errors.
 
 ## Real money (`lib/money/`, `components/money/`)
 
