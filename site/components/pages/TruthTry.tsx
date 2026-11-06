@@ -29,7 +29,7 @@ export function TruthTry({ placeholder }: { placeholder: string }) {
     <div className="panel try">
       <form onSubmit={ask}>
         <div className="ask">
-          <label className="sr" htmlFor="truth-q">Ask a question</label>
+          <label className="sr-only" htmlFor="truth-q">Ask a question</label>
           <input id="truth-q" value={q} onChange={(e) => setQ(e.target.value)} placeholder={placeholder} maxLength={600} autoComplete="off" />
           <button type="submit" className="btn primary lg" disabled={state.at === "busy"}>{state.at === "busy" ? "Asking…" : "Ask"}</button>
         </div>

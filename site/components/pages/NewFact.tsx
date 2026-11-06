@@ -37,7 +37,7 @@ export function NewFact() {
   return (
     <>
       <form className="panel paste" onSubmit={submit}>
-        <label className="sr" htmlFor="claim">A sentence, a paragraph or an X link</label>
+        <label className="sr-only" htmlFor="claim">A sentence, a paragraph or an X link</label>
         <textarea id="claim" value={text} onChange={(e) => setText(e.target.value)} maxLength={4000} placeholder="Paste a sentence, a paragraph or an X link" />
         <div className="pactions">
           <div className="examples" aria-label="Examples">

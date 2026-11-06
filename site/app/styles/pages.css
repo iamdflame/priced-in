@@ -368,6 +368,7 @@
   .try { padding: 14px; }
   .ask { flex-direction: column; }
   .ask .btn { width: 100%; }
+  .ask input { flex: none; }
   .ep { padding: 16px 14px; }
   .code { font-size: 12px; }
   .enc-head { padding: 18px 16px; }
