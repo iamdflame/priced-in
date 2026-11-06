@@ -21,7 +21,7 @@
 .spark .ln { fill: none; stroke: var(--ink); stroke-width: 1.75; stroke-linejoin: round; stroke-linecap: round; }
 .spark .bt { fill: var(--surface); stroke: var(--ink); stroke-width: 1.5; }
 .nobets { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
-.chartempty { display: grid; place-items: center; align-content: center; gap: 6px; min-height: 200px; border-radius: 16px; background: repeating-linear-gradient(0deg, transparent 0 49px, var(--line) 49px 50px); text-align: center; padding: 24px; }
+.chartempty { display: grid; place-items: center; align-content: center; gap: 6px; min-height: 200px; border-radius: 16px; border: 1px dashed var(--line-strong); text-align: center; padding: 24px; }
 .chartempty b { font: 600 18px var(--disp); color: var(--ink); }
 .chartempty span { font-size: 14px; color: var(--ink2); max-width: 44ch; }
 .spark .hd { fill: var(--brand); } [data-theme='light'] .spark .hd { fill: var(--brand-text); }

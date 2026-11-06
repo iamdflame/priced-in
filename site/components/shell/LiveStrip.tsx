@@ -59,7 +59,7 @@ export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: R
   return (
     <div className="ticker" aria-label="Live bets">
       <div className="wrap">
-        <span className={`live ${live ? "" : "off"}`}><span className="dot" />{live ? <>Live<span className="hide-phone"> · real money</span></> : "Reconnecting…"}</span>
+        <span className={`live ${live ? "" : "off"}`}><span className="dot" /><span>{live ? <>Live<span className="hide-phone"> · real money</span></> : "Reconnecting…"}</span></span>
         {bets.length ? (
           <div className="tape" onMouseEnter={rot.hold} onMouseLeave={rot.release} onFocus={rot.hold} onBlur={rot.release}>
             {rot.shown.map((b) => <BetSentence key={`${b.tx}:${b.claimId}:${b.at}`} b={b} f={facts[b.claimId]} />)}

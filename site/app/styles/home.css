@@ -35,7 +35,8 @@
 .feature-dial { width: 100%; max-width: 150px; }
 .feature-dial .scale { display: none; }
 .feature-dial.phone { display: none; }
-.feature-dial.phone .mini { margin-top: 4px; text-align: center; font-size: 11.5px; line-height: 1.25; color: var(--ink2); }
+.feature-dial .mini { display: none; margin-top: 4px; text-align: center; font-size: 11.5px; line-height: 1.25; color: var(--ink2); }
+.feature-dial.phone .mini { display: block; }
 .fstats { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; width: 100%; }
 .fstats .dialcap { text-align: left; }
 .dialcap { text-align: center; font-size: 12.5px; line-height: 1.35; color: var(--ink3); }
@@ -83,6 +84,7 @@
 @media (max-width: 1100px) {
   .fside { grid-template-columns: 150px; }
   .fstats { display: none; }
+  .feature-dial .mini { display: block; }
 }
 /* Phone: the lead and its Yes/No on the first screen; the numbers just below */
 @media (max-width: 760px) {

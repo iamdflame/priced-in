@@ -42,7 +42,7 @@ export function Feature({ f, points, bets, freeOpen }: { f: Fact; points: [numbe
         <p className="payline">Wrong: you lose $1 · <FreeCashNote /></p>
       </div>
       <div className="fside">
-        <div className="feature-dial"><Dial p={f.price} label="chance it’s true" sizes="150px" priority /></div>
+        <div className="feature-dial"><Dial p={f.price} sizes="150px" priority /><p className="mini">chance it’s true</p></div>
         <div className="fstats">
           <p className="dialcap"><b>{pct}% {words.means}</b><span>{words.whose}</span></p>
           {f.trades > 0 && <Spark points={points} w={200} h={48} label={`${plural(f.trades, "bet")}, from ${Math.round((f.openPrice ?? f.price) * 100)}% to ${pct}%`} />}
