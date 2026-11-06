@@ -142,4 +142,10 @@ const out = {
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(out, null, 1) + "\n");
 console.log(`recorded claim ${hero} on ${NET}: bet ${bet?.tx?.slice(0, 10)}… ${bet?.ok ? "on-chain" : "NOT FOUND"}, rewrite ${rewrite.id} ${sig.ok ? "signature verifies" : `signature: ${sig.reasons.join("; ")}`}, anchor ${anchor ? (anchor.ok ? "on-chain" : "NOT FOUND") : "none"}, answer ${answer ? `${answer.agent} ${answer.side}` : "none"}, ruling ${ruling ? `${ruling.status}${ruling.outcome ? ` ${ruling.outcome}` : ""}` : "none yet"} -> ${path.relative(ROOT, OUT)}`);
+// the site replays a copy of the mainnet record: keep it in step (a --out elsewhere, or testnet, is not that record)
+if (path.resolve(OUT) === path.join(ROOT, "deployments/rehearsal/mainnet.json")) {
+  const { siteData } = await import("../sync-site-data.mjs");
+  for (const [p, body] of Object.entries(siteData(ROOT))) fs.writeFileSync(path.join(ROOT, p), body);
+  console.log("synced site/data from deployments/");
+}
 process.exit(bad.length ? 1 : 0);

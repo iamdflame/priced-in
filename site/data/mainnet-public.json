@@ -1,5 +1,5 @@
 {
- "note": "Public values from deployments/mainnet.json, copied for the trust page. Re-copy after an upgrade.",
+ "note": "Public values from deployments/mainnet.json, for the trust page. Written by npm run sync:site-data; do not edit by hand.",
  "network": "mainnet",
  "root": "isitpriced.near",
  "accounts": {
@@ -44,7 +44,8 @@
   "checker_public_key": "ed25519:6ikQ8SZDcj4pp6qTTGPCGC7kdzWRq768d14SmipiMRnQ",
   "checker_methods": [
    "challenge"
-  ]
+  ],
+  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr"
  },
  "models": [
   {
@@ -79,6 +80,8 @@
   }
  ],
  "checker": {
-  "account": "checker.isitpriced.near"
+  "account": "checker.isitpriced.near",
+  "bond_micro": "3000000",
+  "at": "2026-11-06T03:13:48.744Z"
  }
 }

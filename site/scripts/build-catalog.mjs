@@ -7,6 +7,7 @@
 // sentence it replaced (lib/server/facts.ts).
 import fs from 'node:fs';
 import vm from 'node:vm';
+import { execFileSync } from 'node:child_process';
 
 const ROOT = new URL('../..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const KIT = `${ROOT}.apex/design/brand/pulse/assets/data.js`;
@@ -38,11 +39,12 @@ for (const m of D.markets) {
     caught: m.caught ? { today: m.caught.today, onPage: m.caught.onPage, source: m.caught.source, label: m.caught.label, checked: m.caught.checked, line: EVIDENCE[m.id] || null } : null,
   };
 }
-// The Wikipedia revision each page was read from (web/src/ui/data/corpus.json), for "where it's from".
-const corpus = JSON.parse(fs.readFileSync(`${ROOT}web/src/ui/data/corpus.json`, 'utf8'));
+// The Wikipedia revision each page was read from (corpus/MANIFEST.json), for "where it's from".
+const manifest = JSON.parse(fs.readFileSync(`${ROOT}corpus/MANIFEST.json`, 'utf8'));
+const corpusPages = Object.fromEntries(manifest.articles.map((a) => [a.slug, a]));
 const pages = {};
 for (const c of Object.values(claims)) {
-  const pg = corpus.pages[c.page];
+  const pg = corpusPages[c.page];
   if (pg) pages[c.page] = { title: pg.title, url: pg.url, attribution: pg.attribution };
 }
 
@@ -54,6 +56,5 @@ const out = {
 fs.writeFileSync(new URL('../data/catalog.json', import.meta.url), JSON.stringify(out, null, 1) + '\n');
 console.log(`catalog: ${Object.keys(claims).length} claims`);
 
-// The replay (?recorded=1) reads the complete mainnet run, copied in so the build never reaches outside site/.
-fs.copyFileSync(`${ROOT}deployments/rehearsal/mainnet.json`, new URL('../data/rehearsal-mainnet.json', import.meta.url));
-console.log('rehearsal: copied deployments/rehearsal/mainnet.json');
+// The replay (?recorded=1) and /trust read copies of deployments/, so the build never reaches outside site/.
+execFileSync(process.execPath, [`${ROOT}scripts/sync-site-data.mjs`], { stdio: 'inherit' });
