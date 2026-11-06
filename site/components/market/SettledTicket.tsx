@@ -24,10 +24,10 @@ export function SettledTicket({ s, wallet }: { s: SettledInfo; wallet: ReactNode
         {s.correctedId !== null && (
           <>
             <p className="decide hide-dock"><b>Corrected and reopened:</b> {s.correctedQuestion}</p>
-            <Link className="btn primary lg" href={`/c/${s.correctedId}`}>Bet on the corrected fact<Icon name="arrow" /></Link>
+            <Link className="btn soft" href={`/c/${s.correctedId}`}>See the corrected question<Icon name="arrow" /></Link>
           </>
         )}
-        <Link className="btn soft hide-dock" href={REPLAY_HREF}>Watch a replay of a ruling</Link>
+        <Link className="link hide-dock replaylink" href={REPLAY_HREF}>Watch a replay of a ruling</Link>
       </div>
       {wallet}
     </aside>

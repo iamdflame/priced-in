@@ -32,7 +32,7 @@ export interface Fact {
   article: string;
   icon: string;
   art: string;
-  /** "Tether · T-Bills $72.6B": a label that reads on its own */
+  /** "Tether T-Bills $72.6B": a label that reads on its own */
   short: string;
   caught: Caught | null;
   status: FactStatus;
@@ -79,15 +79,35 @@ export function topicsOf(facts: Fact[]): { topic: string; n: number }[] {
   return [...by.entries()].map(([topic, n]) => ({ topic, n })).sort((a, b) => b.n - a.n || a.topic.localeCompare(b.topic));
 }
 
+export interface PriceWords {
+  means: string;
+  /** whose number it is, in full */
+  whose: string;
+  /** the same, short enough for a card's art */
+  brief: string;
+  /** nobody has bet yet: the number is our AI's starting estimate */
+  firstRead: boolean;
+}
+
 /** What the % means, in words, and whose number it is. */
-export function priceWords(f: Pick<Fact, "price" | "trades" | "openPrice" | "status" | "outcome">, reopened = false): { means: string; whose: string; firstRead: boolean } {
-  if (f.status === "settled") return { means: "chance it’s true, when it was decided", whose: `Decided: ${f.outcome ? "true" : "false"}`, firstRead: false };
+export function priceWords(f: Pick<Fact, "price" | "trades" | "openPrice" | "status" | "outcome">, reopened = false): PriceWords {
+  const means = "chance it’s true";
+  if (f.status === "settled") {
+    const decided = `Decided: ${f.outcome ? "true" : "false"}`;
+    return { means: "chance it’s true, when it was decided", whose: decided, brief: decided, firstRead: false };
+  }
   if (f.trades === 0) {
     const open = Math.round((f.openPrice ?? f.price) * 100);
-    return { means: "chance it’s true", whose: reopened ? `No bets yet · reopened at ${open}%` : `No bets yet · our AI’s starting estimate: ${open}%`, firstRead: !reopened };
+    if (reopened) return { means, whose: `No bets yet · reopened at ${open}%`, brief: `reopened at ${open}%`, firstRead: false };
+    return { means, whose: `No bets yet · our AI’s starting estimate: ${open}%`, brief: "our AI’s estimate", firstRead: true };
   }
-  if (f.openPrice === null) return { means: "chance it’s true", whose: `after ${f.trades === 1 ? "1 bet" : `${f.trades} bets`}`, firstRead: false };
+  if (f.openPrice === null) {
+    const after = `after ${f.trades === 1 ? "1 bet" : `${f.trades} bets`}`;
+    return { means, whose: after, brief: after, firstRead: false };
+  }
   const open = Math.round(f.openPrice * 100);
   const moved = Math.round(f.price * 100) - open;
-  return { means: "chance it’s true", whose: moved === 0 ? `same as the start (${open}%)` : `${moved < 0 ? "down" : "up"} from ${open}% at the start`, firstRead: false };
+  if (moved === 0) return { means, whose: `same as the start (${open}%)`, brief: `same as the start`, firstRead: false };
+  const from = `${moved < 0 ? "down" : "up"} from ${open}%`;
+  return { means, whose: `${from} at the start`, brief: from, firstRead: false };
 }

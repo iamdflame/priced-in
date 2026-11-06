@@ -9,7 +9,7 @@ import { StateBox } from "../States";
 import { liveNumbers, topicsOf, type ClaimView, type Fact } from "@/lib/model";
 
 const ALL = "All";
-const WRONG = "Wikipedia may be wrong";
+const WRONG = "A newer source disagrees";
 const REFRESH_MS = 20_000;
 const EAGER_CARDS = 4;
 
@@ -64,7 +64,7 @@ export function HomeGrid({ initial, points, reopened }: {
   return (
     <section id="facts" aria-labelledby="facts-h">
       <div className="sec">
-        <h2 id="facts-h">{q ? `Facts matching “${q}”` : tab === ALL ? "Most bet on" : tab}</h2>
+        <h2 id="facts-h">{q ? `Facts matching “${q}”` : tab === ALL ? "Trending" : tab}</h2>
         <div className="tabs" role="group" aria-label="Filter by topic">
         {filters.map((t) => (
           <button key={t.topic} type="button" className="tab" aria-pressed={tab === t.topic} onClick={() => setTab(t.topic)}>

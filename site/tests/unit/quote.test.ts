@@ -68,9 +68,9 @@ describe("live mainnet claim views (v3, 1% fee)", () => {
     }
     expect(n).toBeGreaterThan(30);
   });
-  test("the payout is said in plain money: what you get if right, the stake lost if wrong", () => {
+  test("the payout is said in plain money: what $1 becomes if right, the free $1 gone if wrong", () => {
     const q = { back: 1.5799, sharesMicro: "1579900", paid: 1, fee: 0.01, priceAfter: 0.6, exact: true };
-    expect(payoutWords(q)).toEqual({ get: "$1.57", right: "Right: you get $1.57", wrong: "Wrong: you lose $1" });
+    expect(payoutWords(q)).toEqual({ get: "$1.57", right: "Right: $1 becomes $1.57", wrong: "Wrong: the free $1 is gone" });
   });
   test("backUsd rounds down, never promising more than the chain pays", () => {
     expect(backUsd({ back: 1.8199, sharesMicro: "1819900", paid: 1, fee: 0.01, priceAfter: 0.5, exact: true })).toBe("$1.81");

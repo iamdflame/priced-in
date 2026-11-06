@@ -1,12 +1,12 @@
 "use client";
 // The live strip: the real bets, newest first, from the market contract's own log. Each item reads on its
-// own ("The Skeptic · $0.22 on False · Tether · T-Bills $72.6B") and the strip never cuts one in half:
+// own ("AI trader Skeptic · $0.22 on False · Tether T-Bills $72.6B") and the strip never cuts one in half:
 // only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
 // for the next. It renders from the server's read and refreshes while the tab is visible.
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TopicIcon } from "../Brand";
-import { betsFrom, type Bet } from "@/lib/bets";
+import { bettor, betsFrom, type Bet } from "@/lib/bets";
 import { filming } from "@/lib/client/film";
 import { money, type AgentNames } from "@/lib/format";
 
@@ -33,7 +33,7 @@ function BetSentence({ b, f }: { b: Bet; f: StripFact | undefined }) {
   return (
     <Link className="tk" href={`/c/${b.claimId}`} prefetch={false}>
       {f && <TopicIcon icon={f.icon} />}
-      <span><b>{b.free ? "Someone" : b.who}</b> · {b.free ? "free $1" : money(b.usd)} on <b className={b.side}>{b.side === "yes" ? "True" : "False"}</b> · {f?.short ?? `fact ${b.claimId}`}</span>
+      <span><b>{bettor(b)}</b> · {b.free ? "free $1" : money(b.usd)} on <b className={b.side}>{b.side === "yes" ? "True" : "False"}</b> · {f?.short ?? `fact ${b.claimId}`}</span>
     </Link>
   );
 }

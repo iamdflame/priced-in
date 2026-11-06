@@ -1,6 +1,5 @@
 // Beside the lead: the ruling with the most real bets ("Just ruled"), and what is before the judges now
 // (or, honestly, when the next ruling starts). Every count comes from /api/rulings.
-import Image from "next/image";
 import Link from "next/link";
 import { Icon } from "../Icon";
 import { Countdown } from "../Live";
@@ -16,9 +15,6 @@ export function RuledCard({ r, ruled, corrected, settledCount, now }: { r: Rulin
   const recent = r.settled_at !== null && now - r.settled_at < DAY_MS;
   return (
     <section className="railcard ruled" aria-labelledby="ruled-h">
-      <Link className="art" href={`/c/${r.claim_id}`} tabIndex={-1} aria-hidden="true">
-        <Image src={`/art/${ruled?.art ?? "reserves"}.webp`} alt="" width={560} height={320} sizes="120px" />
-      </Link>
       <div className="rbody">
         <h2 id="ruled-h"><span className={`verdict ${verdict.toLowerCase()}`}>{recent ? "Just ruled" : "Ruled"}: {verdict}</span></h2>
         <Link className="rq" href={`/c/${r.claim_id}`}>{ruled?.question ?? r.claim}</Link>

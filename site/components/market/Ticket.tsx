@@ -3,6 +3,7 @@
 // bet is unavailable and why, with the replay as the way on. useBetFlow holds the logic.
 import Link from "next/link";
 import { useRef } from "react";
+import { JudgesLine } from "../Explain";
 import { Icon } from "../Icon";
 import { FreeCashNote } from "../Live";
 import { WalletEntry } from "../money/WalletEntry";
@@ -44,7 +45,7 @@ function HowItWorks({ quotes }: { quotes: Quotes }) {
     <ol className="howto hide-dock" aria-label="How your free $1 works">
       <li><span className="n">1</span><span><b>Pick Yes or No.</b> Your free $1 is made in this browser: no wallet, no sign-up.</span></li>
       <li><span className="n">2</span><span><b>3 AI judges decide</b> when the fact is challenged, signing their verdicts on-chain.</span></li>
-      <li><span className="n">3</span><span><b>Right answers get paid:</b> you get {payoutWords(quotes.yes).get} on Yes, or {payoutWords(quotes.no).get} on No.</span></li>
+      <li><span className="n">3</span><span><b>Right answers get paid:</b> $1 becomes {payoutWords(quotes.yes).get} on Yes, or {payoutWords(quotes.no).get} on No. Less likely answers pay more.</span></li>
     </ol>
   );
 }
@@ -53,8 +54,8 @@ function Picked({ side, quotes }: { side: Side; quotes: Quotes }) {
   const q = quotes[side];
   return (
     <div className="hide-dock">
-      <div className="towin"><span className="k">If you’re right, you get</span><span className="v num">{payoutWords(q).get}</span></div>
-      <p className="decide"><b>If you’re wrong, you lose the $1.</b> Your $1 moves it to <b>{Math.round(q.priceAfter * 100)}% chance it’s true</b>.{q.fee > 0 ? ` That includes the ${money(q.fee)} fee.` : ""}</p>
+      <div className="towin"><span className="k">If you’re right, $1 becomes</span><span className="v num">{payoutWords(q).get}</span></div>
+      <p className="decide"><b>If you’re wrong, the free $1 is gone.</b> Your $1 moves it to <b>{Math.round(q.priceAfter * 100)}% chance it’s true</b>.{q.fee > 0 ? ` That includes the ${money(q.fee)} fee.` : ""}</p>
     </div>
   );
 }
@@ -81,6 +82,7 @@ function BetTicket(p: TicketProps) {
         </div>
       ) : <p className="decide">This market can’t be quoted right now: one side is at its price cap.</p>}
       {quotes && !blocked && (side ? <Picked side={side} quotes={quotes} /> : <HowItWorks quotes={quotes} />)}
+      <JudgesLine className="hide-dock" />
       {failure && (
         <div className="notice err" role="alert">
           <Icon name="alert" />
@@ -95,7 +97,7 @@ function BetTicket(p: TicketProps) {
       )}
       {done && !flow.receiptOpen && <button type="button" className="btn soft" onClick={flow.openReceipt}>See your receipt</button>}
       {!p.recorded && flow.lane.state === "preparing" && !busy && <p className="fine hide-dock">Preparing your free $1 in this browser…</p>}
-      {p.recorded ? <p className="fine hide-dock">This is a replay of the real free $1 bet on this fact. Nothing is sent.</p> : <p className="fine">{quotes ? `${payoutWords(quotes.yes).wrong} · ` : ""}<FreeCashNote /></p>}
+      {p.recorded ? <p className="fine hide-dock">This is a replay of the real free $1 bet on this fact. Nothing is sent.</p> : <p className="fine">{quotes ? `${payoutWords(quotes.yes).wrong}. ` : ""}<FreeCashNote /></p>}
       {!p.recorded && <WalletEntry claimId={p.id} question={p.question} status={p.claim.status} outcome={p.claim.outcome} side={side} />}
       {flow.receiptOpen && flow.store && bet.ctx && (
         <Receipt bet={bet} store={flow.store} question={p.question} sentence={p.sentence} recorded={p.recorded} replayBlock={p.replayBlock} onClose={() => { flow.closeReceipt(); ref.current?.querySelector("button")?.focus(); }} />

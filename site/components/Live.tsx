@@ -33,12 +33,15 @@ export function Ago({ at }: { at: number }) {
  * rendered on the server and never moves the page after load. */
 export const COACH_KEY = "pi-coach-v1";
 
-/** "Is the free $1 cash?", answered one tap from every free-$1 button. */
+/** What the free $1 is, one plain sentence beside every free-$1 button, with the score one tap away. */
 export function FreeCashNote() {
   return (
-    <span className="freecash">Free-bet winnings count as score<Explain label="Is the free $1 cash?">
-      <b>The free $1 is for trying it.</b> If you’re right, your winnings count as score on the leaderboard, not cash you can withdraw. Betting real money needs your own wallet, and pays out in dollars (USDC, a dollar stablecoin).
-    </Explain></span>
+    <span className="freecash">
+      <span className="freecash-text">The free $1 is on us. If you’re right it adds to your score, not your wallet. Bet your own money to cash out.</span>
+      <Explain label="What is the score?">
+        <b>The free $1 is on us.</b> Your score is what your free bets have won. It stays in the market, shows on your Portfolio, and can’t be withdrawn. To cash out, bet your own money: that takes a wallet, and pays in USDC, a digital dollar.
+      </Explain>
+    </span>
   );
 }
 

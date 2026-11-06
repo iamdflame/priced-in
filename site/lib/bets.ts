@@ -42,3 +42,6 @@ export function betsFrom(events: MarketEvent[], agents: AgentNames, opens: Recor
   }
   return out;
 }
+
+/** Who bet, for a line on its own: "AI trader Archivist", "Someone". */
+export const bettor = (b: Bet) => (b.free ? "Someone" : b.kind === "agent" ? `AI trader ${b.who.replace(/^The /, "")}` : b.who);

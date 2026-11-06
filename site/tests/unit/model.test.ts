@@ -45,7 +45,7 @@ describe("facts", () => {
   });
   test("no bets: the AI's starting estimate, or the reopening price for a correction", () => {
     const f = toFact(byId(24), 400000);
-    expect(priceWords(f)).toEqual({ means: "chance it’s true", whose: "No bets yet · our AI’s starting estimate: 40%", firstRead: true });
+    expect(priceWords(f)).toEqual({ means: "chance it’s true", whose: "No bets yet · our AI’s starting estimate: 40%", brief: "our AI’s estimate", firstRead: true });
     const g = toFact(byId(32), 500000);
     expect(priceWords(g, true).whose).toBe("No bets yet · reopened at 50%");
   });

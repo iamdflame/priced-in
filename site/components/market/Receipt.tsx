@@ -93,8 +93,8 @@ export function Receipt({ bet, store, question, sentence, recorded, replayBlock,
             </div>
           </div>
           <div className="lines">
-            <div className="kv"><span>Right (it’s {word}): you get</span><b>{money(shares)}</b></div>
-            <div className="kv"><span>Wrong: you lose</span><b>$1</b></div>
+            <div className="kv"><span>Right (it’s {word}): $1 becomes</span><b>{money(shares)}</b></div>
+            <div className="kv"><span>Wrong</span><b>The free $1 is gone</b></div>
             <div className="kv"><span>You got</span><b>{shares.toFixed(2)} shares, $1 each if you’re right</b></div>
             {c.txHash && <div className="kv"><span>Transaction</span><a className="hashv" href={explorerTx(c.txHash)} target="_blank" rel="noopener">{shortHash(c.txHash)}</a></div>}
           </div>

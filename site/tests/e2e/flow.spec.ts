@@ -17,7 +17,7 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // tap No on the first card in the grid
   const no = page.locator(".grid a.bet.no").first();
   await expect(no).toContainText("No, it’s false");
-  await expect(no).toContainText(/Right: you get \$\d\.\d\d/);
+  await expect(no).toContainText(/Right: \$1 becomes \$\d\.\d\d/);
   trade.claimId = Number(/\/c\/(\d+)/.exec((await no.getAttribute("href"))!)![1]);
   await no.click();
   await expect(page).toHaveURL(`/c/${trade.claimId}?side=no`);
@@ -26,8 +26,8 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // the side is picked; the quote says what $1 gets back
   const pickNo = page.getByRole("button", { name: /No, it’s false/ }).first();
   await expect(pickNo).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("If you’re right, you get", { exact: true })).toBeVisible();
-  await expect(page.getByText("If you’re wrong, you lose the $1.")).toBeVisible();
+  await expect(page.getByText("If you’re right, $1 becomes", { exact: true })).toBeVisible();
+  await expect(page.getByText("If you’re wrong, the free $1 is gone.")).toBeVisible();
   await page.getByTestId("confirm").click();
 
   // the receipt
@@ -114,4 +114,13 @@ test("film mode: no replay bar or hint, still countdowns and strip, carried acro
   await page.goto("/?film=0");
   await expect(page.locator("html")).not.toHaveAttribute("data-film", "1");
   noMoneySpent(g);
+});
+
+test("a ruled fact offers no bet: the result, and a link to the corrected question", async ({ page }) => {
+  await guard(page);
+  await page.goto("/c/18");
+  await expect(page.getByText("No won.")).toBeVisible();
+  await expect(page.locator(".ticket .seg")).toHaveCount(0);
+  await expect(page.getByText("A newer source disagrees")).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /See the corrected question/ })).toHaveAttribute("href", "/c/32");
 });

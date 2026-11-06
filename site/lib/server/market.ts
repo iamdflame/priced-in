@@ -53,7 +53,7 @@ function historyOf(f: Fact, points: [number, number][], bets: Bet[], ruling: Rul
     const pct = Math.round(open[1] / 1e4);
     lines.push({ at: open[0], icon: "pulse", text: corrects ? `Opened as the corrected sentence, at ${pct}% chance it’s true.` : `Opened for bets at ${pct}% chance it’s true: our AI’s starting estimate.`, tx: corrects?.correction?.open_tx });
   }
-  if (f.caught) lines.push({ at: Date.parse(`${f.caught.checked}T12:00:00Z`), icon: "flag", text: `Wikipedia may be wrong: checked against ${f.caught.label}.` });
+  if (f.caught) lines.push({ at: Date.parse(`${f.caught.checked}T12:00:00Z`), icon: "flag", text: `A newer source disagrees: checked against ${f.caught.label}.` });
   for (const b of bets) lines.push({ at: b.at, icon: "coin", text: `${b.who} bet ${b.free ? "a free $1" : money(b.usd)} on ${b.side === "yes" ? "Yes" : "No"}: now ${Math.round(b.priceAfter * 100)}%.`, tx: b.tx });
   if (ruling) lines.push(...rulingLines(ruling));
   return lines.sort((a, b) => b.at - a.at);

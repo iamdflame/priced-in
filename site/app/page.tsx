@@ -1,39 +1,18 @@
 // Home: the promise and the three steps, the market in numbers, one open question with its Yes/No, the
 // ruling with the most bets and what is being decided, then every fact as a card. On a 1440x900 screen
 // the lead and the first row of cards share the first screen.
-import { Feature, leadFact } from "@/components/home/Feature";
+import { Feature } from "@/components/home/Feature";
 import { HomeGrid } from "@/components/home/HomeGrid";
 import { Intro } from "@/components/home/Intro";
 import { ProofBar } from "@/components/home/ProofBar";
 import { DecidingCard, RuledCard } from "@/components/home/Rails";
 import { FreeBetsOff } from "@/components/Live";
 import { ErrorState } from "@/components/States";
-import type { Fact } from "@/lib/model";
+import { feedOrder, leadFact } from "@/lib/lead";
 import { leadRuling, rulingRecord } from "@/lib/rulings";
 import { getSite, type Site } from "@/lib/server/site";
 
 export const revalidate = 15;
-
-/** One fact per topic in turn, so a page of mostly Tether still reads as varied. */
-function byTopicInTurn(facts: Fact[]): Fact[] {
-  const byTopic = new Map<string, Fact[]>();
-  for (const f of facts) byTopic.set(f.topic, [...(byTopic.get(f.topic) ?? []), f]);
-  const lists = [...byTopic.values()];
-  const out: Fact[] = [];
-  for (let i = 0; out.length < facts.length; i++) for (const l of lists) if (l[i]) out.push(l[i]);
-  return out;
-}
-
-/** Facts with real bets first (most bets first), then the rest, each varied by topic; results last. */
-function feedOrder(facts: Fact[], leadId: number | null): Fact[] {
-  const open = facts.filter((f) => f.status !== "settled" && f.id !== leadId);
-  const ranked = (l: Fact[]) => [...l].sort((a, b) => b.trades - a.trades || Number(!!b.caught) - Number(!!a.caught) || a.id - b.id);
-  return [
-    ...byTopicInTurn(ranked(open.filter((f) => f.trades > 0))),
-    ...byTopicInTurn(ranked(open.filter((f) => f.trades === 0))),
-    ...facts.filter((f) => f.status === "settled"),
-  ];
-}
 
 function freeBetsOffReason({ lane }: Site): string | null {
   if (!lane) return "We couldn’t check the free bets just now.";
@@ -63,7 +42,7 @@ export default async function Home() {
           <DecidingCard rulings={site.rulings} facts={byId} />
         </aside>
       </div>
-      <HomeGrid initial={feedOrder(site.facts, lead?.id ?? null)} points={site.history} reopened={site.reopened} />
+      <HomeGrid initial={feedOrder(site.facts, lead)} points={site.history} reopened={site.reopened} />
     </main>
   );
 }

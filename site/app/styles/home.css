@@ -5,6 +5,9 @@
 .intro { display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 16px 0 10px; }
 .intro h1 { font: 700 36px/1.04 var(--disp); letter-spacing: -.03em; }
 .intro p { margin-top: 4px; font: 500 16.5px/1.4 var(--text); color: var(--ink2); }
+.introside { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none; }
+.judgesline, .intro .judgesline { display: flex; gap: 6px; align-items: center; margin: 0; font: 400 13px/1.4 var(--text); color: var(--ink2); }
+.judgesline .ic { width: 15px; height: 15px; color: var(--ink3); }
 .steps { display: flex; gap: 8px; flex: none; }
 .steps li { display: flex; align-items: center; gap: 10px; padding: 0 16px 0 8px; height: 44px; border-radius: 999px; background: var(--surface); box-shadow: var(--card-shadow); font: 600 14.5px/1.2 var(--disp); color: var(--ink); white-space: nowrap; }
 .steps .n { width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; flex: none; background: var(--surface2); font: 700 13px var(--disp); }
@@ -29,8 +32,8 @@
 .feature .bets { margin-top: auto; }
 .feature .bet { min-height: 58px; padding: 8px 16px; }
 .feature .bet b { font-size: 17px; } .feature .bet small { font-size: 13.5px; }
-.payline { margin-top: 8px; font-size: 13px; color: var(--ink3); display: flex; align-items: center; flex-wrap: wrap; gap: 4px; }
-.freecash { display: inline-flex; align-items: center; }
+.payline { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.freecash-text { color: inherit; }
 .fside { display: grid; grid-template-columns: 150px 200px; gap: 18px; align-items: center; }
 .feature-dial { width: 100%; max-width: 150px; }
 .feature-dial .scale { display: none; }
@@ -50,34 +53,33 @@
 .coach .iconbtn { color: inherit; }
 [data-coach='off'] .coach { display: none; }
 
-/* The rails */
-.rail { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
-.railcard { position: relative; border-radius: var(--r-xl); overflow: hidden; background: var(--surface); box-shadow: var(--card-shadow); }
+/* The rails: quieter than the lead, and compact */
+.rail { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.railcard { position: relative; flex: 1; border-radius: var(--r-lg); box-shadow: inset 0 0 0 1px var(--line); }
 .railcard .rbody { display: flex; flex-direction: column; gap: 4px; padding: 12px 14px; min-width: 0; }
-.railcard h2 { font: 600 13px var(--text); color: var(--ink3); display: flex; align-items: center; gap: 8px; }
-.railcard h2 .ic { width: 16px; height: 16px; }
-.railcard p { font-size: 13px; line-height: 1.45; color: var(--ink2); }
-.rbody > .rq { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 2px 0; font: 600 14.5px/1.3 var(--disp); color: var(--ink); }
+.railcard h2 { font: 500 12.5px var(--text); color: var(--ink3); display: flex; align-items: center; gap: 6px; }
+.railcard h2 .ic { width: 14px; height: 14px; }
+.railcard p { font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.rbody > .rq { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; padding: 2px 0; font: 500 14px/1.3 var(--text); color: var(--ink2); }
 .rbody > .rq:hover { color: var(--brand-text); }
-.ruled { display: grid; grid-template-columns: 84px minmax(0, 1fr); }
-.ruled .art { height: 100%; min-height: 100px; }
 .ruled .rs { font-size: 12.5px; color: var(--ink3); }
-.rlinks { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; }
+.rlinks { display: flex; flex-wrap: wrap; gap: 2px 14px; }
 .rlinks a { min-height: 28px; display: inline-flex; align-items: center; }
 .verdict { display: inline-flex; align-items: center; height: 24px; padding: 0 9px; border-radius: 999px; font: 700 12px var(--disp); letter-spacing: .02em; }
 .verdict.false { background: var(--no-bg); color: var(--no); } .verdict.true { background: var(--yes-bg); color: var(--yes); }
 .deciding .timer { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.deciding .timer .big { font: 700 26px/1 var(--disp); letter-spacing: -.03em; font-feature-settings: 'tnum'; color: var(--ink); }
-.deciding .timer .sm { font-size: 13px; color: var(--ink2); }
+.deciding .timer .big { font: 600 18px/1 var(--disp); letter-spacing: -.01em; font-feature-settings: 'tnum'; color: var(--ink2); }
+.deciding .timer .sm { font-size: 12.5px; color: var(--ink3); }
 
 /* The grid's heading carries its filters, so the first row of cards stays on the first screen */
-.home .sec { margin: 16px 0 0; flex-wrap: wrap; align-items: center; }
+.home .sec { margin: 12px 0 0; flex-wrap: wrap; align-items: center; }
 .home .sec h2 { font-size: 22px; }
 .home .sec .tabs { padding: 0; }
 .home .sec .tab { height: 36px; padding: 0 12px; font-size: 14px; }
 
 @media (max-width: 1240px) {
   .intro { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .introside { align-items: flex-start; }
   .hero { grid-template-columns: 1fr; }
   .rail { display: grid; grid-template-columns: 1fr 1fr; }
 }
@@ -99,6 +101,8 @@
   .intro { padding: 12px 0 10px; gap: 8px; }
   .intro h1 { font-size: 26px; line-height: 1.08; }
   .intro p { font-size: 15px; }
+  .introside { width: 100%; gap: 4px; }
+  .intro .judgesline { font-size: 12.5px; }
   .steps { display: flex; flex-wrap: wrap; gap: 4px 12px; width: 100%; }
   .steps li { height: auto; padding: 0; gap: 6px; background: none; box-shadow: none; border-radius: 0; font-size: 14px; }
   .steps .n { width: 20px; height: 20px; font-size: 11.5px; }
@@ -110,8 +114,8 @@
   .feature-dial.phone .read .l, .feature-dial.phone .scale { display: none; }
   .fside, .hide-phone { display: none !important; }
   .feature .bets { margin-top: 4px; }
-  .feature .bet { min-height: 56px; padding: 8px 12px; }
-  .feature .bet b { font-size: 15.5px; } .feature .bet small { font-size: 12.5px; }
+  .feature .bet { min-height: 56px; padding: 8px 10px; }
+  .feature .bet b { font-size: 15.5px; } .feature .bet small { font-size: 12px; }
   .coach { font-size: 13px; }
   .rail { display: flex; flex-direction: column; margin-top: 12px; gap: 12px; }
   .home .sec { margin-top: 20px; }

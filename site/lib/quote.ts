@@ -43,10 +43,10 @@ export function quoteClaim(c: ClaimLike, amountUsd = 1): Quotes | null {
 export const backUsd = (q: Quote) => `$${(Math.floor(q.back * 100) / 100).toFixed(2)}`;
 
 /**
- * The bet in plain money, worded the same everywhere: what you get if you're right (the stake included)
- * and what you lose if you're wrong. Testers couldn't tell whether "get $1.57 back" counted the stake.
+ * The free bet in plain money, worded the same everywhere. "Right: $1 becomes $1.14" says the stake is
+ * inside the number; a bet that loses takes the free dollar, not the visitor's own.
  */
-export function payoutWords(q: Quote, stakeUsd = 1): { get: string; right: string; wrong: string } {
+export function payoutWords(q: Quote): { get: string; right: string; wrong: string } {
   const get = backUsd(q);
-  return { get, right: `Right: you get ${get}`, wrong: `Wrong: you lose $${stakeUsd}` };
+  return { get, right: `Right: $1 becomes ${get}`, wrong: "Wrong: the free $1 is gone" };
 }

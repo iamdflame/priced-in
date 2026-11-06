@@ -33,8 +33,8 @@ for (const m of D.markets) {
   if (m.id === null || m.id === undefined) continue;
   claims[m.id] = {
     page: m.page, topic: m.topic, article: m.article, icon: m.icon, art: m.art,
-    // a label that reads on its own, for the live strip: "Tether · T-Bills $72.6B"
-    short: m.topic === 'Prediction markets' ? m.short : `${m.topic} · ${m.short}`,
+    // a label that reads on its own, for the live strip: "Tether T-Bills $72.6B"
+    short: m.topic === 'Prediction markets' || m.short.startsWith(m.topic) ? m.short : `${m.topic} ${m.short}`,
     caught: m.caught ? { today: m.caught.today, onPage: m.caught.onPage, source: m.caught.source, label: m.caught.label, checked: m.caught.checked, line: EVIDENCE[m.id] || null } : null,
   };
 }

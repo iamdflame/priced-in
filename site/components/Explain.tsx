@@ -1,7 +1,9 @@
 "use client";
 // One-tap explanations: a small "?" that opens a short plain answer, closed by a tap anywhere or Escape.
+import Link from "next/link";
 import { useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { Icon } from "./Icon";
+import type { Caught } from "@/lib/model";
 
 export function Explain({ label, children }: { label: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -55,10 +57,23 @@ export function WhyEstimate({ pct }: { pct: number }) {
   );
 }
 
-export function WrongExplain() {
+/** What the "A newer source disagrees" chip means, with the source one tap away. */
+export function WrongExplain({ caught }: { caught: Caught }) {
   return (
-    <Explain label="Why might Wikipedia be wrong?">
-      <b>Our check found a newer source that says otherwise.</b> It doesn’t decide the bet: three AI judges do, reading the sources, and their verdicts are signed on-chain.
+    <Explain label="What does the newer source say?">
+      <b>{caught.today}.</b> <a className="link" href={caught.source} target="_blank" rel="noopener nofollow">{caught.label}</a>. It doesn’t decide the bet: three AI judges do.
     </Explain>
+  );
+}
+
+/** The one trust line for the judges, on the home page and near every ticket. */
+export function JudgesLine({ className = "" }: { className?: string }) {
+  return (
+    <p className={`judgesline ${className}`}>
+      <Icon name="scale" />
+      <span>3 AI judges read the sources and rule within minutes. Anyone can object.<Explain label="How does it work?">
+        <b>How it works.</b> You pick true or false. When a fact is challenged, three different AI models read the sources and sign their verdicts on-chain. Anyone can object for 10 minutes, then right answers get paid. Less likely answers pay more. <Link className="link" href="/rulings">See every ruling</Link>
+      </Explain></span>
+    </p>
   );
 }

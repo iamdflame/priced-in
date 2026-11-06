@@ -4,7 +4,7 @@ import Link from "next/link";
 import { TopicIcon } from "../Brand";
 import { Chart } from "../Chart";
 import { Dial } from "../Dial";
-import { WhyEstimate, WrongExplain } from "../Explain";
+import { JudgesLine, WhyEstimate, WrongExplain } from "../Explain";
 import { Icon } from "../Icon";
 import { ReplayRuling } from "../ReplayRuling";
 import { RulingBlock } from "../Ruling";
@@ -16,6 +16,7 @@ import { money, plural } from "@/lib/format";
 import { priceWords, type ClaimView, type Fact } from "@/lib/model";
 import { REPLAY } from "@/lib/replay/record";
 import { verdictOf } from "@/lib/rulings";
+import { wikiOf } from "@/lib/server/facts";
 import { getMarket, type Market } from "@/lib/server/market";
 
 export function MarketHead({ f }: { f: Fact }) {
@@ -23,12 +24,12 @@ export function MarketHead({ f }: { f: Fact }) {
     <header className="mk-head">
       <div className="crumb">
         <TopicIcon icon={f.icon} /><span>{f.topic}</span>
-        {f.caught && <span className="chip warn"><Icon name="flag" />Wikipedia may be wrong<WrongExplain /></span>}
+        {f.caught && f.status !== "settled" && <span className="chip warn"><Icon name="flag" />A newer source disagrees<WrongExplain caught={f.caught} /></span>}
         {f.status === "settled" && <span className={`chip ${f.outcome ? "yes" : "no"}`}><Icon name="gavel" />Ruled {f.outcome ? "TRUE" : "FALSE"}</span>}
         {f.status === "deciding" && <span className="chip warn"><Icon name="clock" />Being decided</span>}
       </div>
       <h1>{f.question}</h1>
-      <p className="how">Yes means the sentence below is true as written. No means it’s false.</p>
+      <p className="how">Yes means {wikiOf(f.page).attribution ? "Wikipedia’s sentence" : "the sentence"} is true as written. No means it’s false.</p>
     </header>
   );
 }
@@ -67,6 +68,7 @@ export async function MarketBody({ claim, recorded, side }: { claim: ClaimView; 
     <>
       <div className="mk-l">
         <PricePanel m={m} recorded={recorded} />
+        {f.quotes && <JudgesLine className="phone-only" />}
         {ruling && (recorded ? <ReplayRuling r={ruling} correctedQuestion={m.correctedQuestion} /> : <RulingBlock r={ruling} correctedQuestion={m.correctedQuestion} />)}
         {corrects && (
           <section className="panel corrected">
