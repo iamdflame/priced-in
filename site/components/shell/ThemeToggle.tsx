@@ -1,13 +1,13 @@
 "use client";
-// Dark is the brand's default; the choice is kept in this browser. app/layout.tsx applies it before paint.
+// Light is the default; the choice is kept in this browser. app/layout.tsx applies it before paint.
 import { useEffect, useState } from "react";
 import { Icon } from "../Icon";
 
 type Theme = "dark" | "light";
 
 export function ThemeToggle() {
-  const [theme, setTheme] = useState<Theme>("dark");
-  useEffect(() => { setTheme(document.documentElement.dataset.theme === "light" ? "light" : "dark"); }, []);
+  const [theme, setTheme] = useState<Theme>("light");
+  useEffect(() => { setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light"); }, []);
   const flip = () => {
     const next: Theme = theme === "light" ? "dark" : "light";
     document.documentElement.dataset.theme = next;

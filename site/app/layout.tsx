@@ -29,7 +29,7 @@ export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#F8F9FB" }],
 };
 
-// Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default; and film mode
+// Before paint: ?theme= wins, then the visitor's choice, else the default on <html>, light; and film mode
 // (lib/client/film.ts).
 const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');${FILM_SCRIPT}}catch(e){}`;
 
@@ -53,7 +53,7 @@ async function LiveBets() {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" data-theme="dark" className={fontVars} suppressHydrationWarning>
+    <html lang="en" data-theme="light" className={fontVars} suppressHydrationWarning>
       <head>
         <script dangerouslySetInnerHTML={{ __html: THEME }} />
       </head>
