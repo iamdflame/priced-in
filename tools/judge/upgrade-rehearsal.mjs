@@ -105,7 +105,7 @@ try {
   const s0 = await call(root, M, "sell", { claim_id: c0, side: "yes", shares_micro: String(BigInt(t0.shares_micro) / 4n), min_proceeds_micro: "0" });
   ok("the old code takes no fee", t0.fee_micro === undefined && s0.fee_micro === undefined && (await view(M, "stats")).fee_bps === undefined, `a buy of ${t0.amount_micro}, a sale of ${s0.amount_micro}`);
   const laneKey = KeyPair.fromRandom("ed25519");
-  await retry(() => as(L).addFunctionCallAccessKey({ publicKey: laneKey.getPublicKey(), contractId: M, methodNames: ["buy", "sell", "open_and_buy", "redeem", "claim_lane"], allowance: NEAR / 20n }));
+  await retry(() => as(L).addFunctionCallAccessKey({ publicKey: laneKey.getPublicKey(), contractId: M, methodNames: ["buy", "sell", "open_and_buy", "redeem"], allowance: NEAR / 20n }));
   const laneId = `lane:${laneKey.getPublicKey().toString()}`, laneAcct = as(L, laneKey);
   await call(laneAcct, M, "buy", { claim_id: c0, side: "no", amount_micro: "200000", min_shares_micro: "0" }, 0n, 30n);
   const usage = createHash("sha256").update("rehearsal usage").digest("hex");
