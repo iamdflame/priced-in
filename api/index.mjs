@@ -5,6 +5,8 @@
 // polling with ?since=, and a health check for this runtime.
 
 import { readContext, prepare, sendJson, log } from "./_lib/runtime.mjs";
+import { activityRoute, attestationsRoute, clockOf, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "./_lib/routes.mjs";
+import { readRulings } from "./_lib/rulings.mjs";
 import { clientIp } from "../services/api/src/ratelimit.mjs";
 import { parseSigningKey } from "../services/api/src/planner.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
@@ -55,6 +57,23 @@ export default async function handler(req, res) {
 
   // ---------- routes this runtime answers itself ----------
   if (req.method === "GET" && route === "/events") return finiteStream(req, res, url, ctx);
+  const read = req.method !== "GET" ? null
+    : route === "/history" ? () => historyRoute(url, p)
+    : route === "/portfolio" ? () => portfolioRoute(url, p)
+    : route === "/activity" ? () => activityRoute(url, p)
+    : route === "/rulings" ? () => rulingsRoute(p)
+    : route === "/attestations" ? () => attestationsRoute(url, layer)
+    : route === "/lane/status" ? () => laneStatusRoute(url, req, ctx, p)
+    : null;
+  if (read) {
+    try {
+      const r = await read();
+      return sendJson(res, r.status, r.body, r.headers || {});
+    } catch (e) {
+      log(`${route}: ${e.message}`);
+      return sendJson(res, 502, { error: { code: "upstream_error", message: "The NEAR RPC did not answer. Try again in a moment." } });
+    }
+  }
   if (req.method === "GET" && route === "/rewrites" && url.searchParams.has("since")) {
     const page = url.searchParams.get("page");
     const list = (page ? app.rewrites.byPage(page) : app.rewrites.recent(200)).filter((r) => (r.updatedAt || 0) > since(url));
@@ -194,11 +213,13 @@ async function health(res, ctxP) {
   const failures = [];
   // the lane's budget is read once the app is up, alongside the rest (a cached view)
   const ctxLane = ctxP.then(async (c) => [c, c?.app?.lane.enabled ? await withTimeout(c.app.lane.budget().catch((e) => ({ error: e.message })), 800, { error: "the lane budget read timed out" }) : null]);
-  const [probes, [ctx, laneB], snapDoc, cronDoc] = await Promise.all([
+  const clock = ctxP.then(async (c) => { if (!c) return null; const claims = (await p.claims.decorated()).claims; return clockOf(p, await readRulings(p, claims)); }).catch(() => null);
+  const [probes, [ctx, laneB], snapDoc, cronDoc, ruling] = await Promise.all([
     quickProbe(rpc, 1200),
     ctxLane,
     withTimeout(p.state.getDoc("snapshots/status.json").catch(() => null), 1200, null),
     withTimeout(p.state.getDoc("snapshots/health.json").catch(() => null), 1200, null),
+    withTimeout(clock, 1250, null),
   ]);
   const app = ctx?.app ?? null;
   const reachable = probes.filter((x) => x.ok);
@@ -213,6 +234,9 @@ async function health(res, ctxP) {
   const last = ctx ? lastOutcomes(ctx) : { trade: Date.parse(cron?.last?.trade) || 0, rewrite: Date.parse(cron?.last?.rewrite) || 0, answer: Date.parse(cron?.last?.answer) || 0 };
   const newest = Math.max(last.trade || 0, last.rewrite || 0, last.answer || 0);
   if (!newest || Date.now() - newest > 26 * 3600_000) failures.push(`outcomes: no trade, rewrite or agent answer in the last day (newest ${newest ? new Date(newest).toISOString() : "never"})`);
+  // a ruling that is due and not finalized means the keeper is not doing its job
+  const dueAt = ruling?.ruling_now?.stage === "window" ? ruling.ruling_now.window_ends_at : null;
+  if (dueAt && Date.now() - dueAt > 30 * 60_000) failures.push(`keeper: challenge ${ruling.ruling_now.challenge_id}'s window ended ${Math.round((Date.now() - dueAt) / 60_000)} min ago and it is not finalized`);
   let planner = { status: "unavailable" };
   try { if (config.planner.apiKey && config.planner.model && config.planner.privateKey) planner = { status: "ok", model: config.planner.model, plannerPublicKeyHex: Buffer.from(parseSigningKey(config.planner.privateKey).publicKey).toString("hex") }; } catch { planner = { status: "unavailable", reason: "PLANNER_PRIVATE_KEY is unusable" }; }
   const lane = laneB && !laneB.error ? { configured: true, open: !laneB.paused && laneB.free > 0, creditsLeft: laneB.credits, paused: laneB.paused } : { configured: Boolean(config.lane.accountId && config.lane.privateKey), error: laneB?.error ?? (app ? null : "not read: cold start") };
@@ -221,8 +245,13 @@ async function health(res, ctxP) {
     network: config.network,
     marketId: config.marketId,
     failures,
+    ruling_now: ruling?.ruling_now ?? null,
+    next_ruling_at: ruling?.next_ruling_at ?? null,
     checks: {
-      runtime: { kind: "vercel functions", scanner: "none: trades are recorded by POST /api/after-trade (checked on-chain) and by the agents' own transactions; browsers poll", region: process.env.VERCEL_REGION ?? null },
+      runtime: { kind: "vercel functions", scanner: "the cron indexes every transaction to the market (explorer index, then the chain's own receipts); POST /api/after-trade records a reported trade at once and takes a cheap look at the newest page; browsers poll", region: process.env.VERCEL_REGION ?? null },
+      ruling: ruling ? { ...ruling, ruling_now: undefined, next_ruling_at: undefined } : { note: "not read in time: GET /api/rulings has it" },
+      index: cron?.index ?? null,
+      coverage: cron?.coverage ?? null,
       rpc: { reachable: reachable.length, urls: probes },
       lane,
       planner,
