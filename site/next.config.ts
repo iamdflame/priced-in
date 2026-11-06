@@ -12,6 +12,9 @@ const pass = (from: string, to: string) => [
 
 const config: NextConfig = {
   poweredByHeader: false,
+  // the deploy uploads site/ alone: the build type-checks the app, and the tests (some read vectors
+  // from the repo around it) are checked by npm run lint and run by vitest and Playwright
+  typescript: { tsconfigPath: "tsconfig.build.json" },
   reactStrictMode: true,
   env: {
     NEXT_PUBLIC_NEAR_NETWORK: process.env.NEAR_NETWORK || process.env.NEXT_PUBLIC_NEAR_NETWORK || "mainnet",
