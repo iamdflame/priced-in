@@ -90,6 +90,10 @@ export function loadAiConfig(env = process.env) {
       // undefined leaves the signer's own defaults (DAILY_OPENS, DAILY_CHALLENGES)
       dailyOpens: num(env.SIGNER_DAILY_OPENS, undefined),
       dailyChallenges: num(env.SIGNER_DAILY_CHALLENGES, undefined),
+      // the Sentinel's disputes (undefined keeps DAILY_DISPUTES, DAILY_DISPUTE_MICRO and MAX_DISPUTE_BOND_MICRO)
+      dailyDisputes: num(env.SIGNER_DAILY_DISPUTES, undefined),
+      dailyDisputeMicro: num(env.SIGNER_DAILY_DISPUTE_MICRO, undefined),
+      maxDisputeBondMicro: num(env.SIGNER_MAX_DISPUTE_BOND_MICRO, undefined),
     },
     jury: {
       models: list(env.JURY_MODELS).length ? list(env.JURY_MODELS) : DEFAULT_JURY_MODELS,

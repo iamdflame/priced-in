@@ -15,10 +15,11 @@
 //   - the operator's function-call keys (operator-market.json: anchor_rewrite and
 //     charge_inference; operator-swarm.json: sweep_escrow; operator-keeper.json: finalize,
 //     expire_challenge and open_claim; operator-checker.json: challenge, on the Checker's own
-//     account). A key allowing anything else is refused.
+//     account; operator-sentinel.json: dispute, on the Sentinel's own account). A key allowing
+//     anything else is refused.
 //
-// Requests: agents | trade | redeem | bill | anchor | keep | open_claim | challenge | issue_key |
-// outcome. Every money request
+// Requests: agents | trade | redeem | bill | anchor | keep | open_claim | challenge | dispute |
+// issue_key | outcome. Every money request
 // carries an intent id. The intent and each signed transaction hash are journaled
 // (SIGNER_JOURNAL) BEFORE broadcast, the outcome after, so a restart neither forgets a spend nor
 // sends the same intent twice: a known intent returns its recorded outcome, and an intent whose
@@ -30,7 +31,9 @@
 // daily totals survive restarts because they are rebuilt from the journal. The last two are a
 // safety net above the keeper's own schedule: it asks caps() first, so it never runs into them in
 // normal running. Twelve opens is a full day of rulings at the challenge cap and as many again
-// carried over, so a line ruled FALSE is never stranded behind the cap for long.
+// carried over, so a line ruled FALSE is never stranded behind the cap for long. The Sentinel's
+// disputes: three a day, $10 of bonds a day, at most $8 in one (the third round on a $1 bond),
+// and only against a challenger the provisional outcome sides with, at the round the chain is at.
 
 import { fork } from "node:child_process";
 import fs from "node:fs";
@@ -46,8 +49,9 @@ export const HARD_MAX_BET_MICRO = 2_000_000n; // $2: the policy cap, enforced ag
 export const HARD_MAX_BILL_MICRO = 5_000_000n; // $5 in one inference bill
 export const AGENT_METHODS = ["buy", "sell", "redeem"];
 // keeper: the ruling loop's permissionless steps plus opening a corrected line (an operator call);
-// checker: the Checker account's bond, one challenge at a time. Each key may call nothing else.
-export const OPERATOR_METHODS = { market: ["anchor_rewrite", "charge_inference"], swarm: ["sweep_escrow"], keeper: ["finalize", "expire_challenge", "open_claim"], checker: ["challenge"] };
+// checker: the Checker account's bond, one challenge at a time; sentinel: the Sentinel account's
+// bonds, one dispute per round. Each key may call nothing else.
+export const OPERATOR_METHODS = { market: ["anchor_rewrite", "charge_inference"], swarm: ["sweep_escrow"], keeper: ["finalize", "expire_challenge", "open_claim"], checker: ["challenge"], sentinel: ["dispute"] };
 export const HARD_MAX_OPEN_B_MICRO = 5_000_000n; // a corrected line opens with at most $5 of liquidity
 const PAGE_RE = /^[a-z0-9-]{1,64}$/;
 
@@ -62,6 +66,14 @@ export function validateOpen(o, { maxBMicro = HARD_MAX_OPEN_B_MICRO } = {}) {
   const b = BigInt(o.b_micro), cap = maxBMicro < HARD_MAX_OPEN_B_MICRO ? maxBMicro : HARD_MAX_OPEN_B_MICRO;
   if (b < 100_000n || b > cap) throw new Error(`open: b_micro must be 100000..${cap}`);
   return { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro };
+}
+
+/** Strict check of the Sentinel's dispute: which challenge, the round it means, and its evidence. */
+export function validateDispute(d) {
+  if (!d || !Number.isSafeInteger(d.challenge_id) || d.challenge_id < 0) throw new Error("dispute: challenge_id must be a whole number");
+  if (!Number.isSafeInteger(d.round) || d.round < 1 || d.round > 3) throw new Error("dispute: round must be 1, 2 or 3");
+  if (typeof d.evidence !== "string" || !d.evidence.trim() || Buffer.byteLength(d.evidence, "utf8") > 4000) throw new Error("dispute: evidence must be 1..4000 bytes");
+  return { challenge_id: d.challenge_id, round: d.round, evidence: d.evidence };
 }
 
 /** Strict check of the Checker's challenge. */
@@ -79,6 +91,7 @@ const INTENT_RE = /^[A-Za-z0-9:._-]{8,160}$/;
 const SUPERSEDED_AFTER_MS = Number(process.env.SIGNER_SUPERSEDED_AFTER_MS || 120_000);
 const NEVER_LANDED_MS = 26 * 3600_000; // past NEAR's transaction validity window (~1 day of blocks)
 const digits = (s, n) => typeof s === "string" && new RegExp(`^\\d{1,${n}}$`).test(s);
+const cents = (micro) => (Number(BigInt(micro) / 10_000n) / 100).toFixed(2); // rounded down: never shows more than is there
 
 /** Strict check of a trade decision; returns the cleaned decision or throws. */
 export function validateDecision(d, { maxBetMicro = HARD_MAX_BET_MICRO } = {}) {
@@ -146,6 +159,11 @@ export function checkPermission(ak, receiverId, allowed = AGENT_METHODS) {
 // The daily safety caps on what the operator keys send (SIGNER_DAILY_OPENS, SIGNER_DAILY_CHALLENGES).
 export const DAILY_OPENS = 12;
 export const DAILY_CHALLENGES = 6;
+// ... and on the Sentinel's disputes (SIGNER_DAILY_DISPUTES, SIGNER_DAILY_DISPUTE_MICRO,
+// SIGNER_MAX_DISPUTE_BOND_MICRO): a full escalation on the $1 bond is $2, then $8
+export const DAILY_DISPUTES = 3;
+export const DAILY_DISPUTE_MICRO = 10_000_000n;
+export const MAX_DISPUTE_BOND_MICRO = 8_000_000n;
 
 // ---------- the parent side: no keys here ----------
 
@@ -185,6 +203,9 @@ export class SignerClient {
       SIGNER_SUPERSEDED_AFTER_MS: String(o.supersededAfterMs ?? 120_000),
       SIGNER_DAILY_OPENS: String(o.dailyOpens ?? DAILY_OPENS),
       SIGNER_DAILY_CHALLENGES: String(o.dailyChallenges ?? DAILY_CHALLENGES),
+      SIGNER_DAILY_DISPUTES: String(o.dailyDisputes ?? DAILY_DISPUTES),
+      SIGNER_DAILY_DISPUTE_MICRO: String(o.dailyDisputeMicro ?? DAILY_DISPUTE_MICRO),
+      SIGNER_MAX_DISPUTE_BOND_MICRO: String(o.maxDisputeBondMicro ?? MAX_DISPUTE_BOND_MICRO),
       SIGNER_MAX_OPEN_B_MICRO: String(o.maxOpenBMicro ?? Number(HARD_MAX_OPEN_B_MICRO)),
     };
     this.child = fork(SELF, ["--signer-child"], { env, stdio: ["ignore", "pipe", "pipe", "ipc"], execArgv: [] });
@@ -246,10 +267,12 @@ export class SignerClient {
   openClaim(intent, o) { return this.request({ type: "open_claim", intent, open: { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro } }); }
   /** The Checker's challenge, bonded from its own balance. */
   challenge(intent, c) { return this.request({ type: "challenge", intent, challenge: { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence } }); }
+  /** The Sentinel's dispute, bonded from its own balance: refused unless the chain is at that round and the provisional outcome sides with the challenger. */
+  dispute(intent, d) { return this.request({ type: "dispute", intent, dispute: { challenge_id: d.challenge_id, round: d.round, evidence: d.evidence } }, 90_000); }
   issueKey(persona_hash) { return this.request({ type: "issue_key", persona_hash }); }
   outcome(intent) { return this.request({ type: "outcome", intent }); }
   spent() { return this.request({ type: "spent" }); }
-  /** Today's use of the caps on opens and challenges, so the keeper doesn't try what would be refused. */
+  /** Today's use of the caps on opens, challenges and disputes, so the keeper and the Sentinel don't try what would be refused. */
   caps() { return this.request({ type: "caps" }, 5000); }
 
   accountOf(agent) {
@@ -281,6 +304,9 @@ async function runChild() {
   const dailyOpens = Number(env.SIGNER_DAILY_OPENS || DAILY_OPENS);
   const dailyChallenges = Number(env.SIGNER_DAILY_CHALLENGES || DAILY_CHALLENGES);
   const maxOpenB = BigInt(env.SIGNER_MAX_OPEN_B_MICRO || HARD_MAX_OPEN_B_MICRO);
+  const dailyDisputes = Number(env.SIGNER_DAILY_DISPUTES || DAILY_DISPUTES);
+  const dailyDisputeMicro = BigInt(env.SIGNER_DAILY_DISPUTE_MICRO || DAILY_DISPUTE_MICRO);
+  const maxDisputeBond = BigInt(env.SIGNER_MAX_DISPUTE_BOND_MICRO || MAX_DISPUTE_BOND_MICRO);
   const ksDir = env.KEYSTORE_DIR || null;
   const rpc = new Rpc(config.rpcUrls, { timeoutMs: 8000 });
   const journal = new Journal(env.SIGNER_JOURNAL || null);
@@ -290,16 +316,19 @@ async function runChild() {
   const intents = new Map(); // id -> { intent, hashes: [], outcome }
   const spend = new Map(); // `${agent}|${day}` -> micro reserved or spent on buys
   const billed = new Map(); // `${agent}|${day}` -> micro billed
+  const disputed = new Map(); // day -> micro of dispute bonds reserved or posted
   const bump = (m, k, v) => m.set(k, (m.get(k) || 0n) + v);
   const releaseIntent = (it) => {
     if (it.spend_micro) bump(spend, `${it.agent}|${it.day}`, -BigInt(it.spend_micro));
     if (it.bill_micro) bump(billed, `${it.agent}|${it.day}`, -BigInt(it.bill_micro));
+    if (it.dispute_micro) bump(disputed, it.day, -BigInt(it.dispute_micro));
   };
   for (const r of journal.read()) {
     if (r.t === "intent") {
       intents.set(r.id, { intent: r, hashes: [], attempts: [], outcome: null });
       if (r.spend_micro) bump(spend, `${r.agent}|${r.day}`, BigInt(r.spend_micro));
       if (r.bill_micro) bump(billed, `${r.agent}|${r.day}`, BigInt(r.bill_micro));
+      if (r.dispute_micro) bump(disputed, r.day, BigInt(r.dispute_micro));
     } else if (r.t === "attempt") { const x = intents.get(r.id); if (x) { x.hashes.push(r.hash); x.attempts.push(r); } }
     else if (r.t === "outcome") {
       const rec = intents.get(r.id);
@@ -464,6 +493,7 @@ async function runChild() {
     intents.set(id, rec);
     if (reserve.spend_micro) bump(spend, `${agent}|${it.day}`, BigInt(reserve.spend_micro));
     if (reserve.bill_micro) bump(billed, `${agent}|${it.day}`, BigInt(reserve.bill_micro));
+    if (reserve.dispute_micro) bump(disputed, it.day, BigInt(reserve.dispute_micro));
     journal.append(it);
     try {
       const r = await sender.call(method, args, { gasTgas, onSigned: (hash, nonce) => { const a = { t: "attempt", id, hash, nonce: String(nonce), at: new Date().toISOString() }; rec.hashes.push(hash); rec.attempts.push(a); journal.append(a); } });
@@ -491,7 +521,7 @@ async function runChild() {
     switch (m?.type) {
       case "agents": await refresh(Boolean(m.force)); return { ok: true, agents: view(), unheld, operator: opView(), keystoreErrors };
       case "spent": return { ok: true, ...spentView() };
-      case "caps": return { ok: true, day: day(), challenges: { used: countToday("challenge"), cap: dailyChallenges }, opens: { used: countToday("open_claim"), cap: dailyOpens } };
+      case "caps": return { ok: true, day: day(), challenges: { used: countToday("challenge"), cap: dailyChallenges }, opens: { used: countToday("open_claim"), cap: dailyOpens }, disputes: { used: countToday("dispute"), cap: dailyDisputes, used_micro: String(disputed.get(day()) || 0n), cap_micro: String(dailyDisputeMicro), max_bond_micro: String(maxDisputeBond) } };
       case "outcome": {
         const rec = intents.get(m.intent);
         if (!rec) return { ok: false, final: true, unknownIntent: true, error: "this signer never saw that intent" };
@@ -553,6 +583,34 @@ async function runChild() {
         const o = opEntry("checker");
         if (!intents.has(m.intent) && countToday("challenge") >= dailyChallenges) throw new Error(`challenge: ${dailyChallenges} challenges already posted today`);
         return once(m.intent, "challenge", { agent: o.accountId, signer: o.accountId, sender: o.sender, method: "challenge", args: c, gasTgas: 30 });
+      }
+      case "dispute": {
+        const d = validateDispute(m.dispute);
+        const o = opEntry("sentinel");
+        const reserve = {};
+        if (!intents.has(m.intent)) {
+          // the chain right before signing: the round the Sentinel decided on, the side it disputes,
+          // and the bond the caps count. A dispute can only ever push against the challenger.
+          const ch = await rpc.viewFunction(marketId, "get_challenge", { challenge_id: d.challenge_id });
+          if (!ch || ch.resolved) throw new Error(`dispute: challenge ${d.challenge_id} is not live`);
+          const claim = await rpc.viewFunction(marketId, "get_claim", { claim_id: ch.claim_id });
+          if (claim?.status !== "Challenged" || claim.challenge_id !== d.challenge_id) throw new Error(`dispute: challenge ${d.challenge_id} can't be disputed now (its claim is ${claim?.status ?? "missing"})`);
+          if (claim.provisional !== ch.claimed_outcome) throw new Error("dispute: the provisional outcome does not side with the challenger, so a dispute would side with them");
+          if (Number(ch.disputes) + 1 !== d.round) throw new Error(`dispute: the challenge is at round ${Number(ch.disputes) + 1}, not ${d.round}`);
+          const bond = BigInt(ch.bond_micro) * 2n;
+          if (bond > maxDisputeBond) throw new Error(`dispute: a ${bond} micro-USDC bond is over the bond cap of ${maxDisputeBond}`);
+          // an earlier dispute on this challenge whose outcome is unknown is settled first: two in one round would undo each other
+          for (const x of intents.values()) {
+            if (x.intent.kind !== "dispute" || x.intent.args?.challenge_id !== d.challenge_id || x.outcome?.final) continue;
+            if (!(await reconcile(x))) throw new Error("dispute: an earlier dispute on this challenge is still in flight");
+          }
+          if (countToday("dispute") >= dailyDisputes) throw new Error(`dispute: ${dailyDisputes} disputes already sent today`);
+          if ((disputed.get(day()) || 0n) + bond > dailyDisputeMicro) throw new Error(`dispute: a ${bond} micro-USDC bond would pass today's dispute limit of ${dailyDisputeMicro}`);
+          const bal = BigInt(String(await rpc.viewFunction(marketId, "get_balance", { trader: o.accountId })));
+          if (bal < bond) throw new Error(`dispute: ${o.accountId} holds $${cents(bal)} in the market and the bond is $${cents(bond)}`);
+          reserve.dispute_micro = String(bond);
+        }
+        return once(m.intent, "dispute", { agent: o.accountId, signer: o.accountId, sender: o.sender, method: "dispute", args: { challenge_id: d.challenge_id, evidence: d.evidence }, gasTgas: 30, reserve });
       }
       case "issue_key": {
         if (!ksDir) throw new Error("no KEYSTORE_DIR: this signer cannot issue runner keys");

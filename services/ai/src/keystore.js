@@ -14,6 +14,9 @@
 //   operator-checker.json            { kind: "operator", role: "checker", ... }
 //       challenge on the market, on the Checker's own account: it can post the Checker's bond and
 //       nothing else, so the bond balance is all it can ever lose
+//   operator-sentinel.json           { kind: "operator", role: "sentinel", ... }
+//       dispute on the market, on the Sentinel's own account: it can post the Sentinel's bonds and
+//       nothing else (scripts/mainnet/sentinel.mjs)
 
 import fs from "node:fs";
 import path from "node:path";

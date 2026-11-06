@@ -7,7 +7,7 @@ import { KeyPair } from "near-api-js";
 import { NearAI } from "../src/nearai.js";
 import { decide, impliedB, buyQuote, sellQuote, sharesToTarget, dailyLoss, parseCredence, DEFAULT_POLICY } from "../src/agents.js";
 import { Research, keywords, excerpt } from "../src/research.js";
-import { SignerClient, validateDecision, validateBill, validateAnchor, checkPermission, DAILY_CHALLENGES, DAILY_OPENS, DECISION_FIELDS, OPERATOR_METHODS } from "../src/signer.js";
+import { SignerClient, validateDecision, validateBill, validateAnchor, validateDispute, checkPermission, DAILY_CHALLENGES, DAILY_DISPUTES, DAILY_DISPUTE_MICRO, DAILY_OPENS, DECISION_FIELDS, MAX_DISPUTE_BOND_MICRO, OPERATOR_METHODS } from "../src/signer.js";
 import { newRunnerKey, operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
 import { startMockRpc } from "../../api/test/mock-rpc.mjs";
@@ -453,4 +453,153 @@ test("a keeper or Checker key that allows more than its job is refused", async (
     assert.match((await signer.keep("keep:finalize:1:1", "finalize", 1)).error, /no usable operator key/);
     assert.match((await signer.challenge("checker:1:0:d", { claim_id: 1, claimed_outcome: false, evidence: "x" })).error, /no usable operator key/);
   } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+// ---------- the Sentinel's key ----------
+
+async function disputeChain() {
+  const c = await swarmChain();
+  const fc = (receiver_id, method_names) => ({ nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id, method_names } } });
+  const sentry = "sentinel.house.testnet";
+  const sk = operatorKey(c.ks, "sentinel", { accountId: sentry, receiverId: c.market, methods: OPERATOR_METHODS.sentinel }).rec;
+  c.rpc.st.keys.set(`${sentry}|${sk.publicKey}`, fc(c.market, OPERATOR_METHODS.sentinel));
+  // a challenge on claim 0 that the jury ruled for the challenger, and a market that does what dispute does
+  c.chain = { ch: { claim_id: 0, challenger: "liar.testnet", claimed_outcome: false, bond_micro: "1000000", disputes: 0, resolved: false }, balance: "20000000" };
+  c.rpc.st.claims = [{ id: 0, status: "Challenged", provisional: false, challenge_id: 4 }];
+  c.rpc.st.views.set("get_challenge", () => c.chain.ch);
+  c.rpc.st.views.set("get_balance", () => c.chain.balance);
+  const base = c.rpc.st.onCall;
+  c.rpc.st.onCall = (x) => {
+    if (x.method !== "dispute") return base(x);
+    c.sent.push(x);
+    const claim = c.rpc.st.claims[0];
+    c.chain.ch = { ...c.chain.ch, bond_micro: String(BigInt(c.chain.ch.bond_micro) * 2n), disputes: c.chain.ch.disputes + 1 };
+    claim.provisional = !claim.provisional;
+    return { value: c.chain.ch.disputes };
+  };
+  c.sentry = sentry;
+  c.flip = (o) => { Object.assign(c.chain.ch, o.ch || {}); Object.assign(c.rpc.st.claims[0], o.claim || {}); };
+  return c;
+}
+const EV = "Priced In's Sentinel disputes challenge 4: the quoted words are not at the source.";
+
+test("the Sentinel's key disputes through the signer, from its own account, and the round, side and bond come from the chain", async () => {
+  const c = await disputeChain();
+  const signer = c.client({ dailyDisputes: 5, dailyDisputeMicro: 100_000_000 });
+  try {
+    await signer.start();
+    const l = await signer.listAgents({ force: true });
+    assert.equal(l.operator.sentinel.ok, true, l.operator.sentinel.error);
+    assert.deepEqual(l.operator.sentinel.methods, ["dispute"]);
+    const r = await signer.dispute("sentinel:dispute:4:r1:1", { challenge_id: 4, round: 1, evidence: EV });
+    assert.equal(r.ok, true, r.error);
+    assert.equal(r.value, 1);
+    assert.deepEqual([c.sent.at(-1).method, c.sent.at(-1).signer, c.sent.at(-1).args], ["dispute", c.sentry, { challenge_id: 4, evidence: EV }]);
+    const again = await signer.dispute("sentinel:dispute:4:r1:1", { challenge_id: 4, round: 1, evidence: EV });
+    assert.deepEqual([again.ok, again.replayed, c.sent.filter((x) => x.method === "dispute").length], [true, true, 1], "one intent lands once");
+    assert.match((await signer.dispute("sentinel:dispute:4:r1:2", { challenge_id: 4, round: 1, evidence: EV })).error, /does not side with the challenger/, "the chain moved: a second dispute would help the liar");
+    c.flip({ claim: { provisional: false } });
+    assert.match((await signer.dispute("sentinel:dispute:4:r1:3", { challenge_id: 4, round: 1, evidence: EV })).error, /at round 2, not 1/);
+    assert.equal((await signer.dispute("sentinel:dispute:4:r2:1", { challenge_id: 4, round: 2, evidence: EV })).ok, true);
+    c.flip({ ch: { resolved: true } });
+    assert.match((await signer.dispute("sentinel:dispute:4:r3:1", { challenge_id: 4, round: 3, evidence: EV })).error, /is not live/);
+    c.flip({ ch: { resolved: false }, claim: { status: "Escalated" } });
+    assert.match((await signer.dispute("sentinel:dispute:4:r3:2", { challenge_id: 4, round: 3, evidence: EV })).error, /can't be disputed now \(its claim is Escalated\)/);
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("the dispute caps: a few a day, a dollar limit, a bond cap and the balance, each refused before anything is signed", async () => {
+  const c = await disputeChain();
+  const signer = c.client({ dailyDisputes: 2, dailyDisputeMicro: 6_000_000, maxDisputeBondMicro: 4_000_000 });
+  const send = (n, round) => signer.dispute(`sentinel:dispute:4:r${round}:${n}`, { challenge_id: 4, round, evidence: EV });
+  try {
+    await signer.start();
+    await signer.listAgents({ force: true });
+    let caps = await signer.caps();
+    assert.deepEqual(caps.disputes, { used: 0, cap: 2, used_micro: "0", cap_micro: "6000000", max_bond_micro: "4000000" });
+    c.chain.balance = "1999999";
+    assert.match((await send(1, 1)).error, /holds \$1\.99 in the market and the bond is \$2\.00/);
+    c.chain.balance = "20000000";
+    assert.equal((await send(2, 1)).ok, true);
+    caps = await signer.caps();
+    assert.deepEqual([caps.disputes.used, caps.disputes.used_micro], [1, "2000000"]);
+    c.flip({ claim: { provisional: false }, ch: { bond_micro: "4000000", disputes: 2 } });
+    assert.match((await send(3, 3)).error, /over the bond cap/, "an $8 bond is over this signer's $4 cap");
+    c.flip({ claim: { provisional: false }, ch: { bond_micro: "2000000", disputes: 1 } });
+    assert.equal((await send(4, 2)).ok, true);
+    caps = await signer.caps();
+    assert.deepEqual([caps.disputes.used, caps.disputes.used_micro], [2, "6000000"]);
+    c.flip({ claim: { provisional: false }, ch: { bond_micro: "1000000", disputes: 0 } });
+    assert.match((await send(5, 1)).error, /2 disputes already sent today/);
+    const before = c.sent.filter((x) => x.method === "dispute").length;
+    assert.equal(before, 2, "nothing was signed for a refusal");
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("today's disputes survive a restart, and one that clearly failed gives its room back", async () => {
+  const c = await disputeChain();
+  const send = (signer, n) => signer.dispute(`sentinel:dispute:4:r1:${n}`, { challenge_id: 4, round: 1, evidence: EV });
+  const inner = c.rpc.st.onCall;
+  let first = c.client({ dailyDisputes: 3, dailyDisputeMicro: 3_000_000 });
+  try {
+    await first.start();
+    await first.listAgents({ force: true });
+    c.rpc.st.onCall = (x) => (x.method === "dispute" ? { failure: "the dispute window has closed" } : inner(x));
+    const failed = await send(first, 1);
+    assert.equal(failed.ok, false);
+    assert.match(failed.error, /window has closed/);
+    assert.deepEqual([(await first.caps()).disputes.used, (await first.caps()).disputes.used_micro], [0, "0"], "a clear failure spent nothing");
+    c.rpc.st.onCall = inner;
+    assert.equal((await send(first, 2)).ok, true);
+    await first.stop();
+    c.flip({ claim: { provisional: false }, ch: { bond_micro: "1000000", disputes: 0 } });
+    first = c.client({ dailyDisputes: 3, dailyDisputeMicro: 3_000_000 });
+    await first.start();
+    await first.listAgents({ force: true });
+    assert.deepEqual([(await first.caps()).disputes.used, (await first.caps()).disputes.used_micro], [1, "2000000"], "rebuilt from the journal");
+    assert.match((await send(first, 3)).error, /would pass today's dispute limit/);
+  } finally { await first.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("a dispute whose outcome is unknown holds the next one: two in one round would undo each other", async () => {
+  const c = await disputeChain();
+  const journal = path.join(c.dir, "signer.jsonl");
+  const today = new Date().toISOString();
+  const hash = "11111111111111111111111111111111";
+  fs.writeFileSync(journal, [
+    { t: "intent", id: "sentinel:dispute:4:r1:0", kind: "dispute", agent: c.sentry, signer: c.sentry, method: "dispute", args: { challenge_id: 4, evidence: EV }, day: today.slice(0, 10), at: today, dispute_micro: "2000000" },
+    { t: "attempt", id: "sentinel:dispute:4:r1:0", hash, nonce: "6", at: today },
+  ].map((x) => JSON.stringify(x)).join("\n") + "\n");
+  const signer = c.client({ dailyDisputes: 3 });
+  try {
+    await signer.start();
+    await signer.listAgents({ force: true });
+    assert.match((await signer.dispute("sentinel:dispute:4:r1:1", { challenge_id: 4, round: 1, evidence: EV })).error, /still in flight/);
+    assert.equal(c.sent.filter((x) => x.method === "dispute").length, 0);
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("a Sentinel key that allows more than dispute is refused, and without one nothing is sent", async () => {
+  const c = await disputeChain();
+  const sk = operatorKey(c.ks, "sentinel", { accountId: c.sentry, receiverId: c.market, methods: OPERATOR_METHODS.sentinel }).rec;
+  c.rpc.st.keys.set(`${c.sentry}|${sk.publicKey}`, { nonce: "5", permission: { FunctionCall: { allowance: "1000", receiver_id: c.market, method_names: ["dispute", "withdraw"] } } });
+  const signer = c.client();
+  try {
+    await signer.start();
+    const l = await signer.listAgents({ force: true });
+    assert.equal(l.operator.sentinel.ok, false);
+    assert.match(l.operator.sentinel.error, /withdraw/);
+    assert.match((await signer.dispute("sentinel:dispute:4:r1:1", { challenge_id: 4, round: 1, evidence: EV })).error, /no usable operator key for the sentinel/);
+  } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("a dispute's shape is checked, and the caps default to a few a day, $10, and a full escalation's $8 bond", () => {
+  assert.deepEqual(validateDispute({ challenge_id: 4, round: 3, evidence: "x", extra: 1 }), { challenge_id: 4, round: 3, evidence: "x" });
+  assert.throws(() => validateDispute({ challenge_id: -1, round: 1, evidence: "x" }), /whole number/);
+  assert.throws(() => validateDispute({ challenge_id: 1, round: 4, evidence: "x" }), /round must be/);
+  assert.throws(() => validateDispute({ challenge_id: 1, round: 1, evidence: "  " }), /1\.\.4000 bytes/);
+  assert.throws(() => validateDispute({ challenge_id: 1, round: 1, evidence: "x".repeat(4001) }), /1\.\.4000 bytes/);
+  assert.deepEqual([DAILY_DISPUTES, DAILY_DISPUTE_MICRO, MAX_DISPUTE_BOND_MICRO], [3, 10_000_000n, 8_000_000n]);
+  const set = loadAiConfig({ NEAR_NETWORK: "testnet", MARKET_CONTRACT_ID: "m.testnet", SIGNER_DAILY_DISPUTES: "5", SIGNER_DAILY_DISPUTE_MICRO: "30000000", SIGNER_MAX_DISPUTE_BOND_MICRO: "16000000" }).ai.agents;
+  assert.deepEqual([set.dailyDisputes, set.dailyDisputeMicro, set.maxDisputeBondMicro], [5, 30_000_000, 16_000_000]);
 });
