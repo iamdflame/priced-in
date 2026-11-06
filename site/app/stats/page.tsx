@@ -41,6 +41,7 @@ export default async function StatsPage() {
   const volume = site.totals.volumeUsd;
   const visitors = bets.filter((b) => b.kind === "visitor").length;
   const agentBets = bets.filter((b) => b.kind === "agent").length;
+  const sales = site.totals.trades - bets.length;
 
   const topics = new Map<string, { topic: string; usd: number; bets: number; facts: number }>();
   for (const f of site.facts) {
@@ -57,8 +58,10 @@ export default async function StatsPage() {
   const betsSinceFee = feeSince ? bets.filter((b) => b.at > feeSince).length : null;
 
   const record = rulingRecord(site.rulings?.rulings ?? []);
+  const facts = new Map(site.facts.map((f) => [f.id, f]));
   const settled = site.facts.filter((f) => f.status === "settled" && f.outcome !== null);
   const cal = settled.map((f) => ({ id: f.id, p: f.price, o: f.outcome ? 1 : 0 }));
+  const unbet = settled.filter((f) => f.trades === 0).length;
   const brier = cal.length ? cal.reduce((n, x) => n + (x.p - x.o) ** 2, 0) / cal.length : null;
 
   const buckets = s ? [
@@ -85,7 +88,7 @@ export default async function StatsPage() {
       ) : null} />
       <Kpis label="The market today" items={[
         { v: site.totals.open, l: "facts open for bets", s: `${site.totals.facts} in all, across ${site.totals.topics} topics` },
-        { v: site.totals.trades, l: "bets placed", s: `${agentBets} by AI traders, ${visitors} free $1 bets` },
+        { v: site.totals.trades, l: "bets and sales", s: `${agentBets} by AI traders, ${visitors} free $1 bets${sales > 0 ? `, ${plural(sales, "sale")}` : ""}` },
         { v: money(volume), l: "bet so far", s: "real USDC, every bet on-chain" },
         { v: s ? money(usd(s.fees_micro)) : "—", l: "fees collected", s: s ? `${s.fee_bps / 100}% per bet${feeSince ? `, since ${dayTimeUtc(feeSince)}` : ""}` : "couldn’t read the contract" },
         { v: agentPnlKnown ? signedMoney(agentPnl) : "—", l: "AI traders’ profit", s: "all three together", tone: agentPnl >= 0.005 ? "pos" : agentPnl <= -0.005 ? "neg" : undefined },
@@ -121,14 +124,22 @@ export default async function StatsPage() {
             <div><b>{record.medianMs === null ? "—" : span(record.medianMs)}</b><span>{record.settled.length > 1 ? "median, doubt to paid" : "doubt to paid"}</span></div>
             <div><b>{money(record.paidUsd)}</b><span>paid to winners</span></div>
           </div>
-          <p className="note">Each ruling: three AI judges sign verdicts within minutes, then 10 minutes for objections, then the keeper settles. <Link className="link" href="/rulings">See every ruling</Link></p>
+          <div className="settled-list">
+            {record.settled.map((r) => (
+              <Link key={r.challenge_id} className="mini" href={`/c/${r.claim_id}`}>
+                <span>{facts.get(r.claim_id)?.question ?? r.claim}</span>
+                <b>{span(r.settled_at! - r.opened_at)}</b>
+              </Link>
+            ))}
+          </div>
+          <p className="note">Three AI judges sign within minutes, then 10 minutes for objections, then the keeper settles. <Link className="link" href="/rulings">See every ruling</Link></p>
         </div>
         <div className="panel chartc" style={{ display: "grid", gridTemplateColumns: "minmax(0, 1fr) auto", gap: 16, alignItems: "center" }}>
           <div>
             <h3>Calibration</h3>
             <p className="sub">Settled facts: last price against the outcome</p>
             {cal.length < 20 ? (
-              <p className="note"><b>Too early to judge: {plural(cal.length, "settled fact")}.</b> Calibration needs dozens. {brier !== null ? <>So far the Brier score is <b>{brier.toFixed(3)}</b> (0 is perfect, 0.25 is a coin flip).</> : null} This chart fills in as facts settle.</p>
+              <p className="note"><b>Too early to judge: {plural(cal.length, "settled fact")}.</b> Calibration needs dozens. {brier !== null ? <>So far the Brier score is <b>{brier.toFixed(3)}</b> (0 is perfect, 0.25 is a coin flip){unbet ? <>, and {plural(unbet, "of them", "of them")} had no bets, so its price is our AI’s estimate, not the market’s</> : null}.</> : null} This chart fills in as facts settle.</p>
             ) : (
               <p className="note">Brier score <b>{brier!.toFixed(3)}</b> over {cal.length} settled facts (0 is perfect, 0.25 is a coin flip).</p>
             )}

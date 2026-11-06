@@ -64,7 +64,7 @@ export function Dish({ persona, size = "big" }: { persona: string; size?: "big" 
 /** An AI judge's mark, name and maker: the same on /rulings and /trust. */
 export function ModelBadge({ model, note }: { model: string; note?: string }) {
   const m = modelMaker(model);
-  return <div className="who"><span className="mk" aria-hidden="true">{m.mark}</span><div><b title={model}>{m.short}</b><small>{note ? `${m.maker} · ${note}` : m.maker}</small></div></div>;
+  return <div className="mbadge"><span className="mark" aria-hidden="true">{m.mark}</span><div><b title={model}>{m.short}</b><small>{note ? `${m.maker} · ${note}` : m.maker}</small></div></div>;
 }
 
 /** "deepseek-ai/DeepSeek-V4.1-Flash-1017" to its maker and a two-letter mark. */

@@ -49,14 +49,16 @@
 .case .facts3 > div { padding: 10px 12px; border-radius: 12px; background: var(--surface2); font-size: 12.5px; color: var(--ink3); }
 .case .facts3 b { display: block; font: 700 20px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); margin-bottom: 2px; font-feature-settings: 'tnum'; }
 
+/* An AI judge's badge, the same on /rulings and /trust */
+.mbadge { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.mbadge b { display: block; font: 600 16px/1.2 var(--disp); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mbadge small { display: block; font-size: 12.5px; color: var(--ink3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.mbadge .mark { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--surface3); color: var(--ink); font: 700 13px var(--disp); flex: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
+
 /* The three judges */
 .judges3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
 .jcard { display: flex; flex-direction: column; gap: 10px; padding: 18px; min-width: 0; }
 .jcard .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-.jcard .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.jcard .who b { display: block; font: 600 16px/1.2 var(--disp); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.jcard .who small { display: block; font-size: 12.5px; color: var(--ink3); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.jcard .mk { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--surface3); color: var(--ink); font: 700 13px var(--disp); flex: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
 .jcard blockquote { font-size: 14.5px; line-height: 1.5; color: var(--ink); padding: 12px 14px; border-radius: 12px; background: var(--surface2); }
 .jcard blockquote::before { content: '“'; } .jcard blockquote::after { content: '”'; }
 .jcard .meta2 { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: var(--ink3); align-items: center; }
@@ -200,20 +202,20 @@
 .keys td b { color: var(--ink); font-weight: 600; }
 .keys td .mono { font: 500 12.5px var(--mono); color: var(--ink2); overflow-wrap: anywhere; }
 .keys td.can { color: var(--ink2); }
-.checks10 { display: grid; gap: 0 24px; margin-top: 6px; }
+.checks10 { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; margin-top: 6px; }
 .checks10 li { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 8px; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 14px; color: var(--ink2); }
 .checks10 li .ic { width: 18px; height: 18px; color: var(--yes); stroke-width: 2.4; margin-top: 1px; }
-.checks10 li:last-child { border-bottom: 0; }
+.checks10 li:nth-last-child(-n+2) { border-bottom: 0; }
 .checks10 b { color: var(--ink); font-weight: 600; }
-.chartc.stack { display: flex; flex-direction: column; gap: 12px; }
+.rebuild { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 18px 20px; }
+.rebuild .fine { grid-column: 1 / -1; }
+.tenchecks { margin-top: 14px; }
+.settled-list { margin-top: 10px; }
 .ccnote { margin-top: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
 .trusted { padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
 .trusted .checks { font-size: 14.5px; gap: 10px; }
+.trusted .checks .ic { color: var(--ink3); }
 .trusted b { color: var(--ink); font-weight: 600; }
-.proof .who { display: flex; align-items: center; gap: 10px; min-width: 0; }
-.proof .who b { display: block; font: 600 16px/1.2 var(--disp); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.proof .who small { display: block; font-size: 12.5px; color: var(--ink3); }
-.proof .mk { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; background: var(--surface3); color: var(--ink); font: 700 13px var(--disp); flex: none; box-shadow: inset 0 0 0 1px var(--line-strong); }
 
 /* Developers */
 .try { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; padding: 18px; }
@@ -326,7 +328,7 @@
   .phero { grid-template-columns: 1fr; }
   .case { grid-template-columns: 1fr; }
   .case-side { display: none; }
-  .charts2, .cancant, .try { grid-template-columns: 1fr; }
+  .charts2, .cancant, .try, .rebuild { grid-template-columns: 1fr; }
   .enc { grid-template-columns: 1fr; }
   .enc-side { position: static; }
   .ep { grid-template-columns: 1fr; gap: 10px; }
@@ -351,6 +353,7 @@
   .case .facts3 { grid-template-columns: 1fr 1fr 1fr; }
   .case .facts3 b { font-size: 17px; }
   .judges3, .agents3, .proofs3, .steps3, .price3, .pagelist, .checks10 { grid-template-columns: 1fr; }
+  .checks10 li:nth-last-child(2) { border-bottom: 1px solid var(--line); }
   .rrow { grid-template-columns: 36px minmax(0, 1fr); padding: 12px 14px; }
   .rrow .r { grid-column: 1 / -1; }
   .board th:nth-child(n+5), .board td:nth-child(n+5) { display: none; }

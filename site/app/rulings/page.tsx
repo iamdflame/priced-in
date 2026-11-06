@@ -51,7 +51,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
     <main id="main" className="wrap">
       <Head next={R.next_ruling_at} checker={R.checker ?? null} live={live} />
       <Kpis label="The record so far" items={[
-        { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled and paid" },
+        { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled on-chain" },
         { v: medianMs === null ? "—" : span(medianMs), l: "from doubt to paid", s: settled.length > 1 ? "the median" : "the one so far" },
         { v: money(paidUsd), l: "paid to the winners", s: "in USDC, on-chain" },
         { v: <>{unanimous}<i> of {settled.length}</i></>, l: "with all three judges agreeing", s: "each verdict signed separately" },

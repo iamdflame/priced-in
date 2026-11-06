@@ -5,7 +5,7 @@
 import { money } from "@/lib/format";
 
 export function VolumeChart({ points, start, now }: { points: { at: number; usd: number; n: number }[]; start: number; now: number }) {
-  const W = 640, H = 230, L = 8, R = 54, T = 12, B = 26;
+  const W = 640, H = 330, L = 8, R = 54, T = 12, B = 26;
   const max = Math.max(1, ...points.map((p) => p.usd)) * 1.1;
   const t0 = Math.min(start, points[0]?.at ?? start), t1 = Math.max(now, t0 + 1);
   const X = (t: number) => L + ((t - t0) / (t1 - t0)) * (W - L - R);

@@ -1,0 +1,84 @@
+{
+ "note": "Public values from deployments/mainnet.json, copied for the trust page. Re-copy after an upgrade.",
+ "network": "mainnet",
+ "root": "isitpriced.near",
+ "accounts": {
+  "market": "market.isitpriced.near",
+  "lane": "lane.isitpriced.near",
+  "usdc": "17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1"
+ },
+ "code": {
+  "market": {
+   "code_hash": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "sha256": "d5fbcbc8422763e43eddf60f1eb56b397782b728aa5bede9765b7c84ec2b9ec5",
+   "size": 435325,
+   "source": "contracts/market",
+   "build": "node tools/judge/repro.mjs",
+   "source_rev": "d1fd650"
+  },
+  "toolchain": "rustc 1.99.1 (58cf8f9c3 2026-10-13)"
+ },
+ "deployed_at": "2026-11-05T22:04:08.114Z",
+ "verified_at": "2026-11-06T03:53:39.111Z",
+ "keys": {
+  "owner": "isitpriced.near",
+  "operator_public_key": "ed25519:5gSk9FibFUCJXEB8ac1atpfZHWq4EUTeexVgKy4uQjR8",
+  "operator_methods": [
+   "anchor_rewrite",
+   "charge_inference"
+  ],
+  "jury_public_key": "ed25519:BAGu3yKTgtGb89mUnFWFYMkq9A4h2eu8LMZ3RSnhDy9i",
+  "lane_admin_public_key": "ed25519:5wjDrJZCM5twQrzSHWDkdfTs4e93zVxaPjhDKvypS7E2",
+  "planner_public_hex": "5560baeb3cee71df7da0a3cac251be0ded449af2ac819b057617fa83cf0c46cb",
+  "planner": "a mainnet planner key made for this deployment; its private half is not in git",
+  "writer_model": "z-ai/glm-5.3-flash",
+  "writer_public_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+  "writer": "NEAR AI Cloud's provider_tee key for z-ai/glm-5.3-flash, from a verified attestation",
+  "keeper_public_key": "ed25519:2q14S2SswDTzexEjG31WkNMXtSvXJhu2S3mGvKgTYbLC",
+  "keeper_methods": [
+   "finalize",
+   "expire_challenge",
+   "open_claim"
+  ],
+  "checker_account": "checker.isitpriced.near",
+  "checker_public_key": "ed25519:6ikQ8SZDcj4pp6qTTGPCGC7kdzWRq768d14SmipiMRnQ",
+  "checker_methods": [
+   "challenge"
+  ]
+ },
+ "models": [
+  {
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "signing_address_hex": "236f5a6b91dd47dc3b7b36e43d4eb531a042ffb8f8fbf3a1555b78cef4fdda4c",
+   "extras_json": "\"chat_template_kwargs\":{\"thinking\":false}",
+   "tx": "8ggBX7SmvxucJysEh2KyY29QEBYkDTpy3DJToVJDFNPn"
+  },
+  {
+   "model": "Qwen/Qwen3.8-27B",
+   "signing_address_hex": "89154a43a47684742c3d1753252bb6f49f61da9d8c84fc9b1def2df130cb2d93",
+   "extras_json": "\"chat_template_kwargs\":{\"enable_thinking\":false}",
+   "tx": "AE9vscyk3zeoZY5RAJRiRdsLAF6ViZa6svwjSBiUwJ5h"
+  },
+  {
+   "model": "z-ai/glm-5.3-flash",
+   "signing_address_hex": "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff",
+   "extras_json": "\"max_tokens\":2048",
+   "tx": "A6ndwz5BUdke9Xcs2NKTqi4kmE9gY6yg3rkjSwrKkpUV"
+  }
+ ],
+ "upgrades": [
+  {
+   "account": "market.isitpriced.near",
+   "from": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "to": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "tx": "9cbNBi1DqdJiAhP2xNsAkk4mJ1xmaLZcjZ6BG6YT1gSQ",
+   "at": "2026-11-06T03:53:39.110Z",
+   "source_rev": "d1fd650",
+   "fee_bps": 100,
+   "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-mainnet.mjs)"
+  }
+ ],
+ "checker": {
+  "account": "checker.isitpriced.near"
+ }
+}
