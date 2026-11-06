@@ -2,14 +2,14 @@
 
 This is what `contracts/market/src/lib.rs` (the contract `PricedIn`), `crates/lmsr/src/lib.rs` and `crates/rules/src/lib.rs` do, function by function. Where this text and the code disagree, the code wins; please report it.
 
-Checks that run this spec: `cargo test -p lmsr --release` (4 tests), `cargo test -p rules --release` (9 tests), `npm run judge` checks 1 and 2, and `node contracts/market/test/lifecycle.mjs` (141 checks on testnet; the last full run is in `.apex/streams/contracts-result.md`). Quoted check names below are from that file.
+Checks that run this spec: `cargo test -p lmsr --release` (8 tests), `cargo test -p rules --release` (9 tests), `npm run judge` checks 1 and 2, and `node contracts/market/test/lifecycle.mjs` (238 checks on testnet; the last full run is in `.apex/streams/contract-v3-result.md`). Quoted check names below are from that file.
 
 ## Units
 
 | Quantity | Unit |
 |---|---|
 | Money and shares inside the maths | `i128` at `SCALE` = 1e12 per dollar or per share (`lmsr::SCALE`) |
-| Money and shares in the contract's storage and API | micro-USDC (1e-6 dollar) and micro-shares. `MICRO` = 1,000,000 SCALE units per micro (`lib.rs`) |
+| Money and shares in the contract's storage and API | micro-USDC (1e-6 dollar) and micro-shares. `MICRO` = 1,000,000 SCALE units per micro (`lmsr::MICRO`) |
 | Prices | ppm in views and events (`price_yes_ppm`), so 500000 is 50% |
 | Time | nanoseconds on-chain (`*_ns`), seconds in settings (`*_secs`) |
 
@@ -52,11 +52,29 @@ It returns `(shares, charged)` with `charged <= spend`.
 
 Proceeds for `s` shares are `C(before) - C(after) - 1`, never below zero. You cannot sell more than is outstanding on that side.
 
+### Fills: `Market::fill_buy`, `Market::fill_sell`
+
+These are the contract's trades in whole micro units, taker fee included. `buy`, `sell` and the views `quote_buy` and `quote_sell` all call them, so a quote and its fill are one piece of code. `web/src/core/lmsr.ts` ports them to BigInt (`fillBuy`, `fillSell`), bit-exact on vectors the crate generates.
+
+`fee_on(amount, bps)` is `ceil(amount * bps / 10,000)`: a fee is rounded up, like every other rounding here, in the market's favour.
+
+`fill_buy(side, amount_micro, fee_bps)`, where `amount_micro` is the most the trader pays, fee included:
+1. The pot's budget leaves room for the fee: `floor(amount * 10,000 / (10,000 + bps))`.
+2. `quote_buy` on that budget. Its shares are floored to whole micro-shares.
+3. Those shares cost exactly `C(after) - C(before)`, rounded up to a micro: `cost_micro`. `fee_micro` is `fee_on(cost_micro, bps)`. The trader pays `paid_micro = cost_micro + fee_micro`.
+4. Near a price cap the fixed-point cost carries rounding of a few hundred SCALE units, more than the true cost of the fraction the floor dropped, so the cost can come out a micro above the budget. The fill then steps back one micro-share at a time, at most `FILL_STEPS` (16) times. Measured over 20,000 random markets: 11 orders needed it, one micro-share each. Before v3 the contract refused those orders with "slippage".
+
+`cost + fee <= amount` always: the cost is at most the budget, and `budget + fee_on(budget) <= amount`. A fill of zero shares charges nothing. At 0 bps the fill is the pre-fee contract's, to the micro, wherever that contract filled.
+
+`fill_sell(side, shares_micro, fee_bps)`: `proceeds_micro` is `quote_sell` floored to a micro, `fee_micro` is `fee_on(proceeds_micro, bps)`, and the trader receives `received_micro = proceeds_micro - fee_micro`.
+
+Tests: crates/lmsr `the_taker_fee_on_buys_and_sales` and `property_fills_never_overcharge_and_round_trips_never_profit` (20,000 markets across the contract's liquidity range, orders from 1 micro to $10^12, fees from 0 to 300 bps, a round trip never returning more than was paid less both fees); web/test/lmsr.test.ts and judge check 1 on the vectors, which trade at fees from 0 to 300 bps and hold 48 edge fills (stepped back, at the cap, too small).
+
 ### The opening clamp and the price cap
 
 - **Opening clamp:** `Market::open` clamps `p0` to [0.2, 0.8] (`P_MIN`, `P_MAX`) before computing `d0`. The contract does not refuse a `p0_ppm` outside that range: it opens at the clamped price. The planner never signs one outside it (`services/api/src/planner.mjs`, `P_MIN`/`P_MAX`; test "opening probabilities clamp to 0.2..0.8 and round to 0.1 point").
-- **Price cap:** `|d| <= D_CAP = ln(9999)` (9,210,240,366,976 at SCALE), so prices stay in [0.0001, 0.9999]. A buy that reaches the cap buys up to it and is charged only for what it bought. At the cap, `buy` panics with "the price is at its cap".
-- **Large buys (fixed):** a spend above about 33 times `b` used to overflow i128 inside `quote_buy` (`div(expm1(spend / b), p)`), and with `overflow-checks = true` the call panicked. Since the cap check comes first (step 2 above), any spend, up to `i128::MAX` at SCALE, buys at most up to the cap and is charged only for those shares; the rest of the order stays in the trader's balance. Example: $5 on `b = $0.10` at 50% buys to 99.99% and is charged $0.851720 (`b ln(0.5 / 0.0001)`). Tests: crates/lmsr `a_spend_far_above_the_liquidity_buys_to_the_cap_and_keeps_the_rest` and `property_extreme_spends_and_liquidity_never_overflow` (20,000 markets, `b` from $0.01 to $10^9, spends from 1e-9 b to 1e12 b and `i128::MAX`, release build with overflow checks); web/test/lmsr.test.ts on regenerated vectors with orders up to $10^9; lifecycle "a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing".
+- **Price cap:** `|d| <= D_CAP = ln(9999)` (9,210,240,366,976 at SCALE), so prices stay in [0.0001, 0.9999]. A buy that reaches the cap buys up to it and is charged only for what it bought. `Market::at_cap` is true when not one whole micro-share is left to buy before the cap; there `buy` panics with "the price is at its cap" and `quote_buy` says zero shares.
+- **Large buys (fixed):** a spend above about 33 times `b` used to overflow i128 inside `quote_buy` (`div(expm1(spend / b), p)`), and with `overflow-checks = true` the call panicked. Since the cap check comes first (step 2 above), any spend, up to `i128::MAX` at SCALE, buys at most up to the cap and is charged only for those shares; the rest of the order stays in the trader's balance. Example: $5 on `b = $0.10` at 50% buys to 99.99% for a cost of $0.851720 (`b ln(0.5 / 0.0001)`) and, at 1%, a fee of $0.008518 on that cost: $0.860238 in all. Tests: crates/lmsr `a_spend_far_above_the_liquidity_buys_to_the_cap_and_keeps_the_rest` and `property_extreme_spends_and_liquidity_never_overflow` (20,000 markets, `b` from $0.01 to $10^9, spends from 1e-9 b to 1e12 b and `i128::MAX`, release build with overflow checks); web/test/lmsr.test.ts on regenerated vectors with orders up to $10^9; lifecycle "a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing".
 
 ## Claims
 
@@ -94,15 +112,25 @@ The trader is `trader()`: the predecessor account, or `lane:<signer public key>`
 
 1. Not paused. A new lane identity is credited first (see the lane).
 2. The claim must not be `Settled`. Trading continues while `Challenged` and `Escalated`.
-3. `0 < amount_micro <= balance`.
-4. `quote_buy` at SCALE, then shares are floored to whole micro-shares. The charge is the exact cost of those shares, rounded up to a micro. It must not exceed `amount_micro` ("slippage"), and the shares must be at least `min_shares_micro`.
-5. The trader's balance is debited, the position grows, `collected_micro`, `trades` and `volume_micro` grow.
+3. `0 < amount_micro <= balance`. `amount_micro` is the most the buy may take, fee included.
+4. `fill_buy` at the current fee (above). Zero shares panics: "the price is at its cap" if `at_cap`, otherwise "amount too small". The shares must be at least `min_shares_micro`.
+5. The trader's balance is debited `cost + fee`. The cost goes to the claim's pot: `collected_micro` and `volume_micro` grow by it, and `trades` by one. The fee goes to the treasury (`take_fee`). The position grows. What the fill didn't use stays in the balance.
 
 `side` accepts `yes`, `YES`, `Yes`, `no`, `NO`, `No`.
 
 ### `sell(claim_id, side, shares_micro, min_proceeds_micro) -> Trade`
 
-The claim must not be `Settled`. You must hold the shares. Proceeds are `quote_sell` floored to a micro and must be at least `min_proceeds_micro`. The balance is credited. The event's `side` is `sell_yes` or `sell_no`.
+The claim must not be `Settled`. You must hold the shares. `fill_sell` at the current fee gives the proceeds and the fee, and what you receive, the proceeds less the fee, must be at least `min_proceeds_micro`. The pot pays the whole proceeds (`collected_micro` falls by them, `volume_micro` grows by them), the fee goes to the treasury, and the rest is credited. The event's `side` is `sell_yes` or `sell_no`.
+
+### The taker fee
+
+Every `buy` and `sell` pays it: on top of a buy's cost, out of a sale's proceeds. Lane keys and agents pay like anyone, and a lane key's fee comes out of its credit, so a bet of its whole $1 buys about 1% less. `redeem`, deposits and withdrawals pay no fee.
+
+- **The rate** is `fee_bps`: 100 (1%) until the owner sets another with `set_fee_bps`, at most 300 (3%, `MAX_FEE_BPS`). A new rate applies from the next trade, whatever a client was quoted, so `min_shares_micro` and `min_proceeds_micro` are what protect a trader from a change in between.
+- **Where it goes:** the treasury bucket, so the books need no new bucket and `held = treasury + reserved + balances + collected + payouts + bonds + bounties` still holds to the micro. `stats.fees_micro` is the running total, which is part of what went through the treasury, not a bucket of its own. Check "the treasury rebuilds exactly from the events, fees included".
+- **Storage:** `fee_bps` is at key `b"F"` (u16, little-endian), written by `set_fee_bps`; absent, it is the default. The total is at key `b"G"` (u128, little-endian). Both are outside the state struct, like the house agents' consent, so the state layout stayed byte for byte (`tools/judge/upgrade-testnet.mjs`).
+
+Checks: "a buy pays 1% of its cost, rounded up, on top of it and inside the order", "a sale pays 1% of its proceeds, rounded up, out of them", "the lane's credit pays the fee: the treasury lends $1 and takes the fee back", "at 300 bps a buy pays 3% of its cost", "at 0 bps nothing is taken: stats and the treasury don't move".
 
 ### `redeem(claim_id) -> U128`
 
@@ -122,7 +150,7 @@ After `Settled`. The trader's winning shares pay 1 micro-USDC per micro-share, o
 ## The lane (no-wallet bets)
 
 - Lane visitors are function-call keys on one lane account. Each key is its own trader, `lane:<public key>`.
-- **Credit:** on a lane identity's first `buy` (`credit_lane_if_new`), `lane_credit_micro` (default $1) moves from both `lane_budget_micro` and `treasury_micro` to its balance, and `credited` records it. If either can't cover it: "the judges' lane is used up for now".
+- **Credit:** on a lane identity's first `buy` (`credit_lane_if_new`), `lane_credit_micro` (default $1) moves from both `lane_budget_micro` and `treasury_micro` to its balance, and `credited` records it. If either can't cover it: "the judges' lane is used up for now". The credit pays the taker fee like any balance.
 - **The credit can never leave.** A lane identity can't `withdraw`, `challenge`, `dispute` or `fund_question` (`real_account`).
 - **`claim_lane(account) -> U128`**: signed by a lane key. It moves only the balance above that key's recorded credit to a real account (not the lane, not the market). Checks: "claim_lane moves exactly the winnings above the credit to a real account", "the credit stays behind", "nothing more can be claimed".
 - View `lane_claimable(trader)`.
@@ -216,7 +244,7 @@ Operators only. The claim must exist, the three hashes must be 64 lowercase hex 
 
 ## Inference charges: `charge_inference(agent, amount_micro, usage_hash)`
 
-Operators only, not paused. `agent` must be a swarm agent (a direct one-label sub-account of the swarm, `is_swarm_agent`: its owner consented by spawning it), or a house agent that the owner proposed **and that accepted** (below). `usage_hash` is 64 lowercase hex. It moves `amount_micro` from the agent's balance to the treasury. Checks: "an operator can't charge an ordinary trader", "charge_inference moves the agent's balance to the treasury, on-chain".
+Operators only, not paused. `agent` must be a swarm agent (`is_swarm_agent`, below: its owner consented by spawning it), or a house agent that the owner proposed **and that accepted** (below). `usage_hash` is 64 lowercase hex. It moves `amount_micro` from the agent's balance to the treasury. Checks: "an operator can't charge an ordinary trader", "charge_inference moves the agent's balance to the treasury, on-chain".
 
 ### House agents opt in
 
@@ -231,29 +259,40 @@ Chargeable means proposed and accepted. View `get_house_agent(account)` returns 
 
 The swarm's NEAR-side meter is `sweep_escrow` (below). The operator must use one meter per agent.
 
+### The swarm's name
+
+`set_swarm(swarm)` is owner only and works once. It refuses any account but `swarm.<owner>` or `swarm.<the market's parent account>`, and refuses any second call, even to the same name. The market's parent is the account after the first dot of the market's own name, and counts only if it is itself a sub-account: `market.isitpriced.near` has the parent `isitpriced.near`, but `pricedin.near` has none, because nobody in particular holds `swarm.near`. It emits `swarm`.
+
+`is_swarm_agent(account)` is true only for `<label>.<swarm>` with one non-empty label: never the swarm itself, a deeper account or a top-level account, and nobody at all while the swarm is unset, as on mainnet, where `release_agent` is refused too. A swarm stored before v3, when `set_swarm` took any account, counts only if it starts with `swarm.`.
+
+Why: on NEAR only an account can create its own sub-accounts, so everything inside `swarm.<x>` was made by that one account. Before v3, `set_swarm("near")` made every `*.near` account a swarm agent, so an operator could charge any trader's balance to the treasury and the owner could withdraw it. Checks: "set_swarm refuses the top-level account near, which would make every *.near trader chargeable", "a second set is refused, even to the other valid name", "set_swarm accepts swarm.<the market's parent account>", "a top-level account is never a swarm agent". tools/judge/upgrade-rehearsal.mjs reproduces the hole on the old bytes and shows the same state harmless on the new.
+
 ## Administration
 
 | Method | Who | What |
 |---|---|---|
-| `new(owner, usdc, lane)` | init | Defaults: $1 lane credit, $0 lane budget, $1 bond, 1 h jury, the table above, 30-day bounty TTL, $2,000 reserve cap |
+| `new(owner, usdc, lane)` | init | Defaults: $1 lane credit, $0 lane budget, $1 bond, 1 h jury, the table above, 30-day bounty TTL, $2,000 reserve cap, 100 bps taker fee |
 | `propose_owner(account)`, `accept_owner()` | owner, then the proposed account | Two-step handover. `accept_owner` emits `owner`. |
 | `set_operator(account, allowed)` | owner | |
-| `set_swarm(swarm)` | owner | Its direct sub-accounts are agents. |
+| `set_swarm(swarm)` | owner | Once, and only `swarm.<owner>` or `swarm.<the market's parent account>` (see The swarm's name). Its direct sub-accounts are agents. |
 | `set_house_agent(account, allowed)` | owner | Proposes an account as a house agent, or withdraws the proposal and its consent. Chargeable only after `accept_house_agent` (see Inference charges). |
 | `accept_house_agent()`, `leave_house_agent()` | the account itself | Consent to inference charges after a proposal; leave at any time, balance intact. |
 | `set_planner_key(key_hex)` | owner | 32-byte ed25519 key |
 | `set_limits(reserve_cap_micro, lane_budget_micro, lane_credit_micro, challenge_bond_micro)` | owner | The bond must be positive. |
+| `set_fee_bps(fee_bps)` | owner | The taker fee, 0 to 300 bps (see The taker fee). Works during a pause, as admin settings do. Emits `fee`. |
 | `set_resolution(jury_deadline_secs, dispute_tiers, dispute_top_secs, bounty_ttl_secs)` | owner | `tiers_ok`; times positive. Running windows keep their stored end. |
 | `pause(paused)` | owner | Freezes the ledger. Stops deposits (`ft_on_transfer` panics and the token returns them), `withdraw`, `withdraw_treasury`, `buy`, `sell`, `open_*`, `reopen`, `claim_lane`, `release_agent`, `charge_inference`, `fund_question`, `refund_bounty`, `challenge`, `submit_verdict`, `finalize`, `council_settle`, `expire_challenge`, `redeem` and `anchor_rewrite`. **Still runs:** `dispute`, on purpose (it only moves a balance into a bond, so a window can't run out on someone locked out of it); the callbacks `on_withdraw` and `on_treasury_withdraw`, which put back a transfer sent before the pause that failed; admin methods, the owner handover, `accept_house_agent`, `leave_house_agent` and views. So while paused no USDC leaves the contract. |
 | `register_model(model, signing_address_hex, extras_json)` | owner | Model name 1 to 128 bytes, a 32-byte key, and extras that pass `rules::extras_ok`: at most 512 bytes, valid JSON object members, and none of `model`, `messages`, `temperature`, `stream`, `n`. |
 
 ## Events
 
-Every market event is `EVENT_JSON:{"standard":"pricedin","version":"2.0.0","event":"<name>","data":[{...}]}`. Amounts are strings in micro-USDC. `trader` and `balance_micro` appear on every event that changes a balance.
+Every market event is `EVENT_JSON:{"standard":"pricedin","version":"2.1.0","event":"<name>","data":[{...}]}`. Version 2.1.0 is v3: `trade` gained `fee_micro`, its `amount_micro` now includes the fee, and `fee` and `swarm` are new. Amounts are strings in micro-USDC. `trader` and `balance_micro` appear on every event that changes a balance.
 
 | Event | Fields | Emitted by |
 |---|---|---|
 | `owner` | `owner` | `accept_owner` |
+| `fee` | `fee_bps` | `set_fee_bps` |
+| `swarm` | `swarm` | `set_swarm` |
 | `treasury` | `from`, `amount_micro` | `ft_on_transfer` (treasury deposit), `on_treasury_withdraw` (refund) |
 | `deposit` | `to`, `trader`, `amount_micro`, `balance_micro` | `ft_on_transfer` |
 | `withdraw` | `trader`, `amount_micro`, `balance_micro` | `withdraw` |
@@ -266,7 +305,7 @@ Every market event is `EVENT_JSON:{"standard":"pricedin","version":"2.0.0","even
 | `house_agent` | `account`, `proposed`, `accepted` | `set_house_agent`, `accept_house_agent`, `leave_house_agent` |
 | `open` | `claim_id`, `p0_ppm`, `b_micro`, `reserve_micro` | `open` |
 | `reopen` | `claim_id` (the new one), `prev` | `reopen` |
-| `trade` | `claim_id`, `trader`, `side` (`yes`, `no`, `sell_yes`, `sell_no`), `shares_micro`, `amount_micro`, `price_yes_ppm` (after), `balance_micro` | `buy`, `sell` |
+| `trade` | `claim_id`, `trader`, `side` (`yes`, `no`, `sell_yes`, `sell_no`), `shares_micro`, `amount_micro` (what moved in the balance: paid on a buy, received on a sale, fee included), `fee_micro`, `price_yes_ppm` (after), `balance_micro` | `buy`, `sell` |
 | `bounty` | `claim_id`, `trader`, `amount_micro`, `bounty_micro`, `expires_ns`, `balance_micro` | `fund_question` |
 | `bounty_refund` | `claim_id`, `trader`, `amount_micro`, `balance_micro` | `refund_bounty` |
 | `challenge` | `challenge_id`, `claim_id`, `claimed`, `trader`, `amount_micro`, `jury_deadline_ns`, `balance_micro` | `challenge` |
@@ -283,7 +322,7 @@ Every market event is `EVENT_JSON:{"standard":"pricedin","version":"2.0.0","even
 | `redeem` | `claim_id`, `trader`, `side`, `shares_micro`, `amount_micro`, `balance_micro` | `redeem` |
 | `rewrite` | `claim_id`, `version`, `prices_hash`, `request_hash`, `response_hash`, `signature`, `model` | `anchor_rewrite` |
 
-Real logs from testnet (read with `EXPERIMENTAL_tx_status`):
+Real logs from testnet, from before v3 (read with `EXPERIMENTAL_tx_status`):
 
 ```
 tx 55GJAbUYwxgHXtDA4JRQpcTgUzUP3AsaUArNYiqLfuiK (the seeded lane bet)
@@ -297,8 +336,10 @@ EVENT_JSON:{"standard":"pricedin","version":"2.0.0","event":"trade","data":[{"cl
 
 | View | Returns |
 |---|---|
-| `get_claim(claim_id)` | `ClaimView`: `id`, `text`, `page`, `kind`, `price_yes_ppm`, `cost_up_10_micro`, `cost_down_10_micro`, `status`, `outcome`, `provisional`, `trades`, `volume_micro`, `open_interest_micro`, `collected_micro`, `payout_left_micro`, `challenge_id`, `prev`, `next`, `bounty_micro`. It has no `b` or `q`; clients infer `b` from the cost-to-move figures. |
+| `get_claim(claim_id)` | `ClaimView`: `id`, `text`, `page`, `kind`, `price_yes_ppm`, `cost_up_10_micro`, `cost_down_10_micro`, `status`, `outcome`, `provisional`, `trades`, `volume_micro`, `open_interest_micro`, `collected_micro`, `payout_left_micro`, `challenge_id`, `prev`, `next`, `bounty_micro`, and the market itself: `b_micro`, `d0` (opening log-odds at SCALE), `q_yes_micro`, `q_no_micro`, `fee_bps`. `b` and `q` are whole micros as stored, so `lmsr.ts` `marketFromClaim` rebuilds the exact market and quotes the fill to the micro. |
 | `get_claims(from, limit)` | Up to 100 `ClaimView`s |
+| `quote_buy(claim_id, side, amount_micro)` | What `buy` would fill now, by the same `fill_buy`: `claim_id`, `side`, `shares_micro`, `amount_micro` (what it would take from the balance), `fee_micro`, `fee_bps`, `price_yes_ppm_before`, `price_yes_ppm_after`. Zero shares means the buy would be refused. It reads no balance. Panics on a settled claim. |
+| `quote_sell(claim_id, side, shares_micro)` | What `sell` would credit now, after the fee, by the same `fill_sell`, in the same fields. It reads no position, and panics above the shares outstanding. |
 | `get_balance(trader)` | micro-USDC |
 | `get_position(claim_id, trader)` | `yes_micro`, `no_micro` |
 | `get_challenge(challenge_id)` | The `Challenge`, with verdicts and stakes. `None` after `expire_challenge`. |
@@ -309,9 +350,9 @@ EVENT_JSON:{"standard":"pricedin","version":"2.0.0","event":"trade","data":[{"cl
 | `lane_claimable(trader)` | Balance above the credit |
 | `get_house_agent(account)` | `proposed`, `accepted`, `chargeable` |
 | `get_resolution()` | Bond, jury deadline, tiers, top window, bounty TTL, swarm |
-| `stats()` | `claims`, `challenges`, `treasury_micro`, `reserved_micro`, `lane_budget_micro`, `lane_credit_micro`, `paused`, `held_micro`, `balances_micro`, `collected_micro`, `payouts_micro`, `bonds_micro`, `bounties_micro`, `rewrites_anchored` |
+| `stats()` | `claims`, `challenges`, `treasury_micro`, `reserved_micro`, `lane_budget_micro`, `lane_credit_micro`, `paused`, `held_micro`, `balances_micro`, `collected_micro`, `payouts_micro`, `bonds_micro`, `bounties_micro`, `rewrites_anchored`, `fee_bps`, `fees_micro` (every fee taken since v3) |
 
-**Cost to move** (`cost_to_move`, in `get_claim`): the cost of the shares that move `d` to `logit(p +/- 0.10)`. It is 0 when the target is within 0.001 of 0 or 1.
+**Cost to move** (`cost_to_move`, in `get_claim`): the cost of the shares that move `d` to `logit(p +/- 0.10)`. It is 0 when the target is within 0.001 of 0 or 1. It is the pot's cost, without the taker fee.
 
 ## The swarm (`contracts/swarm/src/lib.rs`)
 

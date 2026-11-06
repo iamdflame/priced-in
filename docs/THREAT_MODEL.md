@@ -1,6 +1,6 @@
 # Threat model
 
-For each threat: the attack, the defence in code, and what is left. "Residual" is the honest part: what the defence does not stop. Function names are in `contracts/market/src/lib.rs` unless another file is named. Quoted check names are from `contracts/market/test/lifecycle.mjs` (141 of 141 on testnet, `.apex/streams/contracts-result.md`).
+For each threat: the attack, the defence in code, and what is left. "Residual" is the honest part: what the defence does not stop. Function names are in `contracts/market/src/lib.rs` unless another file is named. Quoted check names are from `contracts/market/test/lifecycle.mjs` (238 of 238 on testnet, `.apex/streams/contract-v3-result.md`).
 
 What a user must trust today, in short, is in [TRUST.md](TRUST.md).
 
@@ -58,7 +58,7 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 
 **What the operator key can touch.**
 - `open_claim`: opens markets, each moving a reserve from the treasury to `reserved_micro`, up to `reserve_cap_micro` (default $2,000).
-- `charge_inference`: moves a swarm agent's market balance, or that of a house agent that accepted (`accept_house_agent`), to the treasury, any amount up to that balance, with any well-formed `usage_hash`.
+- `charge_inference`: moves a swarm agent's market balance, or that of a house agent that accepted (`accept_house_agent`), to the treasury, any amount up to that balance, with any well-formed `usage_hash`. A swarm agent is a direct sub-account of the swarm, and which account is the swarm is fixed by threat 11.
 - `anchor_rewrite`: emits events. It needs a valid model signature.
 - `sweep_escrow` (swarm): sends any agent's NEAR escrow, up to all of it, to the owner-set treasury account.
 
@@ -67,7 +67,7 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 **Residual.**
 - The contract does not check that a charge matches real usage. The defence is public: every bill's usage record is served at `GET /ai/usage/<hash>` and its hash is in the `charge` or `sweep` event (`services/ai/src/billing.js`). An agent owner can audit, but not block, an over-charge.
 - Opening many markets can lock the treasury into reserves up to the cap. A claim that never settles keeps its reserve: there is no path to close an unsettled claim.
-- An account that accepted being a house agent can be charged any amount up to its balance until it leaves; it should hold only what it means to spend on inference. Leaving is one call, works during a pause, and leaves the balance intact. Before 2026-11-05 the owner alone could make any account chargeable (`set_house_agent`); that is fixed in code ([SPEC.md](SPEC.md), House agents opt in), and the persistent testnet market keeps the old rule until it is upgraded (`tools/judge/upgrade-testnet.mjs`). It has no house agents (`view_state` prefix `a` is empty, read 2026-11-05).
+- An account that accepted being a house agent can be charged any amount up to its balance until it leaves; it should hold only what it means to spend on inference. Leaving is one call, works during a pause, and leaves the balance intact. Before 2026-11-05 the owner alone could make any account chargeable (`set_house_agent`); that is fixed in code ([SPEC.md](SPEC.md), House agents opt in), and it is live on testnet and mainnet.
 
 ## 5. Subsidy farming and receipt replay
 
@@ -90,11 +90,11 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 
 **Defence.**
 - The contract budget is the hard limit: a credit needs both `lane_budget_micro` and `treasury_micro` (`credit_lane_if_new`). On testnet the budget is $20, of which $19 is left (`stats`, read 2026-11-05).
-- The credit never leaves. Lane identities can't `withdraw`, `challenge`, `dispute` or `fund_question` (`real_account`). `claim_lane` moves only winnings above the credit (checks "a lane key can't withdraw", "the credit stays behind").
-- Each key is a function-call key limited to five market methods with a 0.25 NEAR allowance (`services/api/src/lane.mjs`).
-- The API limits keys to 3 per address per day (`LANE_KEYS_PER_IP_PER_DAY`, IPv6 bucketed by /64) and a global daily cap (`LANE_KEYS_PER_DAY`), and stops issuing keys before any NEAR is spent when the contract has no credit left (`lane_used_up`).
+- The credit never leaves. Lane identities can't `withdraw`, `challenge`, `dispute` or `fund_question` (`real_account`). `claim_lane` moves only winnings above the credit (checks "a lane key can't withdraw", "the credit stays behind"), and the API no longer gives lane keys that method at all.
+- Each key is a function-call key limited to four market methods, `buy`, `sell`, `open_and_buy` and `redeem`, with a 0.25 NEAR allowance (`services/api/src/config.mjs`, `lane.methods`).
+- The API limits keys to 10 per address per day (`LANE_KEYS_PER_IP_PER_DAY`, IPv6 bucketed by /64) and a global daily cap (`LANE_KEYS_PER_DAY`), and stops issuing keys before any NEAR is spent when the contract has no credit left (`lane_used_up`).
 
-**Residual.** Many addresses can use up the budget; then the lane says so and stops. Each issued key can spend up to 0.25 NEAR of the lane account's gas. A key issued but never used holds a credit slot in the API for 24 hours (`.apex/streams/api-result.md`). Lane credits that win become real money through `claim_lane`, which is the point.
+**Residual.** Many addresses can use up the budget; then the lane says so and stops. Each issued key can spend up to 0.25 NEAR of the lane account's gas. A key issued but never used holds a credit slot in the API for 24 hours (`.apex/streams/api-result.md`). A lane key's winnings stay in the market as score: the API's keys can't call `claim_lane`, so free credit never becomes money that leaves. The contract still has the method, for a key that holds it.
 
 ## 7. A whale stretches the dispute window
 
@@ -137,6 +137,37 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 - `open_and_buy` always calls `buy` with `min_shares_micro = 0`, and the web's one-tap doubt also sends 0 (`.apex/streams/webcore-result.md`, Known limits). Those trades accept any price.
 - Trading continues while a claim is `Challenged` or `Escalated`. A relayer who holds a signed verdict, or anyone who reads the `verdict` event first, can trade before others react. The market maker's subsidy pays for that.
 
+## 11. The owner names a swarm that isn't one
+
+**The hole, found and fixed.** Before v3, `set_swarm` took any account, and `is_swarm_agent` counted any one-label sub-account of it. `set_swarm("near")` therefore made every `*.near` account a swarm agent, with no consent asked. An operator could then `charge_inference` any such trader's whole balance to the treasury, and the owner could withdraw it. `tools/judge/upgrade-rehearsal.mjs` reproduces this on the old bytes: `set_swarm("testnet")` makes `alice.testnet` chargeable. Mainnet never set a swarm, so nothing was exposed there.
+
+**Defence.**
+- `set_swarm` refuses every account but `swarm.<owner>` or `swarm.<the market's parent account>`, and the parent counts only if it is itself a sub-account. On NEAR only an account can create its own sub-accounts, so all of `swarm.<x>` was created by that one account, and no ordinary trader's account can be inside it. Checks "set_swarm refuses the top-level account near, which would make every *.near trader chargeable", "set_swarm refuses an ordinary trader", "set_swarm refuses swarm under a top-level account", "set_swarm accepts swarm.<the market's parent account>".
+- It is set once. A second call is refused even with the same name, so a swarm can't be swapped out after people have traded under it. Checks "a second set is refused, even to the same name", "a second set is refused, even to the other valid name".
+- `is_swarm_agent` is true only for `<label>.<swarm>` with one non-empty label: never the swarm itself, a deeper account, a look-alike or a top-level account. Checks "the swarm itself is never a swarm agent", "a sub-account of an agent is never a swarm agent", "a name that only ends like the swarm is never a swarm agent", "a top-level account is never a swarm agent".
+- A swarm stored before v3 counts only if it starts with `swarm.`, so a bad name set by the old code makes nobody an agent after the upgrade. The rehearsal shows this on the very state the old code left.
+- Unset, as on mainnet, nobody is a swarm agent and `release_agent` is refused. Checks "with the swarm unset nobody is a swarm agent, as on mainnet", "with the swarm unset an operator can't charge an agent".
+
+**Residual.**
+- **All of this binds the code, not the key.** While the market account holds a full-access key (it does today, on testnet and on mainnet, which is how a market is upgraded in place), that key can replace the contract and with it every rule here: the swarm rule, its immutability and the fee cap. These rules bind the deployed code until `scripts/deploy.mjs --lock` removes the key ([TRUST.md](TRUST.md), section 1).
+- The contract checks the name, not what runs there. The holder of `swarm.<x>` could deploy other code or create sub-accounts by hand. Those accounts are the holder's own, so no stranger's money is reachable, but `release_agent` trusts that account for its agents' balances. On testnet the swarm's code is the reproducible build (judge check 3). On mainnet there is no swarm.
+- A swarm is named once, so a wrong name, or one stored bad before v3, can't be corrected without replacing the code. It fails safe: no agents.
+- `swarm.<owner>` stays valid after `accept_owner` hands the market over, and it stays in the old owner's namespace. A deployment that means to change owners should name `swarm.<the market's parent>`, as ours does.
+
+## 12. The taker fee
+
+**Attack.** The owner raises the fee to skim traders, or moves it just before a large trade. Or the fee is used to drain or unbalance the books.
+
+**Defence.**
+- `set_fee_bps` is owner only and refuses anything above 300 bps (3%). Check "the fee can't pass its 300 bps cap". Every change emits `fee`, and `get_claim`, `stats` and the quote views show the rate in force.
+- `buy` never takes more than `amount_micro`, fee included, and `sell`'s `min_proceeds_micro` is after the fee, so `min_shares_micro` and `min_proceeds_micro` bound a fill whatever the rate became. Checks "min_proceeds bounds what the seller receives, after the fee", "min_shares bounds the shares a buy gets after the fee".
+- The fee sits outside the LMSR. It goes to the treasury, never into a claim's pot, so the pot still covers its payout and the subsidy bound `b ln(1/p0)` is untouched. Checks "the buy's fee is booked to the treasury and its cost to the claim's pot", "the treasury rebuilds exactly from the events, fees included", and `books close` at every stage.
+
+**Residual.**
+- `open_and_buy` and the web's one-tap bet send `min_shares_micro = 0` (threat 10), so a fee raised while they are in flight applies to them in full, up to 3%.
+- The fee is the owner's income, and the owner sets it: fees reach the owner through `withdraw_treasury`.
+- **Fee-blind clients.** `services/api/src/credence.mjs` (the truth API and the MCP `bet`) quotes without the fee and sets `min_shares_micro` 1% under that quote. Measured at 100 bps on $0.10 to $5 orders, $1.45 and $3 of liquidity: the fill clears that floor by only 0.04% to 0.17%, so a small price move refuses the bet. From 150 bps every such bet is refused. It fails safe, as a refusal, and goes away once those clients quote with `fee_bps`. Agents (`services/ai/src/agents.js`) keep 2% and are fine at 100 bps.
+
 ## Other limits found by the streams
 
 These are copied from each stream's own result file in `.apex/streams/`, and checked against the code where noted.
@@ -150,7 +181,7 @@ These are copied from each stream's own result file in `.apex/streams/`, and che
 - v2 changed the state layout; there is no migration from v1. Nothing of v1 is on mainnet.
 - About 1.5 NEAR is locked for good in testnet agent accounts from runs before `delete_agent` existed.
 
-**Found while writing this file, fixed on 2026-11-05** (`.apex/streams/harden-result.md`; the persistent testnet market runs v2 until `tools/judge/upgrade-testnet.mjs` upgrades it)
+**Found while writing this file, fixed on 2026-11-05** (`.apex/streams/harden-result.md`; live on testnet and mainnet)
 - `pause` did not stop `withdraw_treasury` or `council_settle`. Now a pause freezes the ledger: no USDC leaves, the owner's included, nothing settles, and deposits are returned; only `dispute` (into a bond) and the refund callbacks of earlier transfers run ([SPEC.md](SPEC.md), Administration). Checks "a pause holds the owner's treasury withdrawal too", "a pause holds the council's settlement too", "a deposit during a pause is refused and returned by the token".
 - A large buy (about 33 times `b`) panicked on i128 overflow. Now `quote_buy` checks the cap first and buys up to it; the rest is never charged ([SPEC.md](SPEC.md), price cap). Property test over `b` up to $10^9 and spends up to `i128::MAX`.
 - The owner alone could make any account chargeable (`set_house_agent`). Now the account must accept and can leave (threat 4).
@@ -172,7 +203,7 @@ These are copied from each stream's own result file in `.apex/streams/`, and che
 **Truth API and MCP** (`truthapi-result.md`)
 - A match is not entailment: "Does Tether issue USDT on NEAR?" matches a sentence listing 13 chains, and its price is for the whole list.
 - Matching is lexical; paraphrases with no shared word do not match.
-- The quote is an estimate on the public view (no `b` or `q` in `ClaimView`); the 1% floor guards the difference.
+- The quote is an estimate on the public view that leaves out the taker fee. `ClaimView` has carried `b`, `d0` and `q` since v3 and the contract has `quote_buy`, so it can become exact; until it does, the 1% floor has little room left (threat 12).
 - x402 accepts only the test USDC on testnet. The payer needs a full-access key. Settlement takes 7 to 8 s.
 - In HTTP mode, `bet` uses the key of whoever runs the server. A shared server must pass `allowBet:false` (no CLI flag yet).
 
