@@ -45,6 +45,7 @@
 .m-amt .cur { font: 700 30px/1 var(--disp); color: var(--ink3); }
 .m-amt input { flex: 1; min-width: 0; border: 0; background: none; outline: 0; font: 700 30px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); font-feature-settings: 'tnum'; }
 .m-amt input::placeholder { color: var(--ink3); }
+.m-field .m-amt input, .m-field .m-amt input:focus { height: auto; padding: 0; border-radius: 0; background: none; box-shadow: none; }
 .m-amt .side { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; font-size: 12.5px; color: var(--ink3); text-align: right; }
 .m-amt .side button { font-weight: 600; color: var(--brand-text); min-height: 28px; padding: 0 2px; }
 .m-presets { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -230,7 +231,7 @@
   .pf-stats { grid-template-columns: 1fr 1fr; gap: 8px; }
   .pf-stat { padding: 14px; }
   .pf-stat .v { font-size: 26px; }
-  .pf-stat.lead { grid-column: 1 / -1; }
+  .pf-stat.lead, .pf-stat:nth-child(4):last-child { grid-column: 1 / -1; }
   .pf-row { grid-template-columns: 52px minmax(0, 1fr); gap: 12px; padding: 12px; }
   .pf-row .art { width: 52px; height: 52px; border-radius: 12px; }
   .pf-row .acts4 { grid-column: 1 / -1; justify-content: stretch; }

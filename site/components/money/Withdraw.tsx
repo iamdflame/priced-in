@@ -166,7 +166,7 @@ function ToChain() {
         {destBad ? <p className="bad" role="alert">{destBad}</p> : <p className="hint">Check it twice: a transfer to the wrong address can’t be undone.</p>}
       </div>
       <AmountInput label="Amount" value={amt} onChange={setAmt} invalid={refusal} max={balance && balance > 0n ? fmtMicro(balance) : null} onMax={() => { if (balance) setAmt(microToInput(balance)); }} />
-      {preview ? <div className="m-get"><span className="k">{route?.symbol} arriving on {route?.chainName}<small>at least {preview.minAmountOut && route ? (Number(preview.minAmountOut) / 10 ** route.decimals).toFixed(2) : "…"} · about {preview.timeEstimate} s</small></span><span className="v">{Number(preview.amountOutFormatted).toFixed(2)}</span></div> : request && !failure ? <Loading>Getting a quote…</Loading> : null}
+      {preview ? <div className="m-get"><span className="k">{route?.symbol} arriving on {route?.chainName}<small>at least {preview.minAmountOut && route ? (Number(preview.minAmountOut) / 10 ** route.decimals).toFixed(2) : "…"} · about {preview.timeEstimate} s</small></span><span className="v ink">{Number(preview.amountOutFormatted).toFixed(2)} {route?.symbol}</span></div> : request && !failure ? <Loading>Getting a quote…</Loading> : null}
       {failure ? <div className="notice err" role="alert"><Icon name="alert" /><p>{failure}</p></div> : null}
       {plan ? <ApproveBox txs={plan.txs} /> : null}
       {st.phase === "failed" ? <Failed state={st} /> : null}

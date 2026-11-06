@@ -131,6 +131,7 @@ function Buy({ claim, initialSide, onBusy, onLanded }: { claim: ClaimView; initi
             <div className="kv"><span>Your bet moves it to</span><b>{pct(good.priceAfter)} chance it’s true</b></div>
             <div className="kv"><span>Fee ({good.feeBps / 100}%, included)</span><b>{fmtMicro(good.feeMicro)}</b></div>
           </div>
+          {Math.abs(good.priceAfter - good.priceBefore) >= 0.15 ? <p className="fine">Few people have bet on this yet, so your bet moves the chance a lot, and each share costs more as it does. A smaller bet gets a better price.</p> : null}
           <Slippage bps={slip} onChange={setSlip} />
         </>
       ) : null}

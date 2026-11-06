@@ -178,7 +178,7 @@ function Wallet({ account, facts }: { account: string; facts: FactMap }) {
     <section aria-labelledby="pf-wallet">
       <div className="pf-sec"><h2 id="pf-wallet"><Icon name="wallet" />Your wallet</h2><span className="n">{account}</span></div>
       <div className="pf-stats">
-        <Stat k="Priced In balance" v={acct.balanceMicro === null ? "…" : fmtMicro(acct.balanceMicro)} lead>
+        <Stat k="Priced In balance" v={acct.balanceMicro === null ? "…" : fmtMicro(acct.balanceMicro)} s={acct.usdcMicro ? `Plus ${fmtMicro(acct.usdcMicro)} USDC in your NEAR wallet` : undefined} lead>
           <div className="acts3">
             {canAddMoney(geo.access) ? <button type="button" className="btn primary" data-testid="pf-deposit" onClick={() => openSheet({ kind: "deposit" })}>Deposit</button> : null}
             {canTakeOut(geo.access) ? <button type="button" className="btn soft" data-testid="pf-withdraw" onClick={() => openSheet({ kind: "withdraw" })}>Withdraw</button> : null}
@@ -186,7 +186,7 @@ function Wallet({ account, facts }: { account: string; facts: FactMap }) {
         </Stat>
         <Stat k="Open bets are worth" v={money(value)} s={`${g.open.length} open`} />
         <Stat k="Profit or loss" v={signed(pnl)} sTone={tone(pnl)} s="all time" />
-        <Stat k="Ready to collect" v={money(collectUsd)} s={acct.usdcMicro ? `${fmtMicro(acct.usdcMicro)} USDC in your NEAR wallet` : undefined} />
+        <Stat k="Ready to collect" v={money(collectUsd)} s={g.collect.length ? `from ${g.collect.length} decided bet${g.collect.length > 1 ? "s" : ""}` : "nothing yet"} />
       </div>
       <div className="pf-note"><GeoLine /></div>
       {failed ? <div className="notice err" role="alert"><Icon name="alert" /><p>We couldn’t load your positions. Your money is safe on NEAR. <button type="button" className="linkbtn" onClick={retry}>Try again</button></p></div> : null}

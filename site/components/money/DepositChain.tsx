@@ -102,7 +102,7 @@ export function FromChain() {
         {refundBad ? <p className="bad">{refundBad}</p> : <p className="hint">If the swap can’t complete, it goes back here. Left empty, a refund goes to your NEAR account inside NEAR Intents.</p>}
       </div>
       {preview ? (
-        <div className="m-get"><span className="k">USDC arriving in your NEAR wallet<small>at least {fmtMicro(BigInt(preview.minAmountOut))} · about {seconds(preview.timeEstimate)} after your deposit confirms</small></span><span className="v">{fmtMicro(BigInt(preview.amountOut))}</span></div>
+        <div className="m-get"><span className="k">USDC arriving in your NEAR wallet<small>at least {fmtMicro(BigInt(preview.minAmountOut))} · about {seconds(preview.timeEstimate)} after your deposit confirms</small></span><span className="v ink">{fmtMicro(BigInt(preview.amountOut))}</span></div>
       ) : request && !failure ? <Loading>Getting a quote…</Loading> : null}
       {failure ? <div className="notice err" role="alert"><Icon name="alert" /><p>{failure}</p></div> : null}
       <button type="button" className="btn primary lg full" disabled={!preview || busy} onClick={start} data-testid="bridge-start">
@@ -164,7 +164,7 @@ function Tracker({ p, route, onNew }: { p: PendingBridge; route: BridgeRoute | n
       {error ? <p className="fine">We couldn’t check the status just now. Still trying.</p> : null}
       {status === "SUCCESS" ? (
         <>
-          <div className="m-get"><span className="k">Arrived in your NEAR wallet</span><span className="v">{fmtMicro(arrived)}</span></div>
+          <div className="m-get"><span className="k">Arrived in your NEAR wallet</span><span className="v ink">{fmtMicro(arrived)}</span></div>
           {acct.usdcMicro === null || acct.usdcMicro === 0n
             ? <Loading>Waiting for the USDC to show in your wallet…</Loading>
             : <MoveIn amount={acct.usdcMicro < arrived ? acct.usdcMicro : arrived} onDone={() => { finish(); setMoved(true); }} />}
