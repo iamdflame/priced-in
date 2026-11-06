@@ -18,6 +18,9 @@ test("home → market → free bet → receipt", async ({ page }) => {
   await expect(score).toContainText("can’t be cashed out");
   await expect(score).toContainText("so a small market pays a little less than the odds alone.");
   await page.keyboard.press("Escape");
+  // the lead and the cards say where each claim comes from, and link to its market
+  await expect(page.locator(".feature a.fromwiki")).toContainText(/^From Wikipedia: \S/);
+  await expect(page.locator(".grid .card a.fromwiki").first()).toHaveAttribute("href", /^\/c\/\d+$/);
   // no key is asked for on a page view
   expect(g.laneKeys).toBe(0);
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { BetLinks } from "../Bet";
 import { TopicIcon } from "../Brand";
+import { FromWikipedia } from "../FactCard";
 import { Spark } from "../Chart";
 import { Dial } from "../Dial";
 import { WhyEstimate, WrongExplain } from "../Explain";
@@ -28,7 +29,10 @@ export function Feature({ f, points, bets, freeOpen }: { f: Fact; points: [numbe
           {f.caught && <span className="chip warn"><Icon name="flag" />A newer source disagrees<WrongExplain caught={f.caught} /></span>}
         </div>
         <div className="fhd">
-          <h2 id="lead-q"><Link href={`/c/${f.id}`}>{f.question}</Link></h2>
+          <div>
+            <h2 id="lead-q"><Link href={`/c/${f.id}`}>{f.question}</Link></h2>
+            <FromWikipedia f={f} />
+          </div>
           <div className="feature-dial phone"><Dial p={f.price} sizes="96px" /><p className="mini">chance it’s true</p></div>
         </div>
         {f.caught?.line && <p className="ev hide-phone"><Icon name="flag" /><span>A newer source says {f.caught.line}.</span></p>}

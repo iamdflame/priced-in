@@ -12,6 +12,11 @@ import { money, plural } from "@/lib/format";
 import { priceWords, type Fact } from "@/lib/model";
 import { payoutWords } from "@/lib/quote";
 
+/** Where the claim comes from: one quiet line under the question, so a reader knows what Yes is about. */
+export function FromWikipedia({ f }: { f: Fact }) {
+  return <Link className="link fromwiki" href={`/c/${f.id}`} prefetch={false}>From Wikipedia: {f.article}</Link>;
+}
+
 /** The % and what it means, with the one-tap "?" when nobody has bet yet. */
 export function PctBlock({ f, reopened = false }: { f: Fact; reopened?: boolean }) {
   const w = priceWords(f, reopened);
@@ -59,6 +64,7 @@ export function FactCard({ f, points, reopened = false, eager = false }: {
       </Link>
       <div className="cbody">
         <Link className="q" id={`q${f.id}`} href={href} prefetch={false}>{f.question}</Link>
+        <FromWikipedia f={f} />
         <div className="odds"><PctBlock f={f} reopened={reopened} />{spark}</div>
         {f.caught?.line && !settled && (
           <p className="ev"><Icon name="flag" /><span><b>A newer source disagrees:</b> {f.caught.line}.</span></p>
