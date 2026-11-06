@@ -66,6 +66,8 @@ if (MAIN) Object.assign(plain, {
   // each house agent holds $2.50 of real USDC: at most $0.75 of bets a day, $1 of losses
   SIGNER_DAILY_SPEND_MICRO: "750000",
   AGENT_DAILY_LOSS_USD: "1",
+  // the market's taker fee (v3): an agent's edge must beat it; before the upgrade this only asks a little more edge
+  AGENT_FEE_POINTS: "0.01",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
 });
