@@ -1,0 +1,238 @@
+{
+ "note": "Card titles: short Yes/No questions written by the planner model (NEAR AI Cloud) from the exact priced sentence, checked for length and kept numbers, then reviewed. The market prices the sentence itself, shown under the question.",
+ "questions": {
+  "3b4b83f35c09340b2b625027041638b67804300df8695e70dd1b23f781069a8e": {
+   "q": "Is Tether represented by the codes USD₮ and USDT?",
+   "page": "tether",
+   "source": "claim 0",
+   "sentence": "It is represented by its currency codes USD₮ and USDT.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06",
+   "reviewed": "hand-edited 2026-11-06"
+  },
+  "50ca0f1a9e5caaa8c73b4a6a74e0226b073bb8f1e998b361929649bb9326fd20": {
+   "q": "Is Tether the issuer of USDT, the world's largest stablecoin by market cap?",
+   "page": "tether",
+   "source": "claim 1",
+   "sentence": "Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "a02f10d1dd713356557aeec4d9241bb03382b288ed8e83ae6063edaf8668f87f": {
+   "q": "As of July 2024, does Tether have more than 350 million users worldwide?",
+   "page": "tether",
+   "source": "claim 2",
+   "sentence": "As of July 2024, Tether has more than 350 million users worldwide.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "936346784559e2c605ef9c5d12154e2613da9b54dfd5e77a67f26c70a59c1d72": {
+   "q": "Is Tether Limited owned by iFinex, based in the British Virgin Islands?",
+   "page": "tether",
+   "source": "claim 3",
+   "sentence": "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "da4fbd36d767132df23cbf62ad6748b8c281f351714d0d6e20407bb79c4386f3": {
+   "q": "Is Tether Holdings Limited headquartered in El Salvador as of January 2025?",
+   "page": "tether",
+   "source": "claim 4",
+   "sentence": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "8ce9d09862116e43b680f4413649a4f5cc34cf15d9a5f2535d4475d6d4730adf": {
+   "q": "Is Tether Limited fully owned by Tether Holdings Limited?",
+   "page": "tether",
+   "source": "claim 5",
+   "sentence": "Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06",
+   "reviewed": "hand-edited 2026-11-06"
+  },
+  "0d552396f66b6ec429cd52d65de84c6b506d6f425d9b14dc64fae85df44b4592": {
+   "q": "Does Tether issue tokens on Algorand, Avalanche, Celo, Ethereum, EOS and others?",
+   "page": "tether",
+   "source": "tether-0030",
+   "sentence": "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "1b94113a01a8b689ac074a59b515f0e651d29a71030e5238ea2a2361f678aac4": {
+   "q": "As of July 2021, is Tether tied to half of all bitcoin trades?",
+   "page": "tether",
+   "source": "claim 8",
+   "sentence": "As of July 2021, Tether is tied to half of all bitcoin trades.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "af1051bb4d3092c46d8c282d2f42433391e32c4a90fcbc91c113ea772f9f2217": {
+   "q": "By September 2024, had the T3 unit frozen about $12 million in USDT?",
+   "page": "tether",
+   "source": "claim 9",
+   "sentence": "As of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "5c9cbf9e33b652c2e9e14f005b18114a780b2851eb2f6771c36591758017a782": {
+   "q": "Is Anchorage Digital Bank the issuer of Tether's U.S.-focused stablecoin, USAT?",
+   "page": "tether",
+   "source": "claim 11",
+   "sentence": "Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "f4bd1c6c49da8828ccd69738dc6ffc783cb838fcfbbdb19beae67028a3536603": {
+   "q": "Does each XAU₮ token purport to represent one troy fine ounce of gold?",
+   "page": "tether",
+   "source": "claim 13",
+   "sentence": "Each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "efce471e830a423f2905a6a4186efb5c4acfce5f17bbf30f7163e78ee1dd1958": {
+   "q": "Is Tether Gold (XAU₮) issued on both Ethereum and Tron?",
+   "page": "tether",
+   "source": "claim 14",
+   "sentence": "They are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06",
+   "reviewed": "hand-edited 2026-11-06"
+  },
+  "6fc3933aa74d55dff6b11f95849a8b935a4a6c7124a748e8cd5dcf9719c32b8b": {
+   "q": "Can Tether be newly issued by purchase for dollars, excluding U.S. customers?",
+   "page": "tether",
+   "source": "claim 15",
+   "sentence": "According to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "65597e4450ccb77b2ecb3682b825d96335b33e9672f6cb86e8f3127102a01b3f": {
+   "q": "Does Tether claim its tokens are backed 100% by reserve assets?",
+   "page": "tether",
+   "source": "claim 16",
+   "sentence": "Tether claims its tokens are backed 100% by reserve assets, but has faced scrutiny for failing to publish an external audit.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "ade178748479711c14e963c1cbf5a06fe510bc85406bb92e4f937fcc76e2fa39": {
+   "q": "Has Tether failed to publicly present audits backing USDT one-to-one?",
+   "page": "tether",
+   "source": "claim 17",
+   "sentence": "Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "c82906599d36d4cceafb301e74a0e0e2de42a8f8cf0aa79dd7b4075d3fde79d6": {
+   "q": "Are most of Tether's cash reserves U.S. T-Bills, accounting for $72.6 billion?",
+   "page": "tether",
+   "source": "tether-0161",
+   "sentence": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "97981c7404300a733fd424c65717796b28a202b97e5f9338da65cb0e5fee94f0": {
+   "q": "If Tether were a country, would it be the 18th largest holder of U.S. debt?",
+   "page": "tether",
+   "source": "claim 19",
+   "sentence": "If Tether were a country, it would be the 18th largest holder of U.S. debt among nations.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "81a12b60fbd03773038c13fb19ed9e5f3af54599a7f7fd672c91137385cb4bdf": {
+   "q": "Did Ethereum average about 25 transactions per second as of January 2016?",
+   "page": "ethereum",
+   "source": "ethereum-0172",
+   "sentence": "As of January 2016, the Ethereum averaged about 25 transactions per second; this did not change after the move to proof-of-stake.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "dc470bda3f25f392d8f6b38531543c6859cf4f0f7c6a9fff99b1aa351dcdbbec": {
+   "q": "Is UNI's total supply capped?",
+   "page": "uniswap",
+   "source": "uniswap-0035",
+   "sentence": "Its total supply is capped, with a scheduled release over several years to support ongoing development and ecosystem growth.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06",
+   "reviewed": "hand-edited 2026-11-06"
+  },
+  "b938f0d1a0f8d6b5f574950048cb86fba3ad2f093e0cbf23886a1eb75c7baae0": {
+   "q": "As of November 2026, had Tether never completed an audit by an accounting firm?",
+   "page": "stablecoin",
+   "source": "stablecoin-0085",
+   "sentence": "As of November 2026, Tether has still never once completed an audit by an accounting firm.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "799f835a6b9489aa6bfdd9c2e7578bd1442f44607d5e54db0d24d5686c9bcf20": {
+   "q": "Is Polymarket a decentralized prediction market on the Polygon Chain using USDC?",
+   "page": "prediction-market",
+   "source": "prediction-market-0215",
+   "sentence": "Polymarket is a decentralized prediction market built on the Polygon Chain that uses the USDC stablecoin.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "aa0a551503025a08f51f67ec0c1c8e9f6d7c1227625256df7d27d8d643e52b82": {
+   "q": "Is Kalshi available only for U.S. residents?",
+   "page": "prediction-market",
+   "source": "prediction-market-0211",
+   "sentence": "Kalshi, is a U.S. CFTC-regulated betting market and available only for U.S. residents.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "d64f88414e7ff0303882581a58d2e43330dc258765880d3a21a2bfa5fe8cb6af": {
+   "q": "Is Ontario the only Canadian province where Polymarket is banned?",
+   "page": "prediction-market",
+   "source": "prediction-market-0186",
+   "sentence": "However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06",
+   "reviewed": "hand-edited 2026-11-06"
+  },
+  "043dbc84feef486c8877de439e1f8e5795a4f55db17c328581318401d77b9d5b": {
+   "q": "Is DAI maintained and regulated by MakerDAO?",
+   "page": "dai",
+   "source": "dai-0002",
+   "sentence": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.",
+   "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "at": "2026-11-06"
+  },
+  "9d89359456a343f148a0b79ce6214877dc8c2d6afc073a43fce95ed5535b955d": {
+   "q": "Are there exactly five distinct Tether tokens?",
+   "page": "tether",
+   "source": "claim 7",
+   "sentence": "There are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "9232f532f71d87875319e132aba1d7d4cdce7a0bd94ac6b42cebfa1c84b36938": {
+   "q": "Is Cantor Fitzgerald Tether's reserve custodian and primary dealer?",
+   "page": "tether",
+   "source": "claim 10",
+   "sentence": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "9ffbd419eab22c2420f0e0c44841544a7ae287a8c7fd4f1cf5c73f799b9f3c6e": {
+   "q": "Did Tether report $187.8B in assets and $183.6B in liabilities (June 2026)?",
+   "page": "tether",
+   "source": "claim 12",
+   "sentence": "As of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  },
+  "9700490650bd98f2beef3de68457a5bded1d521ccbcbf952440f181c74743ce7": {
+   "q": "Did weekly DEX volume average about $18.6B in mid-2025?",
+   "page": "defi",
+   "source": "defi-0069",
+   "sentence": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.",
+   "model": "hand-written",
+   "at": "2026-11-06",
+   "reviewed": "hand-written from the exact sentence"
+  }
+ }
+}
