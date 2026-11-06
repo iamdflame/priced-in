@@ -13,12 +13,13 @@ const norm = (s: string | null | undefined) => (s || "").trim().toUpperCase();
 
 /**
  * What real money may do from a country (ISO 3166-1 alpha-2) and region (the subdivision code without
- * the country, as Vercel sends it: "ON" for Ontario). No country at all (a local run, a non-Vercel
- * host) is "unknown": the screens treat it as open but say so.
+ * the country, as Vercel sends it: "ON" for Ontario). No country is "unknown", which is open on a local
+ * run. Where the header is required (on Vercel, which always sends it) the geofence fails closed: an
+ * address it can't place may take money out but not put new money in.
  */
-export function accessFor(country: string | null | undefined, region?: string | null): Access {
+export function accessFor(country: string | null | undefined, region?: string | null, o: { required?: boolean } = {}): Access {
   const c = norm(country);
-  if (!c || c === "XX") return "unknown";
+  if (!c || c === "XX") return o.required ? "close_only" : "unknown";
   const r = norm(region);
   const sub = r ? (r.includes("-") ? r : `${c}-${r}`) : "";
   if (list.blocked.countries.includes(c) || (sub && list.blocked.regions.includes(sub))) return "blocked";
