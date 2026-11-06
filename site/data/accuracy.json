@@ -1,0 +1,226 @@
+{
+ "note": "Summaries of the tests in deployments/, for the /accuracy page. Written by npm run sync:site-data; do not edit by hand.",
+ "bench": {
+  "at": "2026-11-06",
+  "models": [
+   "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "Qwen/Qwen3.8-27B",
+   "z-ai/glm-5.3-flash"
+  ],
+  "sources": {
+   "facts": 232,
+   "ruled": 142,
+   "right": 136,
+   "wrong": 6,
+   "declined": 90,
+   "true_lines": {
+    "facts": 216,
+    "right": 124,
+    "wrong": 5,
+    "no_quorum": 87
+   },
+   "false_lines": {
+    "facts": 16,
+    "right": 12,
+    "wrong": 1,
+    "no_quorum": 3
+   },
+   "single_models": {
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017": {
+     "right": 120,
+     "wrong": 11,
+     "abstained": 101,
+     "errors": 0
+    },
+    "Qwen/Qwen3.8-27B": {
+     "right": 140,
+     "wrong": 18,
+     "abstained": 74,
+     "errors": 0
+    },
+    "z-ai/glm-5.3-flash": {
+     "right": 138,
+     "wrong": 3,
+     "abstained": 91,
+     "errors": 0
+    }
+   },
+   "interval": {
+    "lo": 0.911,
+    "hi": 0.98
+   }
+  },
+  "none": {
+   "facts": 232,
+   "ruled": 82,
+   "right": 78,
+   "wrong": 4,
+   "declined": 150,
+   "true_lines": {
+    "facts": 216,
+    "right": 76,
+    "wrong": 3,
+    "no_quorum": 137
+   },
+   "false_lines": {
+    "facts": 16,
+    "right": 2,
+    "wrong": 1,
+    "no_quorum": 13
+   },
+   "single_models": {
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017": {
+     "right": 99,
+     "wrong": 6,
+     "abstained": 127,
+     "errors": 0
+    },
+    "Qwen/Qwen3.8-27B": {
+     "right": 82,
+     "wrong": 21,
+     "abstained": 129,
+     "errors": 0
+    },
+    "z-ai/glm-5.3-flash": {
+     "right": 55,
+     "wrong": 3,
+     "abstained": 174,
+     "errors": 0
+    }
+   }
+  },
+  "wrong_rulings": [
+   {
+    "id": "ethereum-0098",
+    "article": "Ethereum",
+    "claim": "Any Ethereum account may send ETH to a validator at any time to increase its stake.",
+    "record": "current",
+    "panel": "FALSE"
+   },
+   {
+    "id": "ethereum-0131",
+    "article": "Ethereum",
+    "claim": "When a sender is creating a transaction, the sender must specify a gas limit and gas price.",
+    "record": "stale",
+    "panel": "TRUE"
+   },
+   {
+    "id": "zcash-0004",
+    "article": "Zcash",
+    "claim": "Zcash is modeled on bitcoin, sharing its proof-of-work consensus mechanism.",
+    "record": "current",
+    "panel": "FALSE"
+   },
+   {
+    "id": "avalanche-0040",
+    "article": "Avalanche (blockchain platform)",
+    "claim": "Ethereum's consensus protocol is replaced by Avalanche's Snowman consensus.",
+    "record": "current",
+    "panel": "FALSE"
+   },
+   {
+    "id": "tether-0022",
+    "article": "Tether (cryptocurrency)",
+    "claim": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
+    "record": "current",
+    "panel": "FALSE"
+   },
+   {
+    "id": "stablecoin-0079",
+    "article": "Stablecoin",
+    "claim": "Tether's USDT is currently the world's largest market capitalization stablecoin.",
+    "record": "current",
+    "panel": "FALSE"
+   }
+  ]
+ },
+ "jury_test": {
+  "at": "2026-11-06",
+  "sets": {
+   "honest": {
+    "cases": 10,
+    "right": 10,
+    "panel_true": 0,
+    "panel_false": 10,
+    "no_quorum": 0
+   },
+   "confirmed": {
+    "cases": 10,
+    "right": 7,
+    "panel_true": 7,
+    "panel_false": 0,
+    "no_quorum": 3
+   },
+   "bare": {
+    "cases": 10,
+    "right": 10,
+    "panel_true": 3,
+    "panel_false": 0,
+    "no_quorum": 7
+   },
+   "forged": {
+    "cases": 10,
+    "right": 1,
+    "panel_true": 0,
+    "panel_false": 9,
+    "no_quorum": 1
+   },
+   "injection": {
+    "cases": 10,
+    "right": 10,
+    "panel_true": 5,
+    "panel_false": 0,
+    "no_quorum": 5
+   }
+  }
+ },
+ "ask_ai": {
+  "no_web": {
+   "at": "2026-11-06T21:47:34.707Z",
+   "method": "Each sentence as \"From the Wikipedia article ...: ... Is this true today?\", told today's date, no sources, no web, reasoning off, 3 runs per model.",
+   "models": [
+    "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "Qwen/Qwen3.8-27B",
+    "z-ai/glm-5.3-flash"
+   ],
+   "caught": {
+    "sentences": 10,
+    "answers": 90,
+    "repeated_the_error": 47,
+    "said_no": 43,
+    "said_no_only_because_it_could_not_verify": 4,
+    "other": 0
+   },
+   "control": {
+    "sentences": 6,
+    "answers": 54,
+    "right": 38,
+    "wrongly_doubted": 16,
+    "other": 0
+   }
+  },
+  "web": {
+   "at": "2026-11-06",
+   "method": "One chat assistant with web search (Claude Sonnet), one run, at most three searches per sentence. It saw the 16 sentences shuffled, with neutral labels, and was told some may be right and some may not. It had no access to our records. Scored afterwards against corpus/ERRORS.json and corpus/verdicts.tsv.",
+   "limits": "One model, one run, 16 sentences. A small test, not a benchmark.",
+   "caught": {
+    "sentences": 10,
+    "found_the_mistake": 7,
+    "unsure": 3,
+    "repeated_the_error": 0
+   },
+   "control": {
+    "sentences": 6,
+    "right": 5,
+    "unsure": 1,
+    "wrongly_doubted": 0
+   },
+   "still_on_wikipedia": {
+    "checked_on": "2026-11-06",
+    "caught_sentences_still_on_the_live_page": 10,
+    "of": 10
+   }
+  }
+ },
+ "sentinel": null
+}
