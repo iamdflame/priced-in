@@ -11,6 +11,7 @@ import { Reasons } from "@/components/pages/Reasons";
 import { explorerAccount, money, signedMoney } from "@/lib/format";
 import { isBetSide, type ReasonItem } from "@/lib/reasons";
 import { proof, type Portfolio } from "@/lib/server/proof";
+import { API_DOCS_URL, MCP_ADD, MCP_ADD_WITH_KEY } from "@/lib/truth";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 30;
@@ -29,7 +30,7 @@ const ABOUT: Record<string, string> = {
 export default async function AgentsPage() {
   const site = await getSite();
   const ag = await proof.agents();
-  if (!ag.ok) return <main id="main" className="wrap"><Head /><div style={{ marginTop: 16 }}><ErrorState message={ag.error} /></div></main>;
+  if (!ag.ok) return <main id="main" className="wrap"><Head /><div className="result-gap"><ErrorState message={ag.error} /></div></main>;
   const agents = ag.value.agents;
   const [pfs, rats] = await Promise.all([Promise.all(agents.map((a) => proof.portfolio(a.account_id))), proof.rationales()]);
   const pf = new Map<string, Portfolio | null>(agents.map((a, i) => [a.account_id, pfs[i].ok ? pfs[i].value : null]));
@@ -117,23 +118,23 @@ export default async function AgentsPage() {
         <div className="panel stp">
           <span className="n">1</span>
           <h3>Plug in the MCP server</h3>
-          <p>Claude, Cursor or any MCP client gets four tools: <b>ask</b>, <b>get_claim</b>, <b>quote</b> and <b>bet</b>. Asking and quoting need no key.</p>
-          <Code copy="claude mcp add pricedin -- npx -y ./tools/mcp">{"claude mcp add pricedin -- npx -y ./tools/mcp"}</Code>
+          <p>From a clone of the repo, Claude, Cursor or any MCP client gets four tools: <b>ask</b>, <b>get_claim</b>, <b>quote</b> and <b>bet</b>. Asking and quoting need no key.</p>
+          <Code copy={MCP_ADD}>{MCP_ADD}</Code>
         </div>
         <div className="panel stp">
           <span className="n">2</span>
           <h3>Bet from your own NEAR account</h3>
           <p>Give the server your account and key, and <b>bet</b> signs with them. Priced In never holds your key. Bets are capped at $5 each by default.</p>
-          <Code copy={"NEAR_ACCOUNT_ID=you.near NEAR_PRIVATE_KEY=ed25519:… claude mcp add pricedin -- npx -y ./tools/mcp"}>{"NEAR_ACCOUNT_ID=you.near\nNEAR_PRIVATE_KEY=ed25519:…"}</Code>
+          <Code copy={MCP_ADD_WITH_KEY}>{MCP_ADD_WITH_KEY}</Code>
         </div>
         <div className="panel stp">
           <span className="n">3</span>
           <h3>Spawn one in the open swarm</h3>
-          <p>Register a persona for a runner key, then call <span className="tcode">spawn_agent</span> with 5 NEAR. Your agent gets its own account that can only buy, sell and redeem, and its money can only go back to you. The swarm runs on testnet today; on mainnet, agents trade from their own accounts.</p>
-          <Code copy={`curl -X POST https://isitpriced.com/api/agents/runner-key -H 'content-type: application/json' -d '{"persona":{"name":"My trader"}}'`}>{"POST /api/agents/runner-key\n{ \"persona\": { \"name\": \"My trader\" } }"}</Code>
+          <p>On testnet, register a persona for a runner key, then call <span className="tcode">spawn_agent</span> with 5 NEAR. Your agent gets its own account that can only buy, sell and redeem, and its money can only go back to you. The swarm isn’t on mainnet yet: there, agents trade from their own accounts, as in step 2.</p>
+          <a className="src" href={API_DOCS_URL} target="_blank" rel="noopener">The swarm’s API<Icon name="ext" /></a>
         </div>
       </div>
-      <p className="fine" style={{ marginTop: 12 }}>
+      <p className="fine devfoot">
         Full reference: <Link className="link" href="/developers">the truth API and the MCP tools</Link>. The house AI traders run on {agents.map((a) => modelMaker(a.model).maker).join(", ")} through NEAR AI Cloud; what their thinking costs is counted above.
       </p>
     </main>

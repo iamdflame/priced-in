@@ -35,7 +35,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const site = await getSite();
   const R = site.rulings;
   if (!site.ok || !R) {
-    return <main id="main" className="wrap"><Head next={null} checker={null} /><div style={{ marginTop: 16 }}><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
+    return <main id="main" className="wrap"><Head next={null} checker={null} /><div className="result-gap"><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
   }
   const byId = new Map(site.facts.map((f) => [f.id, f]));
   const { all, settled, medianMs, paidUsd, unanimous } = rulingRecord(R.rulings);
@@ -95,7 +95,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
           <div className="quiet"><Icon name="gavel" /><div><b>No rulings yet.</b><p>The first one will appear here the moment a challenge is filed.</p></div></div>
         )}
       </div>
-      <p className="fine" style={{ marginTop: 10 }}>
+      <p className="fine devfoot">
         Read live from the market’s log{site.rulings?.asOf ? <> at {clockUtc(site.rulings.asOf)}</> : null}. The Checker is <a className="link" href={explorerAccount(R.checker?.account ?? "checker.isitpriced.near")} target="_blank" rel="noopener">{R.checker?.account ?? "checker.isitpriced.near"}</a>; anyone can file a challenge with a bond.
       </p>
     </main>
@@ -194,7 +194,7 @@ async function Judges({ r }: { r: Ruling }) {
               <span>Ruled in {span(v.at - r.opened_at)}</span>
               <span>{v.runner?.attestation?.ok ? "Attested secure chip" : "Signed"}</span>
               <a href={explorerTx(v.tx)} target="_blank" rel="noopener">See the verdict<Icon name="ext" /></a>
-              <Link href="/trust#judges" style={{ color: "var(--brand-text)" }}>Its proof</Link>
+              <Link href="/trust#judges">Its proof</Link>
             </div>
             {v.request_hash && v.response_hash && <VerifyVerdict tx={v.tx} model={v.model} requestHash={v.request_hash} responseHash={v.response_hash} sender={t.ok ? t.value.signer : undefined} />}
           </article>

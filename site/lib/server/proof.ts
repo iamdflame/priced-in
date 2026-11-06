@@ -7,7 +7,7 @@ import "server-only";
 import { cache } from "react";
 import { API_ORIGIN, type Res } from "./api";
 import { MARKET_ID } from "../nav";
-import type { PostResult, Rationale } from "../core/api";
+import type { Rationale } from "../core/api";
 
 async function get<T>(path: string, revalidate = 15, timeoutMs = 8000): Promise<Res<T>> {
   try {
@@ -91,12 +91,12 @@ export interface TruthTerms { name: string; network: string; contract: string; c
 export interface CredenceClaim {
   claim_id: number; text: string; page: string; credence: number; summary: string; trades: number; volume_usd: number; open_interest_usd: number;
   match?: { kind: string; score: number };
-  resolution: { state: string; status: string; note: string };
+  resolution: { state: string; status: string; outcome: string | null };
 }
 
 export interface Credence { query?: string; matched: number; answer: string; claims: CredenceClaim[]; free?: { limit: number; remaining: number } }
 
-export interface TruthQuote { text: string; quote: { claim_id: number; side: string; amount_usd: number; shares: number; avg_price: number; payout_if_right_usd: number; price_yes_before: number; price_yes_after: number } }
+export interface TruthQuote { text: string; quote: { claim_id: number; side: string; amount_usd: number; shares: number; avg_price: number; payout_if_right_usd: number; price_yes_before: number; price_yes_after: number; /** absent from an API that predates the fee fix: its payout then ignores the fee */ fee_bps?: number } }
 
 export const proof = {
   activity: (limit = 200) => get<{ activity: ActivityItem[]; asOf: number }>(`/api/activity?limit=${limit}`, 15),
@@ -105,9 +105,9 @@ export const proof = {
   portfolio: (trader: string) => get<Portfolio>(`/api/portfolio?trader=${encodeURIComponent(trader)}`, 60),
   attestations: () => get<{ proofs: Proof[]; files: string[]; check?: string }>("/api/attestations", 600),
   truthTerms: () => get<TruthTerms>("/api/v1", 300),
-  credence: (query: string) => get<Credence>(`/api/v1/credence?${query}`, 300),
+  // metered at 20 a day for this server's address, so a sample is read a few times a day at most
+  credence: (query: string) => get<Credence>(`/api/v1/credence?${query}`, 21600),
   quote: (claim: number, side: "yes" | "no", usd: number) => get<TruthQuote>(`/api/v1/quote?claim=${claim}&side=${side}&amount_usd=${usd}`, 60),
-  post: (id: string) => get<PostResult>(`/api/post/${encodeURIComponent(id)}`, 300, 20000),
   stats: () => view<MarketStats>("stats", {}, MARKET_ID, 30),
   account: (account: string) => rpc<{ code_hash: string; amount: string; storage_usage: number; block_height: number }>("query", { request_type: "view_account", finality: "final", account_id: account }, 300),
   keys: (account: string) => rpc<{ keys: { public_key: string; access_key: { nonce: number; permission: "FullAccess" | { FunctionCall: { receiver_id: string; method_names: string[]; allowance: string | null } } } }[] }>("query", { request_type: "view_access_key_list", finality: "final", account_id: account }, 300),

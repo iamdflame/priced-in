@@ -9,7 +9,8 @@
     "lint": "tsc --noEmit",
     "test": "vitest run",
     "e2e": "playwright test",
-    "catalog": "node scripts/build-catalog.mjs"
+    "catalog": "node scripts/build-catalog.mjs",
+    "pages": "node scripts/build-pages.mjs"
   },
   "dependencies": {
     "@near-js/transactions": "^2.5.1",
