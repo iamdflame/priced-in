@@ -28,3 +28,5 @@ Cargo.lock
 !/tools/judge
 /tools/judge/*
 !/tools/judge/evidence
+site/
+video/
