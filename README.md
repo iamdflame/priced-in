@@ -36,7 +36,7 @@ Each visitor gets one free $1 bet, in real USDC from the judges' budget (the lan
 
 ```
 git clone https://github.com/iamdflame/priced-in && cd priced-in
-npm ci && npm run web:install     # about a minute; Node 22.18 or later
+npm ci && npm run site:install    # about a minute; Node 22.18 or later
 npm run judge                     # about 1 to 3 minutes; reads testnet and mainnet, sends nothing
 ```
 
@@ -51,14 +51,14 @@ npm run judge                     # about 1 to 3 minutes; reads testnet and main
 
 Each step below is one line of `npm run judge`, in the same order. VERIFY.md does the same by hand.
 
-1. **LMSR market maths.** Run `npm run judge`. You should see `PASS 1. LMSR properties: web/src/core/lmsr.ts is bit-exact with crates/lmsr on 3959 vector values (232 trades at fees from 0 to 300 bps, 48 edge fills, 0 refused overflows); 10,000 random sequences ... prices sum to one within 1e-12, cost path-independent ..., maker's loss <= b ln(1/p0) in both outcomes`. The browser quotes with a BigInt port of the contract's Rust maths. A buy larger than the price cap is filled to the cap and the rest is never charged, so no spend can overflow. The property test covers 120,000 extreme quotes.
+1. **LMSR market maths.** Run `npm run judge`. You should see `PASS 1. LMSR properties: site/lib/core/lmsr.ts is bit-exact with crates/lmsr on 3959 vector values (232 trades at fees from 0 to 300 bps, 48 edge fills, 0 refused overflows); 10,000 random sequences ... prices sum to one within 1e-12, cost path-independent ..., maker's loss <= b ln(1/p0) in both outcomes`. The browser quotes with a BigInt port of the contract's Rust maths. A buy larger than the price cap is filled to the cap and the rest is never charged, so no spend can overflow. The property test covers 120,000 extreme quotes.
 2. **The verdict rule and the bond split.** You should see `PASS 2. verdict rule and bond split: Node port equal to crates/rules on 17722 vectors ...; 10000 completions with a different verdict in reasoning_content: the answer's verdict every time; 200000 random bond splits conserve to the micro-USDC`. The verdict is read from `choices[0].message.content` only.
 3. **The contracts on chain are this source, mainnet included.** You should see `PASS 3. reproducible contracts: rustc 1.99.1 ... rebuilt market FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC and swarm p7URj5imKbrCxikR8o7xeBh6iZiF41VhoBedJoMqpgi: identical to the code on testnet; the real-money market on mainnet, market.isitpriced.near, runs the same market build; the agent wallet rebuilds to the committed contracts/swarm/res/agent.wasm`. Without Rust you see `SKIP 3`, with the install command.
 4. **The testnet deployment is live and its books close.** You should see `PASS 4. testnet deployment live, books close: books close to the micro-USDC: ... USDC held = treasury + reserved + balances + collected + payouts + bonds + bounties`. The check reads `stats`, every claim and every balance from the contract's own storage.
 5. **A signed rewrite verifies, and it is anchored on-chain.** You should see `PASS 5. signed rewrite verifies, anchored: rewrite tether:2:v4 ...: both sha256s, the signed text and ed25519 verify offline; anchor_rewrite event on testnet in GxtD3Adj...; Signed by the NEAR AI Cloud's TEE key`. The rewrite is a real NEAR AI Cloud completion. Its signing key comes from a verified attestation (`services/ai/attestations/`).
 6. **Money can arrive from another chain.** You should see `PASS 6. 1Click dry quote, Base USDC -> NEAR USDC: $5.00 USDC on Base -> 4.99... USDC on NEAR ..., dry: true`. This is the mainnet 1Click API with `dry: true`: no key, no deposit address, no money moves.
 7. **The measured number.** You should see `PASS 7. the measured number: ... 16 of 232 decided data sentences are stale or wrong (6.9%)`. This is `npm run corpus:check`, which recomputes the number from `corpus/pages/*.json`. Method: `corpus/METHOD.md`, committed before the first verdict.
-8. **The unit suites.** You should see `PASS 8. unit suites: AI, API, web: AI 74/74, API 109/109, web 101/101, all passing, no network`. The browser's end-to-end walk is `npm run web:e2e` (18 checks, Playwright).
+8. **The unit suites.** You should see `PASS 8. unit suites: AI, API, site: AI 76/76, API 129/129, site 238/238, all passing, no network`. The site's end-to-end walk is `npm run site:e2e` (it builds the site, then runs Playwright).
 9. **The hosted site.** Run `SITE_URL=https://isitpriced.com npm run judge`. You should see `PASS 9. hosted demo: ...: /health 200, 21 priced sentences on the Tether page, a "message" event on the SSE stream`. `/health` fails when no trade, rewrite or agent answer has happened in a day.
 10. **The jury's models are attested, and mainnet holds their keys.** You should see `PASS 10. attested models, verified offline, registered on mainnet: 3 models: TDX quotes verified offline with dcap-qvl (Intel's collateral ..., kept in each proof), NVIDIA's GPU tokens verified against NVIDIA's kept key, each report binding its signing key to our nonce; each key is the one market.isitpriced.near holds`. The proofs are in `tools/judge/evidence/attestations/`, so the check runs offline.
 
@@ -177,7 +177,7 @@ npm run mcp:test       # offline: the four tools, stdio and HTTP, against a loca
 | `crates/lmsr`, `crates/rules` | The maths and the resolution rules, as pure Rust the contract calls. |
 | `services/api`, `services/ai`, `api/` | The read API, lane keys and planner, and the truth API (`/v1/credence`, x402); the writer, the agents and the jury runner; `api/` runs them as Vercel functions. |
 | `tools/mcp` | `pricedin-mcp`, the MCP server for agents: `ask`, `get_claim`, `quote`, `bet`. |
-| `web/` | The site: the priced page, the no-wallet bet and the story after it, the LMSR port, rewrite verification in the browser. |
+| `site/` | The site at isitpriced.com (Next.js): the facts and their odds, the free $1 bet and its receipt, real-money trading, rulings. `site/lib/core` is the engine: the LMSR port, the no-wallet lane, rewrite verification in the browser. |
 | `corpus/` | The measured Wikipedia corpus. |
 | `tools/judge/` | This judge run. `deployments/` holds the mainnet and testnet deployments. |
 | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) | The system on one page, then each part: what runs where, who holds which key, what is on-chain. |
@@ -191,7 +191,7 @@ npm run mcp:test       # offline: the four tools, stdio and HTTP, against a loca
 - **AI-written code:** this repository's code, tests and docs were written by an AI coding agent (Claude Code, Anthropic) directed by the entrant, and reviewed through the tests and checks above.
 - **Rust:** `near-sdk` 5.30.1, `near-contract-standards`, `serde` 1.0.229, `serde_json` 1.0.154 (see `Cargo.lock`).
 - **Node:** `near-api-js` 7, `tweetnacl` 1, `@phala/dcap-qvl` 0.7.1 (TDX quote verification), `@fastnear/x402` 2.5.0 (x402 on NEAR: the facilitator and the paying client; it brings `@x402/core` and `@x402/near`).
-- **Web:** `@noble/curves` and `@noble/hashes` 2.2, `vite` 8, `vitest` 5, `typescript` 7. Playwright is optional, for `npm run web:e2e`.
+- **Site:** `next` 16, `react` 19, `@noble/curves` and `@noble/hashes` 2.2, `near-api-js` 7, NEAR Wallet Selector 10, `vitest` 5, `typescript` 5. Playwright is optional, for `npm run site:e2e`.
 - **Services used:** NEAR mainnet and testnet RPC (dRPC, FastNEAR, intea), NEAR AI Cloud (inference and attestation), Vercel (hosting, functions, a private Blob store), the 1Click API, X's public oEmbed endpoint (posts), and Wikipedia (CC BY-SA 4.0 text in `corpus/`, attributed per page).
 - The judge itself uses only Node's standard library.
 

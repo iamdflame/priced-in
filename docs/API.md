@@ -9,6 +9,8 @@ Every HTTP endpoint of `services/api` and `services/ai`, and every MCP tool of `
 | `/v1`, `/v1/*`, `/health`, `/claims`, `/claims/:id`, `/events`, `/events/recent` | Those routes, at the root. |
 | `/api/<route>` | Every route, for example `/api/v1/credence`, `/api/rewrites`, `/api/agents`, `/api/paste`. |
 
+**The site proxies these paths.** `https://isitpriced.com` is the product site (`site/`, Next.js). The API is its own Vercel project (the repo root: `api/` and `vercel.json`) at `https://pricedin-fawn.vercel.app`, whose own page only links back here. The site forwards `/api/*`, `/health`, `/claims`, `/events`, `/lane`, `/v1` and `/post` to it (`site/next.config.ts` rewrites, to `API_ORIGIN`). On the way, `site/proxy.ts` drops any client-sent `x-visitor-ip` and `x-proxy-secret`, then sets them to the visitor's address and the shared `PROXY_SECRET`, so per-address limits count each visitor and not the site's edge (`site/lib/proxy/forward.ts`, `visitorIp` in `services/api/src/ratelimit.mjs`). Every call below works on either origin, except `/x402/*`, which only the API's origin serves.
+
 The hosted API runs the same handlers as a local server. It differs in four ways:
 - Limits that matter hold across function instances, because they count through the store: `/lane/key`, `/paste` and `/v1/credence`. Locally they count in memory, and a restart clears them.
 - `/events` is a finite stream: it sends what the store has after `?since=` and closes with `retry: 2000`.

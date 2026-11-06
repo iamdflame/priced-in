@@ -10,7 +10,7 @@ Everything here is free to use in a commercial product. Nothing is paid, nothing
 | Geist, Geist Mono | Geist-latin*.woff2, GeistMono-latin.woff2 | Vercel | SIL Open Font License 1.1 | https://fonts.google.com/specimen/Geist |
 | Inter (one glyph) | Inter-tugrik.woff2 (Pulse): a subset holding only U+20AE (₮), which Geist and General Sans lack | Rasmus Andersson | SIL Open Font License 1.1 | https://fonts.google.com/specimen/Inter |
 | Nunito | Nunito-latin*.woff2 (Receipt) | Vernon Adams, Cyreal, Jacques Le Bailly | SIL Open Font License 1.1 | https://fonts.google.com/specimen/Nunito |
-| Amstelvar | amstelvar-roman/italic.woff2, used only for quoted Wikipedia sentences | Font Bureau (David Berlow) | SIL Open Font License 1.1 | copied from web/public/fonts |
+| Amstelvar | amstelvar-roman/italic.woff2, used only for quoted Wikipedia sentences | Font Bureau (David Berlow) | SIL Open Font License 1.1 | https://github.com/googlefonts/amstelvar |
 
 ## Icons (assets/icons)
 

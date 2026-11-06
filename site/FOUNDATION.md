@@ -15,6 +15,8 @@ npm run e2e:money    # the wallet flows, with a mock wallet and a pretend chain
 npm run lint         # tsc --noEmit
 ```
 
+From the repo root: `npm run site:install`, `site:dev`, `site:build`, `site:test`, `site:e2e` (builds, then runs Playwright).
+
 Env (`.env.example`): `API_ORIGIN` (default `https://isitpriced.com`), `NEAR_NETWORK` (default `mainnet`), `SITE_URL` (share links), `PROXY_SECRET` (shared with the API; see below). Nothing needs setting to run it locally.
 
 ## The map
@@ -31,18 +33,18 @@ lib/                 shared and browser-safe: model, quote, format, bets, ruling
   server/            server-only reads and view models (each file imports "server-only")
   client/            browser-only: the engine, useStore, intent, this browser's bets, browser API calls
   replay/            the record of the mainnet run, and the engine that plays it
-  core/              the proven engine, copied from web/src/core
+  core/              the engine: the LMSR port, the no-wallet lane, the store, rewrite verification
   money/             real money, one rule to a file (see below)
-data/                questions.json, catalog.json, rehearsal-mainnet.json, pages/
-scripts/             build-catalog.mjs, build-pages.mjs, amstelvar-text.py, shoot-receipt.mjs
-tests/unit/          vitest      tests/e2e/   Playwright
+data/                questions.json, catalog.json, pages/; rehearsal-mainnet.json and mainnet-public.json (npm run sync:site-data)
+scripts/             build-catalog.mjs, build-pages.mjs, make-rewrite-fixture.mjs, amstelvar-text.py, shoot-receipt.mjs
+tests/unit/          vitest (core/ is the engine's)    tests/e2e/   Playwright    tests/vectors/   the LMSR vectors crates/lmsr generates
 ```
 
 The boundaries the code keeps (hold reviews to them):
 
 - `lib/server/*` never reaches the browser. The questions and the catalog are read there, so their JSON is never shipped.
 - `lib/client/engine.ts` (near-api-js and the store) loads through a dynamic `import()` on a person's first pick. No page ships NEAR code just to be read.
-- `lib/core` is a copy. Fix a bug in `web/src/core` and its tests first, then copy the file. Its one addition is `Rationale.persona` in `api.ts`.
+- `lib/core` is the one engine. Judge check 1 imports `lib/core/lmsr.ts` and proves it bit-exact with `crates/lmsr` on `tests/vectors/lmsr.json` (regenerate: `npm run vectors:lmsr` at the root). Change it together with its tests in `tests/unit/core/`.
 - No `any` outside `lib/core`. A JSON import gets an interface where it is read.
 
 ## How data flows
@@ -60,7 +62,7 @@ The boundaries the code keeps (hold reviews to them):
 - **Each free $1 key costs the lane gas.** It is asked for only after a person picks a side (`engine.warm()`), or right after they tapped Yes or No on a card (`markIntent()`, then `takeIntent()`). Never call `lane.prepare()` on page load: crawlers, previews and screenshot runs must not spend keys.
 - `useStore(store, select, fallback)` and `useLane(lane)` (`lib/client/useStore.ts`) bridge the engine to React with `useSyncExternalStore`. A selector returns part of the state, never a new object.
 - **The receipt** (`Receipt.tsx`, a native modal `<dialog>`) shows "Settled on NEAR in X s", measured from the tap to final; the needle swinging from the old odds to the new; the signed rewrite, verified in the browser (`store.verify`, `ReceiptPanels.tsx`); an AI trader's reply; and Share on X with the market's card.
-- **The replay:** `?recorded=1` on `/c/18` plays `data/rehearsal-mainnet.json`, a copy of `deployments/rehearsal/mainnet.json` refreshed by `npm run catalog`: the real free $1, the signed rewrite 4.3 s later, the Skeptic's answer 12 s later, then the ruling. `lib/replay/engine.ts` answers the API's routes and subclasses `Lane`, so the store runs unchanged and nothing is sent. The nav says "Replay of a real mainnet run" while it plays.
+- **The replay:** `?recorded=1` on `/c/18` plays `data/rehearsal-mainnet.json`, a copy of `deployments/rehearsal/mainnet.json` written by `npm run sync:site-data` at the root (and by `npm run catalog`): the real free $1, the signed rewrite 4.3 s later, the Skeptic's answer 12 s later, then the ruling. `lib/replay/engine.ts` answers the API's routes and subclasses `Lane`, so the store runs unchanged and nothing is sent. The nav says "Replay of a real mainnet run" while it plays.
 
 ## Film mode
 
@@ -91,7 +93,7 @@ The boundaries the code keeps (hold reviews to them):
 
 ## Tests
 
-- `tests/unit/` (vitest, `server-only` stubbed): the quote against every crate vector and every live claim view, the replay's claim against the real logged trade, the model's words and the rulings. Fixtures are real API snapshots (`tests/unit/fixtures/`).
+- `tests/unit/` (vitest, `server-only` stubbed): the engine (`core/`: the LMSR port against the crate's vectors, the lane, the store, rewrite verification), the quote against every crate vector and every live claim view, the replay's claim against the real logged trade, the model's words and the rulings. Fixtures are real API snapshots (`tests/unit/fixtures/`).
 - `tests/e2e/` (Playwright, against `npm start`). `guard.ts` is the money guard, and every test uses it: it answers `POST /lane/key` with a key for a fake RPC, scripts that RPC, and refuses `send_tx` to every real NEAR RPC. `flow.spec.ts` covers home → market → free bet → receipt, a refused free bet, the replay (with the signature verified in the browser) and a real 404. `layout.spec.ts` checks 360 and 390 px in both themes: no overflow, Yes/No above the fold, 44 px targets. `pages.spec.ts` covers the proof pages.
 
 ## Add a route
@@ -131,5 +133,5 @@ Open a money flow from anywhere with `openSheet({ kind: "trade" | "deposit" | "w
 - **Per-address limits decide where a call runs.** `/paste`, `/post` and `/v1/credence` count per address, so they run in the browser (`lib/client/api.ts`), where `proxy.ts` forwards the visitor's address. From the server, every visitor would share one quota. A `/v1/credence` sample read on the server is cached for hours.
 - **Commands a developer copies** live in `lib/truth.ts`. The MCP server defaults to a local API and testnet, so both must be set.
 - **The encyclopedia's text** is `data/pages/`, built from `corpus/pages/` by `npm run pages`. `lib/server/encyclopedia.ts` joins it to the market.
-- **`data/mainnet-public.json`** is the public part of `deployments/mainnet.json`, for `/trust`. Copy it again after an upgrade, or the page will say the hashes differ.
+- **`data/mainnet-public.json`** is the public part of `deployments/mainnet.json`, for `/trust`, written by `npm run sync:site-data` at the root. Run it after an upgrade, or the page will say the hashes differ; `tests/unit/site-data.test.ts` fails while either copy differs from `deployments/`.
 - **Class names:** check `globals.css` before naming one. `.skip` is the skip link and `.mk` the market page's grid; both have broken a page by being reused.

@@ -41,7 +41,7 @@ The writer's signing key is NEAR AI Cloud's per-model TEE key. We never hold it.
 **Attack.** Someone who holds the registered key for a model signs fake rewrites or fake verdicts.
 
 **Defence.**
-- Rewrites: only an operator can anchor (`anchor_rewrite`), and the anchor is an event; it moves no money. The browser re-checks the bytes, both hashes, the signature, the registered key and the words on the page (`web/src/core/verify.ts`, `verifyRewrite`).
+- Rewrites: only an operator can anchor (`anchor_rewrite`), and the anchor is an event; it moves no money. The browser re-checks the bytes, both hashes, the signature, the registered key and the words on the page (`site/lib/core/verify.ts`, `verifyRewrite`).
 - Verdicts: one model key gives one vote. Quorum needs two models (threat 1).
 - Attestation: `services/ai/src/nearai.js` signs off a reply only if the signer matches a fresh, fully verified TDX and GPU attestation, bound to the key and a fresh nonce.
 
@@ -118,7 +118,7 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 
 **Defence.**
 - The API fails over across RPC URLs and backs off on rate limits (`services/api/src/rpc.mjs`). `/health` answers 503 with the reason when no RPC is reachable, an RPC serves the wrong chain ID, or scanning stops for 30 s (`services/api/test/app.test.mjs`, "/health: 503 ...").
-- The browser sends each transaction to two RPCs and polls both (`sendRace` in `web/src/core/rpc.ts`).
+- The browser sends each transaction to two RPCs and polls both (`sendRace` in `site/lib/core/rpc.ts`).
 - The x402 facilitator asks again when its read failed closed, because nothing was submitted (`TRANSIENT` in `services/api/src/x402.mjs`; commit f66d9fd).
 - The signer journals every intent and its transaction hashes before broadcast, and looks an unknown outcome up on-chain instead of re-sending (`services/ai/src/signer.js`).
 - The judge reads with failover and holds no key (`tools/judge/lib/near.mjs`).

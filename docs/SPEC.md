@@ -54,7 +54,7 @@ Proceeds for `s` shares are `C(before) - C(after) - 1`, never below zero. You ca
 
 ### Fills: `Market::fill_buy`, `Market::fill_sell`
 
-These are the contract's trades in whole micro units, taker fee included. `buy`, `sell` and the views `quote_buy` and `quote_sell` all call them, so a quote and its fill are one piece of code. `web/src/core/lmsr.ts` ports them to BigInt (`fillBuy`, `fillSell`), bit-exact on vectors the crate generates.
+These are the contract's trades in whole micro units, taker fee included. `buy`, `sell` and the views `quote_buy` and `quote_sell` all call them, so a quote and its fill are one piece of code. `site/lib/core/lmsr.ts` ports them to BigInt (`fillBuy`, `fillSell`), bit-exact on vectors the crate generates.
 
 `fee_on(amount, bps)` is `ceil(amount * bps / 10,000)`: a fee is rounded up, like every other rounding here, in the market's favour.
 
@@ -68,13 +68,13 @@ These are the contract's trades in whole micro units, taker fee included. `buy`,
 
 `fill_sell(side, shares_micro, fee_bps)`: `proceeds_micro` is `quote_sell` floored to a micro, `fee_micro` is `fee_on(proceeds_micro, bps)`, and the trader receives `received_micro = proceeds_micro - fee_micro`.
 
-Tests: crates/lmsr `the_taker_fee_on_buys_and_sales` and `property_fills_never_overcharge_and_round_trips_never_profit` (20,000 markets across the contract's liquidity range, orders from 1 micro to $10^12, fees from 0 to 300 bps, a round trip never returning more than was paid less both fees); web/test/lmsr.test.ts and judge check 1 on the vectors, which trade at fees from 0 to 300 bps and hold 48 edge fills (stepped back, at the cap, too small).
+Tests: crates/lmsr `the_taker_fee_on_buys_and_sales` and `property_fills_never_overcharge_and_round_trips_never_profit` (20,000 markets across the contract's liquidity range, orders from 1 micro to $10^12, fees from 0 to 300 bps, a round trip never returning more than was paid less both fees); site/tests/unit/core/lmsr.test.ts and judge check 1 on the vectors, which trade at fees from 0 to 300 bps and hold 48 edge fills (stepped back, at the cap, too small).
 
 ### The opening clamp and the price cap
 
 - **Opening clamp:** `Market::open` clamps `p0` to [0.2, 0.8] (`P_MIN`, `P_MAX`) before computing `d0`. The contract does not refuse a `p0_ppm` outside that range: it opens at the clamped price. The planner never signs one outside it (`services/api/src/planner.mjs`, `P_MIN`/`P_MAX`; test "opening probabilities clamp to 0.2..0.8 and round to 0.1 point").
 - **Price cap:** `|d| <= D_CAP = ln(9999)` (9,210,240,366,976 at SCALE), so prices stay in [0.0001, 0.9999]. A buy that reaches the cap buys up to it and is charged only for what it bought. `Market::at_cap` is true when not one whole micro-share is left to buy before the cap; there `buy` panics with "the price is at its cap" and `quote_buy` says zero shares.
-- **Large buys (fixed):** a spend above about 33 times `b` used to overflow i128 inside `quote_buy` (`div(expm1(spend / b), p)`), and with `overflow-checks = true` the call panicked. Since the cap check comes first (step 2 above), any spend, up to `i128::MAX` at SCALE, buys at most up to the cap and is charged only for those shares; the rest of the order stays in the trader's balance. Example: $5 on `b = $0.10` at 50% buys to 99.99% for a cost of $0.851720 (`b ln(0.5 / 0.0001)`) and, at 1%, a fee of $0.008518 on that cost: $0.860238 in all. Tests: crates/lmsr `a_spend_far_above_the_liquidity_buys_to_the_cap_and_keeps_the_rest` and `property_extreme_spends_and_liquidity_never_overflow` (20,000 markets, `b` from $0.01 to $10^9, spends from 1e-9 b to 1e12 b and `i128::MAX`, release build with overflow checks); web/test/lmsr.test.ts on regenerated vectors with orders up to $10^9; lifecycle "a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing".
+- **Large buys (fixed):** a spend above about 33 times `b` used to overflow i128 inside `quote_buy` (`div(expm1(spend / b), p)`), and with `overflow-checks = true` the call panicked. Since the cap check comes first (step 2 above), any spend, up to `i128::MAX` at SCALE, buys at most up to the cap and is charged only for those shares; the rest of the order stays in the trader's balance. Example: $5 on `b = $0.10` at 50% buys to 99.99% for a cost of $0.851720 (`b ln(0.5 / 0.0001)`) and, at 1%, a fee of $0.008518 on that cost: $0.860238 in all. Tests: crates/lmsr `a_spend_far_above_the_liquidity_buys_to_the_cap_and_keeps_the_rest` and `property_extreme_spends_and_liquidity_never_overflow` (20,000 markets, `b` from $0.01 to $10^9, spends from 1e-9 b to 1e12 b and `i128::MAX`, release build with overflow checks); site/tests/unit/core/lmsr.test.ts on regenerated vectors with orders up to $10^9; lifecycle "a $5 buy on $0.10 of liquidity buys up to the price cap instead of overflowing".
 
 ## Claims
 

@@ -15,12 +15,12 @@ view() { curl -s $RPC -H 'content-type: application/json' -d "{\"jsonrpc\":\"2.0
 
 ```
 cargo test -p lmsr --release          # if you have Rust
-npm run web:test -- lmsr              # the browser's port against the crate's vectors
+npm run site:test -- lmsr             # the site's port (site/lib/core/lmsr.ts) against the crate's vectors
 ```
 
 **Expect:** `test result: ok. 4 passed` from cargo, including `property_random_sequences` (10,000 random buy and sell sequences). From vitest, the `lmsr` tests pass, including "every row bit-exact".
 
-To see the vectors' source, read `web/tools/lmsr-vectors/src/main.rs`. It calls `crates/lmsr` directly. Regenerate them with `npm --prefix web run vectors` and run `git diff web/test/vectors`: expect no change.
+To see the vectors' source, read `tools/judge/lmsr-vectors/src/main.rs`. It calls `crates/lmsr` directly. Regenerate them with `npm run vectors:lmsr` and run `git diff site/tests/vectors`: expect no change.
 
 ## 2. The verdict rule and the bond split (2 min)
 
@@ -128,11 +128,11 @@ To check one row by hand, open `corpus/ERRORS.json`. Each item has the sentence,
 ## 8. The unit suites (1 to 2 min)
 
 ```
-npm ci && npm run web:install
-npm run ai:unit && npm run api:unit && npm run web:test
+npm ci && npm run site:install
+npm run ai:unit && npm run api:unit && npm run site:test
 ```
 
-**Expect:** for each node suite, `ℹ fail 0`; from vitest, `Tests 82 passed (82)`. None of them touches the network.
+**Expect:** for each node suite, `ℹ fail 0`; from vitest, `Tests 238 passed (238)`. None of them touches the network.
 
 ## 9. The hosted demo (when it is live)
 
