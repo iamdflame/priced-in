@@ -16,11 +16,11 @@
  },
  "code": {
   "market": {
-   "code_hash": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
-   "sha256": "eb22fe8f93137ff2476bdbe885f9321b3603a65ee948bdeec69f530362f6e7f8",
+   "code_hash": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "sha256": "d5fbcbc8422763e43eddf60f1eb56b397782b728aa5bede9765b7c84ec2b9ec5",
    "source": "contracts/market",
    "build": "node tools/judge/repro.mjs",
-   "source_rev": "236fbf6"
+   "source_rev": "d147f2e"
   },
   "swarm": {
    "code_hash": "p7URj5imKbrCxikR8o7xeBh6iZiF41VhoBedJoMqpgi",
@@ -531,6 +531,23 @@
    "at": "2026-11-05T22:58:16.339Z",
    "source_rev": "236fbf6",
    "note": "same source, rebuilt on near-sdk 5.30.1: code replaced in place, no migration (tools/judge/upgrade-swarm-testnet.mjs)"
+  },
+  {
+   "account": "market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet",
+   "from": "GpskyWuaVUwYPPsT4L4gf6XWorohBpyYbG89PDxRFMcj",
+   "to": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+   "tx": "ZWWZymgqEC3M3LvSMacisDVrpVaYrHySHyEBRHFjLNK",
+   "at": "2026-11-06T03:06:47.364Z",
+   "source_rev": "d147f2e",
+   "fee_bps": 100,
+   "note": "same state layout: code replaced in place, no migration (tools/judge/upgrade-testnet.mjs)",
+   "pause_tx": "FEJ5T7wE6gKyEyMzCyN7QPBb13NbgrFmDNtpSgGC3yeb",
+   "fee_tx": "CRYiY91CdFuQjfkzkAxG7QPVPyXAm6H28S11hxbTRvzJ",
+   "unpause_tx": "E9K8LaCe8C5zjodMQKw6h5QAEoURKZKg8BSogq4vD5tE",
+   "paused_blocks": [
+    276431778,
+    276431863
+   ]
   }
  ],
  "checker": {
