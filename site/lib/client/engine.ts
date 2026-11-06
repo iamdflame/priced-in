@@ -7,6 +7,7 @@ import { Api } from "../core/api";
 import { loadConfig, type Config } from "../core/config";
 import { Lane } from "../core/lane";
 import { createStore, type Store } from "../core/store";
+import { filming } from "./film";
 
 export interface Engine {
   store: Store;
@@ -34,7 +35,9 @@ export function liveEngine(): Engine {
   // key costs the lane gas, so page views, crawlers and screenshot runs never spend one
   const intent = new EventTarget();
   const store = createStore({ api, lane, config: cfg, warmOn: intent });
-  live = { store, lane, warm: () => intent.dispatchEvent(new Event("pointerdown")) };
+  // film mode asks for no key at all: the lane hears "unavailable" instead of calling /lane/key
+  if (filming()) api.laneKey = async () => ({ ok: false, error: { state: "unavailable", code: "film_mode", message: "Film mode sends nothing.", status: 0, retryable: false } });
+  live = { store, lane, warm: () => { if (!filming()) intent.dispatchEvent(new Event("pointerdown")); } };
   return live;
 }
 

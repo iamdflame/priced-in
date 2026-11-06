@@ -77,3 +77,5 @@
   .tape .tk { max-width: 100%; }
   .tape .tk > span { overflow: hidden; text-overflow: ellipsis; }
 }
+/* film mode (lib/client/film.ts) */
+[data-film='1'] .replaybar { display: none; }

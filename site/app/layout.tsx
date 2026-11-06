@@ -8,6 +8,7 @@ import { LiveStrip, LiveStripSkeleton } from "@/components/shell/LiveStrip";
 import { Nav } from "@/components/shell/Nav";
 import { OfflineNotice } from "@/components/shell/OfflineNotice";
 import { PhoneNav } from "@/components/shell/PhoneNav";
+import { FILM_SCRIPT } from "@/lib/client/film";
 import { SITE_URL } from "@/lib/nav";
 import { getSite } from "@/lib/server/site";
 
@@ -29,8 +30,9 @@ export const viewport: Viewport = {
 };
 
 // Before paint: ?theme= wins, then the visitor's choice, else the brand's dark default; and the coach
-// mark is hidden for a visitor who dismissed it or has bet (keys: Live.tsx COACH_KEY, lib/client/mybets).
-const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pi-coach-v1')||localStorage.getItem('pricedin.bets.v1'))document.documentElement.dataset.coach='off'}catch(e){}`;
+// mark is hidden for a visitor who dismissed it or has bet (keys: Live.tsx COACH_KEY, lib/client/mybets);
+// and film mode (lib/client/film.ts).
+const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pi-coach-v1')||localStorage.getItem('pricedin.bets.v1'))document.documentElement.dataset.coach='off';${FILM_SCRIPT}}catch(e){}`;
 
 /** The nav reads the URL in the browser; until then, bars of the same height on every screen, so nothing moves. */
 function NavPlaceholder() {

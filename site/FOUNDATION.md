@@ -62,6 +62,10 @@ The boundaries the code keeps (hold reviews to them):
 - **The receipt** (`Receipt.tsx`, a native modal `<dialog>`) shows "Settled on NEAR in X s", measured from the tap to final; the needle swinging from the old odds to the new; the signed rewrite, verified in the browser (`store.verify`, `ReceiptPanels.tsx`); an AI trader's reply; and Share on X with the market's card.
 - **The replay:** `?recorded=1` on `/c/18` plays `data/rehearsal-mainnet.json`, a copy of `deployments/rehearsal/mainnet.json` refreshed by `npm run catalog`: the real free $1, the signed rewrite 4.3 s later, the Skeptic's answer 12 s later, then the ruling. `lib/replay/engine.ts` answers the API's routes and subclasses `Lane`, so the store runs unchanged and nothing is sent. The nav says "Replay of a real mainnet run" while it plays.
 
+## Film mode
+
+`?film=1` is for recording the demo film. The replay bar and the coach mark are hidden, countdowns freeze at their first value, the live strip holds its first items, and no free-bet key is ever asked for (`liveEngine()` answers the lane itself). It changes no data and appears in no nav, sitemap or share card. The flag is kept for the tab in sessionStorage, so it carries across internal links (`?recorded=1&film=1` films the replay); `?film=0` ends it. The rule lives in `lib/client/film.ts`, and the head script in `app/layout.tsx` applies it before paint. To keep a new moving part still on film, check `filming()` or the `still` class.
+
 ## Components
 
 | Where | What |

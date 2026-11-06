@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { TopicIcon } from "../Brand";
 import { betsFrom, type Bet } from "@/lib/bets";
+import { filming } from "@/lib/client/film";
 import { money, type AgentNames } from "@/lib/format";
 
 export interface StripFact { short: string; icon: string }
@@ -43,7 +44,7 @@ export function LiveStrip({ initial, facts, agents }: { initial: Bet[]; facts: R
   useEffect(() => {
     let stop = false;
     const tick = async () => {
-      if (document.hidden) return;
+      if (document.hidden || filming()) return; // film mode keeps the first items
       try {
         const r = await fetch("/api/events/recent?since=0", { headers: { accept: "application/json" } });
         if (!r.ok) throw new Error(String(r.status));

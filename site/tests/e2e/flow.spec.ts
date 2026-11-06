@@ -90,3 +90,28 @@ test("a fact that doesn't exist is a real 404", async ({ page }) => {
   expect(r?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "There’s no fact here" })).toBeVisible();
 });
+
+test("film mode: no replay bar or hint, still countdowns and strip, carried across links, no key asked for", async ({ page }) => {
+  const g = await guard(page);
+  await page.goto("/?film=1");
+  await expect(page.locator("html")).toHaveAttribute("data-film", "1");
+  await expect(page.locator(".coach")).toBeHidden();
+  const clock = page.locator("#deciding .big");
+  const strip = page.locator(".tape");
+  const [c0, s0] = [await clock.textContent(), await strip.textContent()];
+  await page.waitForTimeout(6_500);
+  expect(await clock.textContent()).toBe(c0);
+  expect(await strip.textContent()).toBe(s0);
+  // carried across an internal link, the replay bar stays hidden and a pick asks for no key
+  await page.goto("/c/18?recorded=1");
+  await expect(page.locator("html")).toHaveAttribute("data-film", "1");
+  await expect(page.getByText("Replay of a real mainnet run.")).toBeHidden();
+  await page.goto("/c/32");
+  await page.getByRole("button", { name: /Yes, it’s true/ }).first().click();
+  await page.waitForTimeout(1_500);
+  expect(g.laneKeys).toBe(0);
+  // ?film=0 ends it
+  await page.goto("/?film=0");
+  await expect(page.locator("html")).not.toHaveAttribute("data-film", "1");
+  noMoneySpent(g);
+});
