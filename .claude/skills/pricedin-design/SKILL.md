@@ -29,7 +29,7 @@ The source of truth is the kit at `.apex/design/brand/pulse/` (`tokens.json`, `a
 
 ## 2. Non-negotiables
 
-1. **Dark is the default theme** (`<html data-theme="dark">`); light is designed, not inverted. Both ship, both pass AA.
+1. **Light is the default theme** (`<html data-theme="light">`; the founder, 6 Nov 2026: "I love the white theme a lot, make it default"). Dark is a toggle; `?theme=` and a saved choice (`pi-theme`) win. Light is designed, not inverted: white paper, hairlines, a deep cyan action, a ceramic dial, art lit on white. Both ship, both pass AA.
 2. **Pulse Cyan is for action only**: primary buttons, the selected tab, links, focus rings, the live pulse that invites a bet, the needle and its hub. Never Yes or No, never decoration, never a chart series colour, never a heading fill except the brand line on graphite in the brand assets.
 3. **Yes is green, No is red**, always labelled in words ("Yes, it's true", "No, it's false"). Colour is never the only signal.
 4. **Every changing number uses tabular figures** (Geist, `font-feature-settings: 'tnum'`, the body default).
@@ -44,46 +44,47 @@ The source of truth is the kit at `.apex/design/brand/pulse/` (`tokens.json`, `a
 
 ### 3.1 Colour (copied from `tokens.json`; CSS names in `assets/tokens.css`)
 
-Neutrals are tinted toward hue 255. `[data-theme="dark"]` is also `:root`.
+Neutrals are tinted toward hue 255. `[data-theme="light"]` is also `:root`, so `tokens.mjs` writes the light block first and the dark block after it: they tie on specificity, and the toggle must come later to win.
 
-| Role (CSS var) | Dark OKLCH | Dark hex | Light OKLCH | Light hex |
+| Role (CSS var) | Light OKLCH (default) | Light hex | Dark OKLCH | Dark hex |
 |---|---|---|---|---|
-| `--bg` | oklch(0.165 0.011 255) | #0B0F13 | oklch(0.982 0.003 255) | #F8F9FB |
-| `--surface` | oklch(0.205 0.013 255) | #13181D | oklch(1 0 0) | #FFFFFF |
-| `--surface2` | oklch(0.24 0.015 255) | #1B2026 | oklch(0.962 0.005 255) | #F0F3F6 |
-| `--surface3` | oklch(0.285 0.017 255) | #252B33 | oklch(0.935 0.007 255) | #E6EAEE |
-| `--line` | oklch(1 0 0 / 0.08) | #FFFFFF14 | oklch(0.25 0.02 255 / 0.09) | #1B222B17 |
-| `--line-strong` | oklch(1 0 0 / 0.15) | #FFFFFF26 | oklch(0.25 0.02 255 / 0.17) | #1B222B2B |
-| `--ink` | oklch(0.975 0.004 255) | #F5F7F9 | oklch(0.20 0.018 255) | #11161E |
-| `--ink2` | oklch(0.80 0.012 255) | #B9BEC6 | oklch(0.42 0.018 255) | #474E57 |
-| `--ink3` | oklch(0.68 0.014 255) | #9399A1 | oklch(0.50 0.016 255) | #5D646C |
-| `--brand` (Pulse Cyan) | oklch(0.86 0.15 205) | #00ECFF | oklch(0.86 0.15 205) | #00ECFF |
-| `--brand-hover` | oklch(0.90 0.135 205) | #81F2FF | oklch(0.83 0.15 205) | #00E1F3 |
-| `--brand-press` | oklch(0.80 0.14 207) | #00D6EA | oklch(0.79 0.145 207) | #00D2E6 |
-| `--brand-ink` (label on cyan) | oklch(0.20 0.045 232) | #001926 | same | #001926 |
-| `--brand-text` (cyan as text) | oklch(0.86 0.15 205) | #00ECFF | oklch(0.50 0.10 222) | #006E89 |
-| `--brand-soft` | oklch(0.86 0.15 205 / 0.14) | #00ECFF24 | oklch(0.70 0.13 210 / 0.14) | #00B2C824 |
-| `--yes` (text, icon) | oklch(0.80 0.18 152) | #4BDE81 | oklch(0.51 0.15 152) | #007B3D |
-| `--yes-bg` | oklch(0.80 0.18 152 / 0.13) | #4BDE8121 | oklch(0.62 0.17 152 / 0.12) | #00A1511F |
-| `--yes-fill` (selected, hover) | oklch(0.78 0.18 152) | #42D77B | same | #42D77B |
-| `--yes-ink` (label on fill) | oklch(0.20 0.05 152) | #011C0A | same | #011C0A |
-| `--no` (text, icon) | oklch(0.72 0.18 22) | #FF7072 | oklch(0.54 0.20 25) | #C9222B |
-| `--no-bg` | oklch(0.72 0.18 22 / 0.13) | #FF707221 | oklch(0.60 0.20 25 / 0.10) | #DE3B3D1A |
-| `--no-fill` | oklch(0.70 0.19 22) | #FF6367 | same | #FF6367 |
-| `--no-ink` | oklch(0.18 0.05 22) | #230707 | same | #230707 |
-| `--warn` (Wikipedia may be wrong) | oklch(0.84 0.14 80) | #FAC053 | oklch(0.52 0.12 65) | #965800 |
-| `--warn-bg` | oklch(0.84 0.14 80 / 0.13) | #FAC05321 | oklch(0.80 0.14 80 / 0.20) | #EDB34533 |
-| `--focus` | oklch(0.86 0.15 205) | #00ECFF | oklch(0.55 0.11 220) | #007E9A |
-| `--scrim` | oklch(0.12 0.01 255 / 0.7) | #040609B3 | oklch(0.2 0.02 255 / 0.4) | #10171F66 |
+| `--bg` | oklch(1 0 0) | #FFFFFF | oklch(0.165 0.011 255) | #0B0F13 |
+| `--surface` | oklch(1 0 0) | #FFFFFF | oklch(0.205 0.013 255) | #13181D |
+| `--surface2` | oklch(0.968 0.004 255) | #F3F5F7 | oklch(0.24 0.015 255) | #1B2026 |
+| `--surface3` | oklch(0.94 0.006 255) | #E8EBEF | oklch(0.285 0.017 255) | #252B33 |
+| `--line` | oklch(0.3 0.02 255 / 0.1) | #272E381A | oklch(1 0 0 / 0.08) | #FFFFFF14 |
+| `--line-strong` | oklch(0.3 0.02 255 / 0.18) | #272E382E | oklch(1 0 0 / 0.15) | #FFFFFF26 |
+| `--ink` | oklch(0.21 0.02 258) | #131922 | oklch(0.975 0.004 255) | #F5F7F9 |
+| `--ink2` | oklch(0.44 0.018 255) | #4C535D | oklch(0.80 0.012 255) | #B9BEC6 |
+| `--ink3` | oklch(0.52 0.016 255) | #636A72 | oklch(0.68 0.014 255) | #9399A1 |
+| `--brand` (Pulse Cyan) | oklch(0.53 0.13 218) | #007890 | oklch(0.86 0.15 205) | #00ECFF |
+| `--brand-hover` | oklch(0.49 0.125 220) | #006C83 | oklch(0.90 0.135 205) | #81F2FF |
+| `--brand-press` | oklch(0.46 0.12 222) | #00627A | oklch(0.80 0.14 207) | #00D6EA |
+| `--brand-ink` (label on the action fill) | oklch(1 0 0) | #FFFFFF | oklch(0.20 0.045 232) | #001926 |
+| `--brand-text` (cyan as text) | oklch(0.5 0.12 222) | #006E89 | oklch(0.86 0.15 205) | #00ECFF |
+| `--brand-soft` | oklch(0.6 0.12 218 / 0.1) | #008FAB1A | oklch(0.86 0.15 205 / 0.14) | #00ECFF24 |
+| `--yes` (text, icon) | oklch(0.5 0.15 152) | #00783B | oklch(0.80 0.18 152) | #4BDE81 |
+| `--yes-bg` | oklch(0.96 0.04 152) | #DFFAE5 | oklch(0.80 0.18 152 / 0.13) | #4BDE8121 |
+| `--yes-fill` (selected, hover) | oklch(0.52 0.15 152) | #007E3E | oklch(0.78 0.18 152) | #42D77B |
+| `--yes-ink` (label on fill) | oklch(1 0 0) | #FFFFFF | oklch(0.20 0.05 152) | #011C0A |
+| `--no` (text, icon) | oklch(0.53 0.2 25) | #C51D28 | oklch(0.72 0.18 22) | #FF7072 |
+| `--no-bg` | oklch(0.962 0.028 20) | #FFEEED | oklch(0.72 0.18 22 / 0.13) | #FF707221 |
+| `--no-fill` | oklch(0.55 0.2 25) | #CC272E | oklch(0.70 0.19 22) | #FF6367 |
+| `--no-ink` | oklch(1 0 0) | #FFFFFF | oklch(0.18 0.05 22) | #230707 |
+| `--warn` (Wikipedia may be wrong) | oklch(0.52 0.12 65) | #965800 | oklch(0.84 0.14 80) | #FAC053 |
+| `--warn-bg` | oklch(0.80 0.14 80 / 0.20) | #EDB34533 | oklch(0.84 0.14 80 / 0.13) | #FAC05321 |
+| `--focus` | oklch(0.53 0.13 218) | #007890 | oklch(0.86 0.15 205) | #00ECFF |
+| `--scrim` | oklch(0.2 0.02 255 / 0.36) | #10171F5C | oklch(0.12 0.01 255 / 0.7) | #040609B3 |
 
 **Cyan rules**
 - Allowed: primary button fill (gradient `--brand-hover` to `--brand`, label `--brand-ink`), selected tab fill, links and small cyan text (use `--brand-text`, which is darker on light), focus ring (`--focus`, 2 px), the live dot, the needle, the hub core, the chart's head dot.
-- Light theme: the cyan fill is 1.38:1 against white as a shape, so every cyan fill carries a dark label (`--brand-ink`, 12.35:1) and the inner border from the primary button recipe. Never use bare cyan text on white; use `--brand-text` (5.82:1).
+- **Light theme: one action colour, deeper.** On white the neon cyan looked fluorescent, so light `--brand` is a deep, rich cyan (oklch 0.53 0.13 218, #007890) with a **white** label (`--brand-ink` is white in light, 5.10:1). Primary button: `linear-gradient(180deg, oklch(.56 .13 216), oklch(.51 .13 219))`, white label, inner top highlight, cyan-tinted shadow; hover goes darker, not lighter. Links use `--brand-text` (5.82:1). The needle is `--needle` (oklch .57 .14 216); the mark's needle and dot are `--mark-cyan` (#00B7C7, the kit's light-ground mark; #00E5F2 in dark).
+- **Yes and No on white** are crisp: an opaque pale tint at rest (`--yes-bg` #DFFAE5, `--no-bg` #FFEEED) with green or red text, and a solid fill with a **white** label on hover or selection (5.16:1, 5.38:1). Never fade the small payout line with opacity in light: it must stay AA on the tint.
 - Forbidden: Yes/No, charts other than the head dot, borders, backgrounds of large areas, icons in lists, gradients as decoration. The dial's soft cyan glow on the graphite ground is the one decorative use and belongs to the object.
 - Yes/No fills never appear next to each other as the same strength: the idle button is the soft tint (`-bg` with `--yes`/`--no` text); hover or selection moves to `-fill` with `-ink` text.
 - Warn (amber) is for the "Wikipedia may be wrong" chip and nothing else.
 
-**Contrast, all verified AA (`contrast.md`)**: every text pair at least 4.5:1 in both themes (lowest: `--yes` on its tint in light, 4.69:1; `--ink3` on `--surface2` light, 5.37:1). UI pairs at least 3:1 except the cyan fill on white, handled by the label. Re-run `_pr/tokens.mjs` if a token changes; do not hand-edit `tokens.css`.
+**Contrast, all verified AA (`contrast.md`)**: every text pair at least 4.5:1 in both themes (lowest in light: `--ink3` on `--surface2` 5.02:1, `--warn` on its tint 5.02:1, `--yes` on its tint 5.08:1). Every UI pair at least 3:1 in light, the action fill included (5.10:1). Re-run `_pr/tokens.mjs` if a token changes; do not hand-edit `tokens.css`.
 
 ### 3.2 Type
 
@@ -128,9 +129,9 @@ Rules: numbers and headlines are General Sans 700 with the negative tracking abo
 - **Radius:** xs 6 · sm 10 · md 14 · lg 20 · xl 28 · pill 999 (`--r-*`). Buttons and tabs pill; Yes/No buttons 14; cards 20 (`--r-lg`); the featured card and ticket slips 28 (`--r-xl`); chips pill.
 - **Shadow** (not in `tokens.json`, these are in `assets/kit.css`; copy):
   - Dark `--card-shadow: inset 0 1px 0 oklch(1 0 0 / .05), 0 1px 0 oklch(0 0 0 / .4)`; `--panel: linear-gradient(180deg, oklch(.225 .014 255), oklch(.2 .013 255))`; `--lift: 0 18px 40px -18px oklch(0 0 0 / .8)`; `--dial-shadow: 0 30px 60px -20px oklch(0 0 0 / .85)`.
-  - Light `--card-shadow: 0 1px 2px oklch(.3 .03 255 / .06), 0 8px 24px -12px oklch(.3 .05 255 / .16)`; `--panel: linear-gradient(180deg, oklch(1 0 0), oklch(.985 .003 255))`; `--lift: 0 18px 40px -18px oklch(.3 .06 255 / .3)`; `--dial-shadow: 0 30px 50px -22px oklch(.25 .05 255 / .55)`.
+  - Light (`app/styles/base.css`): page and surfaces are white; a card is a hairline plus a whisper of shadow tinted to hue 255, `--card-shadow: 0 0 0 1px oklch(.3 .02 255 / .09), 0 1px 2px oklch(.25 .02 255 / .04), 0 2px 8px -2px oklch(.25 .03 255 / .05)`; hover `--card-hover: 0 0 0 1px oklch(.3 .02 255 / .15), 0 2px 4px oklch(.25 .02 255 / .05), 0 14px 30px -14px oklch(.25 .04 255 / .2)`; `--panel: oklch(1 0 0)`; `--lift: 0 0 0 1px oklch(.3 .02 255 / .08), 0 4px 8px -2px oklch(.25 .03 255 / .06), 0 20px 44px -16px oklch(.25 .05 255 / .24)`; `--dial-shadow: 0 1px 2px oklch(.25 .02 255 / .12), 0 10px 22px -10px oklch(.25 .04 255 / .3), 0 30px 50px -28px oklch(.25 .05 255 / .32)`; every hover fill is `--hover` (`--surface2` in light, `--surface` in dark). The search field is `--surface2`, white with a focus ring while typing.
   - One elevation family: flat card, lifted (hover and popovers), dial. No coloured shadows except the primary button's cyan glow.
-- **Featured and slip backdrop:** `radial-gradient(70% 110% at 84% 42%, oklch(.31 .035 225 / .55), transparent 70%)` over `--panel` in dark; `oklch(.86 .07 210 / .4)` in light. The glow sits behind the dial.
+- **Featured and slip backdrop:** `radial-gradient(70% 110% at 84% 42%, oklch(.31 .035 225 / .55), transparent 70%)` over `--panel` in dark. None in light (`--glow: transparent`): the pale cyan wash read as a tint, not a decision. In light the lead is a plain white card and the ceramic dial carries it.
 - **Motion:** `--ease-out: cubic-bezier(0.22, 1, 0.36, 1)`, `--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1)`, `--spring: cubic-bezier(0.34, 1.56, 0.64, 1)`; durations `--micro` 140ms (press), `--color` 180ms, `--ui` 220ms, `--reveal` 700ms, `--tick` 900ms. Press = `transform: scale(.97)`. Card art hover = `scale(1.045)`. Animate transform and opacity only.
 
 ## 4. The mark
@@ -160,7 +161,7 @@ A Blender-rendered machined face (`assets/art/dial.webp`, 900×900) with a live 
 - Hub: 12% square, centred (`margin: -6% 0 0 -6%`), radial gradient `circle at 36% 30%, oklch(.72 .012 255), oklch(.34 .012 255) 48%, oklch(.2 .01 255)`, shadow `0 3px 8px oklch(0 0 0 / .7), inset 0 1px 0 oklch(1 0 0 / .35)`; core dot `inset: 34%`, `oklch(.86 .15 205)` with `0 0 10px oklch(.86 .15 205 / .9)`.
 - Read-out: `.read` at `top: 60%`, centred. Number General Sans 700 at `25cqw`, `letter-spacing -.05em`, line-height .9, `%` at .52em. Label under it: Geist 500 at `max(11px, 4.1cqw)`, `oklch(.8 .012 255)`, margin-top 4cqw, text "chance it's true".
 - Scale labels "0" (left 21%, bottom 13.5%) and "100" (right 19%, bottom 13.5%), Geist 500 at `max(10px, 3.6cqw)`, `oklch(.72 .012 255)`.
-- The dial face is dark in both themes (it is an object, like product photography); on light surfaces it sits on a pale cyan radial wash. Never invert it.
+- **Two renders, one per theme**, from the same geometry (`_pr/blender-pulse.py` modes `dial` and `dial-light`): graphite (`/art/dial.webp`) and a ceramic dished face with a brushed aluminium bezel and graphite ticks (`/art/light/dial.webp`). `components/Dial.tsx` renders both through `components/Art.tsx`; `base.css` shows the one for the theme set before paint (`.th-l`, `.th-d`), so nothing flashes, and the hidden one is always lazy, so it never loads. In light: read-out `--ink`, label `--ink2`, scale `--ink3` moved in to `left 22% / bottom 24%`, the needle gets a contact shadow instead of a glow, the hub is polished aluminium round a `--needle` pivot. Never invert a render: use the other one.
 
 **Sizes.** Home featured 340 px max; market page chart box 170 to 190 px; receipt 196 px; phone beside the question about 118 to 124 px (drop the caption to `b` mode: "chance it's true" in bold under it); share card 500 px; brand assets 420 to 600 px. Under about 110 px drop the scale labels and the label line, never the number.
 
@@ -178,7 +179,9 @@ A Blender-rendered machined face (`assets/art/dial.webp`, 900×900) with a live 
 
 Every fact card carries an image: a machined glass-and-graphite object on the interface's own ground. A feed of mostly Tether lines still reads as varied and premium. One art director: the template below, never ad hoc prompts.
 
-**Current set (16, in `assets/art/*.webp`, raw PNGs in `assets/art/raw/`):** tether (three emerald glass coins), stablecoins (gyroscope), ethereum (periwinkle crystal), bitcoin (amber coin on its rim), near (open mirror ring), uniswap (hot-pink horn), polymarket (cobalt split sphere), kalshi (jade fluted column), dai (amber vault dial), defi (three interlocked rings, one violet), reserves (pale-green glass bars in a band), gold, audit (magnifying lens), freeze (coin in ice), corp (smoked glass tower), augur (cracked crystal ball). Plus `dial.webp`.
+**Two sets, one per theme.** Light (default): `site/public/art/light/*.webp` (kit `assets/art/light/`), the same sixteen objects modelled in Blender in real refractive glass and brushed aluminium on a white sweep with a soft contact shadow (`_pr/blender-topics-light.py`), graded by `_pr/post-art-light.py`, which divides each render by its clean plate outside the object mask so the ground is pure #FFFFFF to the edge and the tile melts into a white card. Dark: below. Every surface uses `<Art name=…>` (`components/Art.tsx`), never a bare `/art/` path. On a light card the image is `object-fit: contain`, set toward the right of the band, and in both themes the % and its meaning sit in the card body in ink: nothing is read over the art.
+
+**Dark set (16, in `assets/art/*.webp`, raw PNGs in `assets/art/raw/`):** tether (three emerald glass coins), stablecoins (gyroscope), ethereum (periwinkle crystal), bitcoin (amber coin on its rim), near (open mirror ring), uniswap (hot-pink horn), polymarket (cobalt split sphere), kalshi (jade fluted column), dai (amber vault dial), defi (three interlocked rings, one violet), reserves (pale-green glass bars in a band), gold, audit (magnifying lens), freeze (coin in ice), corp (smoked glass tower), augur (cracked crystal ball). Plus `dial.webp`.
 
 **How to make a new topic image**
 1. Write the subject in one sentence: one physical object, a material (smoked or coloured glass, brushed graphite metal), a single accent hue that is the topic's colour, no text on it. Examples in `_pr/gen-art.mjs`.
@@ -294,14 +297,14 @@ Names follow `assets/kit.css`. Phone = under 760 px (tablet breakpoint 1240 px).
 - **Anatomy:** grid `minmax(0,1fr) 500px`, padding 48×56, dial backdrop glow at 82% 46%. Left column: lockup (56 px high), the question as H1 (General Sans 700 62/1.04, tracking −0.032em, balance), then "**40% chance it's true** · {whose}" (sub), footer "Is it true? **Bet on it.**" (22 px Geist 500, cyan on "Bet on it." in dark, `--brand-text` in light) and "isitpriced.com" right. Right: the dial 500 px with the real %.
 - **Post text** is "{question} {The market says | AI's estimate}: 40% chance it's true. Is it true? Bet on it. isitpriced.com/c/{id}".
 - **States:** *Loading:* never rendered; the card is built from final data. *Empty (no bets):* "AI's estimate · no bets yet" in the sub. *Error:* fall back to the brand card (tagline, dial at 50% is not allowed: use the lockup, tagline and the app icon, no number). *Free-bet-unavailable:* n/a.
-- **Phone/small:** scales as a fixed 1200×630 artboard (`.fit`); on phone the card scales to width, text never reflows. Safe margin 56 px; nothing important within 40 px of the edge. Both themes shipped; dark default.
+- **Phone/small:** scales as a fixed 1200×630 artboard (`.fit`); on phone the card scales to width, text never reflows. Safe margin 56 px; nothing important within 40 px of the edge. The live `next/og` cards (`lib/og/card.tsx`: `/opengraph-image`, `/c/[id]/opengraph-image` and every page card) are **light**: a white to #F3F5F7 paper ground, ink #131922, the ceramic dial (`lib/og/dial.png`, the light render) with the #008AAB needle and an aluminium hub, the mark in #131922 and #00B7C7, "Is it true? Bet on it." in ink, a ruled kicker in #C51D28. The renderer can't read CSS variables, so these are hex.
 - **OG and social crops** (`pulse/social/`): X avatar 400×400, X banner 1500×500 (keep the left 400 px free of text for the avatar overlap), GitHub social preview 1280×640, README hero 1600×800.
 
 ### 7.11 Other surfaces
 - **Primary button** (`.btn.primary`): pill, 44 px (52 lg), General Sans 600 15 px, `linear-gradient(180deg, --brand-hover, --brand)`, `--brand-ink` label, `inset 0 1px 0 oklch(1 0 0/.45), inset 0 -1px 0 oklch(.5 .1 215/.35), 0 10px 26px -10px oklch(.86 .15 205/.55)`; hover glow to .8; press `scale(.97)`. Ghost: inset 1px `--line-strong`. Soft: `--surface2`. Disabled: opacity .45, no glow. Loading: label replaced by "Working…" and the cyan ring; width fixed.
 - **Chips** (`.chip`): 26 px pill, 12.5 px 500, `--surface2` + `--ink2`; `.warn` uses `--warn-bg` + `--warn`.
 - **Header:** logo, search ("Search facts or paste an X link", `/` shortcut), nav (Facts, Results, AI traders, Portfolio), theme toggle, "Claim free $1" primary. Phone: logo, search icon, "Free $1".
-- **Footer:** the trust line "Runs on NEAR. Paid in USDC." once, small; links to the contract and the audit are real URLs.
+- **Footer** (`components/shell/Footer.tsx`, to Polymarket's standard): the lockup (44 px), "Is it true? Bet on it." and "Prediction markets for facts, on NEAR."; **Facts by topic**, the biggest block, every Wikipedia page with a live market and a quiet second line with its real count ("22 facts & odds", from the same data `/p` uses), ending with All topics; three link groups, Product, Help & proof, Developers; a base bar with real accounts only (GitHub, npm, the contract on NearBlocks; never an X, Discord or email we don't have), "© 2026 Priced In · Terms · Privacy · Trust · Status · Source code" and the theme toggle at the right; then the fine print, which opens with the trust line "Runs on NEAR. Paid in USDC." (once), says what /terms says (micro-stakes research preview, USDC settling in market.isitpriced.near, no real money in the US or other restricted regions, the free $1 is score, AI rulings can be wrong and can be disputed with a bond, risk of loss), and credits Wikipedia under CC BY-SA 4.0. Phone: topics in two columns, link groups as details/summary accordions, the base bar stacked, every target 44 px. Classes are `ft-` prefixed in `shell.css`.
 
 ## 8. Scale and trust cues (what the judges decided)
 
