@@ -114,7 +114,7 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 
 Its tests are `site/tests/unit/core/`; `npm run site:test` runs them with the rest of the site's unit suite (judge check 8).
 
-**The events it reads.** The market logs every change as `EVENT_JSON`, standard `pricedin`, version `2.1.0` (`trade` carries `fee_micro`; see [SPEC.md](SPEC.md)). `services/api`'s scanner turns them into records, and the site reads them as `MarketEvent` (`site/lib/core/api.ts`). The hosted API keeps no long-running stream, so the browser polls `/api/events/recent?since=<seq>` (`PollingEventStream`, through `site/lib/client/engine.ts`); a trade's receipt, rewrite and agent reply arrive that way.
+**The events it reads.** The market logs every change as `EVENT_JSON`, standard `pricedin`, version `2.1.0` (`trade` carries `fee_micro`; see [SPEC.md](SPEC.md)); the live feed also holds `2.0.0` events from before the v3 upgrade, without that field. `services/api`'s scanner turns them into records, and the site reads them as `MarketEvent` (`site/lib/core/api.ts`). The hosted API keeps no long-running stream, so the browser polls `/api/events/recent?since=<seq>` (`PollingEventStream`, through `site/lib/client/engine.ts`); a trade's receipt, rewrite and agent reply arrive that way.
 
 **How data flows.**
 - **Server reads.** Server components read the API directly at `API_ORIGIN` (`site/lib/server/api.ts`, a short cache window, never throwing). `getSite()` builds what most pages need; `getMarket()` adds one market's.
