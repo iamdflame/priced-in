@@ -93,6 +93,21 @@ test("quote: b is implied from the contract's cost to move, and buying that cost
   assert.throws(() => quoteBuy(c, "yes", 0), /amount/);
 });
 
+test("quote: a v3 view's taker fee comes out of the amount first, as the contract's fill_buy does, and its b is used as is", () => {
+  const c = CLAIMS[4];
+  const plain = quoteBuy(c, "no", 1);
+  const v3 = { ...c, b_micro: "3000000", fee_bps: 100 };
+  const q = quoteBuy(v3, "no", 1);
+  // the same market with $1 * 10,000 / 10,100 spent and no fee
+  const net = quoteBuy({ ...c, b_micro: "3000000" }, "no", 10_000 / 10_100);
+  assert.equal(q.fee_bps, 100);
+  assert.ok(Math.abs(q.fee_usd - (1 - 10_000 / 10_100)) < 1e-6, `fee ${q.fee_usd}`);
+  assert.ok(Math.abs(q.shares - net.shares) < 2e-6, `${q.shares} vs ${net.shares}`);
+  assert.ok(q.shares < plain.shares, "the fee buys fewer shares than the fee-free quote");
+  assert.ok(BigInt(q.min_shares_micro) < BigInt(Math.floor(q.shares * 1e6)));
+  assert.equal(plain.fee_bps, 0, "a view from before v3 has no fee");
+});
+
 // ---------- HTTP ----------
 function mockFacilitator({ valid = true, settles = true } = {}) {
   const calls = [];

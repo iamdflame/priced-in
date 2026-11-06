@@ -25,15 +25,20 @@ export function impliedB(p, upUsd, downUsd) {
  * An LMSR quote for spending `amountUsd` on `side`, from the claim's public view. The contract
  * charges whole micro-USDC and floors shares to micro, so the real fill can differ from this
  * by a micro or two; min_shares_micro (1% under the estimate by default) guards the rest.
+ * Market v3's taker fee comes out of the amount first, as the contract's fill_buy does:
+ * budget = amount * 10,000 / (10,000 + fee_bps). A v3 view also carries b_micro, which is used
+ * as is; an older view has neither, so b is implied from its cost-to-move figures and the fee is 0.
  */
 export function quoteBuy(claim, side, amountUsd, { slippage = 0.01 } = {}) {
   if (side !== "yes" && side !== "no") throw new Error('side must be "yes" or "no"');
   if (!(amountUsd > 0) || amountUsd > 1e6) throw new Error("amount_usd must be a positive number of dollars");
   const pYes = claim.price_yes_ppm / 1e6;
-  const b = impliedB(pYes, usd(claim.cost_up_10_micro), usd(claim.cost_down_10_micro));
+  const feeBps = Number(claim.fee_bps ?? 0);
+  const net = (amountUsd * 10_000) / (10_000 + feeBps);
+  const b = claim.b_micro != null ? Number(claim.b_micro) / 1e6 : impliedB(pYes, usd(claim.cost_up_10_micro), usd(claim.cost_down_10_micro));
   if (!b) throw new Error("this market is at the edge of its range; no quote");
   const q = side === "yes" ? pYes : 1 - pYes;
-  const shares = b * Math.log((Math.exp(amountUsd / b) - (1 - q)) / q);
+  const shares = b * Math.log((Math.exp(net / b) - (1 - q)) / q);
   const e = Math.exp(shares / b);
   const sideAfter = (q * e) / (1 - q + q * e);
   const yesAfter = side === "yes" ? sideAfter : 1 - sideAfter;
@@ -44,8 +49,9 @@ export function quoteBuy(claim, side, amountUsd, { slippage = 0.01 } = {}) {
     payout_if_right_usd: sharesMicro / 1e6, profit_if_right_usd: sharesMicro / 1e6 - amountUsd,
     price_yes_before: pYes, price_yes_after: Math.round(yesAfter * 1e6) / 1e6,
     liquidity_b_usd: Math.round(b * 1e4) / 1e4,
+    fee_bps: feeBps, fee_usd: Math.round((amountUsd - net) * 1e6) / 1e6,
     min_shares_micro: String(Math.floor(sharesMicro * (1 - slippage))),
-    method: "LMSR closed form on the contract's public view (b implied by its cost-to-move figures)",
+    method: claim.b_micro != null ? "LMSR closed form on the contract's public view (its b, after the taker fee)" : "LMSR closed form on the contract's public view (b implied by its cost-to-move figures)",
   };
 }
 
