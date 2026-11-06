@@ -48,6 +48,8 @@
 .foot nav a { min-height: 44px; display: inline-flex; align-items: center; }
 .foot a:hover { color: var(--ink); }
 
+.foot-theme { display: none; }
+
 /* Phone bars */
 .pbar, .pnav { display: none; }
 
@@ -69,6 +71,7 @@
   .ticker .wrap { height: 36px; gap: 10px; padding: 0 0 0 14px; }
   .net { display: none; }
   .foot .wrap { flex-direction: column; align-items: flex-start; }
+  .foot-theme { display: block; margin-left: -12px; }
   .replaybar { font-size: 13px; }
   .replaybar .long { display: none; }
 }

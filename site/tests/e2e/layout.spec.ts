@@ -24,6 +24,14 @@ for (const theme of ["dark", "light"]) {
   }
 }
 
+test("the phone header has no theme toggle: it lives in the footer", async ({ page }) => {
+  await guard(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/");
+  await expect(page.locator(".pbar").getByRole("button", { name: /theme/ })).toHaveCount(0);
+  await expect(page.locator(".foot").getByRole("button", { name: /theme/ })).toBeVisible();
+});
+
 test("touch targets are at least 44 px on the phone", async ({ page }) => {
   await guard(page);
   await page.setViewportSize({ width: 390, height: 844 });

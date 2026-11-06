@@ -1,6 +1,8 @@
 // The footer carries the trust line: NEAR is named here and in the trust line, not on the first screen.
+// On the phone it also holds the theme toggle; the desktop header keeps its own.
 import Link from "next/link";
 import { Icon } from "../Icon";
+import { ThemeToggle } from "./ThemeToggle";
 import { explorerAccount } from "@/lib/format";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
 
@@ -22,6 +24,7 @@ export function Footer() {
           <Link href="/developers">Developers</Link>
           <a href={REPO_URL} target="_blank" rel="noopener">Source code <Icon name="ext" className="inline-block !w-3 !h-3" /></a>
         </nav>
+        <div className="foot-theme"><ThemeToggle /></div>
       </div>
     </footer>
   );

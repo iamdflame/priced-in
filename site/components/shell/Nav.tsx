@@ -47,7 +47,6 @@ export function Nav() {
       <div className="pbar">
         <Link className="logo" href="/" aria-label="Priced In, home"><Lockup /></Link>
         <div className="r">
-          <ThemeToggle />
           <Link className="iconbtn" href="/#facts" aria-label="Search facts"><Icon name="search" /></Link>
           <WalletButton />
           <Link className="btn primary" href={cta}>Free $1</Link>
