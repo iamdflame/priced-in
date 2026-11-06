@@ -227,6 +227,25 @@ test("a sweep posts its answers too: a no-bet with the policy's reason, an agree
   } finally { a.crowd.stop(); await a.mock.close(); }
 });
 
+test("a sweep's same answer on the same line posts at most every 12 h; a changed answer posts at once", async () => {
+  const q = () => [swarmAgent(2, { model: MOCK_MODELS[2], persona_hash: H("house-quant") })];
+  let bank = 0;
+  const a = await setup({ agents: q(), credences: { [MOCK_MODELS[2]]: 0.9 }, bank: () => bank });
+  try {
+    a.crowd.cooldownMs = 0;
+    await a.crowd.sweep(1);
+    await a.crowd.sweep(1);
+    assert.equal(a.events.length, 1, "the same no-bet, minutes later: not news");
+    assert.equal(a.ledger.actions.get("a2.swarm.testnet").kind, "looked");
+    a.mock.behave(MOCK_MODELS[2], { content: credence(0.51) });
+    await a.crowd.sweep(1);
+    assert.deepEqual(a.events.map((e) => e.side), ["no_bet", "agree"], "a changed answer posts");
+    a.crowd.sweepRepeatMs = 0;
+    await a.crowd.sweep(1);
+    assert.equal(a.events.length, 3, "past the 12 hours it posts again");
+  } finally { a.crowd.stop(); await a.mock.close(); }
+});
+
 test("a sweep's failed bet is posted as a no-bet, not lost", async () => {
   const a = await setup({ agents: [swarmAgent(0, { model: MOCK_MODELS[2], persona_hash: H("house-quant") })], credences: { [MOCK_MODELS[2]]: 0.9 } });
   try {

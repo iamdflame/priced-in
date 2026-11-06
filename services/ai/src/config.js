@@ -83,7 +83,8 @@ export function loadAiConfig(env = process.env) {
       billing: { route, overrides, yoctoPerMicro, dailyBillMicro: num(env.SIGNER_DAILY_BILL_MICRO, 2_000_000) },
       useWebSearch: env.AGENT_WEB_SEARCH !== "0",
       sweepMs: num(env.AGENT_SWEEP_MS, 15 * 60_000),
-      policy: { ...DEFAULT_POLICY, dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
+      // AGENT_FEE_POINTS: what a trade pays the market, as a fraction (0.01 once a 1% taker fee is on)
+      policy: { ...DEFAULT_POLICY, feePoints: num(env.AGENT_FEE_POINTS, DEFAULT_POLICY.feePoints), dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
       dailySpendMicro: num(env.SIGNER_DAILY_SPEND_MICRO, 10_000_000),
     },
     jury: {

@@ -192,7 +192,7 @@ export class Crowd {
    *   balanceOf: (accountId: string) => Promise<number>, positionOf?: (claimId: number, accountId: string) => Promise<{ yes: number, no: number }>,
    *   staticAgents?: { name: string, model: string }[], houseOwners?: string[], billingRoute?: (p: object) => string, biller?: import('./billing.js').Biller,
    *   rationales?: import('./journal.js').Journal, policy?: object, pagesDoc?: object, log?: (m: string) => void, now?: () => number,
-   *   cooldownMs?: number, freshCooldownMs?: number, sweepMs?: number, cycleMs?: number, signatureDeadlineMs?: number }} o
+   *   cooldownMs?: number, freshCooldownMs?: number, sweepMs?: number, sweepRepeatMs?: number, cycleMs?: number, signatureDeadlineMs?: number }} o
    */
   constructor(o) {
     Object.assign(this, { client: o.client, attestor: o.attestor, claims: o.claims, hub: o.hub, signer: o.signer, ledger: o.ledger, research: o.research, personas: o.personas, balanceOf: o.balanceOf, biller: o.biller || null });
@@ -208,6 +208,7 @@ export class Crowd {
     this.cooldownMs = o.cooldownMs ?? 10 * 60_000;
     this.freshCooldownMs = o.freshCooldownMs ?? 20_000;
     this.sweepMs = o.sweepMs ?? 15 * 60_000;
+    this.sweepRepeatMs = o.sweepRepeatMs ?? 12 * 3600_000;
     this.cycleMs = o.cycleMs ?? 60_000;
     this.signatureDeadlineMs = o.signatureDeadlineMs ?? 6000;
     this.journal = o.rationales || null;
@@ -399,9 +400,16 @@ export class Crowd {
           // a look that ends in no trade is posted too, on a sweep as on a trade, with the policy's
           // reason: every open line shows an agent's answer, even the lines nobody has bet on
           this.stats.noEdge += d.noEdge ? 1 : 0;
+          const side = d.noEdge ? "agree" : "no_bet";
+          // a sweep's answer repeats itself: the same one on the same line posts at most every 12 h
+          const said = trigger.kind === "sweep" ? this.rationales.findLast((r) => r.account_id === e.agent.accountId && r.claim_id === claim.id) : null;
+          if (said?.side === side && this.now() - (said.at || 0) < this.sweepRepeatMs) {
+            this.ledger.recordAction(e.agent.accountId, { kind: "looked", claim_id: claim.id, credence: e.credence.p, reason: d.reason ?? null });
+            continue;
+          }
           // "agree" only from an agent whose credence sits at the price it sees now
-          if (d.noEdge) { this.stats.agrees++; posted.push(this.post(e, claim, before, { side: "agree", text: `agree at ${pct(before)}` }, trigger)); }
-          else { this.stats.noBets++; posted.push(this.post(e, claim, before, { side: "no_bet", text: `no bet: ${d.reason}` }, trigger)); }
+          if (d.noEdge) { this.stats.agrees++; posted.push(this.post(e, claim, before, { side, text: `agree at ${pct(before)}` }, trigger)); }
+          else { this.stats.noBets++; posted.push(this.post(e, claim, before, { side, text: `no bet: ${d.reason}` }, trigger)); }
         }
       }
       return { claim_id: claim.id, trigger, evaluations: evals.map((e) => ({ agent: e.agent.name, account: e.agent.accountId, credence: e.credence?.p ?? null, decision: e.decision ?? null, error: e.error ?? e.betError ?? null })), posted };
