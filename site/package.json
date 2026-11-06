@@ -10,7 +10,8 @@
     "test": "vitest run",
     "e2e": "playwright test",
     "catalog": "node scripts/build-catalog.mjs",
-    "pages": "node scripts/build-pages.mjs"
+    "pages": "node scripts/build-pages.mjs",
+    "e2e:money": "playwright test -c playwright.money.config.ts"
   },
   "dependencies": {
     "@near-js/transactions": "^2.5.1",

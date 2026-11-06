@@ -9,7 +9,7 @@ import { useBridgeStatus, useBridgeRoutes } from "./useBridge";
 import { useSend } from "./useSend";
 import { quoteIn } from "@/lib/money/bridge";
 import { moneyConfig } from "@/lib/money/config";
-import { closeSheet, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
+import { closeSheet, refreshAccount, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
 import { dropPendingBridge, logTx, pendingBridges, savePendingBridge, updatePendingBridge, type PendingBridge } from "@/lib/money/ledger";
 import { STATUS_WORDS, validAddress, type BridgeQuote, type BridgeRoute } from "@/lib/money/oneclick";
 import { checkBridgeIn } from "@/lib/money/rules";
@@ -123,6 +123,9 @@ function Tracker({ p, route, onNew }: { p: PendingBridge; route: BridgeRoute | n
   const [expired, setExpired] = useState(() => Date.parse(q.sendBy) <= Date.now());
   const status = s?.status ?? (p.stage === "landed" ? "SUCCESS" : "PENDING_DEPOSIT");
 
+  // it landed: read the wallet again now, not at the next poll, so the amount to move in is right
+  useEffect(() => { if (status === "SUCCESS") void refreshAccount(p.account); }, [status, p.account]);
+
   useEffect(() => {
     if (status !== "SUCCESS" || p.stage === "landed") return;
     updatePendingBridge(p.account, address, { stage: "landed" });
@@ -162,7 +165,9 @@ function Tracker({ p, route, onNew }: { p: PendingBridge; route: BridgeRoute | n
       {status === "SUCCESS" ? (
         <>
           <div className="m-get"><span className="k">Arrived in your NEAR wallet</span><span className="v">{fmtMicro(arrived)}</span></div>
-          <MoveIn amount={acct.usdcMicro !== null && acct.usdcMicro < arrived ? acct.usdcMicro : arrived} onDone={() => { finish(); setMoved(true); }} />
+          {acct.usdcMicro === null || acct.usdcMicro === 0n
+            ? <Loading>Waiting for the USDC to show in your wallet…</Loading>
+            : <MoveIn amount={acct.usdcMicro < arrived ? acct.usdcMicro : arrived} onDone={() => { finish(); setMoved(true); }} />}
         </>
       ) : (
         <p className="fine">You can close this: your portfolio keeps tracking it until it lands. Follow it on the <a className="linkbtn" href={`https://explorer.near-intents.org/?search=${address}`} target="_blank" rel="noopener">NEAR Intents explorer</a>.</p>

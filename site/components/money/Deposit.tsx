@@ -1,7 +1,7 @@
 "use client";
 // Deposit: USDC already in the NEAR wallet moves into the Priced In balance with ft_transfer_call. From
 // another chain, DepositChain.tsx routes it through NEAR Intents first.
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../Icon";
 import { FromChain } from "./DepositChain";
 import { AmountInput, ApproveBox, Done, Failed, GeoLine, Sheet, TxLink } from "./ui";
@@ -9,6 +9,7 @@ import { useSend } from "./useSend";
 import { moneyConfig } from "@/lib/money/config";
 import { canAddMoney } from "@/lib/money/geo";
 import { closeSheet, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
+import { pendingBridges } from "@/lib/money/ledger";
 import { checkDeposit, MAX_DEPOSIT_MICRO } from "@/lib/money/rules";
 import { depositTx } from "@/lib/money/tx";
 import { fmtMicro, microToInput, parseUsd } from "@/lib/money/units";
@@ -20,7 +21,13 @@ export function DepositSheet({ tab: initialTab, onClose }: { tab?: "near" | "cha
   const acct = useAccount(w.accountId);
   const geo = useGeo();
   const [picked, setPicked] = useState<"near" | "chain" | null>(initialTab ?? null);
-  const tab = picked ?? (acct.usdcMicro === 0n ? "chain" : "near");
+  // decided once: a deposit on its way, or an empty wallet, opens on another chain, and stays there when the USDC lands
+  useEffect(() => {
+    if (picked || !w.accountId) return;
+    if (pendingBridges(w.accountId).some((p) => p.quote.dir === "in")) setPicked("chain");
+    else if (acct.usdcMicro !== null) setPicked(acct.usdcMicro === 0n ? "chain" : "near");
+  }, [picked, w.accountId, acct.usdcMicro]);
+  const tab = picked ?? "near";
   return (
     <Sheet title="Deposit" sub={acct.balanceMicro !== null ? `Your Priced In balance: ${fmtMicro(acct.balanceMicro)}` : "Add USDC to bet with"} onClose={onClose}>
       {canAddMoney(geo.access) ? (
