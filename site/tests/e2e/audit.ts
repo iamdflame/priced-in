@@ -3,7 +3,7 @@
 import type { Page } from "@playwright/test";
 
 /** Text meant to end in an ellipsis: live bets in a fixed strip, and a long account name. */
-const MAY_TRUNCATE = ".sr-only, .tk, .tk *, .lastbets li, .proofline, .mbadge b, .mbadge small, .vcard b, .pf-hist .w span, .wmenu .a, a.fromwiki, .card .q";
+const MAY_TRUNCATE = ".sr-only, .tk, .tk *, .lastbets li, .proofline, .mbadge b, .mbadge small, .vcard b, .pf-hist .w span, .wmenu .a, a.fromwiki, .card .q, .board.stack thead";
 
 export async function audit(page: Page): Promise<string[]> {
   return page.evaluate((mayTruncate) => {

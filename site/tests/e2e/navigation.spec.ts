@@ -10,7 +10,14 @@ test.use({ reducedMotion: "reduce" });
 
 type Step = [name: string, go: (page: Page) => Promise<unknown>, url: RegExp];
 
-const foot = (page: Page, name: string) => page.locator(".foot").getByRole("link", { name, exact: true }).first().click();
+// a phone keeps the link groups in accordions: open them as a visitor would, and leave them shut afterwards,
+// because the footer outlives the navigation and the next stop is held against a fresh load
+const foot = async (page: Page, name: string) => {
+  const links = page.locator(".foot").getByRole("link", { name, exact: true });
+  if (!(await links.count())) for (const s of await page.locator(".foot details.ft-acc:not([open]) summary:visible").all()) await s.click();
+  await links.first().click();
+  await page.evaluate(() => document.querySelectorAll<HTMLDetailsElement>(".foot details[open]").forEach((d) => { d.open = false; }));
+};
 
 function walk(main: (page: Page, name: string) => Promise<unknown>): Step[] {
   return [
