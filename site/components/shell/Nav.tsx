@@ -6,6 +6,7 @@ import { Lockup } from "../Brand";
 import { Icon } from "../Icon";
 import { MoneyLayer } from "../money/MoneyLayer";
 import { WalletButton } from "../money/WalletButton";
+import { NavMenu } from "./NavMenu";
 import { Search } from "./Search";
 import { ThemeToggle } from "./ThemeToggle";
 import { NAV, REPLAY_HREF } from "@/lib/nav";
@@ -41,6 +42,7 @@ export function Nav() {
             <ThemeToggle />
             <WalletButton />
             <Link className="btn primary" href={cta}>Bet $1 free</Link>
+            <NavMenu />
           </div>
         </div>
       </header>

@@ -1,7 +1,7 @@
 "use client";
 // Every fact as a card, with topic filters and search. Prices refresh while the tab is visible: the
 // same claim views the server read, quoted again with the contract's own fill.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FactCard } from "../FactCard";
 import { Icon } from "../Icon";
 import { SEARCH_EVENT } from "../shell/Search";
@@ -54,6 +54,8 @@ export function HomeGrid({ initial, points, reopened }: {
   const facts = useLiveFacts(initial);
   const [q, setQ] = useSearchTerm();
   const [tab, setTab] = useState(ALL);
+  const [all, setAll] = useState(false);
+  const grid = useRef<HTMLDivElement>(null);
   const topics = useMemo(() => topicsOf(facts), [facts]);
   const wrong = useMemo(() => facts.filter((f) => f.caught).length, [facts]);
   const filters = [{ topic: ALL, n: facts.length }, ...(wrong ? [{ topic: WRONG, n: wrong }] : []), ...topics];
@@ -61,6 +63,13 @@ export function HomeGrid({ initial, points, reopened }: {
     const needle = q.trim().toLowerCase();
     return facts.filter((f) => (tab === ALL || (tab === WRONG ? !!f.caught : f.topic === tab)) && (!needle || `${f.question} ${f.text} ${f.topic}`.toLowerCase().includes(needle)));
   }, [facts, tab, q]);
+  // how many cards show first is a width's business, so it lives in home.css: no flash, no mismatch
+  const clamped = !all && tab === ALL && !q.trim();
+  const seeAll = () => {
+    const next = [...(grid.current?.children ?? [])].find((c) => getComputedStyle(c).display === "none");
+    setAll(true);
+    requestAnimationFrame(() => next?.querySelector<HTMLElement>("a.q")?.focus({ preventScroll: true }));
+  };
   return (
     <section id="facts" aria-labelledby="facts-h">
       <div className="sec">
@@ -73,9 +82,10 @@ export function HomeGrid({ initial, points, reopened }: {
         ))}
         </div>
       </div>
-      <div className="grid">
+      <div className={`grid${clamped ? " clamped" : ""}`} ref={grid}>
         {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} />)}
       </div>
+      {clamped && shown.length > 4 && <div className="seeall"><button type="button" className="btn soft lg" onClick={seeAll}>See all {shown.length} facts</button></div>}
       {!shown.length && (
         <StateBox icon="search" title="No facts match" actions={<button type="button" className="btn soft" onClick={() => { setQ(""); setTab(ALL); }}>Show every fact</button>}>
           Nothing here says “{q}”{tab !== ALL ? ` under ${tab}` : ""}. Try another word, or see every fact.

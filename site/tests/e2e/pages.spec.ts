@@ -75,7 +75,7 @@ test("/trust: the live hash matches the build, and what you must trust is on the
   await expect(page.getByText("They match: mainnet runs the published source.")).toBeVisible();
   const first = await page.locator(".trusted li").first().boundingBox();
   expect(first?.y, "the list must sit in the page, not off-screen").toBeGreaterThan(100);
-  await expect(page.locator(".proof")).toHaveCount(3);
+  await expect(page.locator(".proofc")).toHaveCount(3);
   await page.getByText("Upgrade the code").click();
   await expect(page.getByText("Locking the contract removes this power")).toBeVisible();
 });

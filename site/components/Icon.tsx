@@ -1,5 +1,6 @@
 // The kit's line icons (24-unit grid, 1.75 stroke), plus a few the product needed.
 const PATHS = {
+  menu: '<path d="M4 7h16M4 12h16M4 17h16"/>',
   search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4.2-4.2"/>',
   pulse: '<path d="M3 12h4l3-7 4 14 3-7h4"/>',
   flag: '<path d="M6 21V4h12l-2.6 4L18 12H6"/>',

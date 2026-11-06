@@ -79,7 +79,6 @@ export async function MarketBody({ claim, recorded, side }: { claim: ClaimView; 
         <Sources f={f} wiki={m.wiki} corrected={!!corrects} />
         <Rules f={f} wiki={m.wiki} />
         <MarketTabs bets={m.bets} rationales={m.rationales} history={m.history} />
-        <div className="mk-pad" />
       </div>
       <Ticket id={f.id} question={f.question} sentence={f.text} claim={claim} lane={m.lane} initialSide={f.quotes ? side : null} recorded={recorded} replayBlock={recorded ? REPLAY.betBlock : null} settled={settled} />
     </>

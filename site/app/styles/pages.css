@@ -64,7 +64,7 @@
 .jcard .top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .jcard blockquote { font-size: 14.5px; line-height: 1.5; color: var(--ink); padding: 12px 14px; border-radius: 12px; background: var(--surface2); }
 .jcard blockquote::before { content: '“'; } .jcard blockquote::after { content: '”'; }
-.jcard .meta2 { display: flex; flex-wrap: wrap; gap: 4px 12px; font-size: 12.5px; color: var(--ink3); align-items: center; }
+.jcard .meta2 { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: auto; font-size: 12.5px; color: var(--ink3); align-items: center; }
 .jcard .meta2 a { color: var(--brand-text); display: inline-flex; align-items: center; gap: 3px; min-height: 32px; }
 .jcard .meta2 a .ic { width: 12px; height: 12px; }
 .vbtn { width: 100%; }
@@ -194,7 +194,8 @@
 .cc details p { font-size: 14px; line-height: 1.5; color: var(--ink2); padding: 0 0 12px; }
 .cc details code, .tcode { font: 500 12.5px var(--mono); color: var(--ink2); background: var(--surface2); padding: 1px 6px; border-radius: 6px; overflow-wrap: anywhere; }
 .proofs3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-.proofc { padding: 18px; display: flex; flex-direction: column; flex-wrap: wrap; align-items: center; gap: 10px; min-width: 0; font-size: 13.5px; color: var(--ink2); }
+.proofc { padding: 18px; display: flex; flex-direction: column; gap: 10px; min-width: 0; font-size: 13.5px; color: var(--ink2); }
+.proofc .mbadge b { color: var(--ink); }
 .proofc h3 { font: 600 16px/1.25 var(--disp); overflow-wrap: anywhere; }
 .proofc .checks li { font-size: 13px; }
 .keys { width: 100%; border-collapse: collapse; }
@@ -287,7 +288,7 @@
 .heatstrip i { flex: 1; border-radius: 2px; background: color-mix(in oklch, var(--yes) calc(var(--h) * 100%), var(--no)); }
 
 /* Posts and new facts */
-/* the footer waits below the fold, so the answer arriving moves nothing on screen */
+/* the footer waits below the fold whatever the post's length, so the answer arriving moves nothing */
 .postwait { min-height: 100dvh; }
 .postc { padding: 22px 24px; display: flex; flex-direction: column; gap: 12px; }
 .postc .au { display: flex; align-items: center; gap: 12px; }

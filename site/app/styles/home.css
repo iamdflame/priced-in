@@ -74,6 +74,7 @@
   .rail { display: grid; grid-template-columns: 1fr 1fr; }
 }
 @media (max-width: 1000px) {
+  .proof .pub { margin-left: 0; }
   .grid.clamped > :nth-child(n+7) { display: none; }
   .grid.clamped:has(> :nth-child(7)) + .seeall { display: flex; }
 }

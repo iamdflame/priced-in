@@ -210,6 +210,9 @@
 
 @media (max-width: 1000px) {
   .pf-stats { grid-template-columns: 1fr 1fr; }
+  /* the compact header: the wallet is its icon, so search keeps its whole placeholder */
+  .wbtn.out { padding: 0 12px; }
+  .wbtn.out .lbl { display: none; }
 }
 @media (max-width: 760px) {
   .m-sheet { padding: 0; place-items: end stretch; }

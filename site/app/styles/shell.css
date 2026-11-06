@@ -95,7 +95,9 @@
   .foot .wrap { padding-top: 32px; padding-bottom: 16px; }
   .foot-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px 16px; }
   .foot-cols a { min-height: 44px; }
-  .foot-theme { display: block; }
+  .foot-base { flex-wrap: wrap; }
+  .foot-base .trust { flex: 1 0 100%; }
+  .foot-theme { display: block; order: 1; margin-right: -12px; }
   .replaybar { font-size: 13px; }
   .replaybar .long { display: none; }
 }

@@ -21,7 +21,7 @@ export default async function PostPage({ params }: Params) {
   return (
     <main id="main" className="wrap narrow pg">
       <h1 className="pagetitle">Fact-check this post</h1>
-      <PostCheck user={user} id={id} />
+      <div className="postwait"><PostCheck user={user} id={id} /></div>
     </main>
   );
 }

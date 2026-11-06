@@ -84,6 +84,7 @@ a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
   .card .fromwiki { grid-column: 2; grid-row: 2; margin: 0 14px; }
   .card .odds, .card .bets, .card .meta, .card .ev, .card .result { grid-column: 1 / -1; margin-left: 14px; margin-right: 14px; }
   .card .odds { display: flex; margin-top: 10px; }
+  .card .odds .nobets { display: none; } /* the line beside it already says so, and its ? keeps its place */
   .card .ev { margin-top: 8px; }
   .card .bets { margin-top: 10px; }
   .card .meta { margin-top: 8px; margin-bottom: 12px; }
