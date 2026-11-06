@@ -2,7 +2,7 @@
 // The chart: the chance it's true after each real bet, one step per logged trade on a true 0-100 axis,
 // from /history (the contract's own log). Hover or focus a step to read who bet and what it did.
 // A ruled fact ends with the ruling's line. A market with no bets is honestly flat and says so.
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { Bet } from "@/lib/bets";
 import { clockUtc, money } from "@/lib/format";
 
@@ -54,6 +54,13 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
   const first = Math.round(steps[0].p * 100), last = Math.round(steps[n].p * 100);
   const trades = Math.max(0, steps.length - 2);
   const tip = hover !== null ? tipFor(hover) : null;
+  // the keyboard reads the chart one step at a time with the arrow keys
+  const step = (e: KeyboardEvent<SVGSVGElement>) => {
+    const d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+    if (!d) return;
+    e.preventDefault();
+    setHover((h) => Math.min(n, Math.max(0, (h ?? (d > 0 ? -1 : n + 1)) + d)));
+  };
   function tipFor(i: number) {
     const b = betAt(i);
     const p = Math.round(steps[i].p * 100);
@@ -64,7 +71,7 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
   }
   return (
     <div className="chartwrap" ref={box} onMouseLeave={() => setHover(null)}>
-      <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img"
+      <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" tabIndex={n > 1 ? 0 : undefined} onKeyDown={step} onBlur={() => setHover(null)}
         aria-label={trades ? `Chance it’s true after each of ${trades} bets, from ${first}% at the start to ${last}%${ruled ? `, then ruled ${ruled.outcome}` : " now"}` : `No bets yet: flat at ${first}%`}>
         <defs><linearGradient id={`cg${id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".16" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
         {[0, 0.25, 0.5, 0.75, 1].map((p) => (
@@ -85,11 +92,11 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
         {/* hover targets: one column per step */}
         {steps.map((_, i) => (
           <rect key={`h${i}`} x={X(i) - (W - L - R) / Math.max(1, n) / 2} y={T} width={(W - L - R) / Math.max(1, n)} height={H - T - B} fill="transparent"
-            onMouseEnter={() => setHover(i)} onFocus={() => setHover(i)} onBlur={() => setHover(null)} tabIndex={i > 0 && i < n ? 0 : -1} aria-label={tipFor(i)} />
+            onMouseEnter={() => setHover(i)} />
         ))}
       </svg>
       {tip && hover !== null && (
-        <div className="charttip" style={{ left: `${(X(hover) / W) * 100}%`, top: `${(Y(steps[hover].p) / H) * 100}%` }}>{tip}</div>
+        <div className="charttip" role="status" style={{ left: `${(X(hover) / W) * 100}%`, top: `${(Y(steps[hover].p) / H) * 100}%` }}>{tip}</div>
       )}
     </div>
   );

@@ -28,9 +28,9 @@ export function Sources({ f, wiki, corrected }: { f: Fact; wiki: Market["wiki"];
 export function Rules({ f, wiki }: { f: Fact; wiki: Market["wiki"] }) {
   return (
     <div className="panel rules">
-      <div><h3>How Yes or No wins</h3><p>Yes wins if the sentence is accurate as written on the day it’s decided. No wins if a newer, cited source contradicts it.</p></div>
-      <div><h3>Who decides</h3><p>Three AI judges, each a different attested model, rule within minutes of a challenge and sign on-chain. Then anyone can object for 10 minutes.</p></div>
-      <div><h3>Where it’s from</h3><p>{wiki.attribution ?? `Wikipedia: ${wiki.title}.`}{f.caught ? ` Checked against ${f.caught.label}.` : ""}</p></div>
+      <div><h2>How Yes or No wins</h2><p>Yes wins if the sentence is accurate as written on the day it’s decided. No wins if a newer, cited source contradicts it.</p></div>
+      <div><h2>Who decides</h2><p>Three AI judges, each a different attested model, rule within minutes of a challenge and sign on-chain. Then anyone can object for 10 minutes.</p></div>
+      <div><h2>Where it’s from</h2><p>{wiki.attribution ?? `Wikipedia: ${wiki.title}.`}{f.caught ? ` Checked against ${f.caught.label}.` : ""}</p></div>
     </div>
   );
 }

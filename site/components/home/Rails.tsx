@@ -25,7 +25,7 @@ export function DecidingRail({ rulings, facts }: { rulings: Rulings | null; fact
   return (
     <section className="railcard" id="deciding" aria-labelledby="deciding-h">
       <Link className="art" href={f ? `/c/${f.id}` : "/rulings"} tabIndex={-1} aria-hidden="true">
-        <Image src={`/art/${f?.art ?? "reserves"}.webp`} alt="" width={560} height={320} sizes="392px" />
+        <Image src={`/art/${f?.art ?? "reserves"}.webp`} alt="" width={560} height={320} sizes="(max-width: 760px) 100vw, 392px" priority />
         <div className="timer"><Timer now={now} nextAt={rulings?.next_challenge_at ?? null} /></div>
       </Link>
       <div className="rbody">
