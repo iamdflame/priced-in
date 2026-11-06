@@ -1,0 +1,424 @@
+{
+ "note": "Art direction per claim id, from the Pulse kit (.apex/design/brand/pulse), and the Wikipedia revision of each page. No prices: those are read live. Rebuild: npm run catalog.",
+ "claims": {
+  "0": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "tether",
+   "name": "the USD₮ codes fact",
+   "caught": null
+  },
+  "1": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "stablecoins",
+   "name": "the “largest stablecoin” fact",
+   "caught": null
+  },
+  "2": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "tether",
+   "name": "the “350M users” fact",
+   "caught": null
+  },
+  "3": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "corp",
+   "name": "the “Owned by iFinex” fact",
+   "caught": null
+  },
+  "4": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "corp",
+   "name": "the El Salvador HQ fact",
+   "caught": null
+  },
+  "5": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "corp",
+   "name": "the “Fully owned” fact",
+   "caught": null
+  },
+  "6": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "defi",
+   "name": "the “13 chains” fact",
+   "caught": {
+    "today": "No longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand",
+    "onPage": "Tether issues on 13 chains, including Algorand, EOS and Bitcoin Cash SLP",
+    "source": "https://tether.to/en/supported-protocols/",
+    "label": "Tether: supported protocols",
+    "checked": "2026-11-05",
+    "line": "Tether stopped issuing on EOS, Algorand and others (tether.to)"
+   }
+  },
+  "7": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "tether",
+   "name": "the “five Tether tokens” fact",
+   "caught": null
+  },
+  "8": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "btc",
+   "art": "bitcoin",
+   "name": "the “Half of BTC trades” fact",
+   "caught": null
+  },
+  "9": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "freeze",
+   "name": "the T3 frozen-funds fact",
+   "caught": null
+  },
+  "10": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "the Cantor Fitzgerald fact",
+   "caught": null
+  },
+  "11": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "stablecoins",
+   "name": "the “Anchorage issues USAT” fact",
+   "caught": null
+  },
+  "12": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "Tether's $187.8B assets fact",
+   "caught": null
+  },
+  "13": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "gold",
+   "name": "the XAU₮ gold fact",
+   "caught": null
+  },
+  "14": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "gold",
+   "name": "the “XAU₮ on two chains” fact",
+   "caught": null
+  },
+  "15": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "tether",
+   "name": "the “Issued for dollars” fact",
+   "caught": null
+  },
+  "16": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "the “backed 100%” fact",
+   "caught": null
+  },
+  "17": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "audit",
+   "name": "the “No audits shown” fact",
+   "caught": null
+  },
+  "18": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "Tether's T-Bills fact",
+   "caught": {
+    "today": "$122.84 billion at 30 September 2026",
+    "onPage": "$72.6 billion in U.S. T-Bills, stated without a date",
+    "source": "https://assets.ctfassets.net/vyse88cgwfbl/7nQYtcoP9GxIUFSyro2dGK/8d0521470b9e99c8c0831019cabea4ee/ISAE%5F3000R%5F-%5FOpinion%5FTether%5FInternational%5FFinancial%5FFigure%5F30-09-2026.pdf",
+    "label": "Tether's attestation report, 30 Sep 2026",
+    "checked": "2026-11-05",
+    "line": "$122.84B (Tether’s attestation, Sep 2026)"
+   }
+  },
+  "19": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "the “18th largest holder” fact",
+   "caught": null
+  },
+  "20": {
+   "page": "ethereum",
+   "topic": "Ethereum",
+   "article": "Ethereum",
+   "icon": "eth",
+   "art": "ethereum",
+   "name": "the “ETH 25 tx a second” fact",
+   "caught": {
+    "today": "0.15 per second in January 2016 (Etherscan daily counts); about 23 to 25 per second now",
+    "onPage": "About 25 transactions per second in January 2016",
+    "source": "https://etherscan.io/chart/tx?output=csv",
+    "label": "Etherscan: daily transactions",
+    "checked": "2026-11-05",
+    "line": "0.15 a second in Jan 2016 (Etherscan)"
+   }
+  },
+  "21": {
+   "page": "uniswap",
+   "topic": "Uniswap",
+   "article": "Uniswap",
+   "icon": "uni",
+   "art": "uniswap",
+   "name": "the “UNI supply capped” fact",
+   "caught": {
+    "today": "No hard cap: the contract allows a mint of up to 2% a year; live supply is 1,000,000,000 and a minter address is set",
+    "onPage": "UNI total supply is capped",
+    "source": "https://raw.githubusercontent.com/Uniswap/governance/master/contracts/Uni.sol",
+    "label": "Uni.sol, the UNI token contract",
+    "checked": "2026-11-05",
+    "line": "up to 2% a year can still be minted (the UNI contract)"
+   }
+  },
+  "22": {
+   "page": "stablecoin",
+   "topic": "Stablecoins",
+   "article": "Stablecoin",
+   "icon": "usdt",
+   "art": "audit",
+   "name": "the “Never audited” fact",
+   "caught": {
+    "today": "On 13 August 2026 Tether announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion. The audit report is not public",
+    "onPage": "As of November 2026, Tether has never completed an audit by an accounting firm",
+    "source": "https://tether.io/news/tether-completes-the-largest-inaugural-financial-audit-in-history/",
+    "label": "Tether news, 13 Aug 2026",
+    "checked": "2026-11-05",
+    "line": "KPMG completed an audit (Tether, Aug 2026)"
+   }
+  },
+  "23": {
+   "page": "prediction-market",
+   "topic": "Prediction markets",
+   "article": "Prediction market",
+   "icon": "mono:Pm",
+   "art": "polymarket",
+   "name": "the “Polymarket uses USDC” fact",
+   "caught": {
+    "today": "pUSD, backed by USDC, is the collateral for all trading on Polymarket",
+    "onPage": "Polymarket uses the USDC stablecoin",
+    "source": "https://docs.polymarket.com/concepts/pusd.md",
+    "label": "Polymarket docs: pUSD",
+    "checked": "2026-11-05",
+    "line": "trading now uses pUSD, backed by USDC (Polymarket docs)"
+   }
+  },
+  "24": {
+   "page": "prediction-market",
+   "topic": "Prediction markets",
+   "article": "Prediction market",
+   "icon": "mono:Ka",
+   "art": "kalshi",
+   "name": "the “Kalshi US only” fact",
+   "caught": {
+    "today": "Kalshi says users can trade from many countries, and announced 140+ countries in October 2025",
+    "onPage": "Kalshi is available only for U.S. residents",
+    "source": "https://help.kalshi.com/en/articles/14026044-can-i-trade-on-kalshi-from-outside-the-united-states",
+    "label": "Kalshi help: trading outside the US",
+    "checked": "2026-11-05",
+    "line": "140+ countries (Kalshi, Oct 2025)"
+   }
+  },
+  "25": {
+   "page": "prediction-market",
+   "topic": "Prediction markets",
+   "article": "Prediction market",
+   "icon": "mono:Pm",
+   "art": "polymarket",
+   "name": "the “Only Ontario banned” fact",
+   "caught": {
+    "today": "Blocked in Alberta, British Columbia, Ontario and Quebec",
+    "onPage": "Polymarket operates in all of Canada except Ontario",
+    "source": "https://help.polymarket.com/en/articles/13364163-geographic-restrictions",
+    "label": "Polymarket help: geographic restrictions",
+    "checked": "2026-11-05",
+    "line": "it is also blocked in Alberta, BC and Quebec (Polymarket help)"
+   }
+  },
+  "26": {
+   "page": "dai",
+   "topic": "DAI",
+   "article": "Dai (cryptocurrency)",
+   "icon": "dai",
+   "art": "dai",
+   "name": "the “DAI run by MakerDAO” fact",
+   "caught": {
+    "today": "SKY has been voted in as the sole governance token of the Sky Protocol",
+    "onPage": "DAI is run by a DAO of MKR owners",
+    "source": "https://upgrademkrtosky.sky.money/",
+    "label": "Sky: MKR to SKY upgrade",
+    "checked": "2026-11-05",
+    "line": "SKY replaced MKR for governance (Sky)"
+   }
+  },
+  "27": {
+   "page": "defi",
+   "topic": "DeFi",
+   "article": "Decentralized finance",
+   "icon": "mono:DeFi",
+   "art": "defi",
+   "name": "the “DEX volume $18.6B” fact",
+   "caught": {
+    "today": "About $78 billion a week in June 2025 on DefiLlama; about $67 billion a week in Q2 2025 on CoinGecko",
+    "onPage": "About $18.6 billion in weekly DEX volume in mid-2025",
+    "source": "https://api.llama.fi/overview/dexs?excludeTotalDataChart=false&excludeTotalDataChartBreakdown=true",
+    "label": "DefiLlama: DEX volumes",
+    "checked": "2026-11-05",
+    "line": "about $78B a week in June 2025 (DefiLlama)"
+   }
+  },
+  "28": {
+   "page": "polymarket",
+   "topic": "Prediction markets",
+   "article": "Polymarket",
+   "icon": "mono:Pm",
+   "art": "polymarket",
+   "name": "the “0.1% take 67%” fact",
+   "caught": null
+  },
+  "29": {
+   "page": "near",
+   "topic": "NEAR",
+   "article": "Near Protocol",
+   "icon": "mono:N",
+   "art": "near",
+   "name": "the “NEAR founded 2018” fact",
+   "caught": null
+  },
+  "30": {
+   "page": "prediction-market",
+   "topic": "Prediction markets",
+   "article": "Prediction market",
+   "icon": "mono:Au",
+   "art": "augur",
+   "name": "the “Augur defunct” fact",
+   "caught": null
+  },
+  "31": {
+   "page": "bitcoin",
+   "topic": "Bitcoin",
+   "article": "Bitcoin",
+   "icon": "btc",
+   "art": "bitcoin",
+   "name": "the “20% of BTC lost” fact",
+   "caught": null
+  },
+  "32": {
+   "page": "tether",
+   "topic": "Tether",
+   "article": "Tether (cryptocurrency)",
+   "icon": "usdt",
+   "art": "reserves",
+   "name": "Tether's corrected T-Bills fact",
+   "caught": null
+  }
+ },
+ "pages": {
+  "tether": {
+   "title": "Tether (cryptocurrency)",
+   "url": "https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=1382852995",
+   "attribution": "\"Tether (cryptocurrency)\", English Wikipedia, revision 1382852995 (2026-10-30T17:27:49Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "ethereum": {
+   "title": "Ethereum",
+   "url": "https://en.wikipedia.org/w/index.php?title=Ethereum&oldid=1383352660",
+   "attribution": "\"Ethereum\", English Wikipedia, revision 1383352660 (2026-11-02T07:03:53Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "uniswap": {
+   "title": "Uniswap",
+   "url": "https://en.wikipedia.org/w/index.php?title=Uniswap&oldid=1379919424",
+   "attribution": "\"Uniswap\", English Wikipedia, revision 1379919424 (2026-10-12T17:50:08Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "stablecoin": {
+   "title": "Stablecoin",
+   "url": "https://en.wikipedia.org/w/index.php?title=Stablecoin&oldid=1383799546",
+   "attribution": "\"Stablecoin\", English Wikipedia, revision 1383799546 (2026-11-04T23:08:36Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "prediction-market": {
+   "title": "Prediction market",
+   "url": "https://en.wikipedia.org/w/index.php?title=Prediction_market&oldid=1383537451",
+   "attribution": "\"Prediction market\", English Wikipedia, revision 1383537451 (2026-11-03T05:59:38Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "dai": {
+   "title": "Dai (cryptocurrency)",
+   "url": "https://en.wikipedia.org/w/index.php?title=Dai_(cryptocurrency)&oldid=1375647492",
+   "attribution": "\"Dai (cryptocurrency)\", English Wikipedia, revision 1375647492 (2026-09-19T03:29:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "defi": {
+   "title": "Decentralized finance",
+   "url": "https://en.wikipedia.org/w/index.php?title=Decentralized_finance&oldid=1382583755",
+   "attribution": "\"Decentralized finance\", English Wikipedia, revision 1382583755 (2026-10-29T10:17:46Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "polymarket": {
+   "title": "Polymarket",
+   "url": "https://en.wikipedia.org/w/index.php?title=Polymarket&oldid=1383536551",
+   "attribution": "\"Polymarket\", English Wikipedia, revision 1383536551 (2026-11-03T05:52:06Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "near": {
+   "title": "NEAR (blockchain platform)",
+   "url": "https://en.wikipedia.org/w/index.php?title=NEAR_(blockchain_platform)&oldid=1374559820",
+   "attribution": "\"NEAR (blockchain platform)\", English Wikipedia, revision 1374559820 (2026-09-12T20:05:09Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  },
+  "bitcoin": {
+   "title": "Bitcoin",
+   "url": "https://en.wikipedia.org/w/index.php?title=Bitcoin&oldid=1382376340",
+   "attribution": "\"Bitcoin\", English Wikipedia, revision 1382376340 (2026-10-28T11:17:12Z), by Wikipedia contributors, licensed CC BY-SA 4.0."
+  }
+ }
+}

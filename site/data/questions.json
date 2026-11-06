@@ -269,6 +269,15 @@
    "model": "hand-written",
    "at": "2026-11-06",
    "reviewed": "hand-written from the exact sentence"
+  },
+  "e737fc0b9deee8107a25dc56e0cc77a7fb3fa4ab1f82bea2f16d55a1ae881ba2": {
+   "q": "Are most of Tether's cash reserves U.S. T-Bills, at $122.84 billion on 30 Sep 2026?",
+   "page": "tether",
+   "source": "claim 32",
+   "sentence": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026.",
+   "model": null,
+   "at": "2026-11-06",
+   "reviewed": "hand-written 2026-11-06 for the corrected line (claim 32), from claim 18's question and the correction it opened with"
   }
  }
 }
