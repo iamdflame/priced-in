@@ -134,7 +134,7 @@ export function makeTools(o = {}) {
   const betTool = {
     name: "bet",
     title: "Place a bet",
-    description: "Bet on a Priced In claim with your own NEAR key (NEAR_ACCOUNT_ID and NEAR_PRIVATE_KEY in this server's environment; refused without them, and Priced In never lends a key). Deposits the test USDC the market balance lacks (on testnet, from the token's faucet if needed), then calls buy with a slippage guard. Capped by PRICEDIN_MAX_BET_USD (default $5).",
+    description: "Bet on a Priced In claim with your own NEAR key (NEAR_ACCOUNT_ID and NEAR_PRIVATE_KEY in this server's environment; refused without them, and Priced In never lends a key). Deposits the USDC the market balance lacks (on testnet, from the token's faucet if needed), then calls buy with a slippage guard. Capped by PRICEDIN_MAX_BET_USD (default $1 on mainnet, $5 on testnet).",
     inputSchema: {
       type: "object",
       properties: {

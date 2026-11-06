@@ -1,9 +1,29 @@
 {
   "name": "pricedin-mcp",
   "version": "0.1.0",
-  "description": "Priced In for AI agents: ask how sure to be about a claim, with money behind the answer. MCP server (stdio and streamable HTTP) with ask, get_claim, quote and bet.",
-  "type": "module",
+  "description": "Ask how sure to be about a claim, with money behind the answer. MCP server for Priced In: prediction markets for facts on NEAR. 20 free calls a day, then $0.01 in USDC over x402.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mcp-server",
+    "ai-agents",
+    "prediction-markets",
+    "fact-checking",
+    "near",
+    "x402",
+    "usdc"
+  ],
+  "homepage": "https://isitpriced.com",
+  "bugs": {
+    "url": "https://github.com/iamdflame/priced-in/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iamdflame/priced-in.git",
+    "directory": "tools/mcp"
+  },
   "license": "MIT",
+  "type": "module",
   "bin": {
     "pricedin-mcp": "bin/pricedin-mcp.mjs"
   },
@@ -14,9 +34,13 @@
   "engines": {
     "node": ">=22"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "start": "node bin/pricedin-mcp.mjs",
-    "test": "node --test --test-concurrency=1 \"test/*.test.mjs\""
+    "test": "node --test --test-concurrency=1 \"test/*.test.mjs\"",
+    "prepublishOnly": "npm test"
   },
   "dependencies": {
     "@fastnear/x402": "2.5.0",

@@ -3,13 +3,15 @@
 // tools with the caller's key against a mock facilitator.
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { KeyPair } from "near-api-js";
 import { startApi } from "../../../services/api/test/helpers.mjs";
 import { startMockRpc } from "../../../services/api/test/mock-rpc.mjs";
-import { McpServer, validate } from "../src/protocol.mjs";
+import { McpServer, SERVER_INFO, validate } from "../src/protocol.mjs";
+import { settings } from "../src/client.mjs";
 import { makeTools } from "../src/tools.mjs";
 import { serveHttp } from "../src/transports.mjs";
 
@@ -92,6 +94,30 @@ test("protocol: initialize negotiates the version; unknown methods and tools are
   assert.equal(bad.result.isError, true);
   assert.match(bad.result.content[0].text, /side: must be one of yes, no/);
   assert.equal(validate({ type: "object", properties: { a: { type: "integer" } }, required: ["a"], additionalProperties: false }, { a: 1, b: 2 }), "unknown argument b");
+});
+
+test("settings: with nothing set, the hosted API on mainnet; an API of your own stays on testnet", () => {
+  const hosted = settings({});
+  assert.equal(hosted.apiUrl, "https://isitpriced.com");
+  assert.equal(hosted.network, "mainnet");
+  assert.equal(hosted.caip2, "near:mainnet");
+  assert.equal(hosted.maxBetUsd, 1, "real money starts with a small cap");
+  assert.equal(hosted.maxPayUsd, 0.05);
+  assert.deepEqual(hosted.errors, []);
+  const own = settings({ PRICEDIN_API_URL: "http://127.0.0.1:8787/" });
+  assert.equal(own.apiUrl, "http://127.0.0.1:8787");
+  assert.equal(own.network, "testnet");
+  assert.equal(own.maxBetUsd, 5);
+  assert.equal(settings({ NEAR_NETWORK: "testnet" }).network, "testnet");
+  assert.match(settings({ NEAR_ACCOUNT_ID: "me.testnet" }).errors[0], /me\.testnet is a testnet account but NEAR_NETWORK=mainnet/);
+});
+
+test("the package: the version the server reports is the one published, and it ships its README and LICENSE", () => {
+  const pkg = JSON.parse(fs.readFileSync(new URL("../package.json", import.meta.url), "utf8"));
+  assert.equal(SERVER_INFO.version, pkg.version);
+  assert.equal(SERVER_INFO.name, pkg.name);
+  for (const f of ["README.md", "LICENSE", "bin/pricedin-mcp.mjs"]) assert.ok(fs.existsSync(new URL(`../${f}`, import.meta.url)), f);
+  assert.match(fs.readFileSync(new URL("../README.md", import.meta.url), "utf8"), /claude mcp add pricedin -- npx -y pricedin-mcp/);
 });
 
 test("stdio: the real binary answers ask about a seeded claim from a local API", async (t) => {

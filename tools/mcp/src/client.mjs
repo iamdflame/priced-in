@@ -2,11 +2,14 @@
 // reads, and x402 payment beyond the free tier with the caller's own NEAR key.
 
 export const DEFAULT_RPC = { testnet: "https://test.rpc.fastnear.com", mainnet: "https://free.rpc.fastnear.com" };
+export const HOSTED_API = "https://isitpriced.com";
 
 /** Settings from the environment of whoever runs the server: their API, their key, their caps. */
 export function settings(env = process.env) {
   const errors = [];
-  const network = (env.NEAR_NETWORK || "testnet").trim();
+  // with nothing set this is the hosted API on mainnet; an API of your own stays on testnet until you say otherwise
+  const ownApi = (env.PRICEDIN_API_URL || "").trim();
+  const network = (env.NEAR_NETWORK || (ownApi ? "testnet" : "mainnet")).trim();
   if (network !== "testnet" && network !== "mainnet") errors.push(`NEAR_NETWORK must be testnet or mainnet, got "${network}"`);
   const net = network === "mainnet" ? "mainnet" : "testnet";
   const accountId = (env.PRICEDIN_NEAR_ACCOUNT_ID || env.NEAR_ACCOUNT_ID || "").trim() || null;
@@ -16,11 +19,11 @@ export function settings(env = process.env) {
   const s = {
     network: net,
     caip2: `near:${net}`,
-    apiUrl: (env.PRICEDIN_API_URL || "http://127.0.0.1:8787").trim().replace(/\/+$/, ""),
+    apiUrl: (ownApi || HOSTED_API).replace(/\/+$/, ""),
     rpcUrl: (env.NEAR_RPC_URL || DEFAULT_RPC[net]).trim(),
     accountId,
     privateKey,
-    maxBetUsd: Number(env.PRICEDIN_MAX_BET_USD || 5),
+    maxBetUsd: Number(env.PRICEDIN_MAX_BET_USD || (net === "mainnet" ? 1 : 5)),
     maxPayUsd: Number(env.PRICEDIN_MAX_PAY_USD || 0.05),
     autoPay: env.PRICEDIN_PAY !== "0",
     errors,
