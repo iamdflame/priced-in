@@ -41,7 +41,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const { all, settled, medianMs, paidUsd, unanimous } = rulingRecord(R.rulings);
   // the first ruling on real money leads; the record below carries the rest
   const hero = settled.at(-1) ?? null;
-  const live = R.ruling_now ?? all.find((r) => r.status === "jury" || r.status === "window") ?? null;
+  const live = R.ruling_now;
   const ruledIds = new Set(all.map((r) => r.claim_id));
   const queue = site.facts.filter((f) => f.caught && f.status === "open" && !ruledIds.has(f.id)).sort((a, b) => b.trades - a.trades || a.id - b.id);
   const byClaim = agentsByClaim(site.bets);

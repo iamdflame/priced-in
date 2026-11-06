@@ -1,5 +1,5 @@
 // The ruling record, as plain rules. Every count on screen comes from /api/rulings through these.
-import type { Ruling } from "./server/api";
+import type { Ruling, Rulings, RulingsWire } from "./server/api";
 
 /** Settled rulings, newest first. */
 export const settledRulings = (rulings: Ruling[]): Ruling[] => rulings.filter((r) => r.status === "settled").sort((a, b) => (b.settled_at ?? 0) - (a.settled_at ?? 0));
@@ -21,6 +21,15 @@ export const winningSide = (verdict: string) => (verdict === "FALSE" ? "No" : "Y
 /** Corrected claim id to the claim it replaced. */
 export function correctionsOf(rulings: Ruling[]): Map<number, number> {
   return new Map(rulings.flatMap((r) => (r.correction ? [[r.correction.claim_id, r.claim_id] as const] : [])));
+}
+
+/**
+ * The API sends ruling_now as a short summary (a stage, no challenger, verdicts without transactions).
+ * Readers get the full record from the same answer, so `ruling_now` really is a Ruling.
+ */
+export function resolveRulingNow(doc: RulingsWire): Rulings {
+  const id = doc.ruling_now?.challenge_id;
+  return { ...doc, ruling_now: id === undefined ? null : doc.rulings.find((r) => r.challenge_id === id) ?? null };
 }
 
 export interface RulingRecord {

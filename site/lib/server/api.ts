@@ -3,6 +3,7 @@
 // instead of a blank page. The browser never calls API_ORIGIN directly: it goes through next.config's
 // rewrites on this site's own origin.
 import "server-only";
+import { resolveRulingNow } from "../rulings";
 import type { MarketEvent, Rationale, Rewrite } from "../core/api";
 import type { ClaimView } from "../model";
 
@@ -72,6 +73,9 @@ export interface Rulings {
   asOf: number;
 }
 
+/** /rulings as it arrives: `ruling_now` is a summary until resolveRulingNow swaps in the full record. */
+export type RulingsWire = Omit<Rulings, "ruling_now"> & { ruling_now: { challenge_id: number } | null };
+
 export interface Agent { account_id: string; name: string; persona: string; model: string; house: boolean }
 
 export interface Health {
@@ -98,7 +102,10 @@ export const api = {
     const r = await get<{ points: [number, number][] }>(`/history?claim=${id}`, 10);
     return r.ok ? { ok: true as const, value: r.value.points } : r;
   },
-  rulings: () => get<Rulings>("/rulings", 15),
+  rulings: async () => {
+    const r = await get<RulingsWire>("/rulings", 15);
+    return r.ok ? { ok: true as const, value: resolveRulingNow(r.value) } : r;
+  },
   events: async () => {
     const r = await get<{ events: MarketEvent[]; lastSeq: number }>("/events/recent?since=0", 10);
     return r.ok ? { ok: true as const, value: r.value.events } : r;
