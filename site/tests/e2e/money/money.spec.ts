@@ -68,6 +68,22 @@ async function connect(page: Page) {
   await expect(page.getByTestId("wallet-menu").first()).toBeVisible();
 }
 
+test("a connected session stays connected while slow wallet code loads, as on a cold CDN", async ({ page }) => {
+  const chain = world();
+  const g = await setup(page, chain);
+  await page.goto("/portfolio");
+  await page.waitForLoadState("networkidle").catch(() => {});
+  // every chunk asked for from now on arrives 3 s late; wait until the last one is in, then a little more
+  let late = 0;
+  await page.route("**/_next/static/**/*.js", async (route) => { late++; await new Promise((r) => setTimeout(r, 3000)); await route.continue(); late--; });
+  await connect(page);
+  await expect.poll(async () => { await page.waitForTimeout(1500); return late; }, { timeout: 60_000 }).toBe(0);
+  await page.waitForTimeout(2000);
+  await expect(page.getByTestId("pf-deposit")).toBeVisible({ timeout: 1000 });
+  await expect(page.getByTestId("wallet-menu").first()).toBeVisible();
+  done(g, chain);
+});
+
 test("connect, then deposit USDC already on NEAR", async ({ page }) => {
   const chain = world();
   const g = await setup(page, chain);
@@ -194,10 +210,30 @@ test("an outcome nobody can confirm never reads as success, and the button stays
   done(g, chain);
 });
 
+// The region comes from x-vercel-ip-country. A local server takes it from the request, so a test can be
+// in the US; Vercel's edge overwrites it with the runner's real country, so against a deployment the test
+// can only (and must) prove that a claimed country is ignored.
+async function honoursClaimedCountry(request: import("@playwright/test").APIRequestContext) {
+  const r = await request.get("/terms", { headers: { "x-vercel-ip-country": "US" } });
+  return /pi_geo=close_only\.US/.test(r.headers()["set-cookie"] ?? "");
+}
+
+test("a country the visitor claims doesn't move the geofence on a deployment", async ({ request }) => {
+  test.skip(await honoursClaimedCountry(request), "a local server takes the country from the request; this checks a deployment");
+  // whatever the runner's real region is, claiming another one changes nothing
+  const geo = async (headers: Record<string, string>) => /pi_geo=([^;]+)/.exec((await request.get("/terms", { headers })).headers()["set-cookie"] ?? "")?.[1] ?? null;
+  const quote = async (headers: Record<string, string>) => (await request.post("/bridge/quote?dir=in", { headers, data: { route: "base:USDC", amount: "5000000", recipient: ACCOUNT, dry: true } })).status();
+  for (const claimed of ["US", "IR"]) {
+    expect(await geo({ "x-vercel-ip-country": claimed }), `claiming ${claimed} changed the region`).toBe(await geo({}));
+    expect(await quote({ "x-vercel-ip-country": claimed }), `claiming ${claimed} changed the answer to a deposit quote`).toBe(await quote({}));
+  }
+});
+
 test.describe("from a close-only region (US)", () => {
   test.use({ extraHTTPHeaders: { "x-vercel-ip-country": "US" } });
 
   test("no money goes in, existing money can leave, and the server refuses a deposit address", async ({ page, request }) => {
+    test.skip(!(await honoursClaimedCountry(request)), "the host sets the country itself (Vercel): run against next start");
     const chain = world();
     chain.balance = 3_000_000n;
     const g = await setup(page, chain);

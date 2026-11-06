@@ -73,8 +73,11 @@ class WalletHub {
   }
 
   load(): Promise<any> {
+    // under the mock the selector must never load: its empty account list would sign the mock out
+    if (this.mock()) return Promise.resolve(null);
     if (this.selector) return this.selector;
-    this.set({ status: "loading" });
+    // a connected session stays connected while the wallet code loads
+    if (this.st.status !== "in") this.set({ status: "loading" });
     this.selector = (async () => {
       const [{ setupWalletSelector }, { setupHotWallet }, { setupMeteorWallet }, { setupMyNearWallet }, { setupIntearWallet }] = await Promise.all([
         import("@near-wallet-selector/core"),
