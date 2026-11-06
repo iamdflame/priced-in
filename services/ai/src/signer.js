@@ -25,9 +25,12 @@
 // outcome is unknown is looked up on-chain by its hashes instead of being re-sent.
 //
 // Caps enforced here, whatever the agent process asks: $2 per bet, a daily spend cap per agent
-// (buys), a daily inference-bill cap per agent, buy/sell/redeem only for agents, five corrected
+// (buys), a daily inference-bill cap per agent, buy/sell/redeem only for agents, twelve corrected
 // lines opened and six challenges posted a day, at most $5 of liquidity on an opened line, and the
-// daily totals survive restarts because they are rebuilt from the journal.
+// daily totals survive restarts because they are rebuilt from the journal. The last two are a
+// safety net above the keeper's own schedule: it asks caps() first, so it never runs into them in
+// normal running. Twelve opens is a full day of rulings at the challenge cap and as many again
+// carried over, so a line ruled FALSE is never stranded behind the cap for long.
 
 import { fork } from "node:child_process";
 import fs from "node:fs";
@@ -140,6 +143,10 @@ export function checkPermission(ak, receiverId, allowed = AGENT_METHODS) {
   return null;
 }
 
+// The daily safety caps on what the operator keys send (SIGNER_DAILY_OPENS, SIGNER_DAILY_CHALLENGES).
+export const DAILY_OPENS = 12;
+export const DAILY_CHALLENGES = 6;
+
 // ---------- the parent side: no keys here ----------
 
 export class SignerClient {
@@ -176,8 +183,8 @@ export class SignerClient {
       SIGNER_YOCTO_PER_MICRO: String(o.yoctoPerMicro ?? 0),
       SIGNER_MAX_ISSUED: String(o.maxIssued ?? 50),
       SIGNER_SUPERSEDED_AFTER_MS: String(o.supersededAfterMs ?? 120_000),
-      SIGNER_DAILY_OPENS: String(o.dailyOpens ?? 5),
-      SIGNER_DAILY_CHALLENGES: String(o.dailyChallenges ?? 6),
+      SIGNER_DAILY_OPENS: String(o.dailyOpens ?? DAILY_OPENS),
+      SIGNER_DAILY_CHALLENGES: String(o.dailyChallenges ?? DAILY_CHALLENGES),
       SIGNER_MAX_OPEN_B_MICRO: String(o.maxOpenBMicro ?? Number(HARD_MAX_OPEN_B_MICRO)),
     };
     this.child = fork(SELF, ["--signer-child"], { env, stdio: ["ignore", "pipe", "pipe", "ipc"], execArgv: [] });
@@ -242,6 +249,8 @@ export class SignerClient {
   issueKey(persona_hash) { return this.request({ type: "issue_key", persona_hash }); }
   outcome(intent) { return this.request({ type: "outcome", intent }); }
   spent() { return this.request({ type: "spent" }); }
+  /** Today's use of the caps on opens and challenges, so the keeper doesn't try what would be refused. */
+  caps() { return this.request({ type: "caps" }, 5000); }
 
   accountOf(agent) {
     return this.agents.find((a) => (a.label === agent || a.accountId === agent) && a.ok)?.accountId || null;
@@ -269,8 +278,8 @@ async function runChild() {
   const dailyBillCap = BigInt(env.SIGNER_DAILY_BILL_MICRO || 2_000_000);
   const yoctoPerMicro = BigInt(env.SIGNER_YOCTO_PER_MICRO || 0);
   const maxIssued = Number(env.SIGNER_MAX_ISSUED || 50);
-  const dailyOpens = Number(env.SIGNER_DAILY_OPENS || 5);
-  const dailyChallenges = Number(env.SIGNER_DAILY_CHALLENGES || 6);
+  const dailyOpens = Number(env.SIGNER_DAILY_OPENS || DAILY_OPENS);
+  const dailyChallenges = Number(env.SIGNER_DAILY_CHALLENGES || DAILY_CHALLENGES);
   const maxOpenB = BigInt(env.SIGNER_MAX_OPEN_B_MICRO || HARD_MAX_OPEN_B_MICRO);
   const ksDir = env.KEYSTORE_DIR || null;
   const rpc = new Rpc(config.rpcUrls, { timeoutMs: 8000 });
@@ -482,6 +491,7 @@ async function runChild() {
     switch (m?.type) {
       case "agents": await refresh(Boolean(m.force)); return { ok: true, agents: view(), unheld, operator: opView(), keystoreErrors };
       case "spent": return { ok: true, ...spentView() };
+      case "caps": return { ok: true, day: day(), challenges: { used: countToday("challenge"), cap: dailyChallenges }, opens: { used: countToday("open_claim"), cap: dailyOpens } };
       case "outcome": {
         const rec = intents.get(m.intent);
         if (!rec) return { ok: false, final: true, unknownIntent: true, error: "this signer never saw that intent" };

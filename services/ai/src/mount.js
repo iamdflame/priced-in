@@ -50,6 +50,7 @@ export function mountAi(app, ai, deps = {}) {
   else signer = new SignerClient({
     marketId: api.marketId, swarmId: ai.swarmId, rpcUrls: api.rpcUrls, network: api.network, keystoreDir, keysFile: ai.agents.keysFile,
     journalFile: dir ? path.join(dir, "signer.jsonl") : null, dailySpendMicro: ai.agents.dailySpendMicro, dailyBillMicro: ai.agents.billing.dailyBillMicro,
+    dailyOpens: ai.agents.dailyOpens, dailyChallenges: ai.agents.dailyChallenges,
     yoctoPerMicro: ai.agents.billing.yoctoPerMicro, supersededAfterMs: ai.agents.supersededAfterMs, log,
   });
   const anchorOn = () => Boolean(signer?.operator?.market?.ok);

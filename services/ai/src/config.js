@@ -87,6 +87,9 @@ export function loadAiConfig(env = process.env) {
       // AGENT_MAX_BET_USD: the most one bet can be, so a daily spend cap covers more than a few lines
       policy: { ...DEFAULT_POLICY, feePoints: num(env.AGENT_FEE_POINTS, DEFAULT_POLICY.feePoints), maxBetUsd: num(env.AGENT_MAX_BET_USD, DEFAULT_POLICY.maxBetUsd), dailyLossLimitUsd: num(env.AGENT_DAILY_LOSS_USD, DEFAULT_POLICY.dailyLossLimitUsd), kellyFraction: num(env.AGENT_KELLY_FRACTION, DEFAULT_POLICY.kellyFraction) },
       dailySpendMicro: num(env.SIGNER_DAILY_SPEND_MICRO, 10_000_000),
+      // undefined leaves the signer's own defaults (DAILY_OPENS, DAILY_CHALLENGES)
+      dailyOpens: num(env.SIGNER_DAILY_OPENS, undefined),
+      dailyChallenges: num(env.SIGNER_DAILY_CHALLENGES, undefined),
     },
     jury: {
       models: list(env.JURY_MODELS).length ? list(env.JURY_MODELS) : DEFAULT_JURY_MODELS,

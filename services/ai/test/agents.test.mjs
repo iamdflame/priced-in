@@ -7,7 +7,7 @@ import { KeyPair } from "near-api-js";
 import { NearAI } from "../src/nearai.js";
 import { decide, impliedB, buyQuote, sellQuote, sharesToTarget, dailyLoss, parseCredence, DEFAULT_POLICY } from "../src/agents.js";
 import { Research, keywords, excerpt } from "../src/research.js";
-import { SignerClient, validateDecision, validateBill, validateAnchor, checkPermission, DECISION_FIELDS, OPERATOR_METHODS } from "../src/signer.js";
+import { SignerClient, validateDecision, validateBill, validateAnchor, checkPermission, DAILY_CHALLENGES, DAILY_OPENS, DECISION_FIELDS, OPERATOR_METHODS } from "../src/signer.js";
 import { newRunnerKey, operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
 import { startMockRpc } from "../../api/test/mock-rpc.mjs";
@@ -412,13 +412,27 @@ test("the keeper's and the Checker's keys: each may do its one job, capped, and 
     assert.match((await signer.openClaim("open:18:bad-3", { ...open, text: "x".repeat(601) })).error, /at most 600 bytes/);
     assert.equal((await signer.openClaim("open:19:700000:1", open)).ok, true);
     assert.match((await signer.openClaim("open:20:700000:1", open)).error, /already opened today/, "the signer's daily cap on opened lines");
+    let caps = await signer.caps();
+    assert.deepEqual([caps.opens, caps.challenges], [{ used: 2, cap: 2 }, { used: 0, cap: 1 }], "the keeper can ask before it tries");
+    assert.equal(caps.day, new Date().toISOString().slice(0, 10));
     const ch = await signer.challenge("checker:18:0:d", { claim_id: 18, claimed_outcome: false, evidence: "the source says otherwise" });
     assert.equal(ch.ok, true, ch.error);
     assert.equal(ch.value, 3);
     assert.deepEqual([c.sent.at(-1).method, c.sent.at(-1).signer], ["challenge", checker]);
     assert.match((await signer.challenge("checker:19:0:d", { claim_id: 19, claimed_outcome: false, evidence: "again" })).error, /already posted today/);
+    caps = await signer.caps();
+    assert.deepEqual(caps.challenges, { used: 1, cap: 1 }, "a refusal at the cap is not counted as a challenge");
     assert.match((await signer.challenge("checker:20:0:d", { claim_id: 20, claimed_outcome: false, evidence: "x".repeat(4001) })).error, /1\.\.4000 bytes/);
   } finally { await signer.stop(); await c.rpc.close(); fs.rmSync(c.dir, { recursive: true, force: true }); }
+});
+
+test("the daily caps: SIGNER_DAILY_OPENS and SIGNER_DAILY_CHALLENGES reach the signer; unset, its defaults leave room for a day of corrected lines", () => {
+  assert.ok(DAILY_OPENS >= 2 * DAILY_CHALLENGES, "a corrected line can't be stranded behind a full day of rulings");
+  const base = { NEAR_NETWORK: "testnet", MARKET_CONTRACT_ID: "m.testnet" };
+  const set = loadAiConfig({ ...base, SIGNER_DAILY_OPENS: "20", SIGNER_DAILY_CHALLENGES: "3" }).ai.agents;
+  assert.deepEqual([set.dailyOpens, set.dailyChallenges], [20, 3]);
+  const unset = loadAiConfig(base).ai.agents;
+  assert.deepEqual([unset.dailyOpens, unset.dailyChallenges], [undefined, undefined]);
 });
 
 test("a keeper or Checker key that allows more than its job is refused", async () => {
