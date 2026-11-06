@@ -10,16 +10,15 @@ import { TopicIcon } from "@/components/Brand";
 import { Dial } from "@/components/Dial";
 import { FactCard } from "@/components/FactCard";
 import { Icon } from "@/components/Icon";
-import { Countdown } from "@/components/Live";
 import { ReplayRuling } from "@/components/ReplayRuling";
 import { RulingBlock } from "@/components/Ruling";
 import { ErrorState } from "@/components/States";
 import { Kpis, ModelBadge, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
-import { RulingClock } from "@/components/pages/RulingClock";
+import { NextRuling, RulingClock } from "@/components/pages/RulingClock";
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
-import { rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
+import { rulingNote, rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling } from "@/lib/server/api";
 import { judgeWords, verdictTx } from "@/lib/server/proof";
 import { getSite } from "@/lib/server/site";
@@ -49,7 +48,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
 
   return (
     <main id="main" className="wrap pg">
-      <Head next={R.next_ruling_at} checker={R.checker ?? null} live={live} />
+      <Head next={R.next_ruling_at} note={rulingNote(R)} checker={R.checker ?? null} live={live} />
       <Kpis label="The record so far" items={[
         { v: settled.length, l: settled.length === 1 ? "fact decided" : "facts decided", s: all.length > settled.length ? `${all.length - settled.length} still running` : "every one settled on-chain" },
         { v: medianMs === null ? "—" : span(medianMs), l: "from doubt to paid", s: settled.length > 1 ? "the median" : "the one so far" },
@@ -75,7 +74,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
           <Icon name="clock" />
           <div>
             <b>Nothing is being decided this minute.</b>
-            <p>{R.next_ruling_at ? <>The next ruling starts at {clockUtc(R.next_challenge_at ?? R.next_ruling_at)}: the Checker bets a bond against the next fact Wikipedia may have wrong, and the AI judges rule within minutes. This page updates by itself.</> : <>No ruling is scheduled. A ruling starts whenever anyone bonds a challenge against a fact.</>}</p>
+            <p>{rulingNote(R) ?? ((R.next_challenge_at ?? R.next_ruling_at ?? 0) > R.asOf ? <>The next ruling starts at {clockUtc((R.next_challenge_at ?? R.next_ruling_at)!)}: the Checker bets a bond against the next fact Wikipedia may have wrong, and the AI judges rule within minutes.</> : <>No ruling is scheduled. A ruling starts whenever anyone bonds a challenge against a fact.</>)}</p>
           </div>
         </div>
       )}
@@ -102,7 +101,7 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   );
 }
 
-function Head({ next, checker, live }: { next: number | null; checker: { account: string; balance_usd: number; lines_left: number; note?: string } | null; live?: Ruling | null }) {
+function Head({ next, note, checker, live }: { next: number | null; note?: string | null; checker: { account: string; balance_usd: number; lines_left: number; note?: string } | null; live?: Ruling | null }) {
   return (
     <PageHero
       kick="Results · decided by three AI judges"
@@ -115,18 +114,12 @@ function Head({ next, checker, live }: { next: number | null; checker: { account
               <span className="k"><span className="dot" aria-hidden="true" />Being decided right now</span>
               <RulingClock windowEndsAt={live.window_ends_at} />
             </>
-          ) : next ? (
-            <>
-              <span className="k"><Icon name="clock" />Next ruling in</span>
-              <div className="bignum"><Countdown to={next} done="starting now" /></div>
-              <p>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges rule within minutes, then 10 minutes for objections.</p>
-            </>
           ) : (
-            <>
-              <span className="k"><Icon name="clock" />Next ruling</span>
-              <div className="bignum">—</div>
-              <p>Nothing is scheduled right now. A ruling starts whenever someone bonds a challenge.</p>
-            </>
+            <NextRuling
+              at={next}
+              ahead={note ?? <>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges rule within minutes, then 10 minutes for objections.</>}
+              none={note ?? "Nothing is scheduled right now. A ruling starts whenever someone bonds a challenge."}
+            />
           )}
         </div>
       }

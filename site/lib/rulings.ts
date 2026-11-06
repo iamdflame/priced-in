@@ -24,6 +24,15 @@ export function correctionsOf(rulings: Ruling[]): Map<number, number> {
 }
 
 /**
+ * The API's sentence about the next ruling, for the rail and /rulings. Sentences for people start with a
+ * capital; the older API's internal notes ("the Checker challenges the next caught line…") never reach a page.
+ */
+export function rulingNote(doc: { next_ruling_note?: string }): string | null {
+  const note = doc.next_ruling_note?.trim();
+  return note && /^[A-Z]/.test(note) ? note : null;
+}
+
+/**
  * The API sends ruling_now as a short summary (a stage, no challenger, verdicts without transactions).
  * Readers get the full record from the same answer, so `ruling_now` really is a Ruling.
  */

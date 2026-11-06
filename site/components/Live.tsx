@@ -7,7 +7,8 @@ import { Icon } from "./Icon";
 import { ago, mmss } from "@/lib/format";
 import { REPLAY_HREF } from "@/lib/nav";
 
-export function Countdown({ to, done = "any minute now" }: { to: number; done?: string }) {
+/** The time, each second once hydrated; null until then, so the server and the browser agree. */
+export function useClock(): number | null {
   const [now, setNow] = useState<number | null>(null);
   useEffect(() => {
     setNow(Date.now());
@@ -15,8 +16,14 @@ export function Countdown({ to, done = "any minute now" }: { to: number; done?: 
     const t = setInterval(() => setNow(Date.now()), 1000);
     return () => clearInterval(t);
   }, []);
-  if (now === null) return <span className="num" suppressHydrationWarning>{mmss(Math.max(0, to - Date.now()))}</span>;
-  return <span className="num">{to - now > 0 ? mmss(to - now) : done}</span>;
+  return now;
+}
+
+/** A time still ahead, with what it counts to. When it passes the line goes: a clock never stands at zero. */
+export function Until({ to, label }: { to: number; label: string }) {
+  const now = useClock();
+  if (now !== null && to <= now) return null;
+  return <span>{label} <span className="num" suppressHydrationWarning>{mmss(Math.max(0, to - (now ?? Date.now())))}</span></span>;
 }
 
 export function Ago({ at }: { at: number }) {
