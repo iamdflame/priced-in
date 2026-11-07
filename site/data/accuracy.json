@@ -222,5 +222,205 @@
    }
   }
  },
- "sentinel": null
+ "sentinel": {
+  "at": "2026-11-06T23:48:49.637Z",
+  "method": "The production receipt check (services/ai/src/receipts.js) with its production limits and attested support panel (services/ai/src/support.js), live fetches from one machine, one run; the Sentinel's decision (services/ai/src/sentinel.js) asked what it would do if the jury sided with the challenger inside the window. Panels: the contract's JURY_PROMPT, temperature 0, each model's registered settings, two of three matching verdicts; the honest and forged panels are the ones in deployments/jury-test.json. Nothing on-chain.",
+  "models": [
+   "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+   "Qwen/Qwen3.8-27B",
+   "z-ai/glm-5.3-flash"
+  ],
+  "sets": {
+   "honest": {
+    "cases": 10,
+    "line_is": "wrong",
+    "receipts": {
+     "verified": 10,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 10,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 0,
+    "panel_false": 10,
+    "panel_false_and_disputed": 0,
+    "panel_false_and_not_disputed": 10,
+    "support": null
+   },
+   "forged": {
+    "cases": 10,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 10,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 10,
+    "panel_false": 9,
+    "panel_false_and_disputed": 9,
+    "panel_false_and_not_disputed": 0,
+    "support": null
+   },
+   "honest_live": {
+    "cases": 10,
+    "line_is": "wrong",
+    "receipts": {
+     "verified": 9,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 1
+    },
+    "our_jury_runner_calls_models": 9,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 0,
+    "panel_false": 8,
+    "panel_false_and_disputed": 0,
+    "panel_false_and_not_disputed": 8,
+    "support": {
+     "asked": 10,
+     "supported": 9,
+     "unsupported": 1,
+     "unanimous_no": 0,
+     "unclear": 0,
+     "unanswered": 0
+    }
+   },
+   "honest_rows": {
+    "cases": 1,
+    "line_is": "wrong",
+    "receipts": {
+     "verified": 1,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 1,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 0,
+    "panel_false": 1,
+    "panel_false_and_disputed": 0,
+    "panel_false_and_not_disputed": 1,
+    "support": {
+     "asked": 1,
+     "supported": 0,
+     "unsupported": 0,
+     "unanimous_no": 0,
+     "unclear": 1,
+     "unanswered": 0
+    }
+   },
+   "forged_no_record": {
+    "cases": 10,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 6,
+     "unfetchable": 4,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 10,
+    "panel_false": 9,
+    "panel_false_and_disputed": 9,
+    "panel_false_and_not_disputed": 0,
+    "support": null
+   },
+   "fake_quote": {
+    "cases": 10,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 10,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 10,
+    "panel_false": 9,
+    "panel_false_and_disputed": 9,
+    "panel_false_and_not_disputed": 0,
+    "support": null
+   },
+   "real_quote": {
+    "cases": 10,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 10
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 9,
+    "panel_false": 5,
+    "panel_false_and_disputed": 4,
+    "panel_false_and_not_disputed": 1,
+    "support": {
+     "asked": 10,
+     "supported": 0,
+     "unsupported": 10,
+     "unanimous_no": 9,
+     "unclear": 0,
+     "unanswered": 0
+    }
+   },
+   "url_only": {
+    "cases": 10,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 10,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 0
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 10,
+    "panel_false": 6,
+    "panel_false_and_disputed": 6,
+    "panel_false_and_not_disputed": 0,
+    "support": null
+   },
+   "real_data": {
+    "cases": 3,
+    "line_is": "true",
+    "receipts": {
+     "verified": 0,
+     "quote_not_found": 0,
+     "unfetchable": 0,
+     "record_mismatch": 0,
+     "no_receipt": 0,
+     "unsupported": 3
+    },
+    "our_jury_runner_calls_models": 0,
+    "sentinel_disputes_if_the_jury_sides_with_the_challenger": 3,
+    "panel_false": 1,
+    "panel_false_and_disputed": 1,
+    "panel_false_and_not_disputed": 0,
+    "support": {
+     "asked": 3,
+     "supported": 0,
+     "unsupported": 3,
+     "unanimous_no": 3,
+     "unclear": 0,
+     "unanswered": 0
+    }
+   }
+  }
+ }
 }
