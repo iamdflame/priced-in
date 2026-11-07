@@ -10,6 +10,7 @@ import { ErrorState } from "@/components/States";
 import { REPLAY, preBetClaim } from "@/lib/replay/record";
 import { api } from "@/lib/server/api";
 import { toFact } from "@/lib/server/facts";
+import { getNews } from "@/lib/server/news";
 
 type Params = Promise<{ id: string }>;
 type Search = Promise<Record<string, string | string[] | undefined>>;
@@ -39,10 +40,12 @@ export default async function MarketPage({ params, searchParams }: { params: Par
   // the replay starts from the claim as it stood just before the real free $1
   const claim = recorded ? preBetClaim() : r.value;
   const side = search.side === "yes" || search.side === "no" ? search.side : null;
+  const head = toFact(claim);
+  const news = recorded ? null : await getNews();
   return (
     <main id="main" className="wrap market">
       <div className="mk">
-        <MarketHead f={toFact(claim)} />
+        <MarketHead f={head} report={!!news?.on && claim.status === "Open"} />
         <Suspense fallback={<MarketSkeleton />}>
           <MarketBody claim={claim} recorded={recorded} side={side} />
         </Suspense>

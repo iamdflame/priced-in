@@ -37,7 +37,7 @@ export function moneyConfig(network = process.env.NEXT_PUBLIC_NEAR_NETWORK || "m
 }
 
 /** Gas per call, in TGas. Unused gas is refunded, so these are ceilings, not costs. */
-export const GAS = { buy: 60n, sell: 60n, redeem: 30n, withdraw: 60n, depositCall: 80n, storage: 10n, transfer: 15n } as const;
+export const GAS = { buy: 60n, sell: 60n, redeem: 30n, withdraw: 60n, depositCall: 80n, storage: 10n, transfer: 15n, challenge: 30n } as const;
 
 /** NEP-145 registration on the USDC contract, in yoctoNEAR (0.00125 NEAR): needed once per receiving account. */
 export const USDC_STORAGE_YOCTO = 1_250_000_000_000_000_000_000n;

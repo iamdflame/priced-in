@@ -17,9 +17,11 @@ export interface WalletEntryProps {
   /** true or false once decided */
   outcome: boolean | null;
   side: Side | null;
+  /** this site takes no new bets on the line (a news line past its date): sell and collect only */
+  noBuy?: boolean;
 }
 
-export function WalletEntry({ claimId, question, status, outcome, side }: WalletEntryProps) {
+export function WalletEntry({ claimId, question, status, outcome, side, noBuy = false }: WalletEntryProps) {
   const w = useWallet();
   const geo = useGeo();
   const [position, setPosition] = useState<Position | null>(null);
@@ -46,7 +48,7 @@ export function WalletEntry({ claimId, question, status, outcome, side }: Wallet
   }
 
   const holding = yes > 0n || no > 0n;
-  const mayBuy = canBuy(status) && canAddMoney(geo.access);
+  const mayBuy = !noBuy && canBuy(status) && canAddMoney(geo.access);
   const maySell = holding && canSell(status) && canTakeOut(geo.access);
   return (
     <div className="wentry">

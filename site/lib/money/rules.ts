@@ -61,6 +61,16 @@ export function checkCollect(status: ClaimStatus, access: Access): Refusal {
   return null;
 }
 
+/** A challenge with the person's own bond: an open line, the evidence's two parts, and the bond in the balance. */
+export function checkChallenge(bond: bigint, balance: bigint | null, status: ClaimStatus, access: Access, receipt: { url: string; quote: string }): Refusal {
+  if (!canAddMoney(access)) return REGION_IN;
+  if (status !== "Open") return status === "Settled" ? "This line is settled: it can’t be challenged now." : "A challenge is already running on this line.";
+  if (!/^https:\/\/\S{4,}$/.test(receipt.url.trim())) return "Add a public https:// link to the page that shows it.";
+  if (receipt.quote.trim().split(/\s+/).length < 3) return "Copy the exact words from that page: three words or more.";
+  if (balance !== null && bond > balance) return `The bond is ${fmtMicro(bond)} and your balance is ${fmtMicro(balance)}. Deposit first.`;
+  return null;
+}
+
 export function checkWithdraw(amount: bigint | null, available: bigint | null, access: Access): Refusal {
   if (!canTakeOut(access)) return REGION_OUT;
   if (amount === null) return "Enter an amount above zero.";

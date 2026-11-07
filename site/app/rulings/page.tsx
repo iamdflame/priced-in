@@ -14,6 +14,7 @@ import { ReplayRuling } from "@/components/ReplayRuling";
 import { RulingBlock } from "@/components/Ruling";
 import { ErrorState } from "@/components/States";
 import { Kpis, ModelBadge, PageHero, SHead, modelMaker } from "@/components/pages/Kit";
+import { Receipts } from "@/components/pages/Receipts";
 import { NextRuling, RulingClock } from "@/components/pages/RulingClock";
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
@@ -21,6 +22,7 @@ import type { Fact } from "@/lib/model";
 import { rulingNote, rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
 import type { Ruling } from "@/lib/server/api";
 import { judgeWords, verdictTx } from "@/lib/server/proof";
+import { getNews } from "@/lib/server/news";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 15;
@@ -32,7 +34,7 @@ export const metadata: Metadata = {
 export default async function RulingsPage({ searchParams }: { searchParams: Promise<{ recorded?: string }> }) {
   const { recorded } = await searchParams;
   const replay = recorded === "1";
-  const site = await getSite();
+  const [site, news] = await Promise.all([getSite(), getNews()]);
   const R = site.rulings;
   if (!site.ok || !R) {
     return <main id="main" className="wrap pg"><Head next={null} checker={null} /><div className="result-gap"><ErrorState message={site.error ?? "The results didn’t load."} /></div></main>;
@@ -81,14 +83,14 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
 
       {queue.length > 0 && (
         <>
-          <SHead id="next" title="Up next: facts Wikipedia may have wrong" sub="Our check found a newer source that disagrees with each of these sentences. You can bet before the AI judges decide." right={plural(queue.length, "fact")} />
+          <SHead id="next" title="Up next: facts Wikipedia may have wrong" sub={news.on ? "Our check found a newer source that disagrees with each of these sentences. Call it before the AI judges decide: a pick is free, and a bet is on its page." : "Our check found a newer source that disagrees with each of these sentences. You can bet before the AI judges decide."} right={plural(queue.length, "fact")} />
           <div className="grid">
-            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} reopened={reopened.includes(f.id)} />)}
+            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} reopened={reopened.includes(f.id)} picks={news.on} />)}
           </div>
         </>
       )}
 
-      <SHead id="record" title="The full record" sub="Every challenge ever filed on the market, newest first." right={plural(all.length, "ruling")} />
+      <SHead id="record" title="The full record" sub="Every challenge ever filed on the market, newest first. Each one’s receipts are checked where they live before our judges sit, and the Sentinel disputes any ruling that rests on receipts that failed." right={plural(all.length, "ruling")} />
       <div className="panel rlist">
         {all.length ? all.map((r) => <RecordRow key={r.challenge_id} r={r} f={byId.get(r.claim_id) ?? null} />) : (
           <div className="quiet"><Icon name="gavel" /><div><b>No rulings yet.</b><p>The first one will appear here the moment a challenge is filed.</p></div></div>
@@ -145,6 +147,7 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
           {f?.caught && <><span>Newer source</span><ins>{f.caught.today}</ins></>}
         </div>
         {f?.caught && <a className="src" href={f.caught.source} target="_blank" rel="noopener">{f.caught.label}<Icon name="ext" /></a>}
+        <Receipts r={r} />
         <div className="facts3">
           <div><b>{lastJudge ?? "—"}</b>for all three judges to rule</div>
           <div><b>{took ?? "—"}</b>from doubt to paid</div>
@@ -205,6 +208,7 @@ function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
       <div className="shrink">
         <Link className="q" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>
         <p className="s">Challenged by {r.challenger_name.replace(/^the /, "the ")} with a {money(r.bond_usd)} bond · {dayTimeUtc(r.opened_at)} · {status}</p>
+        <Receipts r={r} />
       </div>
       <div className="r">
         {verdict && <span className={`verdict ${verdict === "TRUE" ? "true" : "false"}`}>{verdict}</span>}

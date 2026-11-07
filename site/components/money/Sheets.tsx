@@ -1,5 +1,6 @@
 "use client";
 // Which money sheet a request opens.
+import { ChallengeSheet } from "./Challenge";
 import { CollectSheet } from "./Collect";
 import { ConnectSheet } from "./Connect";
 import { DepositSheet } from "./Deposit";
@@ -14,5 +15,6 @@ export function Sheets({ req }: { req: SheetReq }) {
     case "withdraw": return <WithdrawSheet tab={req.tab} onClose={closeSheet} />;
     case "trade": return <TradeSheet claimId={req.claimId} question={req.question} mode={req.mode} side={req.side} onClose={closeSheet} />;
     case "collect": return <CollectSheet claimId={req.claimId} question={req.question} winMicro={req.winMicro} onClose={closeSheet} />;
+    case "challenge": return <ChallengeSheet claimId={req.claimId} question={req.question} onClose={closeSheet} />;
   }
 }

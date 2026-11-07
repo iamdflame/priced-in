@@ -95,7 +95,8 @@ export type SheetReq =
   | { kind: "deposit"; tab?: "near" | "chain" }
   | { kind: "withdraw"; tab?: "near" | "chain" }
   | { kind: "trade"; claimId: number; question: string; mode: "buy" | "sell"; side?: "yes" | "no" }
-  | { kind: "collect"; claimId: number; question: string; winMicro: string };
+  | { kind: "collect"; claimId: number; question: string; winMicro: string }
+  | { kind: "challenge"; claimId: number; question: string };
 
 let sheet: SheetReq | null = null;
 const sheetListeners = new Set<() => void>();

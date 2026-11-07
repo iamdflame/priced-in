@@ -2,16 +2,20 @@
 // The ticket: Yes or No, "Bet $1 free", the exact payout, confirm. Before any tap it says when the free
 // bet is unavailable and why, with the replay as the way on. useBetFlow holds the logic.
 import Link from "next/link";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { JudgesLine } from "../Explain";
 import { Icon } from "../Icon";
 import { FreeCashNote } from "../Live";
 import { WalletEntry } from "../money/WalletEntry";
+import { useMyPick } from "../today/PickButtons";
+import { openTray } from "../today/tray";
+import { useToast } from "../Toasts";
 import { BetProgress } from "./BetProgress";
 import { Receipt } from "./Receipt";
 import { SettledTicket, type SettledInfo } from "./SettledTicket";
 import { useBetFlow, type Side } from "./useBetFlow";
 import type { MyBet } from "@/lib/client/mybets";
+import { sendPick } from "@/lib/client/picks";
 import type { LaneState } from "@/lib/core/lane";
 import { explorerTx, money, shortHash } from "@/lib/format";
 import type { ClaimView } from "@/lib/model";
@@ -29,6 +33,11 @@ export interface TicketProps {
   recorded: boolean;
   replayBlock: number | null;
   settled: SettledInfo | null;
+  /** today's news is on and this line takes picks: the ticket can save a side as a free pick too */
+  picks?: boolean;
+  /** a line that takes no new bets on this site, and why (a news line past its date) */
+  closed?: string | null;
+  settlesBy?: string | null;
 }
 
 /** What stands in the way of the free bet, in plain words, before the tap. */
@@ -60,15 +69,51 @@ function Picked({ side, quotes }: { side: Side; quotes: Quotes }) {
   );
 }
 
+/** The free pick beside the bet: your call saved for the leaderboard, free and winning nothing. A bet you
+ *  place here counts as your pick too, as an AI trader's first bet is its pick. */
+function usePickHere(p: TicketProps, side: "yes" | "no" | null, betDone: boolean) {
+  const mine = useMyPick(p.id);
+  const toast = useToast();
+  const [busy, setBusy] = useState(false);
+  const save = async (s: "yes" | "no", quiet = false) => {
+    if (mine || busy) return;
+    setBusy(true);
+    const r = await sendPick(p.id, s);
+    setBusy(false);
+    if (r.ok && !quiet) openTray({ claimId: p.id, question: p.question, side: r.pick.side, quotes: null, settlesBy: p.settlesBy ?? null, fresh: !r.duplicate });
+    else if (r.ok && quiet && !r.duplicate) toast("Also saved as your pick on the leaderboard.");
+    else if (!r.ok && !quiet && r.code !== "already_picked") toast(r.message);
+  };
+  const counted = useRef(false);
+  useEffect(() => {
+    if (!p.picks || !betDone || !side || counted.current) return;
+    counted.current = true;
+    void save(side, true);
+  }, [p.picks, betDone, side]); // eslint-disable-line react-hooks/exhaustive-deps
+  return { mine, busy, save };
+}
+
 function BetTicket(p: TicketProps) {
   const flow = useBetFlow({ claim: p.claim, question: p.question, initialSide: p.initialSide, recorded: p.recorded });
   const { bet, busy, done, side, quotes, mine } = flow;
   const blocked = p.recorded || (bet.ctx && done) ? null : freeBetBlock(p.lane, flow.lane, mine, p.id);
   const failure = bet.stage === "failed" ? bet.failure : null;
   const ref = useRef<HTMLElement>(null);
+  const pick = usePickHere(p, side, done);
+  if (p.closed) {
+    return (
+      <aside className="panel ticket dock" aria-label="Bet ticket" ref={ref}>
+        <h2>Waiting for its result</h2>
+        <div className="notice" role="status"><Icon name="clock" /><p><b>No new bets here.</b> {p.closed}</p></div>
+        <JudgesLine className="hide-dock" />
+        <WalletEntry claimId={p.id} question={p.question} status={p.claim.status} outcome={p.claim.outcome} side={null} noBuy />
+      </aside>
+    );
+  }
   return (
     <aside className="panel ticket dock" aria-label="Bet ticket" ref={ref}>
       <h2>{p.recorded ? "Replay the free $1" : "Bet your free $1"}<span className="chip brand hide-dock"><Icon name="gift" />No wallet</span></h2>
+      {p.picks && pick.mine && <p className="tk-pick hide-dock"><Icon name="check" />Your free pick: <b className={pick.mine === "yes" ? "pos" : "neg"}>{pick.mine === "yes" ? "Yes, it’s true" : "No, it’s false"}</b></p>}
       {blocked && (
         <div className="notice" role="status">
           <Icon name="info" />
@@ -94,6 +139,9 @@ function BetTicket(p: TicketProps) {
         <button type="button" className={`btn lg ${side === "yes" ? "yesfill" : "nofill"}`} disabled={busy || !quotes} onClick={flow.confirm} data-testid="confirm">
           {busy ? <><span className="spin" />Sending your $1…</> : failure?.retryable ? "Try again" : `Bet $1 free: ${side === "yes" ? "Yes, it’s true" : "No, it’s false"}`}
         </button>
+      )}
+      {p.picks && side && !pick.mine && !done && !busy && (
+        <button type="button" className="linkbtn tk-justpick hide-dock" onClick={() => void pick.save(side)} disabled={pick.busy}>{pick.busy ? "Saving…" : "Or just save it as a free pick: wins nothing, counts on the leaderboard"}</button>
       )}
       {done && !flow.receiptOpen && <button type="button" className="btn soft" onClick={flow.openReceipt}>See your receipt</button>}
       {!p.recorded && flow.lane.state === "preparing" && !busy && <p className="fine hide-dock">Preparing your free $1 in this browser…</p>}

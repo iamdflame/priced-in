@@ -4,7 +4,7 @@
 // deposit or withdrawal in flight (so a reload, or coming back tomorrow, picks the tracking up again).
 import type { BridgeQuote } from "./oneclick";
 
-export type TxKind = "deposit" | "buy" | "sell" | "collect" | "withdraw" | "bridge_in" | "bridge_out" | "storage";
+export type TxKind = "deposit" | "buy" | "sell" | "collect" | "withdraw" | "bridge_in" | "bridge_out" | "storage" | "challenge";
 
 export interface TxRecord {
   kind: TxKind;

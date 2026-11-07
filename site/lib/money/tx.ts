@@ -53,6 +53,25 @@ export function redeemTx(c: MoneyConfig, claimId: number, winMicro: bigint | nul
   };
 }
 
+/** The evidence a challenge posts, in the shape the jury runner checks (GET /api/challenge?claim=, evidence.format). */
+export function challengeEvidence(o: { says: "false" | "true"; url: string; quote: string; note: string }): string {
+  const what = o.note.trim() || `This line is ${o.says === "true" ? "TRUE" : "FALSE"}.`;
+  return `${what}\nSource: ${o.url.trim()}\nReceipt excerpt: "${o.quote.replace(/\s+/g, " ").trim().replace(/"/g, "'")}"`;
+}
+
+/**
+ * Challenge a line with the person's own bond, taken from their Priced In balance by the contract. Three
+ * AI judges rule on the evidence; a right challenge gets the bond back (and any bounty), a wrong one loses it.
+ */
+export function challengeTx(c: MoneyConfig, claimId: number, claimedOutcome: boolean, evidence: string, bondMicro: bigint): TxSpec {
+  if (!evidence.trim()) throw new Error("a challenge needs its evidence");
+  return {
+    receiverId: c.market,
+    actions: [call("challenge", { claim_id: claimId, claimed_outcome: claimedOutcome, evidence }, GAS.challenge)],
+    says: `Challenge this line as ${claimedOutcome ? "true" : "false"}, with a ${fmtMicro(bondMicro)} bond from your balance. If three AI judges agree with you, the bond comes back.`,
+  };
+}
+
 /** Register an account on the USDC contract so it can receive USDC (0.00125 NEAR, once). */
 export function storageTx(c: MoneyConfig, accountId: string): TxSpec {
   return {
