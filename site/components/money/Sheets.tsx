@@ -15,6 +15,6 @@ export function Sheets({ req }: { req: SheetReq }) {
     case "withdraw": return <WithdrawSheet tab={req.tab} onClose={closeSheet} />;
     case "trade": return <TradeSheet claimId={req.claimId} question={req.question} mode={req.mode} side={req.side} onClose={closeSheet} />;
     case "collect": return <CollectSheet claimId={req.claimId} question={req.question} winMicro={req.winMicro} onClose={closeSheet} />;
-    case "challenge": return <ChallengeSheet claimId={req.claimId} question={req.question} onClose={closeSheet} />;
+    case "challenge": return <ChallengeSheet claimId={req.claimId} question={req.question} receipt={req.receipt} onClose={closeSheet} />;
   }
 }

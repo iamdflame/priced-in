@@ -109,27 +109,47 @@ export const reportMessage = (claimId: number, says: "false" | "true", digest: s
 
 // ---------- the calls ----------
 
-export type Refused = { ok: false; code: string; message: string; status: number; pick?: { claim_id: number; side: Side; at: number } };
+export type Refused = {
+  ok: false; code: string; message: string; status: number;
+  /** how long the API asks to be left alone (busy, rate_limited) */
+  retryAfterS?: number;
+  /** untrusted_source: the line's own sources, by host */
+  hosts?: string[];
+  pick?: { claim_id: number; side: Side; at: number };
+};
+
+/** The longest one tap waits on a busy API before the person gets its sentence and can try again. */
+const BUSY_WAIT_S = 6;
 
 async function call<T>(path: string, init?: RequestInit): Promise<({ ok: true } & T) | Refused> {
   try {
     const r = await fetch(path, { ...init, headers: { accept: "application/json", ...(init?.body ? { "content-type": "application/json" } : {}) } });
     const body = await r.json().catch(() => null);
-    if (!r.ok) return { ok: false, code: body?.error?.code ?? "error", message: body?.error?.message ?? "That didn’t work just now. Try again in a moment.", status: r.status, pick: body?.error?.pick };
+    if (!r.ok) return { ok: false, code: body?.error?.code ?? "error", message: body?.error?.message ?? "That didn’t work just now. Try again in a moment.", status: r.status, retryAfterS: body?.error?.retryAfterS, hosts: body?.error?.hosts, pick: body?.error?.pick };
     return { ok: true, ...(body as T) };
   } catch {
     return { ok: false, code: "offline", message: "We couldn’t reach Priced In. Check your connection and try again.", status: 0 };
   }
 }
 
+/**
+ * A signed write. 503 busy means the API couldn't count and wrote nothing, and a signature stays good for ten
+ * minutes, so the same body goes once more after the wait the API asks for: one tap stays one tap. A second
+ * busy comes back as the API's own sentence.
+ */
+async function write<T>(path: string, body: string) {
+  const init = { method: "POST", body };
+  const first = await call<T>(path, init);
+  if (first.ok || first.code !== "busy") return first;
+  await new Promise((done) => setTimeout(done, Math.min(first.retryAfterS ?? BUSY_WAIT_S, BUSY_WAIT_S) * 1000));
+  return call<T>(path, init);
+}
+
 /** A free pick, signed. A second pick on the same side answers duplicate; the other side is refused with the first. */
 export async function sendPick(claimId: number, side: Side) {
   const k = browserKey();
   const issued_at = Date.now();
-  const r = await call<{ pick: { claim_id: number; side: Side; at: number; price_yes_ppm: number }; duplicate?: boolean }>("/api/picks", {
-    method: "POST",
-    body: JSON.stringify({ public_key: k.publicKey, claim_id: claimId, side, issued_at, signature: k.sign(pickMessage(claimId, side, issued_at)) }),
-  });
+  const r = await write<{ pick: { claim_id: number; side: Side; at: number; price_yes_ppm: number }; duplicate?: boolean }>("/api/picks", JSON.stringify({ public_key: k.publicKey, claim_id: claimId, side, issued_at, signature: k.sign(pickMessage(claimId, side, issued_at)) }));
   if (r.ok) remember(claimId, r.pick.side, r.pick.at);
   else if (r.code === "already_picked" && r.pick) remember(claimId, r.pick.side, r.pick.at);
   return r;
@@ -146,20 +166,14 @@ export async function saveNickname(raw: string) {
   const k = browserKey();
   const nickname = cleanNick(raw);
   const issued_at = Date.now();
-  return call<{ key: string; nickname: string }>("/api/profile", {
-    method: "POST",
-    body: JSON.stringify({ public_key: k.publicKey, nickname, issued_at, signature: k.sign(profileMessage(nickname, issued_at)) }),
-  });
+  return write<{ key: string; nickname: string }>("/api/profile", JSON.stringify({ public_key: k.publicKey, nickname, issued_at, signature: k.sign(profileMessage(nickname, issued_at)) }));
 }
 
 export async function sendReport(claimId: number, says: "false" | "true", words: { url: string; quote: string; note: string }) {
   const k = browserKey();
   const r = cleanReport(words);
   const issued_at = Date.now();
-  return call<{ report: Report; next: string }>("/api/reports", {
-    method: "POST",
-    body: JSON.stringify({ public_key: k.publicKey, claim_id: claimId, says, ...r, issued_at, signature: k.sign(reportMessage(claimId, says, reportDigest(r), issued_at)) }),
-  });
+  return write<{ report: Report; next: string }>("/api/reports", JSON.stringify({ public_key: k.publicKey, claim_id: claimId, says, ...r, issued_at, signature: k.sign(reportMessage(claimId, says, reportDigest(r), issued_at)) }));
 }
 
 export const reportById = (id: string) => call<{ reports: Report[]; count: number }>(`/api/reports?id=${encodeURIComponent(id)}`);

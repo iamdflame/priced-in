@@ -67,7 +67,7 @@ function DailyLoop({ example }: { example: TodayLine | null }) {
       </ol>
       <div className="how-catch panel">
         <Icon name="flag" />
-        <p><b>See something wrong?</b> On any fact or claim, show us a public page and the exact words from it. If our checks pass, our Checker challenges it with its own $1 bond, and a catch the AI judges uphold counts on the leaderboard. Or challenge it yourself with a $1 bond from your wallet.</p>
+        <p><b>See something wrong?</b> On any fact or claim, show us a page from its own sources, an official site or an established news outlet, with the exact words from it. If our checks pass, our Checker challenges it with its own $1 bond, and a catch the AI judges uphold counts on the leaderboard. Or challenge it yourself with a $1 bond from your wallet.</p>
       </div>
     </>
   );

@@ -241,6 +241,9 @@ export function boardScore(p: { balance_usd: number | null; positions: { value_u
   return p.positions.length ? Math.max(0, p.balance_usd ?? 0) + p.positions.reduce((n, r) => n + (r.value_usd ?? 0), 0) : null;
 }
 
+/** A refusal's sentence without the developer's pointer at its end: the sheet has a button for that. */
+export const refusalWords = (message: string) => message.replace(/: GET \/api\/challenge\?claim=\d+\.$/, ".");
+
 /** "71%" from 0.71; null stays null. */
 export const pctWords = (a: number | null) => (a === null ? "—" : `${Math.round(a * 100)}%`);
 
@@ -258,7 +261,7 @@ export const REPORT_WORDS: Record<ReportStatus, { label: string; tone: "wait" | 
   upheld: { label: "Upheld: a catch", tone: "ok" },
   rejected: { label: "Not upheld", tone: "bad" },
   expired: { label: "Ran out of time", tone: "done" },
-  closed: { label: "Closed before we could act", tone: "done" },
+  closed: { label: "Closed", tone: "done" },
 };
 
 /** A report still moving: worth asking again. */

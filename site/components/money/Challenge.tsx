@@ -18,14 +18,14 @@ import type { ChallengeInfo } from "@/lib/news";
 
 const cfg = moneyConfig();
 
-export function ChallengeSheet({ claimId, question, onClose }: { claimId: number; question: string; onClose: () => void }) {
+export function ChallengeSheet({ claimId, question, receipt, onClose }: { claimId: number; question: string; receipt?: Receipt; onClose: () => void }) {
   const w = useWallet();
   const geo = useGeo();
   const acct = useAccount(w.accountId);
   const { st, run, locked } = useSend();
   const [info, setInfo] = useState<ChallengeInfo | null>(null);
   const [infoError, setInfoError] = useState<string | null>(null);
-  const [r, set] = useState<Receipt>(EMPTY_RECEIPT);
+  const [r, set] = useState<Receipt>(receipt ?? EMPTY_RECEIPT);
 
   useEffect(() => {
     let off = false;

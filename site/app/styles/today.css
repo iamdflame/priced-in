@@ -112,6 +112,8 @@ p.split.none { font-size: 12.5px; color: var(--ink3); }
 .rp-next .ic { width: 18px; height: 18px; margin-top: 1px; color: var(--yes); }
 .rp-next b { color: var(--ink); }
 .rp-hint { margin-top: 8px; }
+.rp-pages { margin-top: -2px; }
+.rp-wallet { margin: 0 0 8px; }
 .rp-status { padding: 12px 14px; border-radius: 14px; background: var(--surface2); }
 .rp-status.ok { background: var(--yes-bg); }
 .rp-status.bad { background: var(--no-bg); }

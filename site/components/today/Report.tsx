@@ -1,18 +1,20 @@
 "use client";
-// Catch a mistake. The free path: a public page and the exact words from it, signed by this browser's key
-// and sent to /api/reports; the API fetches the page, finds the words, asks three AI checkers, and if they
-// agree our Checker challenges the line with its own $1 bond. Its status shows here afterwards in plain
-// words, and every refusal is the API's own sentence. The money path: a wallet challenges with its own $1
-// bond (components/money/Challenge.tsx). A line that holds a bounty says what it pays.
+// Catch a mistake. The free path: a page our Checker will put its own money on (the line's own sources, an
+// official site or an established outlet: api/_lib/picks.mjs, trustedSource) and the exact words from it,
+// signed by this browser's key and sent to /api/reports; the API fetches the page, finds the words, asks
+// three AI checkers, and if they agree our Checker challenges the line with its own $1 bond. Its status
+// shows here afterwards in plain words, and every refusal is the API's own sentence. The money path takes
+// any public page: a wallet challenges with its own $1 bond (components/money/Challenge.tsx), and a refused
+// page carries over to it. A line that holds a bounty says what it pays.
 import Link from "next/link";
 import { useEffect, useId, useState, useSyncExternalStore } from "react";
 import { Icon } from "../Icon";
 import { Sheet } from "../money/ui";
-import { existingKey, myReports, reportById, sendReport } from "@/lib/client/picks";
+import { existingKey, myReports, reportById, sendReport, type Refused } from "@/lib/client/picks";
 import { canAddMoney } from "@/lib/money/geo";
 import { openSheet, useGeo, useWallet } from "@/lib/money/hooks";
 import { money } from "@/lib/format";
-import { REPORT_WORDS, reportLive, type Report } from "@/lib/news";
+import { REPORT_WORDS, refusalWords, reportLive, type Report } from "@/lib/news";
 
 // ---------- one sheet for the page ----------
 
@@ -29,14 +31,17 @@ export const EMPTY_RECEIPT: Receipt = { says: "false", url: "", quote: "", note:
 
 /** Plain checks before sending; the API has the last word. */
 export function receiptProblem(r: Receipt): string | null {
-  if (!/^https:\/\/\S{4,}$/.test(r.url.trim())) return "Add a public https:// link to the page that shows it.";
+  if (!/^https:\/\/\S{4,}$/.test(r.url.trim())) return "Add an https:// link to the page that shows it.";
   const q = r.quote.replace(/\s+/g, " ").trim();
   if (q.split(" ").length < 3 || q.length < 16) return "Copy the exact words from that page: three words or more.";
   if (r.note.length > 600) return "Keep the note under 600 characters.";
   return null;
 }
 
-export function ReceiptFields({ r, set, news }: { r: Receipt; set: (r: Receipt) => void; news: boolean }) {
+/** Which pages our Checker will bond on, in a reader's words: the API's list (trustedSource). */
+const pagesThatCount = (news: boolean) => `${news ? "This line’s own sources, an" : "An"} official site or an established news outlet.`;
+
+export function ReceiptFields({ r, set, news, free = false }: { r: Receipt; set: (r: Receipt) => void; news: boolean; free?: boolean }) {
   const id = useId();
   return (
     <div className="rp-fields">
@@ -45,8 +50,9 @@ export function ReceiptFields({ r, set, news }: { r: Receipt; set: (r: Receipt) 
         <label className={r.says === "false" ? "on" : ""}><input type="radio" name={`${id}s`} checked={r.says === "false"} onChange={() => set({ ...r, says: "false" })} /><span><b>It’s false</b><small>{news ? "The source denied it, or the page shows it won’t happen" : "A newer source says otherwise"}</small></span></label>
         <label className={r.says === "true" ? "on" : ""}><input type="radio" name={`${id}s`} checked={r.says === "true"} onChange={() => set({ ...r, says: "true" })} /><span><b>{news ? "It’s already confirmed" : "It’s true after all"}</b><small>{news ? "The named source has said it" : "The source backs it as written"}</small></span></label>
       </fieldset>
-      <label className="m-label" htmlFor={`${id}u`}>A public page that shows it</label>
-      <input id={`${id}u`} className="rp-in" type="url" inputMode="url" placeholder="https://" value={r.url} onChange={(e) => set({ ...r, url: e.target.value })} autoComplete="off" />
+      <label className="m-label" htmlFor={`${id}u`}>{free ? "A page that shows it" : "A public page that shows it"}</label>
+      <input id={`${id}u`} className="rp-in" type="url" inputMode="url" placeholder="https://" aria-describedby={free ? `${id}p` : undefined} value={r.url} onChange={(e) => set({ ...r, url: e.target.value })} autoComplete="off" />
+      {free && <p id={`${id}p`} className="fine rp-pages">{pagesThatCount(news)}</p>}
       <label className="m-label" htmlFor={`${id}q`}>The exact words from that page</label>
       <textarea id={`${id}q`} className="rp-in" rows={3} placeholder="Copy them as they appear there: we look for these words on the page." value={r.quote} onChange={(e) => set({ ...r, quote: e.target.value })} />
       <label className="m-label" htmlFor={`${id}n`}>Anything to add? <span className="rp-opt">Optional</span></label>
@@ -89,22 +95,42 @@ function useReport(id: string | null) {
 
 // ---------- the sheet ----------
 
+/** The API's refusal, with the line's own sources as links where it names them. */
+function RefusalWords({ refusal }: { refusal: Refused }) {
+  const words = refusalWords(refusal.message);
+  const hosts = (refusal.hosts ?? []).filter((h) => /^[a-z0-9-]+(\.[a-z0-9-]+)+$/i.test(h)).sort((a, b) => b.length - a.length);
+  if (!hosts.length) return <>{words}</>;
+  const parts = words.split(new RegExp(`(${hosts.map((h) => h.replace(/\./g, "\\.")).join("|")})`, "i"));
+  return <>{parts.map((part, i) => (hosts.includes(part) ? <a key={i} className="link" href={`https://${part}`} target="_blank" rel="noopener noreferrer">{part}</a> : part))}</>;
+}
+
+/** A page our Checker won't bond on is still a page a wallet can bring, with the words already typed. */
+function WalletInstead({ req, receipt }: { req: ReportReq; receipt: Receipt }) {
+  const geo = useGeo();
+  const w = useWallet();
+  if (!canAddMoney(geo.access)) return null;
+  const challenge = { kind: "challenge" as const, claimId: req.claimId, question: req.question, receipt };
+  const go = () => { openReport(null); openSheet(w.status === "in" ? challenge : { kind: "connect", then: challenge }); };
+  return <button type="button" className="btn soft full rp-wallet" onClick={go} data-testid="report-to-wallet">Challenge with your wallet</button>;
+}
+
 export function ReportSheet() {
   const req = useReportReq();
   const [r, set] = useState<Receipt>(EMPTY_RECEIPT);
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [refusal, setRefusal] = useState<Refused | null>(null);
   const [sentId, setSentId] = useState<string | null>(null);
   const [rep, setRep] = useReport(sentId);
-  useEffect(() => { if (req) { set(EMPTY_RECEIPT); setError(null); setSentId(null); setRep(null); } }, [req, setRep]);
+  useEffect(() => { if (req) { set(EMPTY_RECEIPT); setRefusal(null); setSentId(null); setRep(null); } }, [req, setRep]);
+  useEffect(() => { setRefusal(null); }, [r.url]);
   if (!req) return null;
   const problem = receiptProblem(r);
   const send = async () => {
-    setBusy(true); setError(null);
+    setBusy(true); setRefusal(null);
     const res = await sendReport(req.claimId, r.says, { url: r.url, quote: r.quote, note: r.note });
     setBusy(false);
     if (res.ok) { setRep(res.report); setSentId(res.report.id); window.dispatchEvent(new Event("pi:report")); }
-    else setError(res.message);
+    else setRefusal(res);
   };
   return (
     <Sheet title="Report a mistake" sub={req.question} onClose={() => openReport(null)} label="Report a mistake">
@@ -117,12 +143,13 @@ export function ReportSheet() {
         </>
       ) : (
         <>
-          <ReceiptFields r={r} set={set} news={req.news} />
+          <ReceiptFields r={r} set={set} news={req.news} free />
           <div className="rp-next">
             <Icon name="shield" />
             <p><b>What happens next.</b> We fetch the page and look for those exact words. If three AI checkers agree the page shows it, our Checker challenges the line with its own $1 bond, and three AI judges rule. If they agree with you, it counts as a catch on the leaderboard. Reporting is free: you risk nothing.</p>
           </div>
-          {error && <div className="notice err" role="alert"><Icon name="alert" /><p>{error}</p></div>}
+          {refusal && <div className="notice err" role="alert"><Icon name="alert" /><p><RefusalWords refusal={refusal} /></p></div>}
+          {refusal?.code === "untrusted_source" && <WalletInstead req={req} receipt={r} />}
           <button type="button" className="btn primary lg full" disabled={busy || !!problem} onClick={() => void send()} data-testid="report-send">
             {busy ? <><span className="spin" />Sending…</> : "Send report"}
           </button>
@@ -166,13 +193,13 @@ export function CatchPanel({ claimId, question, news, bountyUsd }: ReportReq & {
       <div className="catch-ways">
         <div>
           <h3>Report it, free</h3>
-          <p>Show us a public page and the exact words. If our checks pass, our Checker challenges it with its own $1 bond. Upheld, it counts as your catch on the <Link className="link" href="/leaderboard">leaderboard</Link>.</p>
+          <p>Show us a page from {news ? "its own sources, " : ""}an official site or an established news outlet, and the exact words. If our checks pass, our Checker challenges it with its own $1 bond. Upheld, it counts as your catch on the <Link className="link" href="/leaderboard">leaderboard</Link>.</p>
           <ReportButton claimId={claimId} question={question} news={news} className="btn primary" />
         </div>
         {canAddMoney(geo.access) && (
           <div>
             <h3>Challenge it with $1</h3>
-            <p>Post your own $1 bond from your wallet’s balance. If three AI judges agree with you, it comes back{bountyUsd > 0 ? `, with the ${money(bountyUsd)} bounty` : ""}. If not, it goes to whoever was right.</p>
+            <p>Any public page will do. Post your own $1 bond from your wallet’s balance. If three AI judges agree with you, it comes back{bountyUsd > 0 ? `, with the ${money(bountyUsd)} bounty` : ""}. If not, it goes to whoever was right.</p>
             <button type="button" className="btn soft" onClick={() => openSheet(w.status === "in" ? challenge : { kind: "connect", then: challenge })} data-testid="challenge-open">Challenge with your wallet</button>
           </div>
         )}

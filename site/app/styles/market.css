@@ -81,6 +81,7 @@
 .catch-ways h3 { font: 600 15.5px/1.3 var(--disp); color: var(--ink); }
 .catch-ways p { font-size: 13.5px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
 .catch-ways .btn { margin-top: auto; }
+.catch-ways .btn.soft { background: var(--surface); box-shadow: inset 0 0 0 1px var(--line); }
 
 
 
