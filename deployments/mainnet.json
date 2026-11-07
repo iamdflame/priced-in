@@ -56,7 +56,12 @@
   "checker_methods": [
    "challenge"
   ],
-  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr"
+  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr",
+  "sentinel_account": "sentinel.isitpriced.near",
+  "sentinel_public_key": "ed25519:DSzaRVcnHt5wZTvduAhzALvpd4v4hPXjWQnzMDAVMu4z",
+  "sentinel_methods": [
+   "dispute"
+  ]
  },
  "models": [
   {
@@ -312,6 +317,30 @@
    "method": "ft_transfer_call",
    "tx": "AdK88kQaR59nEfJQdWwTA1xp5JJPM3MHE7nje6RhdSbm",
    "link": "https://nearblocks.io/txns/AdK88kQaR59nEfJQdWwTA1xp5JJPM3MHE7nje6RhdSbm"
+  },
+  {
+   "tag": "wrap 2.8 NEAR",
+   "method": "near_deposit",
+   "tx": "8Y5kyiTbBc1T5iA1rdf9VfPzqPShbreS2YLmmyPNWR6r",
+   "link": "https://nearblocks.io/txns/8Y5kyiTbBc1T5iA1rdf9VfPzqPShbreS2YLmmyPNWR6r"
+  },
+  {
+   "tag": "swap 2.8 wNEAR -> USDC",
+   "method": "ft_transfer_call",
+   "tx": "ASofHGvUMzQVfmy2Qr1VGJ3tXdY4Nk2QoNp2Shy43bvf",
+   "link": "https://nearblocks.io/txns/ASofHGvUMzQVfmy2Qr1VGJ3tXdY4Nk2QoNp2Shy43bvf"
+  },
+  {
+   "tag": "create sentinel.isitpriced.near",
+   "method": "create_account",
+   "tx": "EqkVk9P3ymawpxp2XkzLndV2qyWq3CC5nq9AjRxEDbUq",
+   "link": "https://nearblocks.io/txns/EqkVk9P3ymawpxp2XkzLndV2qyWq3CC5nq9AjRxEDbUq"
+  },
+  {
+   "tag": "bonds sentinel.isitpriced.near $10.00",
+   "method": "ft_transfer_call",
+   "tx": "APiXrDSx7tarMeWksGBz2nHjpwYidKwtpfw2DUaHRy5p",
+   "link": "https://nearblocks.io/txns/APiXrDSx7tarMeWksGBz2nHjpwYidKwtpfw2DUaHRy5p"
   }
  ],
  "keys_set_at": "2026-11-05T22:06:38.206Z",
@@ -588,6 +617,13 @@
    "pool": 4512,
    "quote_micro": "24480400",
    "usdc_received_micro": "24480400"
+  },
+  {
+   "at": "2026-11-07T03:00:33.596Z",
+   "near_in": 2.8,
+   "pool": 4512,
+   "quote_micro": "10450602",
+   "usdc_received_micro": "10450602"
   }
  ],
  "funding": {
@@ -759,5 +795,10 @@
   "price_micro": 10000,
   "rpc": "https://rpc.fastnear.com",
   "at": "2026-11-06T14:01:29.132Z"
+ },
+ "sentinel": {
+  "account": "sentinel.isitpriced.near",
+  "bond_micro": "10000000",
+  "at": "2026-11-07T03:01:22.292Z"
  }
 }

@@ -45,7 +45,12 @@
   "checker_methods": [
    "challenge"
   ],
-  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr"
+  "x402_relayer_public_key": "ed25519:6GGCYHQFneuTQLCnJF1534kCWymm4UpCyRzJTZso7LMr",
+  "sentinel_account": "sentinel.isitpriced.near",
+  "sentinel_public_key": "ed25519:DSzaRVcnHt5wZTvduAhzALvpd4v4hPXjWQnzMDAVMu4z",
+  "sentinel_methods": [
+   "dispute"
+  ]
  },
  "models": [
   {

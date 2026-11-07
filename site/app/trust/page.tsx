@@ -107,6 +107,7 @@ export default async function TrustPage() {
     { who: "Keeper", key: K.keeper_public_key, can: `${methods(K.keeper_public_key, K.keeper_methods)}: settle after the window, open corrected facts` },
     { who: "Verdict relay", key: K.jury_public_key, can: `${methods(K.jury_public_key, ["submit_verdict"])}: carries verdicts the models signed` },
     { who: "Checker", key: K.checker_public_key, can: `${K.checker_methods.join(", ")}: bond a challenge against a fact` },
+    { who: "Sentinel", key: K.sentinel_public_key, can: `${K.sentinel_methods.join(", ")}: object to a ruling whose receipts failed, with its own bond` },
     { who: "Free-bet admin", key: K.lane_admin_public_key, can: "Adds each visitor’s free $1 key on the lane account; can’t move another key’s credit or winnings" },
   ];
 
