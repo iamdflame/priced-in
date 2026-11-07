@@ -5,26 +5,31 @@ import Link from "next/link";
 import { REGIONS } from "@/lib/money/geo";
 import { LIMITS } from "@/lib/money/rules";
 import { MARKET_ID } from "@/lib/nav";
+import { getNews } from "@/lib/server/news";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = { title: "Terms", description: "The research preview, score versus cash, the risks, withdrawals and the restricted regions." };
 
 const codes = (l: string[]) => l.join(" · ");
 
-export default function TermsPage() {
+export default async function TermsPage() {
   const { blocked, close_only: closeOnly, policy, sources } = REGIONS;
+  const news = await getNews();
   return (
     <main id="main" className="wrap">
       <article className="legal">
         <h1>Terms</h1>
         <p className="lede">Priced In is a micro-stakes research preview. Read this before you put in real money. The free $1 needs none of it.</p>
-        <p className="upd">Last changed 6 November 2026. This page is not legal, tax or financial advice.</p>
+        <p className="upd">Last changed 7 November 2026. This page is not legal, tax or financial advice.</p>
 
         <h2 id="preview">A micro-stakes research preview</h2>
         <p>Priced In is live software on NEAR mainnet, and it is still a preview. Stakes are kept small on purpose. Through this site a bet is capped at ${LIMITS.maxBetUsd} and a deposit at ${LIMITS.maxDepositUsd}. Those caps are set by this site; the contract has no per-person limit.</p>
 
         <h2 id="score">Score versus cash</h2>
         <ul>
-          <li><b>Your free $1 is score, not cash.</b> It is one per browser. Its winnings stay in the market as score and can’t be withdrawn.</li>
+          <li><b>Your free $1 is score, not cash.</b> It is one per browser. Its winnings stay in the market as score and can’t be withdrawn. You can bet that score again on any fact, from the same browser.</li>
+          {news.on && <li><b>Free picks win nothing.</b> A pick is your call on a claim or a fact: no purchase, no prize, no payout, no sweepstakes. Picks count only toward the leaderboard.</li>}
           <li><b>Real money is USDC on NEAR.</b> You deposit it from your own wallet, bet it, and can sell, collect and withdraw it. A winning share pays $1 after the market settles.</li>
         </ul>
 

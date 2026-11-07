@@ -76,6 +76,9 @@ export function FactCard({ f, points, reopened = false, eager = false, picks = f
           <div className="result"><span>The AI judges ruled it <b className={f.outcome ? "pos" : "neg"}>{f.outcome ? "true" : "false"}</b></span><Link className="link" href={href}>See the ruling</Link></div>
         ) : picks && f.status === "open" ? (
           <PickButtons id={f.id} question={f.question} quotes={f.quotes} />
+        ) : picks ? (
+          // one rule for the page's Yes and No: while three AI judges rule, picks are closed, and a bet is on its page
+          <p className="closed"><Icon name="scale" /><span><b>Being decided.</b> Picks are closed while three AI judges rule; you can still bet on its page.</span></p>
         ) : (
           <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
         )}

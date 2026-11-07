@@ -139,6 +139,7 @@
 }
 @media (max-width: 760px) {
   .today-hd { margin: 2px 0 10px; }
+  .today-meta { display: none; } /* the counts are the desktop's extra; on a phone the claim comes first */
   .today-hd h2, .wikihd h2 { font-size: 23px; }
   .today-hd p, .wikihd p { font-size: 14px; }
   .today-top { display: flex; flex-direction: column; gap: 12px; }
