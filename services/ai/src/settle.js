@@ -161,21 +161,6 @@ export async function secondLook({ client, model = SEARCH_MODEL, line, nowMs = D
 export const checkPassed = (c) => c?.result === "verified" && !["unanswered", "unsupported"].includes(c?.support?.verdict);
 
 /**
- * The receipt check on a line's evidence, then on each receipt alone until one passes. The panel is
- * bar stays where it is: a line that can't pass waits, because a wrong settlement pays the wrong people.
- * @returns {Promise<{ check: object, evidence: string|null, tries: number }>}
- */
-export async function firstPassing(check, { claim, claimed, variants, max = 3 }) {
-  let last = null, tries = 0;
-  for (const evidence of variants.slice(0, max)) {
-    tries++;
-    last = await check({ claim, evidence, claimed });
-    if (checkPassed(last)) return { check: last, evidence, tries };
-  }
-  return { check: last, evidence: null, tries };
-}
-
-/**
  * Find a line's outcome and its receipts. Never throws; spends at most one search and one model call.
  * @param {{ client: object, line: object, nowMs?: number, fetch?: typeof fetchSource, model?: string, searchModel?: string, search?: Function }} a
  * @returns {Promise<{ outcome: "TRUE"|"FALSE"|"UNKNOWN", basis: string, when: string|null, receipts: object[], evidence: string|null, sources: object[], search: object, reason: string, dropped: object[] }>}
@@ -200,11 +185,6 @@ export async function findReceipts({ client, line, nowMs = Date.now(), fetch: ge
     out.second_look = await second({ client, model: searchModel, line, nowMs });
     if (out.second_look.answer !== "FALSE") { out.reason = `A second search does not agree it went unconfirmed (${out.second_look.answer ?? "no answer"}), so it waits. ${out.second_look.note ?? ""}`.trim(); out.outcome = "UNKNOWN"; out.basis = "none"; }
   }
-  if (out.outcome !== "UNKNOWN") {
-    const ev = (receipts) => newsEvidence({ line, outcome: out.outcome, basis: out.basis, when: out.when, receipts, nowMs });
-    out.evidence = ev(out.receipts);
-    // the support panel reads the first source only: each receipt also gets its turn at being that source
-    out.variants = out.receipts.length > 1 ? [out.evidence, ...out.receipts.map((r) => ev([r]))] : [out.evidence];
-  }
+  if (out.outcome !== "UNKNOWN") out.evidence = newsEvidence({ line, outcome: out.outcome, basis: out.basis, when: out.when, receipts: out.receipts, nowMs });
   return out;
 }

@@ -1,0 +1,1335 @@
+{
+ "summary": {
+  "at": "2026-11-07T02:41:47.382Z",
+  "method": "As-of scouting on Google News search feeds (after:/before:), the scout and the gate's code blocklist and second model as of that day; settling today with NEAR AI web search plus the settling source, the production receipt check with the attested support panel, the contract's jury request to the three models (two of three), and an independent web-search check by another model, blind to the rest. One run; nothing on-chain.",
+  "as_of": [
+   "2026-10-24",
+   "2026-10-29"
+  ],
+  "scouted": [
+   {
+    "as_of": "2026-10-26",
+    "headlines": 110,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 3,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 6,
+    "refusals": [
+     {
+      "question": "Is DoorDash buying Instacart?",
+      "at": "policy",
+      "reason": "Never priced: it touches deaths, violence, wars or attacks (\"dead\")."
+     },
+     {
+      "question": "Has Anthropic filed publicly for an IPO?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states Anthropic has filed for an IPO, which is a public record event."
+     },
+     {
+      "question": "Has NC State fired DJ Elliot and its football GM?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states NC State has 'parts ways' with the staff, indicating the action has already occurred."
+     },
+     {
+      "question": "Has Switzerland approved a domestic spot Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states BIT Asset Management 'receives approval', indicating the regulatory action is complete."
+     }
+    ],
+    "reused_from": "deployments/news-settle-fresh-run1.json"
+   },
+   {
+    "as_of": "2026-10-30",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 1,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 8,
+    "refusals": [
+     {
+      "question": "Is DOJ probing Nvidia's Hugging Face deal?",
+      "at": "policy",
+      "reason": "Never priced: it touches crime, arrests, investigations or court cases (\"investigat\")."
+     },
+     {
+      "question": "Has FINMA approved a Swiss retail Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that FINMA has already approved the ETF, which is a settled regulatory action."
+     }
+    ],
+    "reused_from": "deployments/news-settle-fresh-run1.json"
+   }
+  ],
+  "claims_settled_today": 14,
+  "pipeline": {
+   "true": 6,
+   "false": 4,
+   "unknown": 4,
+   "errors": 0,
+   "search_failed": 0
+  },
+  "definite": {
+   "true": {
+    "claims": 0,
+    "challenged": 0,
+    "jury_ruled": 0
+   },
+   "false": {
+    "claims": 14,
+    "challenged": 9,
+    "jury_ruled": 8
+   }
+  },
+  "receipts_verified": 9,
+  "receipt_results": {
+   "verified": 9,
+   "unsupported": 1
+  },
+  "jury_would_be_called": 9,
+  "jury_ruled": 8,
+  "jury_ruled_as_the_pipeline_claimed": 8,
+  "jury_matches_independent": 7,
+  "jury_differs_from_independent": 1,
+  "by_basis": {
+   "not_confirmed": {
+    "found": 4,
+    "receipts_verified": 4,
+    "support_ok": 4,
+    "jury_called": 4,
+    "jury_ruled_as_claimed": 4,
+    "jury_no_quorum": 0,
+    "matches_independent": 4,
+    "independent_known": 4
+   },
+   "confirmed": {
+    "found": 6,
+    "receipts_verified": 5,
+    "support_ok": 5,
+    "jury_called": 5,
+    "jury_ruled_as_claimed": 4,
+    "jury_no_quorum": 2,
+    "matches_independent": 3,
+    "independent_known": 6
+   }
+  },
+  "spend_usd": 0.2082,
+  "spend_by_step": {
+   "settle": 0.1182,
+   "independent": 0.0723,
+   "support": 0.0107,
+   "jury": 0.007
+  }
+ },
+ "results": [
+  {
+   "as_of": "2026-10-26",
+   "question": "Is OpenAI raising $30B at a $1.25T valuation?",
+   "claim": "By 2 November 2026, OpenAI or its filings confirm a $30B raise at a $1.25T valuation ahead of an IPO. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "OpenAI Reportedly Seeks $30B at $1.25T Valuation Ahead of IPO - AI Insider",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "OpenAI's newsroom or SEC/company filings",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI confirms the raise and valuation, or it is denied"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [],
+    "reason": "No source the receipt check can read was found.",
+    "sources_read": 0,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 39,
+    "note": "As of 2 November 2026, OpenAI's own newsroom and filings had not confirmed any such round — the $30B/$1.25T figure rested only on anonymous sourcing (CNBC, 22 October 2026) and was contradicted by Reuters/Bloomberg reporting that OpenAI ultimately raised just ~$11B of a shrunken ~$20B round at a $1."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Did DeepSeek raise $15B from Tencent and CATL?",
+   "claim": "By 2 November 2026, DeepSeek or its investors confirm a $15B raise from Tencent and CATL ahead of an IPO. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "DeepSeek reportedly raises $15bn from Tencent and CATL ahead of IPO - The Next Web",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "DeepSeek's official channels or exchange filings",
+    "source_url": null,
+    "event": "DeepSeek or Tencent/CATL confirm the funding, or deny it"
+   },
+   "estimate": 0.4,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing",
+      "quote": "DeepSeek did not immediately respond to a TechCrunch request for comment."
+     }
+    ],
+    "reason": "All sources are reports citing Bloomberg/unnamed sources, and DeepSeek itself declined to comment, so no confirmation from DeepSeek or its investors by 2 November 2026.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 60,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "The only coverage by 2 November 2026 was Bloomberg/Reuters reporting on 22 October 2026 citing unnamed \"people familiar with the matter,\" with multiple outlets explicitly noting that DeepSeek, Tencent, and CATL had issued no on-record confirmation — no statement, filing, or deal announcement from th"
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed DeepSeek's official channels or exchange filings to confirm it by 2 November 2026.\nBy the end of 2 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing\nReceipt excerpt: \"DeepSeek did not immediately respond to a TechCrunch request for comment.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence states the claim was not confirmed by the 2 November 2026 deadline, and the cited report relies on unnamed sources with no official confirmation from DeepSeek or exchange filings."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 2 November 2026, the claim had not been confirmed by official channels, and the cited source indicates DeepSeek did not respond to requests for comment, meaning the condition for a valid confirmation was not met."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence states that by the end of 2 November 2026 the raise had not been confirmed by DeepSeek's official channels or exchange filings, and the cited report only reflects a lack of comment rather than confirmation."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) Multiple reports through 2 November 2026 (Bloomberg on 22 October, Reuters, The Information on 30 October) attributed the ~$15B/100B yuan round backed by Tencent and CATL to anonymous sources, and outlets such as TNW and fact-check summaries note"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Is Microsoft offering buyouts to 60,000 staff?",
+   "claim": "By 2 November 2026, Microsoft confirms it is offering buyouts to 60,000 employees. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "Microsoft to reportedly offer buyouts to 60,000 employees in latest cuts - The Guardian",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "Microsoft's newsroom or an SEC filing",
+    "source_url": "https://news.microsoft.com/",
+    "event": "Microsoft confirms the buyout program, or denies the scale"
+   },
+   "estimate": 0.35,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-26",
+    "receipts": [
+     {
+      "url": "https://www.nbcnews.com/business/corporations/microsoft-offers-buyouts-60000-employees-rcna605765",
+      "quote": "Microsoft said Monday it is offering voluntary buyouts to about 60,000 employees, or more than a quarter of its global workforce"
+     },
+     {
+      "url": "https://techcrunch.com/2026/10/26/microsoft-offers-buyouts-to-around-60000-employees-reports-say/",
+      "quote": "Microsoft is offering buyouts to around 60,000 employees, the company confirmed to TechCrunch on Monday."
+     }
+    ],
+    "reason": "Microsoft itself confirmed on 26 October 2026, before the 2 November deadline, that it is offering buyouts to about 60,000 employees.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 31,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Microsoft's newsroom or an SEC filing to confirm it by 2 November 2026.\nIt was confirmed on or before 2 November 2026 (on 26 October 2026).\nSource: https://www.nbcnews.com/business/corporations/microsoft-offers-buyouts-60000-employees-rcna605765\nReceipt excerpt: \"Microsoft said Monday it is offering voluntary buyouts to about 60,000 employees, or more than a quarter of its global workforce\"\nSource: https://techcrunch.com/2026/10/26/microsoft-offers-buyouts-to-around-60000-employees-reports-say/\nReceipt excerpt: \"Microsoft is offering buyouts to around 60,000 employees, the company confirmed to TechCrunch on Monday.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.nbcnews.com/business/corporations/microsoft-offers-buyouts-60000-employees-rcna605765, https://techcrunch.com/2026/10/26/microsoft-offers-buyouts-to-around-60000-employees-reports-say/.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence shows Microsoft itself confirmed to TechCrunch on 26 October 2026 that it was offering buyouts to about 60,000 employees, meeting the claim's requirement for company confirmation (not merely unnamed sources) before 2 November 2026."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that Microsoft officially confirmed the offer of buyouts to 60,000 employees on October 26, 2026, which is prior to the November 2, 2026 deadline, and the sources indicate direct confirmation by the company rather than just unnamed reports."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "UNPARSEABLE",
+      "text": ""
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 34,
+    "note": "Microsoft's Official Blog (newsroom) post \"Introducing a Voluntary Exit Offer\" by Chief People Officer Amy Coleman, published October 26, 2026, announced the voluntary exit program, and Microsoft spokespeople confirmed to outlets that day (e.g., TechCrunch, Fortune, Gizmodo) that about 60,000 employ"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Is Meta raising up to $95B for AI?",
+   "claim": "By 2 November 2026, Meta or an SEC filing confirms Meta plans to raise up to $95 billion in financing for AI growth. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "Meta Plans up to $95 Billion in Financing to Power Its AI Growth - WSJ",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "Meta's investor relations or an SEC filing",
+    "source_url": "https://investor.atmeta.com/",
+    "event": "Meta files or announces the offering, or scales it back"
+   },
+   "estimate": 0.7,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-26",
+    "receipts": [
+     {
+      "url": "https://www.investopedia.com/market-update-meta-says-it-plans-to-raise-up-to-usd95-billion-to-fund-ai-goals-12194130",
+      "quote": "Before the bell Monday, Meta ( META ) said in a regulatory filing that it intends to raise up to $95 billion in a series of stock offerings."
+     }
+    ],
+    "reason": "Meta itself said in a regulatory filing on 26 October 2026 that it intends to raise up to $95 billion, before the 2 November deadline.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 32,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Meta's investor relations or an SEC filing to confirm it by 2 November 2026.\nIt was confirmed on or before 2 November 2026 (on 26 October 2026).\nSource: https://www.investopedia.com/market-update-meta-says-it-plans-to-raise-up-to-usd95-billion-to-fund-ai-goals-12194130\nReceipt excerpt: \"Before the bell Monday, Meta ( META ) said in a regulatory filing that it intends to raise up to $95 billion in a series of stock offerings.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.investopedia.com/market-update-meta-says-it-plans-to-raise-up-to-usd95-billion-to-fund-ai-goals-12194130.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence states Meta confirmed in a regulatory filing (an SEC filing) on 26 October 2026 that it intends to raise up to $95 billion, meeting the claim's sourcing and deadline requirements."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that Meta disclosed its plan to raise up to $95 billion in a regulatory filing on 26 October 2026, which satisfies the requirement for an SEC filing confirmation by 2 November 2026."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence shows Meta confirmed via a regulatory filing on 26 October 2026 (before the 2 November deadline) that it intends to raise up to $95 billion to fund AI goals, satisfying the claim's requirement for official confirmation rather than unnamed-source reporting."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "ANSWER: TRUE (confirmed on or before that date) Meta disclosed the plan to raise up to $95 billion in equity financing for its AI infrastructure and \"personal superintelligence\" in an SEC filing and press release on 26 October 2026, as reported by Reuters, CNBC and Investopedia that day."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Is Troy Aikman leaving ESPN for the Cowboys?",
+   "claim": "By 2 November 2026, Troy Aikman or ESPN confirms Aikman is leaving ESPN's Monday Night Football for a Cowboys role. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "Troy Aikman Teases Potential Cowboys Future amid ESPN 'Monday Night Football' Contract Rumors - Bleacher Report",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "ESPN press releases or the Dallas Cowboys' official site",
+    "source_url": "https://www.espnpressroom.com/",
+    "event": "Aikman or ESPN confirms a departure, or Aikman stays"
+   },
+   "estimate": 0.15,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.espnpressroom.com/",
+      "quote": "ESPN networks stick the landing with 2027 NCAA Gymnastics coverage"
+     },
+     {
+      "url": "https://www.profootballnetwork.com/troy-aikman-bombshell-broadcasting-future-espn-cowboys/",
+      "quote": "Aikman’s future with ESPN remains uncertain as his current contract is set to expire after Super Bowl 61, in March 2027."
+     }
+    ],
+    "reason": "As of the claim's date, ESPN's own press page carried no announcement of Aikman leaving for a Cowboys role, and coverage through late October described his future as unresolved, with no confirmation from Aikman or ESPN about a Cowboys move.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 40,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "The named-source confirmation never came: as of 2 November 2026, ESPN had made no announcement, Aikman (via KTCK radio, 15 Oct 2026, and later comments) only said he'd be a \"free agent\" after the season without naming the Cowboys, and Jerry Jones said only on 27 Oct 2026 that a Cowboys role was \"ver"
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed ESPN press releases or the Dallas Cowboys' official site to confirm it by 2 November 2026.\nBy the end of 2 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://www.espnpressroom.com/\nReceipt excerpt: \"ESPN networks stick the landing with 2027 NCAA Gymnastics coverage\"\nSource: https://www.profootballnetwork.com/troy-aikman-bombshell-broadcasting-future-espn-cowboys/\nReceipt excerpt: \"Aikman’s future with ESPN remains uncertain as his current contract is set to expire after Super Bowl 61, in March 2027.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.espnpressroom.com/, https://www.profootballnetwork.com/troy-aikman-bombshell-broadcasting-future-espn-cowboys/.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows that as of the 2 November 2026 deadline, no ESPN press release or Cowboys official confirmation existed, and reporting after the date described Aikman's ESPN future as still uncertain."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 2 November 2026, the claim had not been confirmed, and the provided sources indicate that Aikman's future remained uncertain with his contract set to expire in March 2027, rather than confirming a departure for a Cowboys role."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows that by the end of 2 November 2026, neither Aikman nor ESPN had confirmed any departure for a Cowboys role—ESPN's pressroom contained only unrelated news, and the only relevant report described his future as uncertain with an expiring contract, not a confirmed move."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 39,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) As of 2 November 2026, ESPN had not announced Aikman's departure (Last Word on Sports noted \"ESPN has not announced that Aikman will leave\") and Aikman himself only said on 15 October 2026 that he would \"be a free agent at the end of the year,\" w"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Is the Dutch government cutting 25,000 jobs?",
+   "claim": "By 2 November 2026, the Dutch government confirms a plan to cut 25,000 public-sector jobs in an AI-led overhaul. Reports citing unnamed sources don't count.",
+   "topic": "Officials",
+   "headline": "Dutch Government Plans to Cut 25,000 Jobs in AI-Led Overhaul - Bloomberg.com",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "Dutch government (Rijksoverheid) official announcements",
+    "source_url": "https://www.government.nl/",
+    "event": "The government publishes the plan, or denies the figure"
+   },
+   "estimate": 0.4,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-26",
+    "receipts": [
+     {
+      "url": "https://aiinsider.nl/nieuws/kabinet-wil-25-000-rijksbanen-schrappen-maar-waarschuwt-zelf-overschat-de-effecten-van-ai-niet/",
+      "quote": "Staatssecretaris Eric van der Burg van Koninkrijksrelaties en Slagvaardige Overheid stuurde de Tweede Kamer op 26 oktober 2026 de voortgangsbrief Slagvaardige Overheid ."
+     }
+    ],
+    "reason": "The Dutch government's own progress letter of 26 October 2026, sent by State Secretary Van der Burg to parliament, confirms the 25,000 fte reduction plan before the 2 November 2026 deadline.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Dutch government (Rijksoverheid) official announcements to confirm it by 2 November 2026.\nIt was confirmed on or before 2 November 2026 (on 26 October 2026).\nSource: https://aiinsider.nl/nieuws/kabinet-wil-25-000-rijksbanen-schrappen-maar-waarschuwt-zelf-overschat-de-effecten-van-ai-niet/\nReceipt excerpt: \"Staatssecretaris Eric van der Burg van Koninkrijksrelaties en Slagvaardige Overheid stuurde de Tweede Kamer op 26 oktober 2026 de voortgangsbrief Slagvaardige Overheid .\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://aiinsider.nl/nieuws/kabinet-wil-25-000-rijksbanen-schrappen-maar-waarschuwt-zelf-overschat-de-effecten-van-ai-niet/.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "NO QUORUM",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "INSUFFICIENT",
+      "text": "VERDICT: INSUFFICIENT\n\nThe cited receipt only shows a state secretary sent a progress letter to parliament on 26 October 2026; it does not establish that the Dutch government confirmed a plan to cut 25,000 public-sector jobs in an AI-led overhaul."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that on 26 October 2026, a Dutch state secretary sent an official progress letter to the House of Representatives regarding the \"Slagvaardige Overheid\" (Agile Government) plan, which aligns with the claim of an official government confirmation by the deadline."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "UNPARSEABLE",
+      "text": ""
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "The Dutch government's own statement, published via rijksoverheid.nl and reported on 26 October 2026, confirmed the plan by State Secretary Eric van der Burg to cut roughly 25,000 central-government full-time posts (about 16% of the workforce) over several years, with AI as a central tool and saving"
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is DoorDash buying Instacart?",
+   "claim": "By 6 November 2026, DoorDash or Instacart confirms that DoorDash has agreed to acquire Instacart. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "DoorDash reportedly in talks to buy Instacart - WSMV",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "DoorDash investor relations or an SEC filing",
+    "source_url": "https://ir.doordash.com/",
+    "event": "DoorDash announces a definitive agreement to buy Instacart, or talks end without a deal"
+   },
+   "estimate": 0.25,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx",
+      "quote": "DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026 Transaction values Instacart at $65.00 per share, representing a 26% premium to Instacart's closing price on October 22, 2026"
+     }
+    ],
+    "reason": "DoorDash's own investor relations press release dated October 29, 2026 announces the agreement to acquire Instacart, before the claim's November 6 deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 29,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed DoorDash investor relations or an SEC filing to confirm it by 6 November 2026.\nIt was confirmed on or before 6 November 2026 (on 29 October 2026).\nSource: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx\nReceipt excerpt: \"DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026 Transaction values Instacart at $65.00 per share, representing a 26% premium to Instacart's closing price on October 22, 2026\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe cited DoorDash investor relations press release dated 29 October 2026 confirms DoorDash's agreement to acquire Instacart, satisfying the requirement of official confirmation before 6 November 2026."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence provides a direct link to a DoorDash investor relations press release dated October 29, 2026, which explicitly confirms the acquisition of Instacart, satisfying the requirement for official confirmation by the deadline."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence cites DoorDash's own investor relations announcement dated 29 October 2026 confirming the acquisition agreement, which is an official confirmation from DoorDash itself (not unnamed sources) and falls before the 6 November 2026 deadline."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "ANSWER: TRUE (confirmed on or before that date) DoorDash's own investor relations press release, \"DoorDash to Acquire Instacart to Help Local Stores Win,\" dated October 29, 2026, announced the definitive agreement for DoorDash to acquire Instacart (with a related internal Q&A filed with the SEC the "
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is OpenAI buying Google TPUs?",
+   "claim": "By 6 November 2026, OpenAI or Google confirms that OpenAI plans to buy Google's AI chips (TPUs). Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "OpenAI plans to buy Google's AI chips, The Information reports - Reuters",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "OpenAI or Google newsroom statement",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI or Google confirms a TPU purchase deal, or both deny it"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [],
+    "reason": "No quote it gave is in its source word for word, so there is no receipt. As of the claim's date, coverage rested on unnamed-source reports and neither OpenAI nor Google had confirmed the TPU purchase plan.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 28,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 18,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) Multiple reports (The Information and Bloomberg, October 27–28, 2026) said OpenAI planned to buy Google TPUs, but neither OpenAI nor Google's newsroom confirmed it — as of November 1, 2026, no deal was confirmed."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is Microsoft raising $25B in debt?",
+   "claim": "By 6 November 2026, Microsoft or an SEC filing confirms Microsoft is raising $25 billion in debt for its AI buildout. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "Microsoft plans to raise $25 billion in debt as it pursues AI buildout - CNBC",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Microsoft investor relations or an SEC filing",
+    "source_url": "https://www.microsoft.com/en-us/investor",
+    "event": "Microsoft files or announces a $25B debt offering, or a different amount"
+   },
+   "estimate": 0.6,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://news.microsoft.com/source/2026/10/29/microsoft-announces-debt-offerings-7/",
+      "quote": "$2.00 billion of 6.35 percent notes due November 3, 2066"
+     }
+    ],
+    "reason": "Microsoft's own press release dated October 29, 2026 announced the debt offerings totaling $25 billion, before the claim's deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 36,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Microsoft investor relations or an SEC filing to confirm it by 6 November 2026.\nIt was confirmed on or before 6 November 2026 (on 29 October 2026).\nSource: https://news.microsoft.com/source/2026/10/29/microsoft-announces-debt-offerings-7/\nReceipt excerpt: \"$2.00 billion of 6.35 percent notes due November 3, 2066\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "unsupported",
+    "reason": "The quoted words are at https://news.microsoft.com/source/2026/10/29/microsoft-announces-debt-offerings-7/, but the attested models that read that source found it does not support the challenge.",
+    "tries": 1,
+    "support": {
+     "verdict": "unsupported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "NO",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": false,
+   "jury": {
+    "panel": "NO QUORUM",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "INSUFFICIENT",
+      "text": "VERDICT: INSUFFICIENT\n\nThe cited Microsoft news release confirms debt offerings but the excerpt only shows a $2.00 billion tranche, not the required $25 billion total, so the claim's threshold is not established."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence confirms a $2.00 billion debt offering, which does not meet the claim's requirement of $25 billion."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "INSUFFICIENT",
+      "text": "VERDICT: INSUFFICIENT\nThe receipt asserts the claim was confirmed via a Microsoft announcement, but the only excerpt provided shows a single $2.00 billion note tranche and never establishes the $25 billion total or that the debt is earmarked for an AI buildout."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "Microsoft confirmed the $25 billion debt offering — priced on 29 October 2026 with settlement on 4 November 2026 and proceeds tied to AI/cloud capital expenditures — in its own press release and SEC free-writing prospectus filings, as reported by outlets such as CNBC and the FourWeekMBA tracker citi"
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is Solidigm planning a $45B US chip plant?",
+   "claim": "By 6 November 2026, SK Hynix or Solidigm confirms talks over a $45 billion US chip plant investment. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "SK Hynix's Solidigm Reportedly In Talks Over $45B Investment In US Chip Plant - Yahoo Finance",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "SK Hynix newsroom or a regulatory filing",
+    "source_url": "https://news.skhynix.com/",
+    "event": "SK Hynix confirms the investment plan, or says no such talks"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://news.skhynix.com/",
+      "quote": "SK hynix Hosts First Partners Day in Japan, Sharing Business Direction with Key Local Partners"
+     },
+     {
+      "url": "https://www.tomshardware.com/tech-industry/manufacturing/sk-hynix-owned-solidigm-is-plotting-a-new-usd45-billion-flash-memory-factory-for-the-us-report-claims-wants-go-ahead-to-export-equipment-for-china-upgrades-in-return",
+      "quote": "Solidigm, an American subsidiary of SK hynix, one of the biggest flash chip makers on the planet, is reportedly in talks with the Commerce Department over plans to invest $45 billion in a new plant to be built in the United States."
+     }
+    ],
+    "reason": "SK hynix's own newsroom shows no confirmation of the $45 billion US plant talks as of 6 November 2026, and coverage rests on unnamed-source reports.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 31,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "The claim stems from Bloomberg's Oct 27, 2026 report citing unnamed sources; Solidigm/SK Hynix themselves only said via spokesperson Dan Francisco that \"no decision regarding any specific course of action has been made\" — they acknowledged exploring NAND fab locations worldwide but never confirmed t"
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed SK Hynix newsroom or a regulatory filing to confirm it by 6 November 2026.\nBy the end of 6 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://news.skhynix.com/\nReceipt excerpt: \"SK hynix Hosts First Partners Day in Japan, Sharing Business Direction with Key Local Partners\"\nSource: https://www.tomshardware.com/tech-industry/manufacturing/sk-hynix-owned-solidigm-is-plotting-a-new-usd45-billion-flash-memory-factory-for-the-us-report-claims-wants-go-ahead-to-export-equipment-for-china-upgrades-in-return\nReceipt excerpt: \"Solidigm, an American subsidiary of SK hynix, one of the biggest flash chip makers on the planet, is reportedly in talks with the Commerce Department over plans to invest $45 billion in a new plant to be built in the United States.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://news.skhynix.com/, https://www.tomshardware.com/tech-industry/manufacturing/sk-hynix-owned-solidigm-is-plotting-a-new-usd45-billion-flash-memory-factory-for-the-us-report-claims-wants-go-ahead-to-export-equipment-for-china-upgrades-in-return.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe only supporting report is from unnamed sources and the SK Hynix newsroom excerpt does not confirm the $45 billion US plant talks, so the claim's confirmation requirement was not met by 6 November 2026."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 6 November 2026, the claim had not been confirmed by the required sources (SK Hynix newsroom or regulatory filing), and the provided excerpt from Tom's Hardware relies on \"reportedly\" and \"report claims,\" which the claim excludes."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states that neither SK Hynix nor Solidigm had confirmed the talks by 6 November 2026, and the available Tom’s Hardware article relies on unnamed/reportedly sourced information."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) SK Hynix's Oct. 29, 2026 regulatory filing said it was reviewing options for Solidigm's capacity expansion but had made no final decision, and Solidigm declined to confirm the $45 billion figure, so the talks were only reported by Bloomberg (Oct."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Has Josh Downs requested a trade?",
+   "claim": "By 6 November 2026, the Indianapolis Colts or Josh Downs confirms that Downs has requested a trade before the NFL deadline. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "Report: Colts WR Josh Downs requests trade ahead of NFL deadline for deals - NFL.com",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Colts statement or NFL transaction wire",
+    "source_url": "https://www.colts.com/",
+    "event": "Colts confirm the request or trade him, or deny any request"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.colts.com/",
+      "quote": "Colts rule out CB Justin Walley, LB Akeem Davis-Gaither for Week 9 Head coach Shane Steichen made the announcement Friday."
+     },
+     {
+      "url": "https://www.espn.com/nfl/story/_/id/50309159/source-wr-downs-requests-trade-rb-taylor-per-coach",
+      "quote": "Colts fourth-year receiver Josh Downs , who is in the final year of his rookie contract, has requested a trade, sources told ESPN's Jeremy Fowler."
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. Colts coach Shane Steichen publicly confirmed on Friday, October 30, 2026 that Josh Downs had requested a trade (\"Obviously, you requested a trade...\"), corroborating ESPN's Jeremy Fowler's initial Oct. 28 report via named-source confirmation well before 6 November.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 28,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "Colts coach Shane Steichen publicly confirmed on Friday, October 30, 2026 that Josh Downs had requested a trade (\"Obviously, you requested a trade...\"), corroborating ESPN's Jeremy Fowler's initial Oct. 28 report via named-source confirmation well before 6 November."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "Colts coach Shane Steichen confirmed on Friday, 30 October 2026, that Josh Downs had requested a trade, as reported by The Athletic and Colts Wire."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Are the White Sox poaching a Brewers exec?",
+   "claim": "By 6 November 2026, the Chicago White Sox or Milwaukee Brewers confirms the White Sox have hired a Brewers front-office executive. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "White Sox Reportedly Poach World Series Brewers to Fill Key Front Office Role - Sports Illustrated",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "White Sox or Brewers official announcement",
+    "source_url": "https://www.mlb.com/whitesox",
+    "event": "White Sox announce the hire, or Brewers deny permission was granted"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.mlb.com/whitesox",
+      "quote": "Official Chicago White Sox Website | MLB.com Skip to Content Tickets Season Ticket Plans Group Tickets Spring Training Tickets Mobile Ticketing"
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. The Chicago White Sox officially announced Matt Roffe — formerly an assistant director of domestic scouting for the Milwaukee Brewers — as their director of amateur scouting on November 5, 2026 (reported by the Chicago Sun-Times and others).",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 30,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "The Chicago White Sox officially announced Matt Roffe — formerly an assistant director of domestic scouting for the Milwaukee Brewers — as their director of amateur scouting on November 5, 2026 (reported by the Chicago Sun-Times and others)."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": ""
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is Connor Storrie in talks for Ghost Rider?",
+   "claim": "By 6 November 2026, Marvel or Connor Storrie's representatives confirm Storrie is in talks to join Ghost Rider. Reports citing unnamed sources don't count.",
+   "topic": "Entertainment",
+   "headline": "‘Heated Rivalry’ Star Connor Storrie Reportedly in Talks to Join Ryan Gosling in Marvel’s ‘Ghost Rider’ - WDW News Today",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Marvel Studios or a studio press statement",
+    "source_url": "https://www.marvel.com/",
+    "event": "Marvel confirms casting talks or announces the role, or reps deny"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://variety.com/2026/film/news/connor-storrie-ryan-gosling-marvel-ghost-rider-1236932383/",
+      "quote": "That said, Marvel has yet to confirm which version of Ghost Rider that Gosling will play, so it’s also unclear which villain Storrie would embody."
+     },
+     {
+      "url": "https://deadline.com/2026/10/connor-storrie-circling-ghost-rider-ryan-gosling-1237206577/",
+      "quote": "Connor Storrie is circling a role opposite Ryan Gosling in Marvel Studios ‘ Ghost Rider , sources have confirmed to Deadline."
+     }
+    ],
+    "reason": "As of the claim's date, coverage relied on unnamed sources and reports, and Marvel had not itself confirmed Storrie's talks.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "All reports on or before 6 November 2026 (THR, Deadline, Variety, EW, etc., first reported 27 October 2026) cite unnamed sources, while Deadline notes \"Reps for Marvel declined to comment,\" Variety states \"Marvel Studios does not comment on casting,\" and EW reports \"Marvel declined to comment\" — wit"
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Marvel Studios or a studio press statement to confirm it by 6 November 2026.\nBy the end of 6 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://variety.com/2026/film/news/connor-storrie-ryan-gosling-marvel-ghost-rider-1236932383/\nReceipt excerpt: \"That said, Marvel has yet to confirm which version of Ghost Rider that Gosling will play, so it’s also unclear which villain Storrie would embody.\"\nSource: https://deadline.com/2026/10/connor-storrie-circling-ghost-rider-ryan-gosling-1237206577/\nReceipt excerpt: \"Connor Storrie is circling a role opposite Ryan Gosling in Marvel Studios ‘ Ghost Rider , sources have confirmed to Deadline.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://variety.com/2026/film/news/connor-storrie-ryan-gosling-marvel-ghost-rider-1236932383/, https://deadline.com/2026/10/connor-storrie-circling-ghost-rider-ryan-gosling-1237206577/.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows that as of the 6 November 2026 deadline, Marvel had not confirmed Storrie's involvement, and the Deadline report relied on unnamed sources, which the claim explicitly excludes."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 6 November 2026, the claim had not been confirmed by Marvel Studios or a studio press statement, and the provided sources rely on unnamed sources or note that Marvel has yet to confirm details."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe only confirmation cited is Deadline's unnamed sources, which the claim explicitly excludes, and Variety notes Marvel had yet to confirm anything as of the 6 November 2026 deadline."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": "ANSWER: FALSE Marvel Studios consistently declined to comment on the Storrie casting reports (as noted by Deadline and Variety on 27 October 2026), and no Marvel or Storrie representative statement confirming he is in talks had been issued as of 6 November 2026."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Was Dangote's refinery IPO 3x oversubscribed?",
+   "claim": "By 6 November 2026, Dangote Refinery or its advisers confirm the IPO was oversubscribed three times its $1.6 billion target. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "Demand for Aliko Dangote’s refinery IPO reportedly reaches three times its $1.6 billion target across 119 countries - Business Insider Africa",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Dangote Refinery or NGX/issuing-house announcement",
+    "source_url": null,
+    "event": "Issuing house confirms subscription levels, or reports a different multiple"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://african.business/2026/10/finance-services/three-times-oversubscribed-dangote-refinery-ipo-closes",
+      "quote": "Dangote Refinery and Petrochemicals FZE ended its 44-day initial public offering (IPO) with orders almost three times higher than the target of $1.6bn."
+     }
+    ],
+    "reason": "Dangote Refinery itself, via a statement from its promoter Aliko Dangote, confirmed the IPO closed with orders almost three times the $1.6bn target, reported on 29 October 2026, before the claim's date.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 38,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Dangote Refinery or NGX/issuing-house announcement to confirm it by 6 November 2026.\nIt was confirmed on or before 6 November 2026 (on 29 October 2026).\nSource: https://african.business/2026/10/finance-services/three-times-oversubscribed-dangote-refinery-ipo-closes\nReceipt excerpt: \"Dangote Refinery and Petrochemicals FZE ended its 44-day initial public offering (IPO) with orders almost three times higher than the target of $1.6bn.\"\nChecked 2026-11-07T02:41Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://african.business/2026/10/finance-services/three-times-oversubscribed-dangote-refinery-ipo-closes.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "INSUFFICIENT",
+      "text": "VERDICT: INSUFFICIENT\n\nThe excerpt reports the oversubscription but does not establish that Dangote Refinery or its advisers/NGX/issuing house confirmed it, and the claim explicitly excludes reports relying on unnamed sources, which this excerpt may be."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nThe evidence confirms that the Dangote Refinery IPO was oversubscribed three times its $1.6 billion target on 29 October 2026, which is prior to the 6 November 2026 deadline, and the source is a reputable business publication rather than an unnamed source."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nThe Checker's receipt shows a 29 October 2026 African Business report (before the 6 November 2026 deadline) stating that Dangote Refinery's IPO closed with orders roughly three times its $1.6bn target, satisfying the claim's confirmation requirement."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 19,
+    "note": "The \"three times oversubscribed\" figure came only from Reuters' anonymous sources around 27–28 October 2026, while Dangote's own offer website and spokespeople published no subscription total or confirmation, and Reuters noted a Dangote spokesperson declined to comment."
+   },
+   "agrees": false
+  }
+ ]
+}

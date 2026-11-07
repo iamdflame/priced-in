@@ -1,0 +1,686 @@
+{
+ "summary": {
+  "at": "2026-11-07T02:27:44.451Z",
+  "method": "Live feeds; the scout (DeepSeek V4.1 Flash, reasoning off); the gate as the hosted job runs it, with the web check on every survivor (verifyAll), duplicates against every unsettled line on market.isitpriced.near, and capacity at its real treasury, lane budget, reserved total and reserve cap (b = $1.45, NEWS_PER_DAY 4, a $1.50 floor). The blind check: DeepSeek V4.1 Flash with its own web search, told nothing of the gate. One run; nothing opened.",
+  "headlines": 134,
+  "feeds": [
+   {
+    "feed": "top",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "world",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "business",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "tech",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "sports",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "entertainment",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "football",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "rumours",
+    "ok": true,
+    "items": 13
+   },
+   {
+    "feed": "crypto",
+    "ok": true,
+    "items": 14
+   },
+   {
+    "feed": "reports",
+    "ok": true,
+    "items": 14
+   }
+  ],
+  "candidates": 10,
+  "refused": {
+   "shape": 0,
+   "policy": 1,
+   "unconfirmed": 3,
+   "settles": 1,
+   "duplicate": 0,
+   "capacity": 5
+  },
+  "passed_every_check_but_capacity": 5,
+  "would_open_today": 0,
+  "headroom_usd": 0.421468,
+  "market": {
+   "treasury_usd": 10.921468,
+   "lane_budget_usd": 9,
+   "reserved_usd": 44.926047,
+   "reserve_cap_usd": 47.157427,
+   "spare_near": 0.1426
+  },
+  "blind_check": {
+   "checked": 5,
+   "unconfirmed_today": 4,
+   "already_confirmed_or_denied": 1,
+   "settles_within_7_days": 3,
+   "settles_unclear_or_no": 2,
+   "policy_flagged": 1
+  },
+  "spend_usd": 0.0702,
+  "spend_by_step": {
+   "scout": 0.003,
+   "review": 0.0007,
+   "verify": 0.0404,
+   "blind": 0.026
+  }
+ },
+ "rows": [
+  {
+   "question": "Is Tesla ending Cybertruck production?",
+   "claim": "By 14 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "why": "Musk's flagship truck and Tesla stock hinge on it",
+   "headline": "Elon Musk Is Killing the Cybertruck. What It Means for Tesla Stock. - Barron's",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxQU1BjRWpvRk9HZ21UWmN4Q3dkcmlOMEktZnpTMmRZYXg3N3pGUlhEaFNXQ1pjeE85QTlidTBlblZja3NPNnE4cTh5VGoxNEVSOTZ4UEJzVTBSNmtLN3ZPOVljVXNvRy10N1ZMZ3NUU29fWTJpb3A4WGZwX0ZEWUlhSFowZFg?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Tesla's newsroom or an SEC filing",
+    "source_url": "https://www.tesla.com/blog",
+    "event": "Tesla confirms Cybertruck production ends, or says it continues"
+   },
+   "estimate": 0.55,
+   "result": "refused",
+   "refused_at": "policy",
+   "reason": "Never priced: it touches deaths, violence, wars or attacks (\"kill\").",
+   "review": null,
+   "web": null,
+   "open": null,
+   "blind": null
+  },
+  {
+   "question": "Is Anthropic pressing ahead with a $1.5tn IPO?",
+   "claim": "By 14 November 2026, Anthropic or a filing confirms it is pressing ahead with an IPO targeting a $1.5tn valuation. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "why": "Would be one of the biggest AI listings ever",
+   "headline": "Anthropic to press ahead with IPO targeting $1.5tn valuation - Financial Times",
+   "link": "https://news.google.com/rss/articles/CBMihAFBVV95cUxPbjV5NWJDbm9FZ2VFTmNEWHdHVUt5ODJwdlZOQjgzZTdJdkFwN0FzQkNsVFdENVJ3MnZybWFvTXltVVFwYVUyWVY4UjRsaFlFajdwMk9QV1gyRmx2UzFpOTlzaWpZdGRrRG1HVTY1c2lMbGJ1eURCQ2E5M1ljSWZNanViUXI?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Anthropic's newsroom or an SEC filing",
+    "source_url": "https://www.anthropic.com/news",
+    "event": "Anthropic confirms IPO plans or denies the report"
+   },
+   "estimate": 0.4,
+   "result": "refused",
+   "refused_at": "capacity",
+   "reason": "The market account has 0.14 NEAR spare for storage and keeps at least 0.3: every trade and free bet needs it too.",
+   "review": {
+    "refuse": false,
+    "category": "forecast",
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The claim relies on a Financial Times report citing unnamed sources, and the specific valuation figure makes it a forecast of a number that requires official confirmation."
+   },
+   "web": {
+    "status": "unconfirmed",
+    "note": "Everything as of 7 November 2026 rests on unnamed-source reporting — WSJ, Bloomberg and Reuters say investors are pushing the valuation down toward $1.2–1.3 trillion and may delay the roadshow, while Anthropic itself and no filing have confirmed a firm $1.5tn target.",
+    "sources": [
+     {
+      "title": "Investors brace for lower Anthropic valuation, calling $1.5 trillion a 'stretch'",
+      "url": "https://www.cnbc.com/2026/11/06/investors-brace-for-anthropic-valuation-1point5-trillion-a-stretch.html"
+     },
+     {
+      "title": "Anthropic IPO Valuation Slips to $1.5T From $2T [2026]",
+      "url": "https://shattered.io/anthropic-ipo-valuation-1-5-trillion-big-tech-ai-spending-2026/"
+     },
+     {
+      "title": "Anthropic IPO Buyers See Valuation As Low As $1.1 Trillion",
+      "url": "https://www.fa-mag.com/news/anthropic-ipo-buyers-see-valuation-as-low-as--1-1-trillion-89128.html"
+     },
+     {
+      "title": "Anthropic's $1.5 Trillion IPO Valuation Is Facing Pushback. The November Listing Could Be Delayed.",
+      "url": "https://www.ibtimes.com/anthropics-15-trillion-ipo-valuation-facing-pushback-november-listing-could-delayed-3809491"
+     },
+     {
+      "title": "Anthropic IPO Valuation Could Be Slashed in Half to $1T After AI Stock Rout: Report",
+      "url": "https://finance.yahoo.com/markets/stocks/articles/anthropic-ipo-valuation-could-fall-162858848.html"
+     },
+     {
+      "title": "Anthropic IPO valuation discussions fall to $1.3 trillion, Bloomberg reports By Investing.com",
+      "url": "https://www.investing.com/news/stock-market-news/anthropic-ipo-valuation-discussions-fall-to-13-trillion-bloomberg-reports-5008125"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": {
+    "id": "d855feb31cbb5879",
+    "status": "unconfirmed",
+    "settles": "yes",
+    "policy": "yes",
+    "category": "financial/market",
+    "reason": "As of 7 Nov 2026 Anthropic has filed an S-1 (Oct 26) and amended it (Nov 2) but left price range and share count blank — no company confirmation of a $1.5tn target, and investors cited by WSJ/Reuters doubt it — though a listing or withdrawal decision expected around the week of Nov 16 should settle ",
+    "sources": [
+     "https://shattered.io/anthropic-ipo-valuation-1-5-trillion-big-tech-ai-spending-2026/",
+     "https://www.cnbc.com/2026/11/06/investors-brace-for-anthropic-valuation-1point5-trillion-a-stretch.html",
+     "https://finance.yahoo.com/markets/stocks/articles/anthropic-investors-now-see-1-122407498.html",
+     "https://ceoworld.biz/2026/11/02/anthropic-ipo-mission-2-trillion-valuation/"
+    ]
+   }
+  },
+  {
+   "question": "Did OpenAI raise $11B at a $1.25T valuation?",
+   "claim": "By 14 November 2026, OpenAI or a filing confirms it raised an additional $11 billion at a $1.25 trillion valuation. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "why": "Largest private AI funding round in history",
+   "headline": "OpenAI reportedly raises an additional $11 billion at a $1.25 trillion valuation - TechCrunch",
+   "link": "https://news.google.com/rss/articles/CBMiswFBVV95cUxNRzVwenhwOUEyaGxYMTR0NkE2LXQxZk9PcklwNTlwX3h1SjhUbEgtSkRleWxwUXluYzdlTE5fN29oV0liWkxtMVB1ck9Welkxekx0anBGSjJIOHV2UGNnNTVUbXVFV1JjckRxVGk3c05QdXhFV2Vhdl81T0RKb0ZycTl3RU9YdXVRRGljdWZjb254dlBRb3U5dnZoSlpTUy1SRXNib1JFNjBrTHZpdkktbTJpTQ?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "OpenAI's newsroom or an SEC filing",
+    "source_url": "https://openai.com/news",
+    "event": "OpenAI confirms the raise and valuation, or denies it"
+   },
+   "estimate": 0.6,
+   "result": "refused",
+   "refused_at": "capacity",
+   "reason": "The market account has 0.14 NEAR spare for storage and keeps at least 0.3: every trade and free bet needs it too.",
+   "review": {
+    "refuse": false,
+    "category": "forecast",
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The claim is based on a TechCrunch report citing unnamed sources regarding a specific valuation figure, which constitutes a forecast of a number requiring official confirmation."
+   },
+   "web": {
+    "status": "unconfirmed",
+    "note": "The $11 billion close at a $1.25 trillion valuation rests entirely on Bloomberg's anonymous sources (\"people familiar with the matter\"), echoed by Reuters, TechCrunch and The Verge, and no OpenAI announcement or filing confirms it; CFO Sarah Friar only publicly confirmed that fundraising talks at th",
+    "sources": [
+     {
+      "title": "OpenAI reportedly raises an additional $11 billion at a $1.25 trillion valuation",
+      "url": "https://techcrunch.com/2026/11/06/openai-reportedly-raises-an-additional-11-billion-at-a-1-25-trillion-valuation/"
+     },
+     {
+      "title": "OpenAI Completes $11 Billion Portion of Funding at $1.25 Trillion Value - Bloomberg",
+      "url": "https://www.bloomberg.com/news/articles/2026-11-06/openai-completes-11-billion-portion-of-funding-at-1-25-trillion-value"
+     },
+     {
+      "title": "OpenAI closes $11 billion funding at $1.25 trillion valuation - report By Investing.com",
+      "url": "https://in.investing.com/news/stock-market-news/openai-closes-11-billion-funding-at-125-trillion-valuation--report-5688072"
+     },
+     {
+      "title": "OpenAI $11 Billion Funding at $1.25T Value [2026]",
+      "url": "https://tech-insider.org/openai-11-billion-funding-1-25-trillion-valuation-bloomberg-2026/"
+     },
+     {
+      "title": "OpenAI closes $11 billion funding at $1.25 trillion valuation - report By Investing.com",
+      "url": "https://ng.investing.com/news/stock-market-news/openai-closes-11-billion-funding-at-125-trillion-valuation--report-2791256"
+     },
+     {
+      "title": "OpenAI closes $11 billion funding at $1.25 trillion valuation - report By Investing.com",
+      "url": "https://za.investing.com/news/stock-market-news/openai-closes-11-billion-funding-at-125-trillion-valuation--report-4559143"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": {
+    "id": "a1a0d14a691e1c71",
+    "status": "unconfirmed",
+    "settles": "unclear",
+    "policy": "no",
+    "category": "business/finance",
+    "reason": "Bloomberg and Reuters (6 Nov 2026) reported the ~$11B close at a $1.25T valuation only through unnamed people familiar with the matter, so it remains an anonymously sourced report rather than confirmation by OpenAI (its CFO on CNBC only described the round as ongoing talks).",
+    "sources": [
+     "https://techcrunch.com/2026/11/06/openai-reportedly-raises-an-additional-11-billion-at-a-1-25-trillion-valuation/",
+     "https://www.bloomberg.com/news/articles/2026-11-06/openai-completes-11-billion-portion-of-funding-at-1-25-trillion-value",
+     "https://in.investing.com/news/stock-market-news/openai-closes-11-billion-funding-at-125-trillion-valuation--report-5688072",
+     "https://za.investing.com/news/stock-market-news/openai-closes-11-billion-funding-at-125-trillion-valuation--report-4559143"
+    ]
+   }
+  },
+  {
+   "question": "Is Stephen Miller Trump's new chief of staff?",
+   "claim": "By 14 November 2026, the White House or Trump confirms that Stephen Miller is his new chief of staff, replacing Susie Wiles. Reports citing unnamed sources don't count.",
+   "topic": "Officials",
+   "why": "Top White House staffing shakeup",
+   "headline": "Trump names Stephen Miller his new chief of staff, replacing Susie Wiles - NBC News",
+   "link": "https://news.google.com/rss/articles/CBMitwFBVV95cUxPVWlUZUk0N2lPSzFqNnlCZUYzQVhVWEJueXk5a29yaDhkVXp6R0xsX2xJamFhTjhyNEprTkdLQjNDeE5XVFRzMG1wTTkzOGtiNmhTVEZFTzZzTy1NcU4tQ0dqSG4xc1FiU3pLMDd5QndNM1pYejcxZ00ycUVwbVBLOEloSWdNdjI1MDNra2VEdTA0WU9keHpEOUNfMFpUMm8xa1B2ajBCM0VpYlFrYy1KZWotbXY0bXM?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "The White House press office or a Trump statement",
+    "source_url": "https://www.whitehouse.gov/briefing-room/",
+    "event": "White House confirms Miller as chief of staff, or names someone else"
+   },
+   "estimate": 0.7,
+   "result": "refused",
+   "refused_at": "unconfirmed",
+   "reason": "Already confirmed today, by a web search. Trump himself announced the appointment on Truth Social on 6 November 2026 (effective 9 November), as reported by NBC News, AP, and other outlets, making the claim already settled well before 14 November.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline is from NBC News, which typically cites sources for such personnel changes, and the claim requires a direct confirmation from the White House or Trump to be settled."
+   },
+   "web": {
+    "status": "confirmed",
+    "note": "Trump himself announced the appointment on Truth Social on 6 November 2026 (effective 9 November), as reported by NBC News, AP, and other outlets, making the claim already settled well before 14 November.",
+    "sources": [
+     {
+      "title": "Live updates: Trump taps Stephen Miller to be new chief of staff",
+      "url": "https://www.nbcnews.com/politics/2026-election/live-blog/trump-congress-midterm-elections-mississippi-alaska-live-updates-rcna607738"
+     },
+     {
+      "title": "Stephen Miller will replace Susie Wiles as White House chief of staff - POLITICO",
+      "url": "https://www.politico.com/news/2026/11/06/susie-wiles-stephen-miller-trump-chief-of-staff-01154493"
+     },
+     {
+      "title": "Trump replaces chief of staff Susie Wiles with Stephen Miller",
+      "url": "https://www.axios.com/2026/11/06/susie-wiles-trump-stephen-miller-chief-of-staff"
+     },
+     {
+      "title": "Trump installs Stephen Miller as White House chief of staff, replacing Susie Wiles - CBS News",
+      "url": "https://www.cbsnews.com/news/stephen-miller-trump-chief-of-staff-susie-wiles/"
+     },
+     {
+      "title": "Trump says Stephen Miller to replace Susie Wiles as White House chief of staff",
+      "url": "https://www.cnbc.com/2026/11/06/trump-stephen-miller-wiles-chief-of-staff.html"
+     },
+     {
+      "title": "Trump Elevates Stephen Miller, a Fiery Hard-Liner, to Chief of Staff - The New York Times",
+      "url": "https://www.nytimes.com/live/2026/11/06/us/trump-miller-wiles-chief-of-staff"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": null
+  },
+  {
+   "question": "Is Apple dropping the iPhone Action Button?",
+   "claim": "By 14 November 2026, Apple or an Apple filing confirms it will drop the iPhone's Action Button next year. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "why": "Rumored change to flagship iPhone hardware",
+   "headline": "Apple Rumored to Drop the iPhone's Action Button Next Year - MacRumors",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxPbmZlYzE3cG1WdWRYekUzbjlwWE1hd3lwVG51SmZPUEVRRjJuOF9yLS12a2V3dngzZTBYMmtlTGJBSEtvVi12dXJPaF9Yd1BTTnFNUmYtZy16VFpxT2dsMXZ0MG9wcWtGRXBTZUEwQVYtVjdqcDE1a1R4Nk4xUEE5SmhMYw?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Apple's newsroom or an Apple filing",
+    "source_url": "https://www.apple.com/newsroom/",
+    "event": "Apple confirms the change or denies it"
+   },
+   "estimate": 0.35,
+   "result": "refused",
+   "refused_at": "settles",
+   "reason": "It is about next year: nobody can know that within days, whatever its date says.",
+   "review": null,
+   "web": null,
+   "open": null,
+   "blind": null
+  },
+  {
+   "question": "Will WWE call Crown Jewel from Stamford HQ?",
+   "claim": "By 14 November 2026, WWE confirms its commentary team will call Crown Jewel from WWE HQ in Stamford. Reports citing unnamed sources don't count.",
+   "topic": "Entertainment",
+   "why": "Unusual broadcast setup for a major WWE event",
+   "headline": "Report: WWE Commentary Team To Call Crown Jewel From WWE HQ In Stamford - Fightful",
+   "link": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNakN2ZHpMYzQtVXFyYnpPNE5yVEZXNjlDdFJOZFAtOHRaZExzdmh0N3UyR0VoRFhvTm0tVHY0RHNUWGVON2d5UmQ5dVhMQjBTZFYwY0tBX2E3U1B3SVJuVEZ0eGh2WTgyNU94ejVTTHFHcHNHUnhqN21yTzVnRG5xWm95MUtLYlVWYkRnUUg4VGhCX0lXQlM2b2FvSlprU04zczVkcEo3QkRXUQ?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "WWE's newsroom or a WWE statement",
+    "source_url": "https://www.wwe.com/",
+    "event": "WWE confirms remote commentary or says team travels to the event"
+   },
+   "estimate": 0.65,
+   "result": "refused",
+   "refused_at": "capacity",
+   "reason": "The market account has 0.14 NEAR spare for storage and keeps at least 0.3: every trade and free bet needs it too.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline is a report from Fightful, and the claim requires an official statement from WWE to confirm the commentary team's location."
+   },
+   "web": {
+    "status": "unconfirmed",
+    "note": "Every account traces back to PWInsider's Mike Johnson citing unnamed sources, and there is no official WWE confirmation that the commentary team called Crown Jewel from Stamford HQ.",
+    "sources": [
+     {
+      "title": "WWE Crown Jewel 2026 Commentary Team To Call Event From US Instead of Saudi Arabia — Report - AOL",
+      "url": "https://www.aol.com/articles/wwe-crown-jewel-2026-commentary-212142000.html"
+     },
+     {
+      "title": "Report: WWE Commentary Calling Crown Jewel From HQ",
+      "url": "https://www.fightful.com/wrestling-news/report-wwe-commentary-team-to-call-crown-jewel-from-wwe-hq-in-stamford"
+     },
+     {
+      "title": "WWE Announce Team Reportedly Calling Crown Jewel 2026 Remotely From United States - Wrestling Inc.",
+      "url": "https://www.wrestlinginc.com/2309944/wwe-announce-team-calling-crown-jewel-2026-remotely-united-states/"
+     },
+     {
+      "title": "WWE Crown Jewel Commentary Team Reportedly Staying in U.S. Amid Saudi Arabia Concerns",
+      "url": "https://athlonsports.com/wrestling/wwe-crown-jewel-commentary-team-stamford-saudi-arabia"
+     },
+     {
+      "title": "WWE Crown Jewel Commentary Team Reportedly Staying in U.S. Amid Saudi Arabia Concerns",
+      "url": "https://www.yardbarker.com/general_sports/articles/wwe_crown_jewel_commentary_team_reportedly_staying_in_us_amid_saudi_arabia_concerns/s1_17615_44525887"
+     },
+     {
+      "title": "WWE Crown Jewel Commentary Team Reportedly Staying in U.S. Amid Saudi Arabia Concerns - Yahoo Sports",
+      "url": "https://sports.yahoo.com/articles/wwe-crown-jewel-commentary-team-200834599.html"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": {
+    "id": "085d7c4f61ce1db1",
+    "status": "unconfirmed",
+    "settles": "yes",
+    "policy": "no",
+    "category": "sports/entertainment production",
+    "reason": "All coverage (PWInsider, per Fightful/WrestleView, 6 Nov 2026) attributes the Stamford commentary plan to unnamed industry sources, with no on-record WWE confirmation, though the 7 Nov broadcast itself will publicly settle whether the team called from HQ.",
+    "sources": [
+     "https://nodq.com/news/report-wwe-commentary-team-to-call-crown-jewel-2026-remotely-from-stamford-headquarters/",
+     "https://www.wrestleview.com/featured-top-story/396709-commentary-team-reportedly-will-call-crown-jewel-from-wwes-hq-in-stamford/",
+     "https://athlonsports.com/wrestling/wwe-crown-jewel-commentary-team-stamford-saudi-arabia",
+     "https://wrestlingnewsreport.com/wwe-crown-jewel-2026-commentary-team-works-remotely-from-stamford/"
+    ]
+   }
+  },
+  {
+   "question": "Did the Mariners hire Tanner Swanson as bench coach?",
+   "claim": "By 14 November 2026, the Seattle Mariners confirm they hired Tanner Swanson as new bench coach. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "why": "Coaching hire for an MLB contender",
+   "headline": "Mariners reportedly hire Tanner Swanson as new bench coach - MLB.com",
+   "link": "https://news.google.com/rss/articles/CBMilwFBVV95cUxNMHAzQ1doZ1V6NW4zTmR6bUpHRDg3NTNwZ2pOdVpfanRKUnhiSDBsVmZ5WnZ2b3JPODdiTmw3U1gzZXlGTllka3RJMVFfSkdINmJvMmJBczloNlZubmx1N090SEQ3ZFpjSmRNZXdVajFMUGFVZUZSY3BfcGN3MWhyTUtoZlJULUVqQU9Zb3lUQ1RaME9melA0?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "The Seattle Mariners' official site or press release",
+    "source_url": "https://www.mlb.com/mariners",
+    "event": "Mariners announce Swanson hire or name someone else"
+   },
+   "estimate": 0.7,
+   "result": "refused",
+   "refused_at": "capacity",
+   "reason": "The market account has 0.14 NEAR spare for storage and keeps at least 0.3: every trade and free bet needs it too.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline uses 'reportedly' from MLB.com, indicating it is not yet an official confirmation from the Seattle Mariners."
+   },
+   "web": {
+    "status": "unconfirmed",
+    "note": "All reports of Tanner Swanson's hiring are attributed to unnamed sources, and MLB.com itself notes \"the club has not confirmed the hire.\"",
+    "sources": [
+     {
+      "title": "Yankees lose catching coach Tanner Swanson to Mariners for promotion to bench coach: Source - The Athletic",
+      "url": "https://www.nytimes.com/athletic/7760154/2026/11/06/yankees-tanner-swanson-mariners-bench-coach/"
+     },
+     {
+      "title": "Sources -- Mariners to hire Yankees' Swanson as bench coach - ESPN",
+      "url": "https://www.espn.com/mlb/story/_/id/50402128/sources-mariners-hire-yankees-swanson-bench-coach"
+     },
+     {
+      "title": "Mariners eye Tanner Swanson as new bench coach",
+      "url": "https://www.mlb.com/mariners/news/mariners-bench-coach-tanner-swanson"
+     },
+     {
+      "title": "Mariners Hire New Bench Coach With Catching Expertise and a Proven Yankees Track Record",
+      "url": "https://www.si.com/mlb/mariners/onsi/mariners-hire-new-bench-coach-with-catching-expertise-and-a-proven-yankees-track-record"
+     },
+     {
+      "title": "Mariners hiring Tanner Swanson, former Yankees coordinator, as bench coach for Jason Kanzler",
+      "url": "https://www.yakimaherald.com/sports/professional_sports/mariners/mariners-hiring-tanner-swanson-former-yankees-coordinator-as-bench-coach-for-jason-kanzler/article_ca83e090-4ea8-5c11-83cf-0ff8459ae284.html"
+     },
+     {
+      "title": "Mariners poaching key Yankees coach Tanner Swanson for bench job",
+      "url": "https://www.nydailynews.com/2026/11/06/mariners-poaching-key-yankees-coach-tanner-swanson-for-bench-coach-job/"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": {
+    "id": "c8fdb90ede175696",
+    "status": "confirmed",
+    "settles": "yes",
+    "policy": "no",
+    "category": "sports personnel hiring",
+    "reason": "Central Washington University Athletics reported that the Mariners announced Friday, Nov. 6, 2026, that Tanner Swanson is the club's new bench coach, and MLB.com noted the team had not yet confirmed the hire at the time of its earlier report.",
+    "sources": [
+     "https://www.nytimes.com/athletic/7760154/2026/11/06/yankees-tanner-swanson-mariners-bench-coach/",
+     "https://www.espn.com/mlb/story/_/id/50402128/sources-mariners-hire-yankees-swanson-bench-coach",
+     "https://www.mlb.com/mariners/news/mariners-bench-coach-tanner-swanson",
+     "https://www.si.com/mlb/mariners/onsi/mariners-hire-new-bench-coach-with-catching-expertise-and-a-proven-yankees-track-record"
+    ]
+   }
+  },
+  {
+   "question": "Has Fox set its exec team after Roku close?",
+   "claim": "By 14 November 2026, Fox or a Fox filing confirms its new executive team after the Roku close, including departures of Anjali Sud and Charlie Collier. Reports citing unnamed sources don't count.",
+   "topic": "Entertainment",
+   "why": "Major streaming leadership shakeup",
+   "headline": "Tubi CEO Anjali Sud, Roku Media President Charlie Collier Leaving The Fold As Fox Sets Exec Team After Roku Close - Deadline",
+   "link": "https://news.google.com/rss/articles/CBMifEFVX3lxTE1LcER3RDJEVkFjaDBhTUg3VDRJaFAtYmZLN1RaTTdMREZYcUI3aGZ4a0VzVmNlaS1XWlZkVTVZNmJNSmhWWGhnWW5sblRtRHBiWFNrMFJkYVFaRVFBOTJDM1ZoZmtBVC1NYmlfSk81Nlg4QVdrT2lSeHlYZHM?oc=5",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Fox Corporation's newsroom or an SEC filing",
+    "source_url": "https://www.foxcorporation.com/news/",
+    "event": "Fox announces its executive team or denies the report"
+   },
+   "estimate": 0.6,
+   "result": "refused",
+   "refused_at": "unconfirmed",
+   "reason": "Already confirmed today, by a web search. I relied on Deadline's report quoting the official Fox staff memo from Wood and Cheesbrough, corroborated by Business Insider's publication of the memo text.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline is from Deadline, a news outlet, and the claim requires official confirmation from Fox Corporation or an SEC filing to be settled."
+   },
+   "web": {
+    "status": "confirmed",
+    "note": "I relied on Deadline's report quoting the official Fox staff memo from Wood and Cheesbrough, corroborated by Business Insider's publication of the memo text.",
+    "sources": [
+     {
+      "title": "Tubi CEO Anjali Sud, Roku Media President Charlie Collier Leaving The Fold As Fox Sets Exec Team After Roku Close",
+      "url": "https://deadline.com/2026/11/tubi-roku-fox-executives-merger-1237215726/"
+     },
+     {
+      "title": "Charlie Collier and Anjali Sud Exit Fox As New Digital Structure Set at Company",
+      "url": "https://www.hollywoodreporter.com/business/digital/roku-tubi-execs-exit-fox-completes-deal-1236749529/"
+     },
+     {
+      "title": "Roku Head Charlie Collier, Tubi CEO Anjali Sud Depart as Paul Cheesbrough Named CEO of Fox Digital Platforms",
+      "url": "https://www.thewrap.com/media-platforms/tv/fox-roku-charlie-collier-anjali-sud-depart/"
+     },
+     {
+      "title": "Roku Head Charlie Collier, Tubi CEO Anjali Sud Depart as Paul Cheesbrough Named CEO of Fox Digital Platforms",
+      "url": "https://uk.finance.yahoo.com/news/roku-head-charlie-collier-tubi-171606209.html"
+     },
+     {
+      "title": "Roku's Charlie Collier, Tubi's Anjali Sud Exiting Following Fox Acquisition Close - Media Play News",
+      "url": "https://www.mediaplaynews.com/rokus-charlie-collier-tubis-anjali-sud-exiting-following-fox-acquisition-close/"
+     },
+     {
+      "title": "Fox’s Paul Cheesbrough Will Expand Duties After Roku Deal; Anjali Sud, Charlie Collier to Exit",
+      "url": "https://variety.com/2026/tv/news/paul-cheesbrough-fox-roku-1236941308/"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": null
+  },
+  {
+   "question": "Are Real Madrid and PSG chasing Suzuki?",
+   "claim": "By 14 November 2026, Real Madrid or PSG confirms it is pursuing a move for Suzuki. Reports citing unnamed sources don't count.",
+   "topic": "Football",
+   "why": "Transfer gossip around a sought-after player",
+   "headline": "Real Madrid and PSG keen on Suzuki - Saturday's gossip",
+   "link": "https://www.bbc.co.uk/sport/football/articles/c98rzz0rjjvdo?at_medium=RSS&at_campaign=rss",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Real Madrid's or PSG's official club channels",
+    "source_url": "https://www.realmadrid.com/en/news",
+    "event": "A club confirms interest or the player's club denies talks"
+   },
+   "estimate": 0.25,
+   "result": "refused",
+   "refused_at": "capacity",
+   "reason": "The market account has 0.14 NEAR spare for storage and keeps at least 0.3: every trade and free bet needs it too.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline is labeled as 'gossip' and the claim requires official confirmation from the clubs, which is unlikely to happen for mere interest within a week."
+   },
+   "web": {
+    "status": "unconfirmed",
+    "note": "The claim rests on a TEAMtalk report citing unnamed sources that Real Madrid and PSG are merely monitoring Suzuki, with no confirmation or pursuit announced by either club, as reported by the BBC gossip column on 6 November 2026.",
+    "sources": [
+     {
+      "title": "Aston Villa Zion Suzuki",
+      "url": "https://readastonvilla.com/2026/11/06/zion-suzuki-aston-villa-real-madrid-psg-transfer-interest/"
+     },
+     {
+      "title": "Real Madrid and PSG eye £30M Aston Villa star who could smash £70M transfer record - Transfer News Live",
+      "url": "https://www.transfernewslive.com/transfer-news/real-madrid-and-psg-eye-30m-aston-villa-star-who-could-smash-70m-transfer-record/"
+     },
+     {
+      "title": "Real Madrid and PSG keen on Suzuki - Saturday's gossip - Yahoo Sports",
+      "url": "https://sports.yahoo.com/articles/real-madrid-psg-keen-suzuki-211135190.html"
+     },
+     {
+      "title": "Europe's elite come calling! Real Madrid and PSG join Premier League giants in race for Aston Villa goalkeeper Zion Suzuki - Yahoo Sports",
+      "url": "https://ca.sports.yahoo.com/news/europes-elite-come-calling-real-213642925.html"
+     },
+     {
+      "title": "Football gossip: Suzuki, Richards, Howe, Olise, De Winter, Bernal, Gabriel, Allegri - BBC Sport",
+      "url": "https://bbc.com/sport/football/articles/c98rzz0rjjvdo"
+     },
+     {
+      "title": "PSG and Real Madrid plotting shock moves for standout Aston Villa star - Exclusive",
+      "url": "https://www.teamtalk.com/aston-villa/zion-suzuki-update-real-madrid-psg-interest-villa-stance"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": {
+    "id": "45fc38dad58e8c99",
+    "status": "unconfirmed",
+    "settles": "unclear",
+    "policy": "no",
+    "category": "sports transfer",
+    "reason": "As of 7 Nov 2026 reports (BBC gossip citing TEAMtalk, 6 Nov 2026) say Real Madrid and PSG are merely interested in/monitoring Aston Villa keeper Zion Suzuki, with no public confirmation from either club, and nothing indicates a club statement will come by 14 November.",
+    "sources": [
+     "https://www.fussballtransfers.com/a8929693845320051776-real-und-psg-heiss-auf-suzuki",
+     "https://readastonvilla.com/2026/11/06/zion-suzuki-aston-villa-real-madrid-psg-transfer-interest/",
+     "https://ca.sports.yahoo.com/news/europes-elite-come-calling-real-213642925.html",
+     "https://www.transfernewslive.com/transfer-news/real-madrid-and-psg-eye-30m-aston-villa-star-who-could-smash-70m-transfer-record/"
+    ]
+   }
+  },
+  {
+   "question": "Is Cristiano Ronaldo retiring?",
+   "claim": "By 14 November 2026, Cristiano Ronaldo or Portugal's federation confirms or denies reports that Ronaldo is retiring. Reports citing unnamed sources don't count.",
+   "topic": "Football",
+   "why": "Retirement talk around a global football icon",
+   "headline": "Portugal coach 'knew nothing' about Ronaldo retiring",
+   "link": "https://www.bbc.co.uk/sport/football/articles/cwzd66r22j68o?at_medium=RSS&at_campaign=rss",
+   "settles": {
+    "by": "2026-11-14",
+    "by_words": "14 November 2026",
+    "source": "Cristiano Ronaldo's or the Portuguese federation's official channels",
+    "source_url": "https://www.fpf.pt/",
+    "event": "Ronaldo or the federation confirms retirement or denies it"
+   },
+   "estimate": 0.2,
+   "result": "refused",
+   "refused_at": "unconfirmed",
+   "reason": "Already confirmed today, by a web search. Ronaldo himself announced his international retirement in a video statement on 5 November 2026, reported by Reuters (via U.S. News), confirming it well ahead of the 14 November deadline.",
+   "review": {
+    "refuse": false,
+    "category": null,
+    "status": "unconfirmed",
+    "settles_in_time": true,
+    "definite": false,
+    "reason": "The headline indicates the coach is unaware, and the claim requires a direct statement from Ronaldo or the federation, which has not yet occurred."
+   },
+   "web": {
+    "status": "confirmed",
+    "note": "Ronaldo himself announced his international retirement in a video statement on 5 November 2026, reported by Reuters (via U.S. News), confirming it well ahead of the 14 November deadline.",
+    "sources": [
+     {
+      "title": "Cristiano Ronaldo retires from international soccer after a record-breaking career with Portugal",
+      "url": "https://www.cnn.com/2026/11/05/sport/cristiano-ronaldo-retires-portuguese-national-team"
+     },
+     {
+      "title": "Cristiano Ronaldo announces international retirement: ‘Portugal will always be in my heart’ - The Athletic",
+      "url": "https://www.nytimes.com/athletic/7752962/2026/11/05/cristiano-ronaldo-portugal-international-retirement/"
+     },
+     {
+      "title": "Portugal's Cristiano Ronaldo announces his international retirement",
+      "url": "https://apnews.com/article/cristiano-ronaldo-portugal-retirement-ecbd47b3bed0442048e17955e372d416"
+     },
+     {
+      "title": "Soccer-Portugal's Ronaldo Announces International Retirement",
+      "url": "https://www.usnews.com/news/top-news/articles/2026-11-05/cristiano-ronaldo-announces-retirement-from-portuguese-national-team"
+     },
+     {
+      "title": "Cristiano Ronaldo retires from international football after glittering Portugal career that spanned 23 years",
+      "url": "https://www.skysports.com/football/news/13593800/cristiano-ronaldo-retires-from-international-football-after-glittering-portugal-career-that-spanned-23-years"
+     },
+     {
+      "title": "Soccer star Cristiano Ronaldo announces his international retirement from Portugal",
+      "url": "https://www.nbcnews.com/sports/soccer/cristiano-ronaldo-announces-international-retirement-portugal-rcna607602"
+     }
+    ],
+    "error": null
+   },
+   "open": null,
+   "blind": null
+  }
+ ]
+}

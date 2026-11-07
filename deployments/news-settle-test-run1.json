@@ -1,0 +1,1454 @@
+{
+ "summary": {
+  "at": "2026-11-07T00:26:47.835Z",
+  "method": "As-of scouting on Google News search feeds (after:/before:), the scout and the gate's code blocklist and second model as of that day; settling today with NEAR AI web search plus the settling source, the production receipt check with the attested support panel, the contract's jury request to the three models (two of three), and an independent web-search check by another model, blind to the rest. One run; nothing on-chain.",
+  "as_of": [
+   "2026-10-24",
+   "2026-10-29"
+  ],
+  "scouted": [
+   {
+    "as_of": "2026-10-24",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 1,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 8,
+    "refusals": [
+     {
+      "question": "Is Meta planning new non-voting shares?",
+      "at": "policy",
+      "reason": "Never priced: it touches who wins an election (\"voting\")."
+     },
+     {
+      "question": "Is Visa acquiring Fireblocks for $2.5bn?",
+      "at": "unconfirmed",
+      "reason": "Already denied today, judging by its headline: nobody would bet against it. The headline explicitly states that Fireblocks has denied the reports of the acquisition."
+     }
+    ]
+   },
+   {
+    "as_of": "2026-10-29",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 3,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 6,
+    "refusals": [
+     {
+      "question": "Has Anthropic filed for an IPO?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that Anthropic has filed for an IPO, which is a completed action."
+     },
+     {
+      "question": "Is DOJ probing Nvidia's Hugging Face deal?",
+      "at": "policy",
+      "reason": "Never priced: it touches crime, arrests, investigations or court cases (\"investigat\")."
+     },
+     {
+      "question": "Has FINMA approved a Swiss retail Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that FINMA has 'Approved' the ETF, which is a completed regulatory action."
+     },
+     {
+      "question": "Has Bitwise filed an AVAX ETF with the SEC?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states the filing was 'Submitted' to the SEC, which is a completed action."
+     }
+    ]
+   }
+  ],
+  "claims_settled_today": 14,
+  "pipeline": {
+   "true": 8,
+   "false": 6,
+   "unknown": 0,
+   "errors": 0
+  },
+  "receipts_verified": 10,
+  "receipt_results": {
+   "verified": 10,
+   "unsupported": 4
+  },
+  "jury_would_be_called": 10,
+  "jury_ruled": 13,
+  "jury_ruled_as_the_pipeline_claimed": 13,
+  "jury_matches_independent": 9,
+  "jury_differs_from_independent": 4,
+  "by_basis": {
+   "not_confirmed": {
+    "found": 6,
+    "receipts_verified": 3,
+    "support_ok": 3,
+    "jury_called": 3,
+    "jury_ruled_as_claimed": 6,
+    "jury_no_quorum": 0,
+    "matches_independent": 5,
+    "independent_known": 6
+   },
+   "confirmed": {
+    "found": 8,
+    "receipts_verified": 7,
+    "support_ok": 7,
+    "jury_called": 7,
+    "jury_ruled_as_claimed": 7,
+    "jury_no_quorum": 1,
+    "matches_independent": 4,
+    "independent_known": 8
+   }
+  },
+  "spend_usd": 0.1869,
+  "spend_by_step": {
+   "scout": 0.0057,
+   "review": 0.0014,
+   "settle": 0.088,
+   "support": 0.0131,
+   "jury": 0.0065,
+   "independent": 0.0722
+  }
+ },
+ "results": [
+  {
+   "as_of": "2026-10-24",
+   "question": "Has DeepSeek raised $15bn from Tencent and CATL?",
+   "claim": "By 31 October 2026, DeepSeek or its investors confirm that DeepSeek has raised $15bn from Tencent and CATL ahead of an IPO.",
+   "topic": "Tech",
+   "headline": "DeepSeek reportedly raises $15bn from Tencent and CATL ahead of IPO - The Next Web",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "DeepSeek's official announcements or a regulatory filing",
+    "source_url": null,
+    "event": "DeepSeek confirms the raise, or denies it or stays silent past the deadline"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing",
+      "quote": "DeepSeek did not immediately respond to a TechCrunch request for comment."
+     }
+    ],
+    "reason": "All sources attribute the $15bn raise to reports and people familiar with the matter, with no DeepSeek or investor confirmation or regulatory filing by 31 October 2026.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 35,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed DeepSeek's official announcements or a regulatory filing to confirm it by 31 October 2026.\nBy the end of 31 October 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing\nReceipt excerpt: \"DeepSeek did not immediately respond to a TechCrunch request for comment.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://aiweekly.co/alerts/deepseek-reportedly-raises-15b-with-tencent-and-catl-backing.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states that as of the 31 October 2026 deadline the claim had not been confirmed by official announcement or regulatory filing, and the cited source only reports the raise as unconfirmed (\"reportedly\") with DeepSeek not commenting."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence explicitly states that by the deadline of 31 October 2026, the claim had not been confirmed by DeepSeek or its investors, and the cited source indicates DeepSeek did not respond to requests for comment."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that DeepSeek's official announcements or a regulatory filing had not confirmed the $15bn raise by the end of 31 October 2026, with the company not responding to requests for comment."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 35,
+    "note": "The $15bn round backed by Tencent and CATL was only reported by Bloomberg on 22 October 2026 and by The Information on 30 October 2026, and reporting at the time (e.g., BigGo Finance, 22 October 2026) noted that \"DeepSeek had not made a public response\" — no official DeepSeek statement or regulatory"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Is OpenAI seeking $30B at a $1.25T valuation?",
+   "claim": "By 31 October 2026, OpenAI or an SEC filing confirms that OpenAI is seeking $30B at a $1.25T valuation ahead of an IPO.",
+   "topic": "Tech",
+   "headline": "OpenAI Reportedly Seeks $30B at $1.25T Valuation Ahead of IPO - AI Insider",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "OpenAI's newsroom or an SEC filing",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI confirms the raise and valuation, or denies it"
+   },
+   "estimate": 0.4,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.livemint.com/ai/artificial-intelligence/openais-30-billion-funding-ambition-shrinks-to-20-billion-whats-worrying-investors-11793407293385.html",
+      "quote": "OpenAI has cut its latest fundraising target by $10 billion and is now seeking $20 billion at a $1.25 trillion valuation, the Financial Times reported."
+     }
+    ],
+    "reason": "No OpenAI newsroom or SEC filing confirms seeking $30B at $1.25T by 31 October 2026; the latest reporting says the target was cut to $20B.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed OpenAI's newsroom or an SEC filing to confirm it by 31 October 2026.\nBy the end of 31 October 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://www.livemint.com/ai/artificial-intelligence/openais-30-billion-funding-ambition-shrinks-to-20-billion-whats-worrying-investors-11793407293385.html\nReceipt excerpt: \"OpenAI has cut its latest fundraising target by $10 billion and is now seeking $20 billion at a $1.25 trillion valuation, the Financial Times reported.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.livemint.com/ai/artificial-intelligence/openais-30-billion-funding-ambition-shrinks-to-20-billion-whats-worrying-investors-11793407293385.html.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows that by the 31 October 2026 deadline the claim was unconfirmed, and later reporting indicates OpenAI sought $20B rather than $30B at a $1.25T valuation."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the deadline of 31 October 2026, the claim had not been confirmed, and subsequent sources indicate OpenAI was seeking $20 billion rather than the claimed $30 billion."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence states that by the end of 31 October 2026 the claim had not been confirmed by OpenAI or an SEC filing, and contemporaneous reporting indicates the fundraising target had instead been cut to $20 billion at a $1.25 trillion valuation."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 37,
+    "note": "The claim circulated only as unattributed reporting — first CNBC on 22 October 2026, then revised by the FT/CNBC on 30–31 October to about $20B — and no OpenAI newsroom post or SEC filing confirmed a $30B raise at a $1.25T valuation before 31 October 2026."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Has Instacart discussed selling itself to DoorDash or Uber?",
+   "claim": "By 31 October 2026, Instacart or DoorDash or Uber confirms that Instacart has discussed selling itself.",
+   "topic": "Money",
+   "headline": "Instacart reportedly discussed selling itself with DoorDash and Uber - TechCrunch",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "Instacart's investor relations or an SEC filing",
+    "source_url": "https://investors.instacart.com/",
+    "event": "A company confirms talks or a deal, or denies them"
+   },
+   "estimate": 0.35,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://investors.instacart.com/",
+      "quote": "Instacart (Nasdaq: CART), the leading grocery technology company in North America, works with grocers and retailers to transform how people shop."
+     }
+    ],
+    "reason": "No source shows Instacart, DoorDash, or Uber confirming by 31 October 2026 that Instacart discussed selling itself; reports are attributed to unnamed people familiar with the matter, and Instacart's investor page contains no such confirmation.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Instacart's investor relations or an SEC filing to confirm it by 31 October 2026.\nBy the end of 31 October 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://investors.instacart.com/\nReceipt excerpt: \"Instacart (Nasdaq: CART), the leading grocery technology company in North America, works with grocers and retailers to transform how people shop.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "unsupported",
+    "reason": "The quoted words are at https://investors.instacart.com/, but the attested models that read that source found it does not support the challenge.",
+    "support": {
+     "verdict": "unsupported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "NO",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": false,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states that the claim was not confirmed by 31 October 2026, and the cited Instacart investor page contains no confirmation of any discussion about selling itself."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 31 October 2026, the claim had not been confirmed, and the provided source excerpt does not contain any information regarding Instacart discussing a sale."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence states that by the end of 31 October 2026 no confirmation from Instacart, DoorDash, or Uber had occurred, and the Instacart investor relations page excerpt contains only general company description with no mention of sale discussions."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 40,
+    "note": "ANSWER: TRUE (confirmed on or before that date) — Maplebear/Instacart confirmed in a Form 8-K (and joint press release) that it had agreed to be acquired by DoorDash, filed with the SEC on 29 October 2026."
+   },
+   "agrees": false
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Is QatarEnergy in talks to buy Woodside LNG?",
+   "claim": "By 31 October 2026, QatarEnergy or Woodside confirms that QatarEnergy is in talks to buy US LNG from Woodside's Louisiana plant.",
+   "topic": "Money",
+   "headline": "Top LNG exporter QatarEnergy in talks to buy US LNG from Woodside's Louisiana plant - Reuters",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "QatarEnergy or Woodside official statements",
+    "source_url": "https://www.qatarenergy.qa/",
+    "event": "Either company confirms talks or a deal, or denies them"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://www.qatarenergy.qa/",
+      "quote": "DOHA, Qatar • 29 October 2026 – QatarEnergy entered into a long-term Sale and Purchase Agreement (SPA) with Woodside Energy (LA) Investments LLC (Woodside Energy) for the purchase of 3 million tons pe"
+     }
+    ],
+    "reason": "QatarEnergy's own page shows it confirmed a Woodside Louisiana LNG purchase agreement dated 29 October 2026, before the 31 October deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 31,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed QatarEnergy or Woodside official statements to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 29 October 2026).\nSource: https://www.qatarenergy.qa/\nReceipt excerpt: \"DOHA, Qatar • 29 October 2026 – QatarEnergy entered into a long-term Sale and Purchase Agreement (SPA) with Woodside Energy (LA) Investments LLC (Woodside Energy) for the purchase of 3 million tons pe\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.qatarenergy.qa/.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe receipt shows a signed long-term SPA for LNG purchases, not confirmation that QatarEnergy is \"in talks to buy\" US LNG, so the specific claim about talks is not established by the cited evidence."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that on 29 October 2026, QatarEnergy entered into a long-term Sale and Purchase Agreement with Woodside Energy, which satisfies the condition of confirming talks or a deal by the deadline."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nQatarEnergy's own website announced on 29 October 2026 (before the 31 October deadline) a long-term Sale and Purchase Agreement with Woodside Energy (LA) Investments LLC for 3 million tons of LNG, which is an official confirmation of the QatarEnergy–Woodside US Louisiana LNG arrangeme"
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 19,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) Reuters reported on 23 October 2026 that Woodside said it \"does not respond to market speculation\" and QatarEnergy did not comment, so neither company confirmed the talks on or before 31 October 2026."
+   },
+   "agrees": false
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Have J&J and Smith+Nephew merger talks collapsed?",
+   "claim": "By 31 October 2026, Johnson & Johnson or Smith+Nephew confirms that their orthopaedics megamerger talks have fallen through.",
+   "topic": "Money",
+   "headline": "J&J, Smith+Nephew plans for ortho megamerger reportedly fall through - MassDevice",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "J&J or Smith+Nephew investor relations statements",
+    "source_url": "https://www.jnj.com/media-center",
+    "event": "Either company confirms talks ended, or confirms a deal instead"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-26",
+    "receipts": [
+     {
+      "url": "https://www.marketscreener.com/quote/stock/JOHNSON-JOHNSON-4832/news/Smith-Nephew-and-Johnson-Johnson-Fail-to-Merge-Orthopedic-Businesses-54557574/",
+      "quote": "Smith & Nephew Confirms Merger Talks With J&J's Orthopedics Unit Have Ended, Cuts 2026 Revenue Outlook"
+     }
+    ],
+    "reason": "A source dated 26 October 2026 reports Smith & Nephew confirmed the merger talks with J&J's orthopedics unit have ended, before the 31 October 2026 deadline.",
+    "sources_read": 3,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 29,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed J&J or Smith+Nephew investor relations statements to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 26 October 2026).\nSource: https://www.marketscreener.com/quote/stock/JOHNSON-JOHNSON-4832/news/Smith-Nephew-and-Johnson-Johnson-Fail-to-Merge-Orthopedic-Businesses-54557574/\nReceipt excerpt: \"Smith & Nephew Confirms Merger Talks With J&J's Orthopedics Unit Have Ended, Cuts 2026 Revenue Outlook\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "unsupported",
+    "reason": "The quoted words are at https://www.marketscreener.com/quote/stock/JOHNSON-JOHNSON-4832/news/Smith-Nephew-and-Johnson-Johnson-Fail-to-Merge-Orthopedic-Businesses-54557574/, but the attested models that read that source found it does not support the challenge.",
+    "support": {
+     "verdict": "unsupported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "NO",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": false,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe cited receipt shows Smith+Nephew confirmed its merger talks with J&J's orthopedics unit had ended, dated 26 October 2026, within the claim's deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that Smith & Nephew stated on 26 October 2026 that merger talks with J&J had ended, which satisfies the claim's requirement for confirmation by 31 October 2026."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence shows Smith+Nephew confirmed on 26 October 2026 that merger talks with J&J's orthopedics unit had ended, meeting the claim's requirement of confirmation by either company before 31 October 2026."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": "The confirmation came from Smith+Nephew's Q3 trading statement on 4 November 2026 (reported by Reuters), stating that its merger discussions with J&J's orthopaedics arm \"have now ended\" — after the 31 October 2026 cutoff; earlier, on 23 October 2026, both companies declined to comment on the FT repo"
+   },
+   "agrees": false
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Will the UK government approve the Jackdaw gas field?",
+   "claim": "By 31 October 2026, the UK government confirms that it has approved the Jackdaw gas field.",
+   "topic": "Officials",
+   "headline": "UK government expected to approve Jackdaw gas field - BBC",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "UK government (DESNZ) announcements",
+    "source_url": "https://www.gov.uk/government/organisations/department-for-energy-security-and-net-zero",
+    "event": "Government announces approval, or declines or delays it"
+   },
+   "estimate": 0.6,
+   "definite": true,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-21",
+    "receipts": [
+     {
+      "url": "https://www.gov.uk/government/news/jackdaw-gas-field-gets-green-light",
+      "quote": "The Energy Secretary has agreed that the regulator can grant consent for gas to be produced at the licensed Jackdaw field"
+     }
+    ],
+    "reason": "The UK government's own DESNZ press release, published 21 October 2026, confirms approval of the Jackdaw gas field, before the 31 October 2026 deadline.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 34,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed UK government (DESNZ) announcements to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 21 October 2026).\nSource: https://www.gov.uk/government/news/jackdaw-gas-field-gets-green-light\nReceipt excerpt: \"The Energy Secretary has agreed that the regulator can grant consent for gas to be produced at the licensed Jackdaw field\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.gov.uk/government/news/jackdaw-gas-field-gets-green-light.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe cited DESNZ announcement dated 21 October 2026 confirms the Energy Secretary approved consent for the Jackdaw gas field, meeting the claim's deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that the UK government approved the Jackdaw gas field on 21 October 2026, which is prior to the 31 October 2026 deadline specified in the claim."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe cited gov.uk announcement states that the Energy Secretary agreed the regulator could grant consent for the Jackdaw field, and the evidence dates this confirmation to 21 October 2026, before the deadline."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 19,
+    "note": "ANSWER: TRUE The GOV.UK press release \"Jackdaw gas field gets green light\" (DESNZ) confirmed on 21 October 2026 that the Energy Secretary had agreed the regulator could grant consent for gas production at Jackdaw."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Is Amazon's Mass Effect series still in production?",
+   "claim": "By 31 October 2026, Amazon or BioWare confirms that Amazon's Mass Effect TV series is still in production despite BioWare's closure.",
+   "topic": "Entertainment",
+   "headline": "Amazon’s Mass Effect TV Series Is Reportedly Still In Production Despite BioWare Closure - Game Informer",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "Amazon MGM Studios or Prime Video statements",
+    "source_url": "https://www.amazonmgmstudios.com/",
+    "event": "Amazon confirms production continues, or announces cancellation"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-22",
+    "receipts": [
+     {
+      "url": "https://www.polygon.com/mass-effect-tv-show-amazon-bioware-closure-october-2026/",
+      "quote": "Mass Effect is not dead yet as the Amazon series is still going forward"
+     }
+    ],
+    "reason": "Polygon reported on 22 October 2026 that Amazon's Mass Effect series is still going forward after BioWare's closure, before the 31 October deadline.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 34,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Amazon MGM Studios or Prime Video statements to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 22 October 2026).\nSource: https://www.polygon.com/mass-effect-tv-show-amazon-bioware-closure-october-2026/\nReceipt excerpt: \"Mass Effect is not dead yet as the Amazon series is still going forward\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.polygon.com/mass-effect-tv-show-amazon-bioware-closure-october-2026/.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence states the Amazon Mass Effect series was confirmed still going forward on 22 October 2026, before the 31 October 2026 deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence explicitly states that the claim was confirmed on 22 October 2026, which is before the 31 October 2026 deadline, and includes a receipt excerpt supporting the continuation of the series."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nThe evidence records that Amazon MGM Studios/Prime Video confirmation occurred on 22 October 2026, before the 31 October 2026 deadline, with a receipt stating the Amazon Mass Effect series is still going forward despite BioWare's closure."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 19,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) The claim was not confirmed by Amazon MGM Studios or Prime Video themselves on or before 31 October 2026 — reporting from IGN (around 21–22 October 2026) cited anonymous \"sources inside Prime Video,\" while Amazon MGM Studios declined to comment a"
+   },
+   "agrees": false
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Has Offset's 'GMFU' album moved to November?",
+   "claim": "By 31 October 2026, Offset or his label confirms that the 'GMFU' album has moved to a November release.",
+   "topic": "Entertainment",
+   "headline": "Offset’s ‘GMFU’ Album Reportedly Moves to November After Delay - That Grape Juice.net",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "Offset's label or official artist channels",
+    "source_url": null,
+    "event": "Label or artist confirms November date, or releases it earlier"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-24",
+    "receipts": [
+     {
+      "url": "https://hip-hopvibe.com/news/offset-sets-new-november-13-release-date-for-gmfu-album/",
+      "quote": "Offset eventually addressed the situation on Friday evening, revealing that GMFU is now scheduled to arrive on November 13."
+     }
+    ],
+    "reason": "Offset himself confirmed on October 24, 2026 that GMFU moved to a November 13 release, before the October 31 deadline.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 26,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Offset's label or official artist channels to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 24 October 2026).\nSource: https://hip-hopvibe.com/news/offset-sets-new-november-13-release-date-for-gmfu-album/\nReceipt excerpt: \"Offset eventually addressed the situation on Friday evening, revealing that GMFU is now scheduled to arrive on November 13.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://hip-hopvibe.com/news/offset-sets-new-november-13-release-date-for-gmfu-album/.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence states Offset himself confirmed on 24 October 2026 that GMFU was rescheduled to a November 13 release, satisfying the claim's requirement of artist or label confirmation by 31 October 2026."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that on October 24, 2026, Offset officially announced the new November 13 release date for the 'GMFU' album, which satisfies the condition of confirmation by October 31, 2026."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nThe evidence states that Offset himself confirmed on 24 October 2026 that GMFU was rescheduled to a November 13 release date, which satisfies the claim's requirement of confirmation by Offset or his label before 31 October 2026."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 35,
+    "note": "That Grape Juice reported on 24 October 2026 that Offset himself announced via social media on Friday evening, 23 October 2026, that *GMFU* would now land on 13 November after missing its previously announced 23 October date."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Will DoorDash announce a deal to buy Instacart?",
+   "claim": "By 5 November 2026, DoorDash or Instacart confirms a definitive agreement for DoorDash to acquire Instacart.",
+   "topic": "Money",
+   "headline": "DoorDash reportedly in talks to buy Instacart - WSMV",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "DoorDash investor relations or an SEC filing",
+    "source_url": "https://ir.doordash.com/",
+    "event": "DoorDash and Instacart announce a merger agreement, or talks are called off"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx",
+      "quote": "DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026 Transaction values Instacart at $65.00 per share, representing a 26% premium to Instacart's closing price on October 22, 2026"
+     }
+    ],
+    "reason": "DoorDash's own investor relations press release dated October 29, 2026 announces the definitive merger agreement to acquire Instacart, before the November 5, 2026 deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 29,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed DoorDash investor relations or an SEC filing to confirm it by 5 November 2026.\nIt was confirmed on or before 5 November 2026 (on 29 October 2026).\nSource: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx\nReceipt excerpt: \"DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026 Transaction values Instacart at $65.00 per share, representing a 26% premium to Instacart's closing price on October 22, 2026\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe cited DoorDash investor relations release dated 29 October 2026 confirms a definitive agreement for DoorDash to acquire Instacart, satisfying the claim before the 5 November 2026 deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence provides a specific source and receipt excerpt confirming that DoorDash announced its acquisition of Instacart on October 29, 2026, which is prior to the November 5, 2026 deadline specified in the claim."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\n\nThe evidence shows DoorDash's investor relations page announced on 29 October 2026 that DoorDash would acquire Instacart, confirming a definitive agreement before the 5 November 2026 deadline."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 19,
+    "note": "ANSWER: TRUE (confirmed on or before that date) DoorDash's investor relations press release on October 29, 2026 announced a definitive agreement under which DoorDash will acquire Instacart, a confirmation also reflected in DoorDash's SEC 8-K filing."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Is OpenAI buying Google TPUs?",
+   "claim": "By 5 November 2026, OpenAI or Google confirms that OpenAI plans to buy Google's AI chips (TPUs).",
+   "topic": "Tech",
+   "headline": "OpenAI plans to buy Google's AI chips, The Information reports - Reuters",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "OpenAI or Google newsroom statements",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI or Google confirms a TPU purchase, or both deny it"
+   },
+   "estimate": 0.4,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://1023jack.com/market/openai-reportedly-plans-to-buy-google-s-tpu-chips-neither-company-has-confirmed/",
+      "quote": "The Information and Bloomberg reported that OpenAI plans to buy Google’s tensor processing units (TPUs) , but neither company has confirmed a deal."
+     }
+    ],
+    "reason": "As of the claim's date, no OpenAI or Google statement confirmed the reported TPU purchase plan; coverage explicitly notes neither company confirmed a deal.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 26,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed OpenAI or Google newsroom statements to confirm it by 5 November 2026.\nBy the end of 5 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://1023jack.com/market/openai-reportedly-plans-to-buy-google-s-tpu-chips-neither-company-has-confirmed/\nReceipt excerpt: \"The Information and Bloomberg reported that OpenAI plans to buy Google’s tensor processing units (TPUs) , but neither company has confirmed a deal.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://1023jack.com/market/openai-reportedly-plans-to-buy-google-s-tpu-chips-neither-company-has-confirmed/.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows that as of the 5 November 2026 deadline, neither OpenAI nor Google had confirmed the reported TPU purchase, so the claim was not confirmed by the required date."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 5 November 2026, the claim had not been confirmed, and a source checked on 7 November 2026 confirms that neither company had confirmed the deal."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence, checked after the 5 November 2026 deadline, states that although media outlets reported OpenAI's plan to buy Google's TPUs, neither OpenAI nor Google had confirmed the deal."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 17,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) Multiple outlets (e.g., TechTarget, ExplainX) reported that as of late October/early November 2026, neither OpenAI nor Google had confirmed the TPU purchase plan first reported by The Information on 27 October 2026, with OpenAI declining to comme"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Is Meta raising $95B for AI buildout?",
+   "claim": "By 5 November 2026, Meta or an SEC filing confirms Meta plans up to $95 billion in financing for AI growth.",
+   "topic": "Tech",
+   "headline": "Meta Plans up to $95 Billion in Financing to Power Its AI Growth - WSJ",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "Meta investor relations or an SEC filing",
+    "source_url": "https://investor.atmeta.com/",
+    "event": "Meta files or announces the financing, or says the report is wrong"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-26",
+    "receipts": [
+     {
+      "url": "https://ainvesting.org/breaking-news/breaking-2026-10-26t16-01-19/?lang=en",
+      "quote": "Meta announced a plan to raise up to $95 billion through equity sales to support its AI buildout, including an initial offering of about $35 billion"
+     }
+    ],
+    "reason": "Multiple sources, including a report citing Meta's investor relations press release dated on or before 26 October 2026, confirm Meta's plan to raise up to $95 billion for its AI buildout, before the 5 November 2026 deadline.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Meta investor relations or an SEC filing to confirm it by 5 November 2026.\nIt was confirmed on or before 5 November 2026 (on 26 October 2026).\nSource: https://ainvesting.org/breaking-news/breaking-2026-10-26t16-01-19/?lang=en\nReceipt excerpt: \"Meta announced a plan to raise up to $95 billion through equity sales to support its AI buildout, including an initial offering of about $35 billion\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://ainvesting.org/breaking-news/breaking-2026-10-26t16-01-19/?lang=en.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "NO QUORUM",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "UNPARSEABLE",
+      "text": "VERDICT: TRUE. The evidence states Meta announced a plan to raise up to $95 billion through equity sales for its AI buildout, confirmed on 26 October 2026, before the 5 November 2026 deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that on 26 October 2026, which is before the 5 November 2026 deadline, Meta announced a plan to raise up to $95 billion for AI growth."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "UNPARSEABLE",
+      "text": ""
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 19,
+    "note": "ANSWER: TRUE (confirmed on or before that date) Meta announced the plan in a regulatory filing and investor statement on 26 October 2026, with CNBC reporting Meta would raise up to $95 billion in equity financing (about $35 billion in underwritten offerings plus a $60 billion at-the-market program) "
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Is Microsoft raising $25B in debt?",
+   "claim": "By 5 November 2026, Microsoft or an SEC filing confirms Microsoft plans to raise $25 billion in debt.",
+   "topic": "Tech",
+   "headline": "Microsoft plans to raise $25 billion in debt as it pursues AI buildout - CNBC",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "Microsoft investor relations or an SEC filing",
+    "source_url": "https://www.microsoft.com/en-us/investor",
+    "event": "Microsoft prices a $25B bond offering, or no such raise appears"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html",
+      "quote": "Microsoft on Thursday announced plans to raise $25 billion in bonds, taking advantage of its healthy credit rating to support its infrastructure expansion."
+     }
+    ],
+    "reason": "Microsoft's own October 29, 2026 release announced the debt offerings totaling $25 billion, before the November 5 deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 35,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Microsoft investor relations or an SEC filing to confirm it by 5 November 2026.\nIt was confirmed on or before 5 November 2026 (on 29 October 2026).\nSource: https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html\nReceipt excerpt: \"Microsoft on Thursday announced plans to raise $25 billion in bonds, taking advantage of its healthy credit rating to support its infrastructure expansion.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html.",
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence states Microsoft announced plans on 29 October 2026 to raise $25 billion in bonds, satisfying the claim's deadline and confirmation requirement."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence explicitly states that the claim was confirmed on 29 October 2026, which is prior to the 5 November 2026 deadline, citing a source that details Microsoft's plan to raise $25 billion in debt."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe receipt shows Microsoft announced plans to raise $25 billion in bonds on 29 October 2026, which is on or before the 5 November 2026 deadline, satisfying the claim's confirmation requirement."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "ANSWER: TRUE (confirmed on or before that date) Microsoft confirmed the $25 billion debt offering in an SEC prospectus supplement filed on 2 November 2026 (the deal having been priced on 29 October 2026 and closing 4 November 2026), as reported by outlets citing the filing."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Is SK Hynix planning a $45B US chip plant?",
+   "claim": "By 5 November 2026, SK Hynix or Solidigm confirms talks over a $45B US chip plant investment.",
+   "topic": "Money",
+   "headline": "SK Hynix's Solidigm Reportedly In Talks Over $45B Investment In US Chip Plant - Yahoo Finance",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "SK Hynix newsroom or a regulatory filing",
+    "source_url": "https://news.skhynix.com/",
+    "event": "SK Hynix confirms the investment plan, or denies the talks"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://news.skhynix.com/",
+      "quote": "Solidigm to Discontinue Review of Potential IPO, Reaffirming Commitment to Long-Term Growth and Shareholder Value"
+     }
+    ],
+    "reason": "The settling source's own page shows no confirmation of the $45B US plant talks by 5 November 2026, only reports that Solidigm is 'reportedly' in talks.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed SK Hynix newsroom or a regulatory filing to confirm it by 5 November 2026.\nBy the end of 5 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://news.skhynix.com/\nReceipt excerpt: \"Solidigm to Discontinue Review of Potential IPO, Reaffirming Commitment to Long-Term Growth and Shareholder Value\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "unsupported",
+    "reason": "The quoted words are at https://news.skhynix.com/, but the attested models that read that source found it does not support the challenge.",
+    "support": {
+     "verdict": "unsupported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": false,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states the claim was not confirmed by the 5 November 2026 deadline, and the cited SK Hynix newsroom excerpt concerns Solidigm discontinuing an IPO review, not a $45B US chip plant investment."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence explicitly states that by the end of 5 November 2026, the claim had not been confirmed, and the provided source excerpt discusses an IPO discontinuation rather than a $45B US chip plant investment."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that neither SK Hynix's newsroom nor any regulatory filing confirmed talks over a $45B US chip plant investment by the end of 5 November 2026, with the only cited receipt being an unrelated Solidigm announcement about discontinuing an IPO review."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 17,
+    "note": "SK Hynix's 29 October 2026 regulatory filing (and its Oct. 23 statement) said Solidigm was only reviewing options and no decision had been made, and Solidigm declined to confirm the Bloomberg-reported $45B talks, so the claim was not confirmed by 5 November 2026."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Has Colts WR Josh Downs requested a trade?",
+   "claim": "By 5 November 2026, the Indianapolis Colts or the NFL confirms that Colts WR Josh Downs has requested a trade.",
+   "topic": "Sports",
+   "headline": "Report: Colts WR Josh Downs requests trade ahead of NFL deadline for deals - NFL.com",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "Colts official site or NFL transaction wire",
+    "source_url": "https://www.colts.com/",
+    "event": "Colts confirm the request or trade him, or deny a request was made"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.colts.com/",
+      "quote": "Colts rule out CB Justin Walley, LB Akeem Davis-Gaither for Week 9 Head coach Shane Steichen made the announcement Friday."
+     }
+    ],
+    "reason": "The Colts' own site shows no confirmation of a Downs trade request by 5 November 2026, and the reports attribute it only to unnamed sources, not the team or NFL.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 29,
+     "error": null
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Colts official site or NFL transaction wire to confirm it by 5 November 2026.\nBy the end of 5 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://www.colts.com/\nReceipt excerpt: \"Colts rule out CB Justin Walley, LB Akeem Davis-Gaither for Week 9 Head coach Shane Steichen made the announcement Friday.\"\nChecked 2026-11-07T00:26Z.",
+   "receipt_check": {
+    "result": "unsupported",
+    "reason": "The quoted words are at https://www.colts.com/, but the attested models that read that source found it does not support the challenge.",
+    "support": {
+     "verdict": "unsupported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": false,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states the claim was not confirmed by the 5 November 2026 deadline, and the cited Colts source contains no confirmation of a Josh Downs trade request."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 5 November 2026, the claim had not been confirmed, and the provided source from 7 November 2026 discusses unrelated injury news without mentioning a trade request."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe Colts' official site receipt, checked after 5 November 2026, contains only Week 9 injury announcements and no confirmation that Josh Downs requested a trade, consistent with the Checker's note that the claim was unconfirmed by the deadline."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 20,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) The Colts organization confirmed the trade request only via head coach Shane Steichen's Friday remarks (reported by NFL.com and Yahoo Sports on 30 October 2026), while the request itself originated from ESPN's Jeremy Fowler report on 28 October 2"
+   },
+   "agrees": true
+  }
+ ]
+}

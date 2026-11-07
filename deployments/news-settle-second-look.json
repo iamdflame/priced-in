@@ -1,0 +1,1036 @@
+{
+ "summary": {
+  "at": "2026-11-07T02:57:37.335Z",
+  "method": "As-of scouting on Google News search feeds (after:/before:), the scout and the gate's code blocklist and second model as of that day; settling today with NEAR AI web search plus the settling source, the production receipt check with the attested support panel, the contract's jury request to the three models (two of three), and an independent web-search check by another model, blind to the rest. One run; nothing on-chain.",
+  "as_of": [
+   "2026-10-24",
+   "2026-10-29"
+  ],
+  "scouted": [
+   {
+    "as_of": "2026-10-24",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 1,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 8,
+    "refusals": [
+     {
+      "question": "Is Meta planning new non-voting shares?",
+      "at": "policy",
+      "reason": "Never priced: it touches who wins an election (\"voting\")."
+     },
+     {
+      "question": "Is Visa acquiring Fireblocks for $2.5bn?",
+      "at": "unconfirmed",
+      "reason": "Already denied today, judging by its headline: nobody would bet against it. The headline explicitly states that Fireblocks has denied the reports of the acquisition."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test.json,deployments/news-settle-fresh.json"
+   },
+   {
+    "as_of": "2026-10-29",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 3,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 6,
+    "refusals": [
+     {
+      "question": "Has Anthropic filed for an IPO?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that Anthropic has filed for an IPO, which is a completed action."
+     },
+     {
+      "question": "Is DOJ probing Nvidia's Hugging Face deal?",
+      "at": "policy",
+      "reason": "Never priced: it touches crime, arrests, investigations or court cases (\"investigat\")."
+     },
+     {
+      "question": "Has FINMA approved a Swiss retail Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that FINMA has 'Approved' the ETF, which is a completed regulatory action."
+     },
+     {
+      "question": "Has Bitwise filed an AVAX ETF with the SEC?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states the filing was 'Submitted' to the SEC, which is a completed action."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test.json,deployments/news-settle-fresh.json"
+   },
+   {
+    "as_of": "2026-10-26",
+    "headlines": 110,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 3,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 6,
+    "refusals": [
+     {
+      "question": "Is DoorDash buying Instacart?",
+      "at": "policy",
+      "reason": "Never priced: it touches deaths, violence, wars or attacks (\"dead\")."
+     },
+     {
+      "question": "Has Anthropic filed publicly for an IPO?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states Anthropic has filed for an IPO, which is a public record event."
+     },
+     {
+      "question": "Has NC State fired DJ Elliot and its football GM?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states NC State has 'parts ways' with the staff, indicating the action has already occurred."
+     },
+     {
+      "question": "Has Switzerland approved a domestic spot Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states BIT Asset Management 'receives approval', indicating the regulatory action is complete."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test.json,deployments/news-settle-fresh.json"
+   },
+   {
+    "as_of": "2026-10-30",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 1,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 8,
+    "refusals": [
+     {
+      "question": "Is DOJ probing Nvidia's Hugging Face deal?",
+      "at": "policy",
+      "reason": "Never priced: it touches crime, arrests, investigations or court cases (\"investigat\")."
+     },
+     {
+      "question": "Has FINMA approved a Swiss retail Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that FINMA has already approved the ETF, which is a settled regulatory action."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test.json,deployments/news-settle-fresh.json"
+   }
+  ],
+  "claims_settled_today": 10,
+  "pipeline": {
+   "true": 2,
+   "false": 2,
+   "unknown": 6,
+   "errors": 0,
+   "search_failed": 0
+  },
+  "definite": {
+   "true": {
+    "claims": 0,
+    "challenged": 0,
+    "jury_ruled": 0
+   },
+   "false": {
+    "claims": 10,
+    "challenged": 4,
+    "jury_ruled": 4
+   }
+  },
+  "receipts_verified": 4,
+  "receipt_results": {
+   "verified": 4
+  },
+  "jury_would_be_called": 4,
+  "jury_ruled": 4,
+  "jury_ruled_as_the_pipeline_claimed": 4,
+  "jury_matches_independent": 4,
+  "jury_differs_from_independent": 0,
+  "by_basis": {
+   "confirmed": {
+    "found": 2,
+    "receipts_verified": 2,
+    "support_ok": 2,
+    "jury_called": 2,
+    "jury_ruled_as_claimed": 2,
+    "jury_no_quorum": 0,
+    "matches_independent": 2,
+    "independent_known": 2
+   },
+   "not_confirmed": {
+    "found": 2,
+    "receipts_verified": 2,
+    "support_ok": 2,
+    "jury_called": 2,
+    "jury_ruled_as_claimed": 2,
+    "jury_no_quorum": 0,
+    "matches_independent": 2,
+    "independent_known": 2
+   }
+  },
+  "spend_usd": 0.1576,
+  "spend_by_step": {
+   "settle": 0.0985,
+   "support": 0.0049,
+   "jury": 0.0025,
+   "independent": 0.0517
+  }
+ },
+ "results": [
+  {
+   "as_of": "2026-10-24",
+   "question": "Has Instacart discussed selling itself to DoorDash or Uber?",
+   "claim": "By 31 October 2026, Instacart or DoorDash or Uber confirms that Instacart has discussed selling itself. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "Instacart reportedly discussed selling itself with DoorDash and Uber - TechCrunch",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "Instacart's investor relations or an SEC filing",
+    "source_url": "https://investors.instacart.com/",
+    "event": "A company confirms talks or a deal, or denies them"
+   },
+   "estimate": 0.35,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx",
+      "quote": "DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026"
+     },
+     {
+      "url": "https://techcrunch.com/2026/10/29/doordash-to-acquire-instacart-for-17b/",
+      "quote": "DoorDash announced on Thursday that it has agreed to acquire rival Instacart for $17 billion."
+     }
+    ],
+    "reason": "DoorDash's own October 29, 2026 press release and Instacart CEO Chris Rogers' quoted statement confirm the acquisition agreement before the October 31 deadline.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 36,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Instacart's investor relations or an SEC filing to confirm it by 31 October 2026.\nIt was confirmed on or before 31 October 2026 (on 29 October 2026).\nSource: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx\nReceipt excerpt: \"DoorDash to Acquire Instacart to Help Local Stores Win October 29, 2026\"\nSource: https://techcrunch.com/2026/10/29/doordash-to-acquire-instacart-for-17b/\nReceipt excerpt: \"DoorDash announced on Thursday that it has agreed to acquire rival Instacart for $17 billion.\"\nChecked 2026-11-07T02:57Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://ir.doordash.com/news/news-details/2026/DoorDash-to-Acquire-Instacart-to-Help-Local-Stores-Win/default.aspx.",
+    "tries": 2,
+    "support": {
+     "verdict": "supported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe cited DoorDash press release announces an acquisition of Instacart, not a confirmation that Instacart has discussed selling itself, and the claim specifically required Instacart's investor relations or an SEC filing rather than a DoorDash announcement."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence provides a receipt from DoorDash's investor relations confirming an acquisition of Instacart on October 29, 2026, which satisfies the requirement for a confirmation by one of the specified companies by the deadline."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nDoorDash's official investor-relations press release dated 29 October 2026 announcing its acquisition of Instacart is a first-party confirmation (not unnamed sources) that discussions about Instacart selling itself occurred, meeting the claim's deadline of 31 October 2026."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 39,
+    "note": "ANSWER: TRUE (confirmed on or before that date) DoorDash officially announced on 29 October 2026 a definitive agreement to acquire Instacart for $17 billion ($65.00 per share), a deal announced in a joint press release and disclosed in an SEC filing on that date, confirming that Instacart had discus"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Is QatarEnergy in talks to buy Woodside LNG?",
+   "claim": "By 31 October 2026, QatarEnergy or Woodside confirms that QatarEnergy is in talks to buy US LNG from Woodside's Louisiana plant. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "Top LNG exporter QatarEnergy in talks to buy US LNG from Woodside's Louisiana plant - Reuters",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "QatarEnergy or Woodside official statements",
+    "source_url": "https://www.qatarenergy.qa/",
+    "event": "Either company confirms talks or a deal, or denies them"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.qatarenergy.qa/",
+      "quote": "LNG from Woodside Energy for 20 years DOHA, Qatar • 29 October 2026 – QatarEnergy entered into a long-term Sale and Purchase Agreement (SPA) with Woodside Energy (LA) Investments LLC (Woodside Energy) for the purchase of 3 million tons pe"
+     },
+     {
+      "url": "https://americanpress.com/2026/11/01/qatarenergy-signs-second-deal-in-a-week-to-buy-u-s-lng/",
+      "quote": "Reuters reported that the company is in talks to supply QatarEnergy from one of its Louisiana LNG plants."
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. On 29 October 2026, Woodside announced in an ASX filing (backed by statements from Woodside CEO Liz Westcott and QatarEnergy CEO Saad Sherida Al-Kaabi) a signed 20-year SPA for QatarEnergy to buy up to 3 Mtpa of US LNG from Woodside's Louisiana LNG project — a deal that confirms the reported talks.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 35,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "On 29 October 2026, Woodside announced in an ASX filing (backed by statements from Woodside CEO Liz Westcott and QatarEnergy CEO Saad Sherida Al-Kaabi) a signed 20-year SPA for QatarEnergy to buy up to 3 Mtpa of US LNG from Woodside's Louisiana LNG project — a deal that confirms the reported talks."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 19,
+    "note": "The claim's \"in talks\" framing was never confirmed by either company — Woodside told Reuters on 23 October 2026 it \"does not respond to market speculation\" and QatarEnergy did not comment, though the two firms did formally announce a signed 20-year deal on 29 October 2026."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-24",
+   "question": "Has Offset's 'GMFU' album moved to November?",
+   "claim": "By 31 October 2026, Offset or his label confirms that the 'GMFU' album has moved to a November release. Reports citing unnamed sources don't count.",
+   "topic": "Entertainment",
+   "headline": "Offset’s ‘GMFU’ Album Reportedly Moves to November After Delay - That Grape Juice.net",
+   "settles": {
+    "by": "2026-10-31",
+    "by_words": "31 October 2026",
+    "source": "Offset's label or official artist channels",
+    "source_url": null,
+    "event": "Label or artist confirms November date, or releases it earlier"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.musictimes.com/articles/113146/20261104/offset-points-november-13-gmfu-after-earlier-october-release-plan.htm",
+      "quote": "An artist's dated post can be a strong indication of intent, but it should not be rewritten as a detailed label statement when the label itself has not publicly supplied the same explanation."
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. Offset himself confirmed on social media on 23 October 2026 that 'GMFU' had moved to a 13 November release, later reaffirming it on Instagram on 2–3 November 2026.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 29,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "Offset himself confirmed on social media on 23 October 2026 that 'GMFU' had moved to a 13 November release, later reaffirming it on Instagram on 2–3 November 2026."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 19,
+    "note": "Offset's own Instagram post signaling \"GMFU 11:13\" came around October 23, 2026, but the explicit confirmation of the November 13 date via cover art and statement came on November 2–3, 2026 (reported by Billboard on November 3, 2026), after the October 31 cutoff."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Is Microsoft raising $25B in debt?",
+   "claim": "By 5 November 2026, Microsoft or an SEC filing confirms Microsoft plans to raise $25 billion in debt. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "Microsoft plans to raise $25 billion in debt as it pursues AI buildout - CNBC",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "Microsoft investor relations or an SEC filing",
+    "source_url": "https://www.microsoft.com/en-us/investor",
+    "event": "Microsoft prices a $25B bond offering, or no such raise appears"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "TRUE",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [
+     {
+      "url": "https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html",
+      "quote": "Microsoft on Thursday announced plans to raise $25 billion in bonds, taking advantage of its healthy credit rating to support its infrastructure expansion."
+     }
+    ],
+    "reason": "Microsoft itself announced on 29 October 2026 plans to raise $25 billion in bonds, before the 5 November deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed Microsoft investor relations or an SEC filing to confirm it by 5 November 2026.\nIt was confirmed on or before 5 November 2026 (on 29 October 2026).\nSource: https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html\nReceipt excerpt: \"Microsoft on Thursday announced plans to raise $25 billion in bonds, taking advantage of its healthy credit rating to support its infrastructure expansion.\"\nChecked 2026-11-07T02:57Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.cnbc.com/2026/10/29/microsoft-25-billion-debt-offering.html.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": false,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "NO",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "TRUE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe only cited source is a CNBC news report, not Microsoft investor relations or an SEC filing, so the claim's explicit confirmation requirement is not met."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe evidence confirms that Microsoft announced plans to raise $25 billion in debt on October 29, 2026, which is prior to the November 5, 2026 deadline, and the source is a direct news report of the announcement rather than a citation of unnamed sources."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "TRUE",
+      "text": "VERDICT: TRUE\nThe receipt shows Microsoft itself announced plans for a $25 billion bond offering on 29 October 2026 — before the 5 November 2026 deadline — and since this stems from Microsoft's own on-the-record announcement rather than unnamed sources, it meets the claim"
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "ANSWER: TRUE (confirmed on or before that date) Microsoft confirmed the plan in a prospectus supplement filed with the SEC on 2 November 2026 (pricing announced 29 October 2026), disclosing its $25 billion, 10-tranche bond offering set to close on 4 November 2026."
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-29",
+   "question": "Has Colts WR Josh Downs requested a trade?",
+   "claim": "By 5 November 2026, the Indianapolis Colts or the NFL confirms that Colts WR Josh Downs has requested a trade. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "Report: Colts WR Josh Downs requests trade ahead of NFL deadline for deals - NFL.com",
+   "settles": {
+    "by": "2026-11-05",
+    "by_words": "5 November 2026",
+    "source": "Colts official site or NFL transaction wire",
+    "source_url": "https://www.colts.com/",
+    "event": "Colts confirm the request or trade him, or deny a request was made"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.colts.com/",
+      "quote": "Colts rule out CB Justin Walley, LB Akeem Davis-Gaither for Week 9 Head coach Shane Steichen made the announcement Friday."
+     },
+     {
+      "url": "https://www.espn.com/nfl/story/_/id/50309159/source-wr-downs-requests-trade-rb-taylor-per-coach",
+      "quote": "Colts fourth-year receiver Josh Downs , who is in the final year of his rookie contract, has requested a trade, sources told ESPN's Jeremy Fowler."
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. Colts head coach Shane Steichen publicly confirmed that Josh Downs requested a trade (NFL.com/NFL Media reporting, Friday, Oct. 30, 2026 — \"Obviously, you requested a trade\"), well before 5 November 2026.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 32,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "Colts head coach Shane Steichen publicly confirmed that Josh Downs requested a trade (NFL.com/NFL Media reporting, Friday, Oct. 30, 2026 — \"Obviously, you requested a trade\"), well before 5 November 2026."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "Colts head coach Shane Steichen confirmed the trade request publicly on Friday, October 30, 2026, stating he met with Downs after he asked for a trade, as reported by NFL.com."
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-26",
+   "question": "Is OpenAI raising $30B at a $1.25T valuation?",
+   "claim": "By 2 November 2026, OpenAI or its filings confirm a $30B raise at a $1.25T valuation ahead of an IPO. Reports citing unnamed sources don't count.",
+   "topic": "Money",
+   "headline": "OpenAI Reportedly Seeks $30B at $1.25T Valuation Ahead of IPO - AI Insider",
+   "settles": {
+    "by": "2026-11-02",
+    "by_words": "2 November 2026",
+    "source": "OpenAI's newsroom or SEC/company filings",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI confirms the raise and valuation, or it is denied"
+   },
+   "estimate": 0.3,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.bloomberg.com/news/articles/2026-10-22/openai-shifts-value-to-1-25-trillion-as-funding-talks-finalize",
+      "quote": "OpenAI , which is seeking to raise around $30 billion in a fresh funding round, is now targeting a valuation of $1.25 trillion during the final stages of negotiations, according to people familiar with the matter."
+     },
+     {
+      "url": "https://techbytes.app/posts/openai-valued-at-125-trillion-as-rival-anthropic-nears-its/",
+      "quote": "OpenAI reached a private valuation of $1.25 trillion after raising an additional $11 billion in funding, according to financial reporting in The Verge's report ."
+     }
+    ],
+    "reason": "As of the claim's date, the $30B raise at a $1.25T valuation was reported only via unnamed sources, and later reporting shows OpenAI instead raised $11B, so no OpenAI newsroom or filing confirmation exists.",
+    "sources_read": 4,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "All reporting on the $30B/$1.25T round — CNBC and Bloomberg (both Oct 22, 2026) — cites only unnamed \"people familiar,\" and no OpenAI filing or statement confirmed a completed $30B raise at $1.25T by 2 November 2026; in fact, subsequent Financial Times reporting showed the target cut to $20B with on"
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed OpenAI's newsroom or SEC/company filings to confirm it by 2 November 2026.\nBy the end of 2 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://www.bloomberg.com/news/articles/2026-10-22/openai-shifts-value-to-1-25-trillion-as-funding-talks-finalize\nReceipt excerpt: \"OpenAI , which is seeking to raise around $30 billion in a fresh funding round, is now targeting a valuation of $1.25 trillion during the final stages of negotiations, according to people familiar with the matter.\"\nSource: https://techbytes.app/posts/openai-valued-at-125-trillion-as-rival-anthropic-nears-its/\nReceipt excerpt: \"OpenAI reached a private valuation of $1.25 trillion after raising an additional $11 billion in funding, according to financial reporting in The Verge's report .\"\nChecked 2026-11-07T02:57Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.bloomberg.com/news/articles/2026-10-22/openai-shifts-value-to-1-25-trillion-as-funding-talks-finalize, https://techbytes.app/posts/openai-valued-at-125-trillion-as-rival-anthropic-nears-its/.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows only reports citing unnamed sources (\"people familiar with the matter\") and secondary reporting, with no confirmation from OpenAI's newsroom or SEC/company filings by 2 November 2026, so the claim's own standard is not met."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the end of 2 November 2026, the claim had not been confirmed by OpenAI's newsroom or SEC/company filings, and the provided sources rely on unnamed people or secondary reporting rather than official company confirmation."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe only available reports rely on unnamed sources (\"people familiar with the matter\") and secondary citations rather than confirmation from OpenAI's newsroom or SEC/company filings, which the claim explicitly excludes, and the checker confirms no such confirmation occurred by 2 Novem"
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 38,
+    "note": "As of 2 November 2026, no OpenAI newsroom post or SEC/company filing confirmed a $30B raise at a $1.25T valuation ahead of an IPO — the figures came only from anonymous-source reporting (CNBC, 22 October 2026, said OpenAI was \"nearing\" up to $30B at a $1.25T pre-money valuation), and the actual $11B"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is OpenAI buying Google TPUs?",
+   "claim": "By 6 November 2026, OpenAI or Google confirms that OpenAI plans to buy Google's AI chips (TPUs). Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "OpenAI plans to buy Google's AI chips, The Information reports - Reuters",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "OpenAI or Google newsroom statement",
+    "source_url": "https://openai.com/news/",
+    "event": "OpenAI or Google confirms a TPU purchase deal, or both deny it"
+   },
+   "estimate": 0.55,
+   "definite": false,
+   "pipeline": {
+    "outcome": "FALSE",
+    "basis": "not_confirmed",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.trendforce.com/news/2026/10/28/news-openai-reportedly-plans-to-buy-google-tpus-oracle-to-bring-tpus-to-its-cloud-in-2027-adding-pressure-on-nvidia/",
+      "quote": "Google’s push to expand its AI chip business could gain momentum as OpenAI reportedly considers purchasing its TPUs."
+     },
+     {
+      "url": "https://www.techtimes.com/articles/329677/20261029/openai-eyes-google-chip-ownership-three-vendor-silicon-strategy-takes-shape.htm",
+      "quote": "OpenAI is in talks to purchase Google's Tensor Processing Units directly, according to a report by The Information published Tuesday"
+     }
+    ],
+    "reason": "All sources are news reports relying on unnamed or secondary reports (\"reportedly,\" \"according to a report by The Information\"); none shows OpenAI or Google itself confirming the plan by 6 November 2026.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 27,
+     "error": null
+    },
+    "second_look": {
+     "answer": "FALSE",
+     "note": "Neither OpenAI nor Google (nor anyone speaking for either) confirmed the planned TPU purchase by 6 November 2026; the claim rests only on The Information's October 27, 2026 report citing unnamed sources, with multiple outlets noting \"neither company has confirmed\" as of early November."
+    }
+   },
+   "evidence": "Priced In's Checker, settling a news line. The claim needed OpenAI or Google newsroom statement to confirm it by 6 November 2026.\nBy the end of 6 November 2026 it had not been confirmed. Here is what the sources said after that date.\nSource: https://www.trendforce.com/news/2026/10/28/news-openai-reportedly-plans-to-buy-google-tpus-oracle-to-bring-tpus-to-its-cloud-in-2027-adding-pressure-on-nvidia/\nReceipt excerpt: \"Google’s push to expand its AI chip business could gain momentum as OpenAI reportedly considers purchasing its TPUs.\"\nSource: https://www.techtimes.com/articles/329677/20261029/openai-eyes-google-chip-ownership-three-vendor-silicon-strategy-takes-shape.htm\nReceipt excerpt: \"OpenAI is in talks to purchase Google's Tensor Processing Units directly, according to a report by The Information published Tuesday\"\nChecked 2026-11-07T02:57Z.",
+   "receipt_check": {
+    "result": "verified",
+    "reason": "Every quoted passage is at its source: https://www.trendforce.com/news/2026/10/28/news-openai-reportedly-plans-to-buy-google-tpus-oracle-to-bring-tpus-to-its-cloud-in-2027-adding-pressure-on-nvidia/, https://www.techtimes.com/articles/329677/20261029/openai-eyes-google-chip-ownership-three-vendor-silicon-strategy-takes-shape.htm.",
+    "tries": 1,
+    "support": {
+     "verdict": "supported",
+     "unanimous": true,
+     "answers": [
+      {
+       "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "Qwen/Qwen3.8-27B",
+       "answer": "YES",
+       "verified": true
+      },
+      {
+       "model": "z-ai/glm-5.3-flash",
+       "answer": "YES",
+       "verified": true
+      }
+     ]
+    }
+   },
+   "jury_would_be_called": true,
+   "jury": {
+    "panel": "FALSE",
+    "votes": [
+     {
+      "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence shows only reports citing unnamed sources (\"reportedly,\" \"according to a report by The Information\"), and explicitly states no OpenAI or Google newsroom confirmation had occurred by the 6 November 2026 deadline."
+     },
+     {
+      "model": "Qwen/Qwen3.8-27B",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\n\nThe evidence explicitly states that by the deadline of 6 November 2026, the claim had not been confirmed by OpenAI or Google, and the cited sources from late October 2026 rely on reports from The Information rather than official statements from the companies."
+     },
+     {
+      "model": "z-ai/glm-5.3-flash",
+      "verdict": "FALSE",
+      "text": "VERDICT: FALSE\nThe evidence states that by the end of 6 November 2026 neither OpenAI nor Google had confirmed the plan, and the available reports relied on unnamed sources."
+     }
+    ]
+   },
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "FALSE",
+    "searched": 17,
+    "note": "ANSWER: FALSE (denied, or not confirmed by that date) Multiple reports (The Information, 27 October 2026; Reuters/Bloomberg, 28 October 2026) said neither OpenAI nor Google had confirmed the reported TPU purchase plan, and no OpenAI or Google newsroom statement confirming it by 6 November 2026 was f"
+   },
+   "agrees": true
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Is Microsoft raising $25B in debt?",
+   "claim": "By 6 November 2026, Microsoft or an SEC filing confirms Microsoft is raising $25 billion in debt for its AI buildout. Reports citing unnamed sources don't count.",
+   "topic": "Tech",
+   "headline": "Microsoft plans to raise $25 billion in debt as it pursues AI buildout - CNBC",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Microsoft investor relations or an SEC filing",
+    "source_url": "https://www.microsoft.com/en-us/investor",
+    "event": "Microsoft files or announces a $25B debt offering, or a different amount"
+   },
+   "estimate": 0.6,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "confirmed",
+    "when": "2026-10-29",
+    "receipts": [],
+    "reason": "No quote it gave is in its source word for word, so there is no receipt. Microsoft's own press release dated October 29, 2026 announces the debt offerings totaling $25 billion, before the claim's deadline.",
+    "sources_read": 5,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 34,
+     "error": null
+    },
+    "second_look": null
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "ANSWER: TRUE (confirmed on or before that date) Microsoft itself announced the pricing of its $25 billion, ten-tranche senior unsecured bond offering — with proceeds tied to capital expenditures including AI and cloud infrastructure — in a company press release and SEC free-writing-prospectus filing"
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Has Josh Downs requested a trade?",
+   "claim": "By 6 November 2026, the Indianapolis Colts or Josh Downs confirms that Downs has requested a trade before the NFL deadline. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "Report: Colts WR Josh Downs requests trade ahead of NFL deadline for deals - NFL.com",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "Colts statement or NFL transaction wire",
+    "source_url": "https://www.colts.com/",
+    "event": "Colts confirm the request or trade him, or deny any request"
+   },
+   "estimate": 0.5,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.colts.com/",
+      "quote": "Colts rule out CB Justin Walley, LB Akeem Davis-Gaither for Week 9 Head coach Shane Steichen made the announcement Friday."
+     },
+     {
+      "url": "https://www.espn.com/nfl/story/_/id/50309159/source-wr-downs-requests-trade-rb-taylor-per-coach",
+      "quote": "Colts fourth-year receiver Josh Downs , who is in the final year of his rookie contract, has requested a trade, sources told ESPN's Jeremy Fowler."
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. Colts head coach Shane Steichen confirmed on Friday, October 30, 2026 (after the request was first reported Oct 28 by ESPN's Jeremy Fowler) that Josh Downs had requested a trade and that he had spoken with him about it.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 0,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "Colts head coach Shane Steichen confirmed on Friday, October 30, 2026 (after the request was first reported Oct 28 by ESPN's Jeremy Fowler) that Josh Downs had requested a trade and that he had spoken with him about it."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 19,
+    "note": "The search results are highly relevant. Key findings: ESPN's Jeremy Fowler reported the trade request on **Wednesday, October 28, 2026**, and critically, Colts Wire (Nov. 4, 2026) notes that **\"Colts coach Shane Steichen confirmed Friday that Downs had requested a trade and said the two had spoken a"
+   },
+   "agrees": null
+  },
+  {
+   "as_of": "2026-10-30",
+   "question": "Are the White Sox poaching a Brewers exec?",
+   "claim": "By 6 November 2026, the Chicago White Sox or Milwaukee Brewers confirms the White Sox have hired a Brewers front-office executive. Reports citing unnamed sources don't count.",
+   "topic": "Sports",
+   "headline": "White Sox Reportedly Poach World Series Brewers to Fill Key Front Office Role - Sports Illustrated",
+   "settles": {
+    "by": "2026-11-06",
+    "by_words": "6 November 2026",
+    "source": "White Sox or Brewers official announcement",
+    "source_url": "https://www.mlb.com/whitesox",
+    "event": "White Sox announce the hire, or Brewers deny permission was granted"
+   },
+   "estimate": 0.45,
+   "definite": false,
+   "pipeline": {
+    "outcome": "UNKNOWN",
+    "basis": "none",
+    "when": null,
+    "receipts": [
+     {
+      "url": "https://www.mlb.com/whitesox",
+      "quote": "Official Chicago White Sox Website | MLB.com"
+     }
+    ],
+    "reason": "A second search does not agree it went unconfirmed (TRUE), so it waits. The Chicago White Sox officially announced the hiring of Brewers front-office executive Matt Roffe (director of amateur scouting) on 5 November 2026, per the Chicago Sun-Times.",
+    "sources_read": 6,
+    "sources_tried": 6,
+    "dropped_quotes": 1,
+    "search": {
+     "results": 33,
+     "error": null
+    },
+    "second_look": {
+     "answer": "TRUE",
+     "note": "The Chicago White Sox officially announced the hiring of Brewers front-office executive Matt Roffe (director of amateur scouting) on 5 November 2026, per the Chicago Sun-Times."
+    }
+   },
+   "evidence": null,
+   "independent": {
+    "model": "deepseek-ai/DeepSeek-V4.1-Flash-1017",
+    "answer": "TRUE",
+    "searched": 20,
+    "note": "The White Sox officially announced the hiring of Brewers front-office executive Matt Roffe as their director of amateur scouting on Thursday, 5 November 2026, as reported by Yardbarker/On Tap Sports Net and FutureSox."
+   },
+   "agrees": null
+  }
+ ]
+}

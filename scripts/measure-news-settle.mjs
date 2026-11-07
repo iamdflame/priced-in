@@ -21,7 +21,7 @@ import os from "node:os";
 import path from "node:path";
 import { readFeeds, proposeClaims, googleSearch, dateWords, isoDay, endOfDay, claimText, NO_THINKING } from "../services/ai/src/scout.js";
 import { runGate, reviewRequest, parseReviews, REVIEW_MODEL, searchResults } from "../services/ai/src/gate.js";
-import { findReceipts, firstPassing } from "../services/ai/src/settle.js";
+import { findReceipts, checkPassed } from "../services/ai/src/settle.js";
 import { checkReceipts, fetchSource } from "../services/ai/src/receipts.js";
 import { supportPanel } from "../services/ai/src/support.js";
 import { Attestor } from "../services/ai/src/nearai.js";
@@ -100,12 +100,11 @@ for (const r of lines) {
     out.pipeline = { outcome: f.outcome, basis: f.basis, when: f.when, receipts: f.receipts, reason: f.reason, sources_read: f.sources.filter((s) => !s.error).length, sources_tried: f.sources.length, dropped_quotes: f.dropped.length, search: f.search, second_look: f.second_look ?? null };
     out.evidence = f.evidence;
     if (f.evidence) {
-      const passed = await firstPassing((a) => checkReceipts({ ...a, fetchSource, support }), { claim: c.claim, claimed: f.outcome === "TRUE", variants: f.variants });
-      const check = passed.check;
-      out.receipt_check = { result: check.result, reason: check.reason, tries: passed.tries, support: check.support ? { verdict: check.support.verdict, unanimous: check.support.unanimous, answers: check.support.answers.map((a) => ({ model: a.model, answer: a.answer, verified: a.verified })) } : null };
-      out.jury_would_be_called = Boolean(passed.evidence);
-      // the jury reads what production would post; a line refused above is still asked, to see what a stranger's challenge would get
-      out.jury = await juryPanel(wrap("jury"), { claim: c.claim, evidence: passed.evidence || f.evidence, n: 950 + results.length });
+      const check = await checkReceipts({ claim: c.claim, evidence: f.evidence, claimed: f.outcome === "TRUE", fetchSource, support });
+      out.receipt_check = { result: check.result, reason: check.reason, support: check.support ? { verdict: check.support.verdict, unanimous: check.support.unanimous, answers: check.support.answers.map((a) => ({ model: a.model, answer: a.answer, verified: a.verified })) } : null };
+      out.jury_would_be_called = checkPassed(check);
+      // a line refused above is still asked, to see what a stranger's challenge would get
+      out.jury = await juryPanel(wrap("jury"), { claim: c.claim, evidence: f.evidence, n: 950 + results.length });
     }
   } catch (e) { out.error = String(e.message).slice(0, 300); }
   try {

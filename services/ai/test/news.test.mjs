@@ -7,7 +7,7 @@ import os from "node:os";
 import path from "node:path";
 import { parseRss, parseFeeds, readFeeds, claimText, dateWords, daysFrom, endOfDay, parseCandidates, scoutRequest, jsonIn, SCOUT_PROMPT, TOPICS, DEFAULT_FEEDS } from "../src/scout.js";
 import { aboutLater, spareNearOf, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
-import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, firstPassing, checkPassed } from "../src/settle.js";
+import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, checkPassed } from "../src/settle.js";
 import { parseEvidence, normForMatch, checkReceipts, newsDeadline } from "../src/receipts.js";
 import { supportRequest, ABSENCE_PROMPT, SUPPORT_PROMPT } from "../src/support.js";
 import { SignerClient, OPERATOR_METHODS, DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES, DAILY_REPORT_CHALLENGES, DAILY_OPENS, NEWS_PAGE } from "../src/signer.js";
@@ -386,15 +386,11 @@ test("a claim about a later year or season is refused in code: the spike's Apple
   assert.match(g.decisions[0].reason, /nobody can know that within days/);
 });
 
-test("the receipt check on each receipt alone: the panel reads only the first source, and it is never softened", async () => {
-  const pass = { result: "verified", support: { verdict: "supported" } }, no = { result: "verified", support: { verdict: "unsupported" } };
-  const asked = [];
-  const r = await firstPassing(async (a) => { asked.push(a.evidence); return a.evidence === "second" ? pass : no; }, { claim: "c", claimed: false, variants: ["both", "first", "second"] });
-  assert.deepEqual([r.evidence, r.tries, asked.length], ["second", 3, 3]);
-  const none = await firstPassing(async () => no, { claim: "c", claimed: false, variants: ["a", "b", "c", "d"] });
-  assert.deepEqual([none.evidence, none.tries], [null, 3], "at most three, then the line waits");
-  assert.equal(checkPassed({ result: "verified", support: { verdict: "unanswered" } }), false);
+test("what passes the receipt check: verified, and no panel against it or silent", () => {
+  assert.equal(checkPassed({ result: "verified", support: { verdict: "supported" } }), true);
   assert.equal(checkPassed({ result: "verified", support: null }), true);
+  assert.equal(checkPassed({ result: "verified", support: { verdict: "unsupported" } }), false);
+  assert.equal(checkPassed({ result: "verified", support: { verdict: "unanswered" } }), false);
   assert.equal(checkPassed({ result: "unfetchable" }), false);
 });
 

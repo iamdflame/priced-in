@@ -1,0 +1,343 @@
+{
+ "note": "The final run on the 14 claims of news-settle-test-run1.json: the claim's rule, the strict settler, the absence question and the second search. This is its printed log: the full file was overwritten by an earlier run that outlived being stopped, kept as news-settle-test-run3.json. Rows give each claim's line; the receipts are in the run's summary only.",
+ "summary": {
+  "at": "2026-11-07T02:41:47.378Z",
+  "method": "As-of scouting on Google News search feeds (after:/before:), the scout and the gate's code blocklist and second model as of that day; settling today with NEAR AI web search plus the settling source, the production receipt check with the attested support panel, the contract's jury request to the three models (two of three), and an independent web-search check by another model, blind to the rest. One run; nothing on-chain.",
+  "as_of": [
+   "2026-10-24",
+   "2026-10-29"
+  ],
+  "scouted": [
+   {
+    "as_of": "2026-10-24",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 1,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 8,
+    "refusals": [
+     {
+      "question": "Is Meta planning new non-voting shares?",
+      "at": "policy",
+      "reason": "Never priced: it touches who wins an election (\"voting\")."
+     },
+     {
+      "question": "Is Visa acquiring Fireblocks for $2.5bn?",
+      "at": "unconfirmed",
+      "reason": "Already denied today, judging by its headline: nobody would bet against it. The headline explicitly states that Fireblocks has denied the reports of the acquisition."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test-run1.json"
+   },
+   {
+    "as_of": "2026-10-29",
+    "headlines": 112,
+    "feeds": [
+     {
+      "feed": "football",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "sports",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "money",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "tech",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "entertainment",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "officials",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "crypto",
+      "ok": true,
+      "items": 14
+     },
+     {
+      "feed": "rumours",
+      "ok": true,
+      "items": 14
+     }
+    ],
+    "candidates": 10,
+    "refused": {
+     "shape": 0,
+     "policy": 1,
+     "unconfirmed": 3,
+     "settles": 0,
+     "duplicate": 0,
+     "capacity": 0
+    },
+    "passed": 6,
+    "refusals": [
+     {
+      "question": "Has Anthropic filed for an IPO?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that Anthropic has filed for an IPO, which is a completed action."
+     },
+     {
+      "question": "Is DOJ probing Nvidia's Hugging Face deal?",
+      "at": "policy",
+      "reason": "Never priced: it touches crime, arrests, investigations or court cases (\"investigat\")."
+     },
+     {
+      "question": "Has FINMA approved a Swiss retail Bitcoin ETF?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states that FINMA has 'Approved' the ETF, which is a completed regulatory action."
+     },
+     {
+      "question": "Has Bitwise filed an AVAX ETF with the SEC?",
+      "at": "unconfirmed",
+      "reason": "Already confirmed today, judging by its headline: nobody would bet against it. The headline states the filing was 'Submitted' to the SEC, which is a completed action."
+     }
+    ],
+    "reused_from": "deployments/news-settle-test-run1.json"
+   }
+  ],
+  "claims_settled_today": 14,
+  "pipeline": {
+   "true": 3,
+   "false": 6,
+   "unknown": 5,
+   "errors": 0,
+   "search_failed": 0
+  },
+  "definite": {
+   "true": {
+    "claims": 1,
+    "challenged": 1,
+    "jury_ruled": 1
+   },
+   "false": {
+    "claims": 13,
+    "challenged": 8,
+    "jury_ruled": 8
+   }
+  },
+  "receipts_verified": 9,
+  "receipt_results": {
+   "verified": 9
+  },
+  "jury_would_be_called": 9,
+  "jury_ruled": 9,
+  "jury_ruled_as_the_pipeline_claimed": 9,
+  "jury_matches_independent": 9,
+  "jury_differs_from_independent": 0,
+  "by_basis": {
+   "not_confirmed": {
+    "found": 5,
+    "receipts_verified": 5,
+    "support_ok": 5,
+    "jury_called": 5,
+    "jury_ruled_as_claimed": 5,
+    "jury_no_quorum": 0,
+    "matches_independent": 5,
+    "independent_known": 5
+   },
+   "late": {
+    "found": 1,
+    "receipts_verified": 1,
+    "support_ok": 1,
+    "jury_called": 1,
+    "jury_ruled_as_claimed": 1,
+    "jury_no_quorum": 0,
+    "matches_independent": 1,
+    "independent_known": 1
+   },
+   "confirmed": {
+    "found": 3,
+    "receipts_verified": 3,
+    "support_ok": 3,
+    "jury_called": 3,
+    "jury_ruled_as_claimed": 3,
+    "jury_no_quorum": 0,
+    "matches_independent": 3,
+    "independent_known": 3
+   }
+  },
+  "spend_usd": 0.2246,
+  "spend_by_step": {
+   "settle": 0.139,
+   "support": 0.0098,
+   "jury": 0.0035,
+   "independent": 0.0724
+  }
+ },
+ "rows": [
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Has DeepSeek raised $15bn from Tencent and CATL?"
+  },
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Is OpenAI seeking $30B at a $1.25T valuation?"
+  },
+  {
+   "pipeline": "UNKNOWN",
+   "receipt_check": "-",
+   "support": "-",
+   "jury": "-",
+   "independent": "TRUE",
+   "question": "Has Instacart discussed selling itself to DoorDash or Uber?"
+  },
+  {
+   "pipeline": "UNKNOWN",
+   "receipt_check": "-",
+   "support": "-",
+   "jury": "-",
+   "independent": "TRUE",
+   "question": "Is QatarEnergy in talks to buy Woodside LNG?"
+  },
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "unclear",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Have J&J and Smith+Nephew merger talks collapsed?"
+  },
+  {
+   "pipeline": "TRUE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "TRUE",
+   "independent": "TRUE",
+   "question": "Will the UK government approve the Jackdaw gas field?"
+  },
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Is Amazon's Mass Effect series still in production?"
+  },
+  {
+   "pipeline": "UNKNOWN",
+   "receipt_check": "-",
+   "support": "-",
+   "jury": "-",
+   "independent": "UNKNOWN",
+   "question": "Has Offset's 'GMFU' album moved to November?"
+  },
+  {
+   "pipeline": "TRUE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "TRUE",
+   "independent": "TRUE",
+   "question": "Will DoorDash announce a deal to buy Instacart?"
+  },
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Is OpenAI buying Google TPUs?"
+  },
+  {
+   "pipeline": "TRUE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "TRUE",
+   "independent": "TRUE",
+   "question": "Is Meta raising $95B for AI buildout?"
+  },
+  {
+   "pipeline": "UNKNOWN",
+   "receipt_check": "-",
+   "support": "-",
+   "jury": "-",
+   "independent": "TRUE",
+   "question": "Is Microsoft raising $25B in debt?"
+  },
+  {
+   "pipeline": "FALSE",
+   "receipt_check": "verified",
+   "support": "supported",
+   "jury": "FALSE",
+   "independent": "FALSE",
+   "question": "Is SK Hynix planning a $45B US chip plant?"
+  },
+  {
+   "pipeline": "UNKNOWN",
+   "receipt_check": "-",
+   "support": "-",
+   "jury": "-",
+   "independent": "UNKNOWN",
+   "question": "Has Colts WR Josh Downs requested a trade?"
+  }
+ ]
+}

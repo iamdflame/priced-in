@@ -21,7 +21,7 @@
 import { createHash } from "node:crypto";
 import { isoDay, dateWords, endOfDay, DEFAULT_FEEDS, parseFeeds } from "../../services/ai/src/scout.js";
 import { runGate, reserveFromState, spareNearOf } from "../../services/ai/src/gate.js";
-import { settleTiming, firstPassing } from "../../services/ai/src/settle.js";
+import { settleTiming, checkPassed } from "../../services/ai/src/settle.js";
 
 export const LINES = "news/lines.json";
 export const SCOUT_JOURNAL = "scout.jsonl";
@@ -293,10 +293,10 @@ export async function settleRound(d) {
     let note;
     if (f.outcome === "UNKNOWN" || !f.evidence) note = x.timing.due ? NOTE.unknown(f.reason) : NOTE.waiting(f.reason);
     else {
-      const { check, evidence } = await firstPassing(d.check, { claim: x.claim.text, claimed: f.outcome === "TRUE", variants: f.variants || [f.evidence] });
+      const check = await d.check({ claim: x.claim.text, evidence: f.evidence, claimed: f.outcome === "TRUE" });
       look.receipt_check = { result: check.result, support: check.support?.verdict ?? null };
-      const ok = Boolean(evidence);
-      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
+      const ok = checkPassed(check);
+      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence: f.evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
       note = ok ? null : NOTE.refused(check);
     }
     notes[x.meta.claim_id] = { last_look_at: nowMs, outcome: f.outcome, basis: f.basis, note, evidence_sha256: f.evidence ? sha(f.evidence) : null };
