@@ -136,6 +136,24 @@ export function newsEvidence({ line, outcome, basis, when, receipts, nowMs }) {
   return s;
 }
 
+/** Did a receipt check pass, as our jury runner would need it to? */
+export const checkPassed = (c) => c?.result === "verified" && !["unanswered", "unsupported"].includes(c?.support?.verdict);
+
+/**
+ * The receipt check on a line's evidence, then on each receipt alone until one passes. The panel is
+ * never made softer: a line that can't pass waits, because a wrong settlement pays the wrong people.
+ * @returns {Promise<{ check: object, evidence: string|null, tries: number }>}
+ */
+export async function firstPassing(check, { claim, claimed, variants, max = 3 }) {
+  let last = null, tries = 0;
+  for (const evidence of variants.slice(0, max)) {
+    tries++;
+    last = await check({ claim, evidence, claimed });
+    if (checkPassed(last)) return { check: last, evidence, tries };
+  }
+  return { check: last, evidence: null, tries };
+}
+
 /**
  * Find a line's outcome and its receipts. Never throws; spends at most one search and one model call.
  * @param {{ client: object, line: object, nowMs?: number, fetch?: typeof fetchSource, model?: string, searchModel?: string, search?: Function }} a
@@ -157,6 +175,11 @@ export async function findReceipts({ client, line, nowMs = Date.now(), fetch: ge
   Object.assign(out, { outcome: d.outcome, basis: d.basis, when: d.when, receipts: d.receipts, reason: d.reason, dropped: d.dropped });
   if (d.outcome !== "UNKNOWN" && !d.receipts.length) { out.outcome = "UNKNOWN"; out.reason = `No quote it gave is in its source word for word, so there is no receipt. ${d.reason}`.trim(); return out; }
   if (d.outcome === "TRUE" && d.when && d.when > line.settles.by) { out.outcome = past ? "FALSE" : "UNKNOWN"; out.basis = "late"; out.reason = `Confirmed on ${d.when}, after its date: that is a FALSE. ${d.reason}`.trim(); }
-  if (out.outcome !== "UNKNOWN") out.evidence = newsEvidence({ line, outcome: out.outcome, basis: out.basis, when: out.when, receipts: out.receipts, nowMs });
+  if (out.outcome !== "UNKNOWN") {
+    const ev = (receipts) => newsEvidence({ line, outcome: out.outcome, basis: out.basis, when: out.when, receipts, nowMs });
+    out.evidence = ev(out.receipts);
+    // the support panel reads the first source only: each receipt also gets its turn at being that source
+    out.variants = out.receipts.length > 1 ? [out.evidence, ...out.receipts.map((r) => ev([r]))] : [out.evidence];
+  }
   return out;
 }

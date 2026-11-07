@@ -6,8 +6,8 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { parseRss, parseFeeds, readFeeds, claimText, dateWords, daysFrom, endOfDay, parseCandidates, scoutRequest, jsonIn, SCOUT_PROMPT, TOPICS, DEFAULT_FEEDS } from "../src/scout.js";
-import { policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
-import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest } from "../src/settle.js";
+import { aboutLater, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
+import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, firstPassing, checkPassed } from "../src/settle.js";
 import { parseEvidence, normForMatch } from "../src/receipts.js";
 import { SignerClient, OPERATOR_METHODS, DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES, DAILY_REPORT_CHALLENGES, DAILY_OPENS, NEWS_PAGE } from "../src/signer.js";
 import { operatorKey } from "../src/keystore.js";
@@ -163,10 +163,11 @@ test("money: the opening price, the reserve the contract takes, and what the tre
   assert.ok(Math.abs(reserveMicro(1_450_000, 500_000) - 1_450_000 * Math.LN2) < 1_500, "b ln 2 at 50%");
   assert.ok(reserveMicro(1_450_000, 300_000) > reserveMicro(1_450_000, 500_000), "an opening away from 50% reserves more");
   assert.equal(reserveMicro(1_450_000, 100_000), reserveMicro(1_450_000, 200_000), "clamped to 20..80% as the contract clamps");
-  assert.equal(headroomMicro({ treasuryMicro: "10903809", reservedMicro: "44926047", capMicro: "47157427", floorMicro: 1_500_000 }), 2_231_380, "mainnet on 2026-11-07: the reserve cap binds");
-  assert.equal(headroomMicro({ treasuryMicro: "2000000", reservedMicro: "0", capMicro: "50000000", floorMicro: 1_500_000 }), 500_000, "the floor stays in the treasury");
-  assert.equal(headroomMicro({ treasuryMicro: "1000000", reservedMicro: "0", capMicro: "50000000", floorMicro: 1_500_000 }), 0);
-  assert.equal(headroomMicro({ treasuryMicro: null, reservedMicro: "0", capMicro: "1" }), null, "unknown is not zero: nothing opens");
+  assert.equal(headroomMicro({ treasuryMicro: "10903809", reservedMicro: "44926047", capMicro: "47157427", laneBudgetMicro: "9000000", floorMicro: 1_500_000 }), 403_809, "mainnet on 2026-11-07: $9 of the treasury is the free bets', so no line fits");
+  assert.equal(headroomMicro({ treasuryMicro: "60000000", reservedMicro: "44926047", capMicro: "47157427", laneBudgetMicro: "9000000", floorMicro: 1_500_000 }), 2_231_380, "funded, the reserve cap binds");
+  assert.equal(headroomMicro({ treasuryMicro: "2000000", reservedMicro: "0", capMicro: "50000000", laneBudgetMicro: "0", floorMicro: 1_500_000 }), 500_000, "the floor stays in the treasury");
+  assert.equal(headroomMicro({ treasuryMicro: "1000000", reservedMicro: "0", capMicro: "50000000", laneBudgetMicro: "0", floorMicro: 1_500_000 }), 0);
+  assert.equal(headroomMicro({ treasuryMicro: "1000000", reservedMicro: "0", capMicro: "1" }), null, "unknown is not zero: nothing opens");
 });
 
 test("the reserve cap comes from the market's raw state: the fields before it are skipped by their lengths", () => {
@@ -200,7 +201,7 @@ test("the gate: every candidate gets one result, refusals say which check and wh
     candidates: c, nowMs: NOW,
     review: async (list) => { reviewed = list.map((x) => x.id); return list.map((x) => reviews[x.id] || { refuse: false, category: null, status: "unconfirmed", settles_in_time: true, definite: false, reason: "" }); },
     verify: async (x) => { verified.push(x.id); return x.id === "webconf" ? { status: "confirmed", sources: [{ url: "https://about.netflix.com/x" }], note: "Netflix announced it." } : { status: "unconfirmed", sources: [], note: null }; },
-    open: [], capacity: { treasuryMicro: "4000000", reservedMicro: "0", capMicro: "100000000" }, floorMicro: 1_500_000, perDay: 2, spare: 1, bMicro: 1_450_000,
+    open: [], capacity: { treasuryMicro: "6000000", reservedMicro: "0", capMicro: "100000000", laneBudgetMicro: "2000000" }, floorMicro: 1_500_000, perDay: 2, spare: 1, bMicro: 1_450_000,
   });
   const by = Object.fromEntries(g.decisions.map((d) => [d.id, [d.status, d.failed]]));
   assert.deepEqual(by, {
@@ -217,9 +218,9 @@ test("the gate: every candidate gets one result, refusals say which check and wh
   assert.equal(CHECKS.reduce((n, k) => n + g.counts[`refused_${k}`], 0) + g.counts.passed, 9, "every candidate is counted once");
   const none = await runGate({ candidates: [cand({ id: "x" })], nowMs: NOW, review: async () => [{ refuse: false, status: "unconfirmed", settles_in_time: true }], verify: null, capacity: null });
   assert.match(none.decisions[0].reason, /could not be read/, "unknown money opens nothing");
-  const broke = await runGate({ candidates: [cand({ id: "y" })], nowMs: NOW, review: async () => { throw new Error("spend cap"); }, verify: null, capacity: { treasuryMicro: "9000000", reservedMicro: "0", capMicro: "9000000" } });
+  const broke = await runGate({ candidates: [cand({ id: "y" })], nowMs: NOW, review: async () => { throw new Error("spend cap"); }, verify: null, capacity: { treasuryMicro: "9000000", reservedMicro: "0", capMicro: "9000000", laneBudgetMicro: "0" } });
   assert.deepEqual([broke.decisions[0].failed, /spend cap/.test(broke.decisions[0].reason)], ["policy", true], "no review, no line");
-  const definite = await runGate({ candidates: [cand({ id: "z" })], nowMs: NOW, requireDefinite: true, review: async () => [{ refuse: false, status: "unconfirmed", settles_in_time: true, definite: false }], verify: null, capacity: { treasuryMicro: "9000000", reservedMicro: "0", capMicro: "9000000" } });
+  const definite = await runGate({ candidates: [cand({ id: "z" })], nowMs: NOW, requireDefinite: true, review: async () => [{ refuse: false, status: "unconfirmed", settles_in_time: true, definite: false }], verify: null, capacity: { treasuryMicro: "9000000", reservedMicro: "0", capMicro: "9000000", laneBudgetMicro: "0" } });
   assert.equal(definite.decisions[0].failed, "settles", "NEWS_REQUIRE_DEFINITE asks for an event that settles it either way");
 });
 
@@ -373,4 +374,25 @@ test("the writer leaves news pages alone: a day of news lines is not a paragraph
   const claims = { one: async () => ({ id: 5, page: "news-2026-11-07", text: "x" }), byPage: async () => { throw new Error("it must not read the page"); } };
   const w = new Writer({ client: { hasKey: false }, model: null, store: new RewriteStore(), hub: { publish() {} }, claims, journal: { read: () => [], append() {}, rewrite() {} } });
   assert.equal(await w.onTrade({ data: { claim_id: 5 } }), null);
+});
+
+test("a claim about a later year or season is refused in code: the spike's Apple rumour can't settle in days", async () => {
+  assert.equal(aboutLater(cand({ claim: "By 14 November 2026, Apple confirms that it will drop the Action Button on next year's models." }), NOW), "next year's");
+  assert.equal(aboutLater(cand({ question: "Will the deal close in 2027?" }), NOW), "2027");
+  assert.equal(aboutLater(cand({ question: "Did the deal close in 2026?" }), NOW), null);
+  const g = await runGate({ candidates: [cand({ id: "apple", question: "Will Apple drop the Action Button next year?" })], nowMs: NOW, review: async () => { throw new Error("no model call for this"); }, verify: null, capacity: null });
+  assert.equal(g.decisions[0].failed, "settles");
+  assert.match(g.decisions[0].reason, /nobody can know that within days/);
+});
+
+test("the receipt check on each receipt alone: the panel reads only the first source, and it is never softened", async () => {
+  const pass = { result: "verified", support: { verdict: "supported" } }, no = { result: "verified", support: { verdict: "unsupported" } };
+  const asked = [];
+  const r = await firstPassing(async (a) => { asked.push(a.evidence); return a.evidence === "second" ? pass : no; }, { claim: "c", claimed: false, variants: ["both", "first", "second"] });
+  assert.deepEqual([r.evidence, r.tries, asked.length], ["second", 3, 3]);
+  const none = await firstPassing(async () => no, { claim: "c", claimed: false, variants: ["a", "b", "c", "d"] });
+  assert.deepEqual([none.evidence, none.tries], [null, 3], "at most three, then the line waits");
+  assert.equal(checkPassed({ result: "verified", support: { verdict: "unanswered" } }), false);
+  assert.equal(checkPassed({ result: "verified", support: null }), true);
+  assert.equal(checkPassed({ result: "unfetchable" }), false);
 });

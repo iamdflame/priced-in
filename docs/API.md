@@ -459,6 +459,171 @@ A challenge our jury refused stays `jury` until its deadline, unless someone els
 
 The Sentinel's minute (`vercel.json`, `* * * * *`). Only Vercel's cron can call it: it needs `Authorization: Bearer <CRON_SECRET>`, and anything else gets 401. With no bond held on the market it costs one `stats` view call and answers `{"ok":true,"idle":true,...}`. Otherwise it looks at every live challenge and answers `{ok, at, live, disputed, blocked, errors, sentinel, ms}`. Its record goes to the store's `sentinel/ledger.json`, which `GET /api/rulings` reads.
 
+### Today's claims, picks, reports and the board (`NEWS_ENABLED=1`)
+
+**Off by default.** Everything in this section exists only when the API project has `NEWS_ENABLED=1`. Without it, every path below answers `404 not_found` as before, `GET /api/news` answers `{"ok":true,"off":true}` and does nothing, `/api/claims` carries no `news` field, and `/health` is unchanged. To turn it on: put `NEWS_ENABLED=1` in `.env` and run `node scripts/vercel/secrets.mjs --network mainnet`, then redeploy (`NEWS_ENABLED=0` there removes it again). Code: `api/_lib/news.mjs`, `api/_lib/picks.mjs`, `api/_lib/today-routes.mjs`, `api/news.mjs`, `services/ai/src/scout.js`, `gate.js`, `settle.js`. Tests: `services/api/test/today.test.mjs`, `services/ai/test/news.test.mjs`.
+
+**What a news line is.** A claim from today's news that nobody had confirmed when it opened, with its deadline and its settling source inside the text the jury reads, for example `By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production. Reports citing unnamed sources don't count.` Every line ends with the rule "Reports citing unnamed sources don't count.", so the jury and the support panel apply it too. It is an ordinary market on the chain: page `news-YYYY-MM-DD` (the day it opened), kind `document` on the chain (the contract accepts only `data`, `document` and `judgment`; the API says `kind: "news"`), opened by the keeper's `open_claim` key at the scout's first estimate (clamped to 20..80%) with `NEWS_B_MICRO` of liquidity ($1.45 by default). It settles TRUE when the named source confirms it on or before the date, FALSE when the date passes without that or the source denies it. The question, topic, headline, settling source and first estimate live in the store (`news/lines.json`); every candidate the scout proposed, opened or refused, with the check that stopped it, is in the `scout.jsonl` journal.
+
+**The settings.** `NEWS_PER_DAY` (4), `NEWS_B_MICRO` (1450000), `NEWS_SCOUT_HOURS_UTC` (`6,18`), `NEWS_TREASURY_FLOOR_MICRO` (1500000: kept in the treasury, on top of the lane budget, which pays the free bets), `NEWS_WEB_VERIFY` (on; `0` skips the web check), `NEWS_REQUIRE_DEFINITE` (off; `1` passes only claims with an event due that settles them either way), `NEWS_SETTLE_GRACE_H` (6), `NEWS_EARLY_LOOK_H` (24), `NEWS_DUE_LOOK_H` (12: how often a due line that can't settle yet is looked at again), `NEWS_SETTLE_PER_RUN` (3), `NEWS_SPEND_SHARE` (50: news stops at this percent of `NEARAI_DAILY_CAP_USD`, so the jury, the writer and the agents always have the rest), `NEWS_FEEDS` (extra feeds, `id|https://...|why;...`), `NEWS_SCOUT_MODEL`, `NEWS_REVIEW_MODEL`, `NEWS_VERIFY_MODEL`. The signer's own caps: `SIGNER_DAILY_NEWS_OPENS` (6), `SIGNER_DAILY_NEWS_CHALLENGES` (8), `SIGNER_DAILY_REPORT_CHALLENGES` (2), counted apart from the corrected lines' `SIGNER_DAILY_OPENS` and the sitting's `SIGNER_DAILY_CHALLENGES`. Limits per UTC day: `PICKS_PER_KEY_PER_DAY` (60), `PICKS_PER_IP_PER_DAY` (400), `PROFILES_PER_KEY_PER_DAY` (5), `PROFILES_PER_IP_PER_DAY` (60), `REPORTS_PER_KEY_PER_DAY` (3), `REPORTS_PER_IP_PER_DAY` (10); `LEADERBOARD_MIN_SETTLED` (5).
+
+**Signing.** Picks, nicknames and reports are signed by the ed25519 key the browser already holds for the free bet (`site/lib/core/lane.ts`; the same key, `ed25519:<base58>`). The browser signs the UTF-8 bytes of one exact message and sends the signature as 128 hex characters (or 88 base64). `issued_at` is the browser's clock in ms and must be within 10 minutes of the server's. With near-api-js:
+
+```
+const kp = KeyPair.fromString(savedSecret);                       // the lane key
+const issued_at = Date.now();
+const message = `pricedin|pick|v1|mainnet|${claim_id}|${side}|${issued_at}`;
+const sig = kp.sign(new TextEncoder().encode(message)).signature;          // Uint8Array(64)
+const signature = [...sig].map((b) => b.toString(16).padStart(2, "0")).join("");
+fetch("/api/picks", { method: "POST", headers: { "content-type": "application/json" },
+  body: JSON.stringify({ public_key: kp.getPublicKey().toString(), claim_id, side, issued_at, signature }) });
+```
+
+| What | The message |
+|---|---|
+| A pick | `pricedin\|pick\|v1\|<network>\|<claim_id>\|<yes or no>\|<issued_at>` |
+| A nickname | `pricedin\|profile\|v1\|<network>\|<nickname, as sent after trimming>\|<issued_at>` |
+| A report | `pricedin\|report\|v1\|<network>\|<claim_id>\|<false or true>\|<sha256 hex of JSON.stringify([url, quote, note])>\|<issued_at>` |
+
+`<network>` is `mainnet` on isitpriced.com. A bad signature is `401 bad_signature` with the message the server expected; a stale one is `400 stale_signature`.
+
+#### `GET /api/today`
+
+Today's lines first (opened in the last 24 hours and still open), then the open ones settling soonest, then the ones decided in the last 7 days, newest first. CDN-cached for 5 s.
+
+```
+{"as_of":1794045600000,"date":"2026-11-07",
+ "counts":{"today":1,"settling":2,"decided":1},
+ "next_scout_at":1794088500000,
+ "lines":[{
+   "claim_id":40,"section":"today","kind":"news",
+   "question":"Is Tesla ending Cybertruck production?",
+   "claim":"By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production.",
+   "topic":"Tech","why":"Tesla's most talked-about truck",
+   "source":{"headline":"Tesla Is Ending Production of Its Cybertruck - The New York Times","url":"https://news.google.com/rss/articles/…","outlet":"The New York Times","published_at":1794038400000},
+   "settles":{"by":"2026-11-13","by_words":"13 November 2026","due_at":1794614400000,"source":"Tesla's newsroom or an SEC filing","source_url":"https://ir.tesla.com/press","event":"Tesla announces the end of production, or says it continues","rule":"By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production."},
+   "first_estimate":0.45,
+   "price_yes":0.45,"price_yes_ppm":450000,"trades":0,"volume_usd":0,"open_interest_usd":0,"liquidity_b_usd":1.45,
+   "cost_to_move":{"up_10_points_usd":0.38,"down_10_points_usd":0.33},
+   "status":"open","chain_status":"Open","outcome":null,"decided_at":null,"ruling":null,
+   "settler":null,
+   "picks":{"yes":2,"no":1,"total":3},
+   "bounty_usd":0,"opened_at":1794038700000,"open_tx":"8dZz…","url":"/c/40"}],
+ "rules":{"lines":"Each line is a claim from today's news that nobody had confirmed when it opened. …","picks":"Picks are free and win nothing: no purchase, no prize, no payout. …"},
+ "asOf":1794045600512}
+```
+
+| Field | Meaning |
+|---|---|
+| `section` | `today`, `settling` or `decided`. |
+| `status` | `open` (takes bets and picks), `ruling` (a challenge is live: no picks) or `decided`. `chain_status` is the market's own (`Open`, `Challenged`, `Escalated`, `Settled`). |
+| `outcome`, `decided_at` | `"true"`, `"false"` or null; the settle event's time in ms. |
+| `ruling` | `{challenge_id, provisional}` while a challenge is live, else null. |
+| `settles.due_at` | The end of the settle-by day (UTC), in ms: picks close then, and the settler looks after `NEWS_SETTLE_GRACE_H` more. |
+| `settler` | null before the settler looked; else `{last_look_at, note, challenge_id}`, `note` one plain sentence (for example "Waiting for its date: the source may still confirm it."). |
+| `picks` | Free picks on the line, first pick per key. |
+| `first_estimate` | The scout's honest first estimate, 0..1; the line opened there (clamped to 20..80%). |
+
+#### `GET /v1/today`
+
+The same lines, compact, free with no key, cached for a minute, for a publisher to show or embed. Each line has the existing embed's iframe and script (`/embed/<id>`, `/embed.js`).
+
+```
+{"name":"Priced In: today's claims","network":"mainnet","contract":"market.isitpriced.near","as_of":"2026-11-07T10:00:00.000Z",
+ "lines":[{"claim_id":40,"question":"Is Tesla ending Cybertruck production?","claim":"By 13 November 2026, …","topic":"Tech",
+   "odds":{"yes":0.45,"no":0.55},"status":"open","outcome":null,"settles_by":"2026-11-13","settling_source":"Tesla's newsroom or an SEC filing",
+   "headline":"Tesla Is Ending Production of Its Cybertruck - The New York Times","headline_url":"https://news.google.com/rss/articles/…",
+   "url":"https://isitpriced.com/c/40",
+   "embed":{"iframe":"https://isitpriced.com/embed/40","script":"<script src=\"https://isitpriced.com/embed.js\" data-fact=\"40\" async></script>"}}],
+ "count":1,
+ "terms":"Free, no key. Cached for a minute. …"}
+```
+
+**The truth API answers about news lines too.** `/v1/credence` (and so the MCP `ask` and `get_claim`, and x402) finds a news line by its claim or by its question, and its answer carries `news`: `{kind, question, topic, why, source, settles, first_estimate, opened_at, open_tx, coverage}` (the same `source` and `settles` as above; `coverage` is the links the gate's web check read, which the house agents use as sources). `/api/claims` and `/api/claims/<id>` carry the same `news` field on news lines and no new field on any other claim.
+
+#### `POST /api/picks` and `GET /api/picks?key=` / `?claim=`
+
+A free Yes or No on an open line, signed. No wallet, no money, no prize. The first pick on a line is final: the same pick again answers `200` with `duplicate: true`; the other side answers `409 already_picked`. A line takes picks while it is `Open` on the chain and, for a news line, before the end of its settle-by day. Body:
+
+```
+{"public_key":"ed25519:6237QdS6SP63oys9apSKnmMN9bkcF3MBNyV7dUHr16eT","claim_id":40,"side":"yes","issued_at":1794045600000,"signature":"<128 hex>"}
+```
+
+`200 {"ok":true,"pick":{"claim_id":40,"side":"yes","at":1794045600400,"price_yes_ppm":450000},"rules":"Picks are free and win nothing: …"}`. The market's price at that moment is kept with the pick: it sets the points a right pick earns.
+
+Refusals: `400` `invalid_public_key`, `invalid_claim_id`, `invalid_side`, `invalid_signature`, `invalid_issued_at`, `stale_signature`; `401 bad_signature`; `404 no_such_claim`; `409 line_closed` (settled, a ruling running, or the date passed: the message says which) or `already_picked` (with `pick`); `429 rate_limited` with `retryAfterS`.
+
+`GET /api/picks?key=<public key>`: `{key, nickname, name, stats, picks, rules}`. `stats` is all-time: `{accuracy, settled, right, points, streak: {current, best}, picks_today, picks_total, open_picks, caught, ranked, min_settled}` (`accuracy` is null before any pick settles). Each pick: `{claim_id, side, at, price_yes_ppm, question, claim, state, points, settled_at, message, signature}`, `state` one of `open`, `ruling`, `right`, `wrong`.
+
+`GET /api/picks?claim=<id>`: everyone's picks on one line, published so anyone can check them: `{claim_id, yes, no, total, picks: [{key, name, side, at, price_yes_ppm, message, signature}], verify}`, the newest 200.
+
+#### `POST /api/profile` and `GET /api/profile?key=`
+
+A nickname, signed the same way: 3 to 20 characters of letters, digits, spaces, dots, dashes and underscores, with a letter. Slurs and profanity are refused (`400 nickname_refused`), and so is anything that could pass for Priced In or one of its AIs (`400 nickname_reserved`: Priced In, admin, official, Checker, Sentinel, the Archivist, the Skeptic, the Quant, and the like). The first key to take a name keeps it (`409 nickname_taken`, compared without case, spaces or look-alike digits). Body `{public_key, nickname, issued_at, signature}`; `200 {"ok":true,"key":"ed25519:…","nickname":"Diego"}`. `GET` answers `{key, nickname, name, stats, rules}`; `name` is the nickname or `Visitor` and the start of the key.
+
+#### `GET /api/leaderboard?period=week|month|all`
+
+People and the three house AI traders side by side, so "you against the AIs" counts the same thing for both. A person's pick is their first pick on a line; an AI's pick is its first buy on a line, at the price just before that buy. A pick counts in the period its line settled in (`week` is the last 7 days, `month` the last 30). Ranked once an entry has `min_settled` settled picks in the period: by accuracy, then by how many settled, then by points. A right pick earns `round(100 × (1 − the price of its side when picked))` points, at least 1, so calling what the market doubted earns more; a wrong one earns 0. A verified catch the jury upheld adds 1 to `caught` and 100 points. CDN-cached for 15 s.
+
+```
+{"period":"week","window":{"from":1793440800000,"to":1794045600000},"min_settled":5,
+ "board":[{"rank":1,"kind":"ai","id":"h-quant.isitpriced.near","name":"Quant","accuracy":1,"settled":6,"right":6,"points":300,"streak":{"current":6,"best":6},"picks_today":0,"picks_total":6,"open_picks":0,"caught":0,"ranked":true},
+          {"rank":2,"kind":"person","id":"ed25519:6237…","name":"Diego","accuracy":0.833,"settled":6,"right":5,"points":250,"streak":{"current":0,"best":5},"picks_today":2,"picks_total":8,"open_picks":2,"caught":0,"ranked":true}],
+ "waiting":[{"kind":"person","id":"ed25519:9Fx…","name":"Visitor 9FxQ2a","accuracy":1,"settled":2,"right":2,"points":150,"streak":{"current":2,"best":2},"picks_today":1,"picks_total":3,"open_picks":1,"caught":1,"ranked":false,"needs":3}],
+ "ai":[{"kind":"ai","id":"h-quant.isitpriced.near","name":"Quant","rank":1,…},{"kind":"ai","id":"h-skeptic.isitpriced.near","name":"Skeptic","rank":null,…}],
+ "you_vs_ai":{"best_ai":{"id":"h-quant.isitpriced.near","name":"Quant","accuracy":1,"settled":6,"rank":1},"people_ranked":1,"people_ahead_of_best_ai":0},
+ "totals":{"people":2,"picks":11,"ai_picks":8,"settled_picks":14,"catches_upheld":1},
+ "rules":"Picks are free and win nothing: no purchase, no prize, no payout, no sweepstakes. …",
+ "asOf":1794045600512}
+```
+
+`waiting` lists people short of `min_settled` (the 50 closest), each with `needs`. `ai` always lists every house AI trader, with its `rank` or null. The AI traders are `h-archivist`, `h-skeptic` and `h-quant` under the market's owner, named from their own answers; `LEADERBOARD_AI=account=Name,...` replaces the list.
+
+#### `POST /api/reports` and `GET /api/reports?id=|key=|claim=`
+
+Catch a mistake: the free path. A line (any open line, news or Wikipedia), a public page and the exact words from it, and a note, signed. Body:
+
+```
+{"public_key":"ed25519:…","claim_id":7,"says":"false","url":"https://tether.io/news/…","quote":"the exact words from that page, 3 or more words","note":"Why the line is wrong (optional, 600 characters)","issued_at":1794045600000,"signature":"<128 hex>"}
+```
+
+`says` is `false` (the line is wrong, the default) or `true`. `202 {"ok":true,"report":{…,"status":"received"},"next":"GET /api/reports?id=<id>"}`. One report at a time per line: `409 already_reported` while one is being checked or ruled on. A note or quote with a slur or a profanity is refused (`400 report_refused`). Then, within minutes (and on the hourly run): the receipt check runs on it, exactly as our jury runner checks a challenge (the page fetched, the words found at it, then the three attested models asked whether the page supports the report). If it passes, our Checker challenges the line with the reader's receipt and its own $1 bond, under `SIGNER_DAILY_REPORT_CHALLENGES`, and the jury is called at once. The evidence on-chain is their page and their exact words and nothing else: the note stays in our store, so free text never goes on-chain under our Checker's key and can't add a source to what the check reads.
+
+Each report: `{id, key, claim_id, says, url, quote, note, at, status, reason, challenge_id, challenge_tx, decided_at, check, message, signature}`, `check` `{result, support}` once checked. `status`, with `reason` in plain words:
+
+| `status` | Meaning |
+|---|---|
+| `received` | Waiting for the check. |
+| `retry` | The page couldn't be read or the models didn't answer; it runs again (twice at most). |
+| `refused` | The check failed. `reason` says why: "We couldn't find those exact words at that page. …", "We couldn't read that page …", "The words are on that page, but our three AI checkers found the page doesn't show the line is wrong." |
+| `verified` | It passed; the challenge is next. |
+| `challenged`, `ruling` | The Checker challenged with it; the jury is ruling. |
+| `upheld` | The line settled the reader's way: a catch, on the leaderboard. |
+| `rejected` | It settled the other way. |
+| `expired` | The ruling ran out of time without a decision. |
+| `closed` | The line stopped taking challenges before we could act. |
+
+#### `GET /api/challenge?claim=<id>`
+
+The money path: what a wallet needs to challenge a line itself with its own bond (`challenge` on the market), the line's bounty, and what happens next.
+
+```
+{"claim_id":7,"claim":"…","status":"Open","open":true,"why_not":null,
+ "call":{"contract":"market.isitpriced.near","method":"challenge","args":{"claim_id":7,"claimed_outcome":false,"evidence":"<your receipt: see evidence>"},"deposit":"0","gas_tgas":30},
+ "bond":{"micro":"1000000","usd":1,"from":"Your balance in the market. Deposit USDC first: ft_transfer_call to market.isitpriced.near with msg \"\". The free $1 can't be a bond: lane keys can't challenge."},
+ "evidence":{"max_bytes":4000,"format":"…\"Source: <a public https:// page>\" … \"Receipt excerpt: \"<the exact words from that page>\"\" …","checked":"…"},
+ "claimed_outcome":"false if the line is wrong; true if it is right and you want it settled TRUE.",
+ "after":"POST /api/after-challenge {txHash, signerId}: three AI judges rule within minutes. …",
+ "outcomes":{"right":"Your bond comes back, the line's bounty is yours if it has one, …","wrong":"Your bond goes to whoever was right (the treasury, if nobody disputed)."},
+ "bounty":{"usd":0,"pays":"the first challenger whose claimed outcome wins","fund":{"contract":"market.isitpriced.near","method":"fund_question","args":{"claim_id":7,"amount_micro":"<at least 10000>"},"note":"…"}}}
+```
+
+A news line's answer also carries its `settles`. Nothing here funds a bounty: `bounty.usd` is what the line holds, from `bounty_micro` on the chain.
+
+#### `GET /api/news` (the cron)
+
+Hourly (`vercel.json`, `5 * * * *`), and `POST /api/news?job=reports` from this API when a report arrives. Only Vercel's cron and this API can call it: `Authorization: Bearer <CRON_SECRET>`, else 401. With `NEWS_ENABLED` unset it answers `{"ok":true,"off":true,…}` and does nothing. On, one round: readers' reports waiting for their check; at `NEWS_SCOUT_HOURS_UTC`, the scout; then news lines that came due (or an early look for a confirmation). Model work stops at `NEWS_SPEND_SHARE` of the day's cap. It answers `{ok, at, job, reports, settle, scout, ms, spend}`; `scout` is `{slot, headlines, candidates, passed, opened: [{claim_id, tx, question}], refused: {<check>: n}, headroom_usd, feeds_failed, errors}`. `?job=scout&force=1` runs the scout outside its hours (once per hour slot). Model calls count against `NEARAI_DAILY_CAP_USD`. The writer never rewrites a news page: a day's news lines are not a paragraph.
+
 ## services/ai (mounted on services/api by `services/ai/src/mount.js`)
 
 ### `GET /ai/status`

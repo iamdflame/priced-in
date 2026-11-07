@@ -21,7 +21,7 @@
 import { createHash } from "node:crypto";
 import { isoDay, dateWords, endOfDay, DEFAULT_FEEDS, parseFeeds } from "../../services/ai/src/scout.js";
 import { runGate, reserveFromState } from "../../services/ai/src/gate.js";
-import { settleTiming } from "../../services/ai/src/settle.js";
+import { settleTiming, firstPassing } from "../../services/ai/src/settle.js";
 
 export const LINES = "news/lines.json";
 export const SCOUT_JOURNAL = "scout.jsonl";
@@ -112,7 +112,7 @@ export const forgetCachedLines = () => { cached = { at: 0, value: null, pending:
 // ---------- the chain's money ----------
 
 /**
- * Treasury, reserved and the reserve cap. `stats` gives the first two; the cap lives only in the
+ * Treasury, reserved, the lane budget and the reserve cap. `stats` gives three; the cap lives only in the
  * market's STATE, read raw. Null when either read fails: the gate then opens nothing.
  * @param {{ call: (method: string, params: object, o?: object) => Promise<any>, viewFunction: Function }} rpc
  */
@@ -125,7 +125,7 @@ export async function readCapacity(rpc, marketId) {
     const v = (raw?.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
     if (!v) return null;
     const st = reserveFromState(Buffer.from(v.value, "base64"));
-    return { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), capMicro: st.capMicro };
+    return { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), capMicro: st.capMicro, laneBudgetMicro: String(stats.lane_budget_micro) };
   } catch { return null; }
 }
 
@@ -291,10 +291,10 @@ export async function settleRound(d) {
     let note;
     if (f.outcome === "UNKNOWN" || !f.evidence) note = x.timing.due ? NOTE.unknown(f.reason) : NOTE.waiting(f.reason);
     else {
-      const check = await d.check({ claim: x.claim.text, evidence: f.evidence, claimed: f.outcome === "TRUE" });
+      const { check, evidence } = await firstPassing(d.check, { claim: x.claim.text, claimed: f.outcome === "TRUE", variants: f.variants || [f.evidence] });
       look.receipt_check = { result: check.result, support: check.support?.verdict ?? null };
-      const ok = check.result === "verified" && !["unanswered", "unsupported"].includes(check.support?.verdict);
-      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence: f.evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
+      const ok = Boolean(evidence);
+      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
       note = ok ? null : NOTE.refused(check);
     }
     notes[x.meta.claim_id] = { last_look_at: nowMs, outcome: f.outcome, basis: f.basis, note, evidence_sha256: f.evidence ? sha(f.evidence) : null };

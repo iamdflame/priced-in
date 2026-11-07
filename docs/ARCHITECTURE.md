@@ -125,6 +125,36 @@ Its tests are `site/tests/unit/core/`; `npm run site:test` runs them with the re
 
 `npm run site:dev` runs it locally against the live API (`http://localhost:3100`).
 
+## Today's claims: news lines, free picks, reports and the board (`NEWS_ENABLED=1`)
+
+Off unless the API project has `NEWS_ENABLED=1`; off, none of it runs and no route of it exists. Shapes: [API.md](API.md#todays-claims-picks-reports-and-the-board-news_enabled1).
+
+```
+ hourly: GET /api/news (api/news.mjs)                          the browser (its lane key signs)
+   |                                                              |
+   |  at 06:00 and 18:00 UTC: the scout                            |  POST /api/picks, /api/profile, /api/reports
+   |    feeds -> scout model (scout.js) -> the gate (gate.js):     |  GET  /api/today, /api/leaderboard, /api/challenge
+   |    shape, blocklist in code, a second model, a web search,    v
+   |    duplicates, capacity (stats + the market's raw STATE)   api/_lib/today-routes.mjs: picks.jsonl, profiles.jsonl,
+   |    -> signer open_news (keeper key, news-YYYY-MM-DD page)     reports.jsonl (signed records), news/lines.json
+   |  every hour: the settler                                        |
+   |    due lines -> receipts (settle.js) -> the receipt check       |  a report: the receipt check, then the Checker
+   |    and support panel (receipts.js, support.js) -> signer        |  challenges with the reader's receipt
+   |    challenge_news (Checker key) -> POST /api/after-challenge -> the jury -> the keeper finalizes (unchanged)
+```
+
+| Part | Where | What it does |
+|---|---|---|
+| The scout | `services/ai/src/scout.js` | Reads the feeds (each with its reason in `DEFAULT_FEEDS`), numbers the headlines, and asks one model (DeepSeek V4.1 Flash, reasoning off) for claims still unconfirmed today that a named source settles within 7 days. The code builds the claim text with the date first, so the rule and the deadline are what the jury reads. |
+| The gate | `services/ai/src/gate.js` | `runGate`: shape; the blocklist in code (`BLOCKLIST`, plus result words on sports lines and price lines on money lines); a second model (Qwen3.8 27B) asked to refuse and to say whether it is confirmed already; a web search per survivor (GLM 5.3 Flash with NEAR AI web search); duplicates of open lines; capacity: `NEWS_PER_DAY`, and each line's reserve, `b · max(ln 1/p0, ln 1/(1−p0))`, against the smaller of what is left under the reserve cap and the treasury above the lane budget (it pays every free $1, so news lines never eat a free bet) and `NEWS_TREASURY_FLOOR_MICRO`. `stats` has no reserve cap, so it is read from the market's raw `STATE` (`reserveFromState`). Unknown money opens nothing. |
+| Opening | `api/_lib/news.mjs` `scoutRound`, `openPassed` | Once per scout slot (compare-and-swap on `news/lines.json`), then each line that passed through the signer's `open_news` (the keeper's existing `open_claim` key; only `news-YYYY-MM-DD` pages; its own daily cap), at the scout's first estimate. The contract accepts kinds `data`, `document` and `judgment` only, so the chain says `document` and the API says `news`. Every candidate goes to `scout.jsonl` with its result. |
+| Settling | `services/ai/src/settle.js`, `api/_lib/news.mjs` `settleRound` | A line whose settle-by day has ended (plus `NEWS_SETTLE_GRACE_H`), or an early look every `NEWS_EARLY_LOOK_H`: one web search plus the settling source's own page, each fetched exactly as the receipt check fetches; one model picks TRUE, FALSE or UNKNOWN with quotes, and only quotes found word for word count. Confirmed means the named source itself said it; a report citing unnamed sources is not a confirmation, and every line's text says so. The receipt check and the support panel then run on that evidence, as our jury runner would; only if they pass does the Checker challenge (`challenge_news`, its own daily cap; only open news lines), and the jury is called at once. Finalizing is the keeper's existing round. |
+| Picks, nicknames, reports | `api/_lib/picks.mjs`, `api/_lib/today-routes.mjs` | Signed by the browser's lane key over one exact message (`pickMessage`, `profileMessage`, `reportMessage`), checked with ed25519, kept in journals anyone can read back with their signatures. Rate limits per key and per network go through the store. A report runs the receipt check and the support panel (`POST /api/news?job=reports`, and hourly); one that passes is challenged by the Checker (`challenge_report`, its own cap). |
+| The board | `api/_lib/picks.mjs` `leaderboard` | People and the three house AI traders side by side: a person's first pick on a line, an AI's first buy on a line, each at the price before it, scored when the line settles on-chain. |
+| The sitting | `api/_lib/keeper.mjs` `ofSitting` | A news line's ruling and a report's never count as the day's sitting or hold it up: the sitting runs as before. |
+| Model budget | `api/news.mjs` | News stops at `NEWS_SPEND_SHARE` (50%) of `NEARAI_DAILY_CAP_USD`, so it can't starve the jury, the writer or the agents. A due line that can't settle yet is looked at every `NEWS_DUE_LOOK_H`, not every hour. The writer skips news pages. |
+| The AI traders | `services/ai/src/agents.js` | A news line has no curated page, and the hosted agents have no web search: their sources are the coverage links the gate's web check read (`news.coverage`). |
+
 ## The truth API and MCP
 
 - `GET /v1/credence?q=` matches a question to claims (`match.mjs`, lexical, no embeddings) and answers with the on-chain price and its provenance (`credence.mjs`).

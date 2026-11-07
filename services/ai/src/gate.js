@@ -13,7 +13,8 @@
 //                (NEWS_REQUIRE_DEFINITE=1 also asks for an event that settles it either way)
 //   duplicate    not the same story as an open line, or as a candidate that passed before it
 //   capacity     today's cap (NEWS_PER_DAY) and the money: each line reserves its worst-case loss
-//                from the treasury, so only what the treasury and the reserve cap can carry opens
+//                from the treasury, so only what the treasury can carry above the free bets, and
+//                under the reserve cap, opens
 //
 // The order is cheapest first: code, then one batched model call, then one web search per survivor.
 
@@ -48,7 +49,7 @@ export const BLOCKLIST = Object.freeze([
   ]],
 ]);
 // the words a result is written in, refused on sports lines: we price claims, not forecasts
-const RESULT_WORDS = /\b(?:win|wins|won|winning|winners?|beat|beats|beaten|defeat|defeats|defeated|lose|loses|losing|lost|draw|draws|drew|victory|victories|title|semi-?finals?|quarter-?finals?|playoffs?|play-offs?|qualif\w*|relegat\w*|promotion|promoted|score|scores|scored|scoring|goals?|standings|unbeaten|clinch\w*|knock(?:ed)? out|eliminat\w*|medals?|podium|grand prix|races?|odds|bets?)\b/;
+const RESULT_WORDS = /\b(?:win|wins|won|winning|winners?|beat|beats|beaten|defeat|defeats|defeated|lose|loses|losing|lost|victory|victories|title|semi-?finals?|quarter-?finals?|playoffs?|play-offs?|qualif\w*|relegat\w*|promotion|promoted|score|scores|scored|scoring|goals?|standings|unbeaten|clinch\w*|knock(?:ed)? out|eliminat\w*|medals?|podium|grand prix|races?|odds|bets?)\b/;
 // a price or a market figure past a line: a forecast, on money and crypto lines
 const PRICE_LINE = /\b(?:price|prices|shares|stocks?|index|bitcoin|btc|ether|ethereum|eth|solana|xrp|dogecoin|s&p|nasdaq|dow|yields?|market cap)\b[^.]{0,40}\b(?:above|below|over|under|at least|more than|less than|exceed\w*|top(?:s|ped)?|hit(?:s|ting)?|reach\w*|surpass\w*|break\w*)\s+(?:a |the |its )?(?:new |fresh |record |all-time )?(?:[$€£]\s?\d|\d|highs?\b|lows?\b|records?\b)/;
 
@@ -89,6 +90,16 @@ const PLAIN = {
 };
 export const policyWords = (category) => PLAIN[category] || "a topic we never price";
 
+/** A claim about a later year or season: nobody can know it within days, however the deadline reads. */
+export function aboutLater(c, nowMs) {
+  const text = [c.claim, c.statement, c.question].filter(Boolean).join(" ");
+  const m = /\bnext (?:year|season|summer|spring|winter|fall|autumn|decade)(?:'s)?\b/i.exec(text);
+  if (m) return m[0];
+  const year = new Date(nowMs).getUTCFullYear();
+  for (const y of text.match(/\b20\d{2}\b/g) || []) if (Number(y) > year) return y;
+  return null;
+}
+
 /** Is the candidate complete and in range? Problems in plain words; empty when it is. */
 export function shapeProblems(c, nowMs) {
   const out = [...(c.problems || [])];
@@ -112,7 +123,7 @@ export const REVIEW_PROMPT = [
   '- "refuse": true if the claim touches any of these, even indirectly: anyone\'s health, injuries or medical events; crime, arrests, charges, investigations or court cases; deaths, violence, wars or attacks; anyone under 18; a private individual (anyone who is not a public figure acting in public life, a company or an official body); sex or relationships; who wins an election, a game, a match or a race; a forecast of a price or a number. Else false.',
   '- "category": the first of these it touches: health, crime, violence, minors, private_person, sex, election, game_result, forecast; or "" when none',
   '- "status": is it already settled today, judging by the headline and what you know? "confirmed" if the organisation or person the claim is about has already announced, confirmed or done it (for example "X announces", "X confirms", "X signs", a completed deal), or it is already on the record; "denied" if they denied it or ruled it out; "unconfirmed" for anything else: a news outlet\'s report that cites sources or insiders (even when its headline states it as fact), a rumour, talks, a plan, or a scheduled decision that has not happened yet',
-  '- "settles_in_time": true if the named source can confirm or deny it on or before its settle-by date',
+  '- "settles_in_time": will the answer really be public by the settle-by date? true if what it is about is due to happen, be decided or be announced by then, or has already happened and the named source normally says so. false if it concerns a later date (next year, a future product or season), or if the named source never comments on such things, so the answer would stay unknown',
   '- "definite": true if something is due to be published by the settle-by date that settles it either way (a scheduled announcement, release, decision, filing or deadline); false if it settles only if someone chooses to speak',
   '- "reason": one short sentence',
   'Reply with JSON only: {"reviews":[{"i":0,"refuse":false,"category":"","status":"unconfirmed","settles_in_time":true,"definite":false,"reason":"..."}]}',
@@ -259,12 +270,14 @@ export function reserveMicro(bMicro, p0Ppm) {
 }
 
 /**
- * What the treasury can carry now: the smaller of what it holds above the floor and what is left
- * under the reserve cap. Unknown (null) when any figure is missing: the gate opens nothing then.
+ * What the treasury can carry now: the smaller of what is left under the reserve cap and what it holds
+ * above the free bets and the floor. The treasury pays every free $1 (credit_lane_if_new), so the lane
+ * budget is spoken for: a news line must never eat a visitor's free bet. Unknown (null) when any figure
+ * is missing: the gate opens nothing then.
  */
-export function headroomMicro({ treasuryMicro, reservedMicro, capMicro, floorMicro = 0 }) {
-  if ([treasuryMicro, reservedMicro, capMicro].some((x) => x === null || x === undefined)) return null;
-  const byTreasury = BigInt(treasuryMicro) - BigInt(floorMicro);
+export function headroomMicro({ treasuryMicro, reservedMicro, capMicro, laneBudgetMicro, floorMicro = 0 }) {
+  if ([treasuryMicro, reservedMicro, capMicro, laneBudgetMicro].some((x) => x === null || x === undefined)) return null;
+  const byTreasury = BigInt(treasuryMicro) - BigInt(laneBudgetMicro) - BigInt(floorMicro);
   const byCap = BigInt(capMicro) - BigInt(reservedMicro);
   const h = byTreasury < byCap ? byTreasury : byCap;
   return h > 0n ? Number(h) : 0;
@@ -301,7 +314,7 @@ const usd = (micro) => `$${(Number(micro) / 1e6).toFixed(2)}`;
  * @param {{ candidates: object[], nowMs?: number,
  *   review?: (candidates: object[]) => Promise<(object|null)[]>,
  *   verify?: ((candidate: object) => Promise<{ status: string|null, sources: object[], note: string|null, error?: string }>)|null,
- *   open?: object[], capacity?: { treasuryMicro: string|null, reservedMicro: string|null, capMicro: string|null }|null,
+ *   open?: object[], capacity?: { treasuryMicro: string|null, reservedMicro: string|null, capMicro: string|null, laneBudgetMicro: string|null }|null,
  *   openedToday?: number, perDay?: number, bMicro?: number, floorMicro?: number, requireDefinite?: boolean, verifyAll?: boolean, spare?: number }} a
  * @returns {Promise<{ decisions: object[], pass: object[], counts: object, headroom_micro: number|null }>}
  */
@@ -320,6 +333,8 @@ export async function runGate(a) {
     const p = policyCheck(d.candidate);
     if (!p.ok) { refuse(d, "policy", `Never priced: it touches ${policyWords(p.category)} ("${p.matched}").`, { by: "code", category: p.category, matched: p.matched }); continue; }
     d.checks.policy = { ok: true, by: ["code"] };
+    const later = aboutLater(d.candidate, nowMs);
+    if (later) refuse(d, "settles", `It is about ${later}: nobody can know that within days, whatever its date says.`, { by: "code", later });
   }
 
   // 2b. policy, 3. unconfirmed, 4. settles: the second model, one call for all

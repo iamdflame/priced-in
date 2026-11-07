@@ -75,7 +75,7 @@ test("the scout's round: once per slot, every candidate journaled with its resul
     review: async (list) => list.map(() => ({ refuse: false, status: "unconfirmed", settles_in_time: true, definite: true, reason: "" })),
     verify: async () => ({ status: "unconfirmed", sources: [], note: null }),
     claims: async () => [claim(1)],
-    capacity: async () => ({ treasuryMicro: "20000000", reservedMicro: "0", capMicro: "50000000" }),
+    capacity: async () => ({ treasuryMicro: "20000000", reservedMicro: "0", capMicro: "50000000", laneBudgetMicro: "9000000" }),
     open: async (pass, ctx) => { opened.push({ ids: pass.map((x) => x.id), ctx }); return { opened: pass.map((x, i) => ({ candidate_id: x.id, claim_id: 40 + i, tx: `open${i}` })), errors: [], failed: [] }; },
   };
   const r = await scoutRound(d);
