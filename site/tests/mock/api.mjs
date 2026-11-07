@@ -300,8 +300,16 @@ async function pages(req, res, url) {
 // ---------- the mock's own lines through /api/claims, /api/claims/<id> and the reads around them ----------
 
 async function claimsRoutes(req, res, url) {
-  if (state.news !== "on") return false;
   const path = url.pathname;
+  // with news off, the API's claims carry no `news` field (api/index.mjs merges it only with NEWS_ENABLED=1): the
+  // live API's own news lines lose theirs here, as they would there, and the site reads its switch from that
+  if (state.news !== "on") {
+    if (req.method !== "GET" || !/^\/api\/claims(\/\d+)?$/.test(path)) return false;
+    const body = await upstream(`${path}${url.search}`, 5_000).catch(() => null);
+    if (!body || (!body.claims && !body.claim)) return false;
+    const bare = ({ news: _n, ...c }) => c;
+    return json(res, 200, body.claims ? { ...body, claims: body.claims.map(bare) } : { ...body, claim: bare(body.claim) }), true;
+  }
   const mine = (id) => state.lines.find((l) => l.m.claim_id === id);
   if (path === "/api/claims") {
     const f = await facts();

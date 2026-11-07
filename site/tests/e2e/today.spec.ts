@@ -310,3 +310,29 @@ test.describe("with today's news on", () => {
     expect((await r.json()).news).toBe("on");
   });
 });
+
+test.describe("switching today's news off again", () => {
+  test.skip(!NEWS, "the news-on state: E2E_NEWS=on with the stand-in API");
+  test.describe.configure({ mode: "serial" });
+
+  // last in this file, so the other specs never see a page rendered while news was off
+  // a rollback must reach every page, the ones rendered per request too: the site reads the switch from /claims,
+  // which answers 200 either way, so its fetch cache never keeps the last "on" after the API says off (before,
+  // /c/31 still showed its report button and the footer's Leaderboard link a minute after the switch)
+  test("a fact's page rendered per request, and its footer, go back to how they were, with no rebuild", async ({ request }) => {
+    const REPORT = "Report a mistake";
+    const BOARD = 'href="/leaderboard"';
+    try {
+      await scenario(request, null, { news: "on", scenario: "first" }, { path: "/c/31", has: REPORT });
+      // the page has been read with news on, so the fetch cache holds today's 200
+      expect(await (await request.get("/c/31")).text()).toContain(BOARD);
+      await scenario(request, null, { news: "off" });
+      await expect.poll(async () => (await request.get("/c/31")).text(), { timeout: 40_000, intervals: [2_000] }).not.toContain(REPORT);
+      expect(await (await request.get("/c/31")).text()).not.toContain(BOARD);
+      // /leaderboard is regenerated in the background, so its first answer after the switch may still be the old page
+      await expect.poll(async () => (await request.get("/leaderboard")).status(), { timeout: 40_000, intervals: [2_000] }).toBe(404);
+    } finally {
+      await scenario(request, null, { news: "on", scenario: "first" }, { path: "/c/31", has: REPORT });
+    }
+  });
+});
