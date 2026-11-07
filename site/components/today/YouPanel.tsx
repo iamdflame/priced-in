@@ -26,7 +26,7 @@ function AiRows({ ai, me }: { ai: BoardRow[]; me?: { name: string; right: number
   return (
     <ul className="vs">
       {rows.map((r) => (
-        <li key={r.id} className={r.kind === "you" ? "you" : ""}>
+        <li key={r.id} className={r.kind === "you" ? "me" : ""}>
           <span className="vs-n">{r.kind === "ai" ? <Icon name="bot" /> : <Icon name="users" />}{r.name}</span>
           <span className="vs-r">{recordWords(r.right, r.settled)}</span>
           <b className="vs-a num">{pctWords(r.accuracy)}</b>

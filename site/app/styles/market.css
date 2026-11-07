@@ -51,6 +51,8 @@
 .tk-pick { display: flex; align-items: center; gap: 6px; font-size: 13.5px; color: var(--ink2); }
 .tk-pick .ic { width: 16px; height: 16px; color: var(--yes); stroke-width: 2.6; }
 .tk-justpick { align-self: flex-start; min-height: 36px; font-size: 13px; font-weight: 500; text-align: left; color: var(--ink2); }
+.tk-score { padding: 10px 12px; border-radius: 14px; background: var(--surface2); font-size: 13.5px; line-height: 1.45; color: var(--ink2); text-wrap: pretty; }
+.tk-score b { color: var(--ink); font-weight: 600; }
 
 /* A line from today's news: what you're betting on, where it came from, who settles it */
 .how-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px 16px; }

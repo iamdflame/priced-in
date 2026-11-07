@@ -8,8 +8,8 @@
 .bet.pick b { display: inline-flex; align-items: center; gap: 7px; }
 .bet.pick b .ic { width: 17px; height: 17px; stroke-width: 2.5; }
 .bet.pick b .spin { width: 15px; height: 15px; border-color: currentColor; border-top-color: transparent; }
-.picks.lead .bet.pick { min-height: 58px; }
-.picks.lead .bet.pick b { font-size: 17px; }
+.picks.pk-lead .bet.pick { min-height: 58px; }
+.picks.pk-lead .bet.pick b { font-size: 17px; }
 .bet.pick.yes.mine { background: var(--yes-fill); color: var(--yes-ink); }
 .bet.pick.no.mine { background: var(--no-fill); color: var(--no-ink); }
 .bet.pick.other { opacity: .5; }

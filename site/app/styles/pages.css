@@ -643,6 +643,10 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .lb-nick-m.ok { color: var(--yes); }
 .lb-nick-m.bad { color: var(--no); }
 .lb-totals { margin-top: 10px; }
+.lb-score { margin: 0 0 16px; padding: 12px 14px; border-radius: 14px; background: var(--surface2); }
+.lb-score p:first-child { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; font-size: 13px; color: var(--ink2); }
+.lb-score b { font: 700 22px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); }
+.lb-score .sub { margin-top: 4px; font-size: 12.5px; line-height: 1.45; color: var(--ink3); }
 .lb-rules { margin-top: 24px; }
 .lb-rules h2 { margin-bottom: 10px; font: 600 19px var(--disp); }
 .lb-rules ul { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.55; color: var(--ink2); }

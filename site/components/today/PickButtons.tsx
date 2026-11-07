@@ -71,7 +71,7 @@ export function PickButtons({ id, question, quotes, settlesBy = null, size = "ca
   };
 
   return (
-    <div className={`picks ${size}`}>
+    <div className={`picks pk-${size}`}>
       <div className="bets">{button("yes")}{button("no")}</div>
       {error && <p className="pickerr" role="alert">{error}</p>}
     </div>

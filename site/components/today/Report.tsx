@@ -107,7 +107,7 @@ export function ReportSheet() {
     else setError(res.message);
   };
   return (
-    <Sheet title={rep ? "Your report" : "Report a mistake"} sub={req.question} onClose={() => openReport(null)} label="Report a mistake">
+    <Sheet title="Report a mistake" sub={req.question} onClose={() => openReport(null)} label="Report a mistake">
       {rep ? (
         <>
           <ReportStatus rep={rep} />

@@ -105,8 +105,8 @@
 .vs li:first-child { border-top: 0; }
 .vs-n { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; color: var(--ink); }
 .vs-n .ic { width: 16px; height: 16px; color: var(--ink3); }
-.vs li.you { margin: 0 -10px; padding: 6px 10px; border-radius: 10px; border-top-color: transparent; background: var(--surface2); }
-.vs li.you + li { border-top-color: transparent; }
+.vs li.me { margin: 0 -10px; padding: 6px 10px; border-radius: 10px; border-top-color: transparent; background: var(--surface2); }
+.vs li.me + li { border-top-color: transparent; }
 .vs-r { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
 .vs-a { text-align: right; font: 700 16px var(--disp); color: var(--ink); }
 .landed { padding: 12px 14px; border-radius: 16px; background: var(--surface2); }
