@@ -103,7 +103,7 @@ function lines(scenario, now) {
   if (scenario === "overdue") {
     [[fresh, /Josh Downs/], [fresh, /White Sox/]].forEach(([rows, re], i) => {
       const r = rows.find((x) => re.test(x.question));
-      const m = meta(r, 9201 + i, { opened_at: Date.parse(`${r.as_of}T08:00:00Z`), settle: { last_look_at: now - 5 * H, note: `No receipt yet: ${r.pipeline.reason}`.slice(0, 300), challenge_id: null, looks: 2 } });
+      const m = meta(r, 9201 + i, { opened_at: Date.parse(`${r.as_of}T08:00:00Z`), settle: { last_look_at: now - 5 * H, note: "Its date has passed and no source has settled it yet. We look again every 12 hours.", detail: `No receipt yet: ${r.pipeline.reason}`.slice(0, 300), challenge_id: null, looks: 2 } });
       out.push({ m, v: view(m) });
     });
   }

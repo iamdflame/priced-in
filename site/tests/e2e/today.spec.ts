@@ -271,7 +271,8 @@ test.describe("with today's news on", () => {
     await expect(page.locator(".tlist").filter({ hasText: "Settling next" })).toContainText("Waiting for its source");
     await page.goto("/c/9201");
     await expect(page.getByText("Its date has passed: it’s waiting for its source.")).toBeVisible();
-    await expect(page.locator(".settler-note")).toContainText("No receipt yet");
+    await expect(page.locator(".settler-note")).toContainText("no source has settled it yet");
+    await expect(page.locator(".settler-note")).not.toContainText("receipt");
     await expect(page.getByRole("heading", { name: "Waiting for its result" })).toBeVisible();
     await expect(page.locator(".ticket .seg")).toHaveCount(0);
     expect(g.laneKeys).toBe(0);
