@@ -33,7 +33,7 @@ test("with score to spare, the ticket bets the score: worded as score, the brows
   await expect(ticket.getByText("You’ve already placed your free $1.")).toHaveCount(0);
   const no = ticket.locator(".seg .n");
   await no.click();
-  await expect(no).toContainText(/Right: \$1\.20 becomes \$\d\.\d\d/);
+  await expect(no).toContainText(/Right: it becomes \$\d\.\d\d/);
   await expect(page.getByTestId("confirm")).toHaveText("Bet $1.20 of score: No, it’s false");
   await expect(ticket).toContainText("If you’re wrong, that score is gone.");
   await page.getByTestId("confirm").click();

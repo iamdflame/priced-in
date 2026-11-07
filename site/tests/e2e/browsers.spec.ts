@@ -63,7 +63,7 @@ test("the footer, the wallet sheet, a ? and the theme work", async ({ page, isMo
   await sheet.getByRole("button", { name: /Close/ }).click();
   await expect(sheet).toBeHidden();
 
-  await page.getByRole("button", { name: "What is the score, and what does $1 pay?" }).first().click();
+  await page.getByRole("button", { name: NEWS ? "What is a pick?" : "What is the score, and what does $1 pay?" }).first().click();
   await expect(page.locator(".pop")).toBeVisible();
   await page.locator(".pop").getByRole("button", { name: /Close/ }).click();
   await expect(page.locator(".pop")).toHaveCount(0);

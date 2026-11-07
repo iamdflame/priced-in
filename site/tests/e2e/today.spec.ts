@@ -147,7 +147,7 @@ test.describe("with today's news on", () => {
   });
 
   test("the leaderboard: the AI traders beside people, the empty board said honestly, a nickname signed by the key", async ({ page, request }) => {
-    await scenario(request, page, { scenario: "first" });
+    await scenario(request, page, { scenario: "first" }, { path: "/leaderboard", lacks: "Visitor 99r6yL" });
     const g = await guard(page);
     await page.goto("/leaderboard");
     await expect(page.getByRole("heading", { level: 1 })).toContainText("Who calls it best");
@@ -164,6 +164,10 @@ test.describe("with today's news on", () => {
     await page.getByLabel("Your name on the board").fill("The Quant");
     await page.getByRole("button", { name: "Save" }).click();
     await expect(page.locator(".lb-nick-m")).toContainText("could be mistaken for Priced In or one of its AIs");
+    // so is a name in two alphabets (the o here is Cyrillic), as the API says it
+    await page.getByLabel("Your name on the board").fill("J\u043Ehn Fan");
+    await page.getByRole("button", { name: "Save" }).click();
+    await expect(page.locator(".lb-nick-m")).toHaveText("A nickname keeps to one alphabet. Pick another.");
     expect(g.laneKeys).toBe(0);
     expect(g.errors.filter((e) => !/status of 400/.test(e)), g.errors.join("\n")).toEqual([]);
   });
@@ -176,7 +180,8 @@ test.describe("with today's news on", () => {
     await page.locator(".mk-head").getByRole("button", { name: "Report a mistake" }).click();
     const sheet = page.getByRole("dialog", { name: "Report a mistake" });
     await expect(sheet.getByTestId("report-send")).toBeDisabled();
-    await sheet.getByLabel("A public page that shows it").fill("https://www.anthropic.com/news");
+    await expect(sheet).toContainText("This line’s own sources, an official site or an established news outlet.");
+    await sheet.getByLabel("A page that shows it").fill("https://www.anthropic.com/news");
     await sheet.getByLabel("The exact words from that page").fill("Anthropic has filed for an initial public offering at a valuation of 1.5 trillion dollars");
     await sheet.getByTestId("report-send").click();
     await expect(sheet.getByTestId("report-status")).toContainText("Received");
@@ -185,6 +190,76 @@ test.describe("with today's news on", () => {
     await expect(sheet.getByRole("button", { name: "Fix it and send again" })).toBeVisible();
     expect(g.laneKeys).toBe(0);
     noMoneySpent(g);
+    expect(g.errors, g.errors.join("\n")).toEqual([]);
+  });
+
+  test("catch a mistake: a page our Checker won't bond on says which do, in the API's words, and the wallet takes it from there", async ({ page, request }) => {
+    await scenario(request, page, { scenario: "first" });
+    const g = await guard(page);
+    await page.goto("/c/9001");
+    await expect(page.locator(".catch")).toContainText("an official site or an established news outlet");
+    await expect(page.locator(".catch")).toContainText("Any public page will do");
+    await page.locator(".mk-head").getByRole("button", { name: "Report a mistake" }).click();
+    const sheet = page.getByRole("dialog", { name: "Report a mistake" });
+    await sheet.getByLabel("A page that shows it").fill("https://example.org/my-own-page");
+    await sheet.getByLabel("The exact words from that page").fill("the exact words from my own page");
+    await sheet.getByTestId("report-send").click();
+    const refusal = sheet.getByRole("alert");
+    await expect(refusal).toContainText("Our Checker puts up its own money only on this line's own sources");
+    await expect(refusal).toContainText("official sites and established news outlets");
+    await expect(refusal).toContainText("challenge it yourself with your own bond.");
+    await expect(refusal).not.toContainText("GET /api");
+    await expect(refusal.getByRole("link").first()).toHaveAttribute("href", /^https:\/\/[a-z0-9.-]+$/);
+    // a different page takes the refusal away
+    await sheet.getByLabel("A page that shows it").fill("https://example.org/another");
+    await expect(refusal).toHaveCount(0);
+    await sheet.getByTestId("report-send").click();
+    await sheet.getByTestId("report-to-wallet").click();
+    await expect(page.getByRole("dialog", { name: "Report a mistake" })).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toBeVisible();
+    expect(g.laneKeys).toBe(0);
+    noMoneySpent(g);
+    expect(g.errors.filter((e) => !/status of 400/.test(e)), g.errors.join("\n")).toEqual([]);
+  });
+
+  test("a busy API: a pick lands on the second try by itself, and a report still busy says so in the API's words", async ({ page, request }) => {
+    await scenario(request, page, { scenario: "first" });
+    const g = await guard(page);
+    const busy = { error: { code: "busy", message: "That didn't go through just now. Try again in a moment.", retryAfterS: 1 } };
+    let picks = 0;
+    await page.route(/\/api\/picks$/, (r) => (r.request().method() === "POST" && ++picks === 1 ? r.fulfill({ status: 503, json: busy }) : r.fallback()));
+    await page.goto("/");
+    const yes = page.locator(".tlead a.bet.yes");
+    await yes.click();
+    await expect(yes).toContainText("Your pick: Yes");
+    expect(picks).toBe(2);
+    await expect(page.locator(".pickerr")).toHaveCount(0);
+
+    let reports = 0;
+    await page.route(/\/api\/reports$/, (r) => { if (r.request().method() !== "POST") return r.fallback(); reports++; return r.fulfill({ status: 503, json: busy }); });
+    await page.goto("/c/9001");
+    await page.locator(".mk-head").getByRole("button", { name: "Report a mistake" }).click();
+    const sheet = page.getByRole("dialog", { name: "Report a mistake" });
+    await sheet.getByLabel("A page that shows it").fill("https://www.anthropic.com/news");
+    await sheet.getByLabel("The exact words from that page").fill("the exact words from that page");
+    await sheet.getByTestId("report-send").click();
+    await expect(sheet.getByRole("alert")).toHaveText(busy.error.message);
+    expect(reports).toBe(2);
+    await expect(sheet.getByTestId("report-send")).toBeEnabled();
+    expect(g.laneKeys).toBe(0);
+    expect(g.errors.filter((e) => !/status of 503/.test(e)), g.errors.join("\n")).toEqual([]);
+  });
+
+  test("a report we couldn't finish reads Closed and gives its reason, on the line and on /portfolio", async ({ page, request }) => {
+    await scenario(request, page, { scenario: "closed" });
+    const g = await guard(page);
+    await asReturning(page, secret);
+    await page.goto("/c/9001");
+    await expect(page.locator(".catch").getByTestId("report-status")).toContainText("Closed");
+    await expect(page.locator(".catch").getByTestId("report-status")).toContainText("We couldn't finish this within two days. Send it again.");
+    await page.goto("/portfolio");
+    await expect(page.locator(".pf-why")).toContainText("We couldn't finish this within two days. Send it again.");
+    expect(g.laneKeys).toBe(0);
     expect(g.errors, g.errors.join("\n")).toEqual([]);
   });
 

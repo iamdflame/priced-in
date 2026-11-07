@@ -203,6 +203,31 @@ test("challenge a line with your own $1 bond: the page and its words go in as ev
   done(g, chain);
 });
 
+test("a page our Checker won't bond on goes to the wallet with the words already typed", async ({ page }) => {
+  test.skip(!NEWS, "catching a mistake needs today's news on");
+  const chain = world();
+  chain.balance = 5_000_000n;
+  const g = await setup(page, chain);
+  await page.route(/\/api\/after-challenge$/, (r) => r.fulfill({ json: { status: "e2e: not asked" } }));
+  await page.goto("/portfolio");
+  await connect(page);
+  await page.goto(`/c/${OPEN}`);
+  await page.locator(".catch").getByRole("button", { name: "Report a mistake" }).click();
+  const report = page.getByRole("dialog", { name: "Report a mistake" });
+  await report.getByLabel("A page that shows it").fill("https://example.org/a-newer-source");
+  await report.getByLabel("The exact words from that page").fill("a newer source says otherwise");
+  await report.getByTestId("report-send").click();
+  await expect(report.getByRole("alert")).toContainText("official sites and established news outlets");
+  await report.getByTestId("report-to-wallet").click();
+  const sheet = page.getByRole("dialog", { name: "Challenge with your bond" });
+  await expect(sheet.getByLabel("A public page that shows it")).toHaveValue("https://example.org/a-newer-source");
+  await expect(sheet.getByLabel("The exact words from that page")).toHaveValue("a newer source says otherwise");
+  await sheet.getByTestId("challenge-confirm").click();
+  await expect(sheet.getByTestId("money-done")).toContainText("Challenge sent");
+  expect(chain.sent.at(-1)?.actions[0]).toMatchObject({ method: "challenge", args: { claim_id: OPEN } });
+  done(g, chain);
+});
+
 test("a withdrawal to a wallet that can't hold USDC registers it first, in the same flow", async ({ page }) => {
   const chain = world();
   chain.balance = 2_000_000n;

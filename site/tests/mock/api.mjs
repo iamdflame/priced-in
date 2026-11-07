@@ -10,7 +10,7 @@
 // API's own code (api/_lib/picks.mjs, api/_lib/news.mjs), so the shapes are the API's by construction.
 //
 //   node tests/mock/api.mjs            MOCK_PORT=3299 MOCK_UPSTREAM=https://isitpriced.com MOCK_NEWS=on|off
-//   POST /__mock {"news":"on"|"off","scenario":"first"|"returning"|"overdue"|"refused"|"bounty"}   switch state
+//   POST /__mock {"news":"on"|"off","scenario":"first"|"returning"|"overdue"|"refused"|"bounty"|"closed"}   switch state
 import http from "node:http";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -20,7 +20,7 @@ import { baseEncode } from "near-api-js";
 import { todayOf, v1TodayOf, newsConfig } from "../../../api/_lib/news.mjs";
 import {
   PICKS, parsePick, parseProfile, parseReport, firstPicks, pickableOrWhy, nicknames, nicknameTaken, reportsOf, reportView, reportEvidence,
-  aiTraders, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, Refusal, refusalBody, refusalWords, RULES,
+  aiTraders, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, trustedSource, untrustedSource, Refusal, refusalBody, refusalWords, RULES,
 } from "../../../api/_lib/picks.mjs";
 
 const PORT = Number(process.env.MOCK_PORT || 3299);
@@ -118,7 +118,7 @@ function reset(scenario, now = Date.now()) {
   state.scenario = scenario;
   state.lines = lines(scenario, now);
   state.picks = []; state.profiles = []; state.reports = [];
-  if (scenario === "returning") {
+  if (scenario === "returning" || scenario === "closed") {
     // the visitor's own calls: four on lines since decided (two right, two not), two on today's
     const mine = [[9101, "yes"], [9102, "yes"], [9103, "yes"], [9104, "yes"], [9001, "no"], [9003, "yes"]];
     for (const [id, side] of mine) {
@@ -128,6 +128,8 @@ function reset(scenario, now = Date.now()) {
       state.picks.push({ t: "pick", key: VISITOR_KEY, claim_id: id, side, issued_at: at, at, price_yes_ppm: l.v.price_yes_ppm, page: l.v.page, message, signature: signHex(message) });
     }
   }
+  // a report nobody finished: reportsOf closes it after two days, with its own reason
+  if (scenario === "closed") state.reports.push({ t: "report", id: "c10sedc10sedc10s", key: VISITOR_KEY, claim_id: 9001, says: "false", url: "https://www.anthropic.com/news", quote: "the words on that page", note: "", issued_at: now - 3 * DAY, at: now - 3 * DAY, message: "", signature: "" });
 }
 reset(state.scenario);
 
@@ -216,6 +218,8 @@ async function news(req, res, url) {
       const rep = parseReport(await bodyOf(req), { network: "mainnet", nowMs: now });
       const c = f.claims.find((x) => x.id === rep.claim_id);
       if (!c) throw new Refusal(404, "no_such_claim", "There is no line with that id.");
+      const source = trustedSource(rep.url, { news: c.news ?? null });
+      if (!source.ok) throw untrustedSource(rep.claim_id, source.hosts);
       if (c.status !== "Open") throw new Refusal(409, "line_closed", c.status === "Settled" ? "This line is settled: it can't be challenged now." : "A challenge is already running on this line.");
       const live = [...reports().values()].find((x) => x.claim_id === rep.claim_id && ["received", "retry", "verified", "challenged", "ruling"].includes(x.status));
       if (live) throw new Refusal(409, "already_reported", "Someone's report on this line is already being checked. Its result shows on the line.", { report_id: live.id });

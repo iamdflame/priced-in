@@ -1,7 +1,7 @@
 // What the home and the money path decide from the API's lines: which line leads, what a card may take, how a
 // source reads, and that a challenge's evidence is in the shape the jury runner checks.
 import { describe, expect, it } from "vitest";
-import { arrange, boardScore, headlineOf, isNewsPage, newsArt, outletOf, pickableOrWhy, shortDate, type TodayLine } from "@/lib/news";
+import { arrange, boardScore, headlineOf, isNewsPage, newsArt, outletOf, pickableOrWhy, refusalWords, shortDate, type TodayLine } from "@/lib/news";
 import { checkChallenge } from "@/lib/money/rules";
 import { challengeEvidence, challengeTx } from "@/lib/money/tx";
 import { moneyConfig } from "@/lib/money/config";
@@ -81,6 +81,14 @@ describe("a line's words", () => {
     expect(isNewsPage("Tether")).toBe(false);
     expect(newsArt("Football")).toBe("football");
     expect(newsArt("Something new")).toBe("corp");
+  });
+});
+
+describe("a refusal's words", () => {
+  it("lose the developer's pointer and nothing else", () => {
+    const m = "Our Checker puts up its own money only on official sites and established news outlets. With another page, challenge it yourself with your own bond";
+    expect(refusalWords(`${m}: GET /api/challenge?claim=7.`)).toBe(`${m}.`);
+    expect(refusalWords("Someone already has that nickname. Pick another.")).toBe("Someone already has that nickname. Pick another.");
   });
 });
 
