@@ -14,7 +14,13 @@ type Step = [name: string, go: (page: Page) => Promise<unknown>, url: RegExp];
 // because the footer outlives the navigation and the next stop is held against a fresh load
 const foot = async (page: Page, name: string) => {
   const links = page.locator(".foot").getByRole("link", { name, exact: true });
-  if (!(await links.count())) for (const s of await page.locator(".foot details.ft-acc:not([open]) summary:visible").all()) await s.click();
+  if (!(await links.count())) {
+    const groups = page.locator(".foot details.ft-acc");
+    for (let i = 0; i < (await groups.count()); i++) {
+      const g = groups.nth(i);
+      if (!(await g.evaluate((d) => (d as HTMLDetailsElement).open)) && (await g.isVisible())) await g.locator("summary").click();
+    }
+  }
   await links.first().click();
   await page.evaluate(() => document.querySelectorAll<HTMLDetailsElement>(".foot details[open]").forEach((d) => { d.open = false; }));
 };
