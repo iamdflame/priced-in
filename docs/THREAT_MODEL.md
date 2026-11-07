@@ -214,7 +214,7 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 
 From the security review of 2026-11-07 (`.apex/streams/security-result.md`), where every finding, its test and its commit are listed.
 
-**Attack: a source that attacks the reader.** Whoever posts a challenge or a report chooses the page we read. 300 KB of unclosed tags took 20 s in the HTML regular expressions, so about 1 MB outlasted the Sentinel's 60 s function; a 200 KB PDF unpacks past its 1 GB of memory. Nothing was stored, so every minute repeated it. One $1 challenge stopped the Sentinel for every challenge, which let its own forged receipt through, and one free report stopped the hourly news round.
+**Attack: a source that attacks the reader.** Whoever posts a challenge or a report chooses the page we read. 300 KB of unclosed tags took 20 s in the HTML regular expressions, and the time grows with the square of the size, so about 1 MB would outlast the Sentinel's 60 s function. A 61 KB PDF took 3 s and 300 MB of memory; at that rate about 200 KB would pass the function's 1 GB (extrapolated: neither was run to failure, and the attack was read through the code, not run on a deployment). Nothing would be stored, so every minute would repeat it: one $1 challenge could stop the Sentinel for every challenge, its own forged receipt included, and one free report could stop the hourly news round.
 
 **Defence.** HTML is read in one pass that never looks at the same text twice (`htmlText`). A PDF is read on its own thread, stopped by time, text length and the process's memory (`pdfText`), because a decompression buffer sits outside a thread's heap limit. All of a check's fetches share one clock (`totalMs`, 24 s in the Sentinel). A file past a limit is `unfetchable`, so its challenger loses the argument.
 
@@ -224,7 +224,7 @@ From the security review of 2026-11-07 (`.apex/streams/security-result.md`), whe
 
 **Residual.**
 - **A page on a trusted host can still be wrong.** The list is a judgment, not a proof: an established outlet can be mistaken, and a site on a line's coverage list got there through a web search.
-- **The settler isn't under this bar.** It cites what its own web search finds, so a page written to rank for a line's story could become our Checker's receipt, and only the settler's model and the support panel stand in the way. Restricting it would leave more lines waiting, so it is left for a decision.
+- **The settler isn't under this bar: open, and a decision for the founder.** It cites what its own web search finds, so a page written to rank for a line's story could become our Checker's receipt, with only the settler's model and the support panel in the way. The recorded backtests cite sites such as 1023jack.com, foxy99.com and aiweekly.co. The same bar would leave 8 to 12 of 14 lines with no accepted receipt in each full run (`deployments/news-settle-*.json`, likely an overcount, because not every record carries the line's own sources), and the contract can't void a line, so they would wait for good.
 - **A trusted-host report that loses still costs $1,** at most 2 a day, and the Sentinel doesn't defend the Checker against a dispute.
 - **Honest sources outside the list** must use their own bond. That is the price of the bar.
 - **A PDF has only been read on a thread locally.** Watch the first one on the hosted runtime: if the thread can't start there, an honest PDF receipt reads as `unfetchable`, and the Sentinel would dispute it.
