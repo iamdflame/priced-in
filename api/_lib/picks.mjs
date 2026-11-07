@@ -207,7 +207,7 @@ export function trustedSource(url, { news = null, extra = [] } = {}) {
 /** The reader's refusal when their page isn't one the Checker relies on. */
 export function untrustedSource(claimId, hosts) {
   const line = hosts.length ? `this line's own sources (${hosts.slice(0, 5).join(", ")}), ` : "";
-  return new Refusal(400, "untrusted_source", `Our Checker puts up its own money only on ${line}official sites and established news outlets. With another page, challenge it yourself with your own bond: GET /api/challenge?claim=${claimId}.`, { hosts });
+  return new Refusal(400, "untrusted_source", `Our Checker puts up its own money only on ${line}official sites and established news outlets. With another page, challenge it yourself with your own bond.`, { hosts, challenge: `/api/challenge?claim=${claimId}` });
 }
 
 /** A report request, checked. The evidence the Checker would post is built here, from the reader's words. */

@@ -133,9 +133,12 @@ test("settling: due lines get receipts; receipts that pass the check are challen
   assert.deepEqual(r.looked.map((x) => x.claim_id).sort(), [40, 41, 42], "a line not due, and a line already challenged, are left alone");
   assert.deepEqual(plans.map((p) => [p.claim_id, p.claimed_outcome, p.intent]), [[40, true, "news-settle:40:TRUE:0"]], "one intent per look: a crash before the record replays it, never sends it twice");
   const doc = await store.read();
-  assert.match(doc.lines[40].settle.note, /challenged it as TRUE \(challenge 9\)/);
-  assert.match(doc.lines[41].settle.note, /did not pass the check \(verified, support unsupported\)/);
-  assert.match(doc.lines[42].settle.note, /No receipt yet: No source could be read/);
+  assert.match(doc.lines[40].settle.note, /found a source saying it’s true and put up its bond \(challenge 9\)\. Three AI judges rule next\./);
+  assert.match(doc.lines[41].settle.note, /didn’t hold up when we checked it/, "a visitor reads plain words");
+  assert.match(doc.lines[41].settle.detail, /did not pass the check \(verified, support unsupported\)/, "the technical reason is kept");
+  assert.match(doc.lines[42].settle.note, /no source has settled it yet\. We look again every 12 hours\./);
+  assert.match(doc.lines[42].settle.detail, /No source could be read/);
+  assert.doesNotMatch(Object.values(doc.lines).map((l) => l.settle?.note || "").join(" "), /receipt|support |verified|unsupported/, "no checker jargon in a note");
   assert.equal(doc.lines[43].settle.looks, undefined);
   assert.equal(doc.lines[40].settle.challenge_id, 9);
   fs.rmSync(dir, { recursive: true, force: true });

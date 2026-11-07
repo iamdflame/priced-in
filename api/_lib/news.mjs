@@ -255,13 +255,15 @@ export async function openPassed(pass, { slot, page, chainKind }, s) {
 
 // ---------- the settler's round ----------
 
-/** The plain words for what the settler did on a line. */
+/** What the settler did on a line, in words a visitor reads: the site shows `note` as it is. The technical reason goes in `detail`. */
 const NOTE = {
-  waiting: (t) => `Waiting for its date: the source may still confirm it. ${t}`.trim(),
-  unknown: (r) => `No receipt yet: ${r}`.trim(),
-  refused: (c) => `Its receipts did not pass the check (${c.result}${c.support?.verdict ? `, support ${c.support.verdict}` : ""}), so the Checker did not challenge.`,
-  challenged: (id, o) => `The Checker challenged it as ${o} (challenge ${id}); three AI judges rule next.`,
+  waiting: () => "Waiting for its date: the source may still confirm it before then.",
+  unknown: (h) => `Its date has passed and no source has settled it yet. We look again every ${h} hours.`,
+  refused: (h) => `A source turned up, but it didn’t hold up when we checked it, so our Checker hasn’t challenged. We look again every ${h} hours.`,
+  challenged: (id, o) => `Our Checker found a source saying it’s ${o === "TRUE" ? "true" : "false"} and put up its bond (challenge ${id}). Three AI judges rule next.`,
+  unposted: () => "Its source checked out, and our Checker couldn’t post its challenge yet. It tries again on the next look.",
 };
+const refusedDetail = (c) => `Its receipts did not pass the check (${c.result}${c.support?.verdict ? `, support ${c.support.verdict}` : ""}), so the Checker did not challenge.`;
 
 /**
  * One settler round. Lines that are open on the chain and due (or due an early look) get receipts;
@@ -293,16 +295,18 @@ export async function settleRound(d) {
     if (d.budget && !d.budget()) { out.note = "the news share of today's model budget is spent: the rest wait for the next run"; break; }
     const f = await d.find(x.meta, nowMs);
     const look = { claim_id: x.meta.claim_id, due: x.timing.due, outcome: f.outcome, basis: f.basis, receipts: f.receipts?.length ?? 0, reason: f.reason };
-    let note;
-    if (f.outcome === "UNKNOWN" || !f.evidence) note = x.timing.due ? NOTE.unknown(f.reason) : NOTE.waiting(f.reason);
+    const every = x.timing.due ? cfg.dueEveryH : cfg.earlyEveryH;
+    let note, detail = null;
+    if (f.outcome === "UNKNOWN" || !f.evidence) { note = x.timing.due ? NOTE.unknown(every) : NOTE.waiting(); detail = f.reason || null; }
     else {
       const check = await d.check({ claim: x.claim.text, evidence: f.evidence, claimed: f.outcome === "TRUE" });
       look.receipt_check = { result: check.result, support: check.support?.verdict ?? null };
       const ok = checkPassed(check);
       if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence: f.evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
-      note = ok ? null : NOTE.refused(check);
+      note = ok ? null : NOTE.refused(every);
+      detail = ok ? null : refusedDetail(check);
     }
-    notes[x.meta.claim_id] = { last_look_at: nowMs, outcome: f.outcome, basis: f.basis, note, evidence_sha256: f.evidence ? sha(f.evidence) : null };
+    notes[x.meta.claim_id] = { last_look_at: nowMs, outcome: f.outcome, basis: f.basis, note, detail, evidence_sha256: f.evidence ? sha(f.evidence) : null };
     out.looked.push(look);
   }
   let posted = { posted: [], errors: [] };
@@ -311,10 +315,10 @@ export async function settleRound(d) {
   }
   out.errors.push(...posted.errors);
   for (const p of posted.posted) {
-    notes[p.claim_id] = { ...notes[p.claim_id], challenge_id: p.challenge_id, challenge_tx: p.tx, challenged_at: nowMs, note: NOTE.challenged(p.challenge_id, p.outcome) };
+    notes[p.claim_id] = { ...notes[p.claim_id], challenge_id: p.challenge_id, challenge_tx: p.tx, challenged_at: nowMs, note: NOTE.challenged(p.challenge_id, p.outcome), detail: null };
     out.challenged.push(p);
   }
-  for (const pl of plans) if (!posted.posted.some((p) => p.claim_id === pl.claim_id)) notes[pl.claim_id] = { ...notes[pl.claim_id], note: `Its receipts passed; the challenge was not posted: ${posted.errors.find((e) => e.startsWith(`challenge ${pl.claim_id}:`)) || posted.errors[0] || "see the run's errors"}` };
+  for (const pl of plans) if (!posted.posted.some((p) => p.claim_id === pl.claim_id)) notes[pl.claim_id] = { ...notes[pl.claim_id], note: NOTE.unposted(), detail: `Its receipts passed; the challenge was not posted: ${posted.errors.find((e) => e.startsWith(`challenge ${pl.claim_id}:`)) || posted.errors[0] || "see the run's errors"}` };
   if (Object.keys(notes).length) {
     await d.store.update((cur) => {
       const next = { ...cur, lines: { ...cur.lines } };
@@ -441,7 +445,7 @@ export function todayLine(meta, c, { section, picks = null, settleTime = null, n
     outcome: c?.outcome === true ? "true" : c?.outcome === false ? "false" : null,
     decided_at: c?.status === "Settled" ? settleTime : null,
     ruling: c && c.status !== "Open" && c.challenge_id !== null && c.challenge_id !== undefined ? { challenge_id: c.challenge_id, provisional: c.provisional === true ? "true" : c.provisional === false ? "false" : null } : null,
-    settler: meta.settle ? { last_look_at: meta.settle.last_look_at ?? null, note: meta.settle.note ?? null, challenge_id: meta.settle.challenge_id ?? null } : null,
+    settler: meta.settle ? { last_look_at: meta.settle.last_look_at ?? null, note: meta.settle.note ?? null, detail: meta.settle.detail ?? null, challenge_id: meta.settle.challenge_id ?? null } : null,
     picks: picks || { yes: 0, no: 0, total: 0 },
     bounty_usd: c ? usd(c.bounty_micro) : 0,
     opened_at: n.opened_at, open_tx: n.open_tx,
