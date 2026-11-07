@@ -139,10 +139,16 @@ const cache = new Map();
 async function upstream(path, ttl = 20_000) {
   const hit = cache.get(path);
   if (hit && Date.now() - hit.at < ttl) return hit.body;
-  const r = await fetch(`${UP}${path}`, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(15_000) });
-  const body = await r.json();
-  if (r.ok) cache.set(path, { at: Date.now(), body });
-  return body;
+  // a test run stands on what it last read if the live API blips
+  try {
+    const r = await fetch(`${UP}${path}`, { headers: { accept: "application/json" }, signal: AbortSignal.timeout(15_000) });
+    const body = await r.json();
+    if (r.ok) cache.set(path, { at: Date.now(), body });
+    return r.ok || !hit ? body : hit.body;
+  } catch (e) {
+    if (hit) return hit.body;
+    throw e;
+  }
 }
 
 async function facts() {
@@ -291,7 +297,7 @@ async function proxy(req, res, url) {
   }
 }
 
-const server = http.createServer(async (req, res) => {
+const handle = async (req, res) => {
   const url = new URL(req.url, "http://mock");
   if (url.pathname === "/__mock") {
     if (req.method === "POST") {
@@ -317,6 +323,7 @@ const server = http.createServer(async (req, res) => {
   }
   if (await claimsRoutes(req, res, url)) return;
   return proxy(req, res, url);
-});
+};
+const server = http.createServer((req, res) => { handle(req, res).catch((e) => json(res, 502, { error: { code: "upstream_error", message: `mock: ${e.message}` } })); });
 
 server.listen(PORT, "127.0.0.1", () => console.log(`mock API on :${PORT}, news ${state.news}, scenario ${state.scenario}, upstream ${UP}`));
