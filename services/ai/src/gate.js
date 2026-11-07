@@ -23,7 +23,7 @@ import { tokens } from "../../api/src/match.mjs";
 
 export const REVIEW_MODEL = "Qwen/Qwen3.8-27B";
 export const VERIFY_MODEL = "z-ai/glm-5.3-flash";
-export const CHECKS = Object.freeze(["shape", "policy", "unconfirmed", "settles", "duplicate", "capacity"]);
+export const CHECKS = Object.freeze(["shape", "policy", "question", "unconfirmed", "settles", "duplicate", "variety", "capacity"]);
 
 // ---------- policy, in code ----------
 
@@ -61,9 +61,12 @@ export function policyCheck(c) {
   // as a reader reads it: wide and styled letters, invisible ones and look-alikes don't hide a word
   const text = unconfuse([c.claim, c.statement, c.question, c.why, c.source?.headline, c.settles?.event].filter(Boolean).join(" ‖ ").normalize("NFKC").replace(/\p{Cf}/gu, "").toLowerCase());
   const scrubbed = text.replace(NOT_A_WAR, " ");
+  // an election is refused when the bet is about one, not when its headline mentions one: "Anthropic IPO meets
+  // AI backlash after midterms" is a claim about a filing (measured on 7 Nov 2026, the scout's best tech line)
+  const bet = unconfuse([c.claim, c.statement, c.question, c.settles?.event].filter(Boolean).join(" ‖ ").normalize("NFKC").replace(/\p{Cf}/gu, "").toLowerCase());
   for (const [category, patterns] of BLOCKLIST) {
     for (const re of patterns) {
-      const m = re.exec(category === "violence" ? scrubbed : text);
+      const m = re.exec(category === "violence" ? scrubbed : category === "election" ? bet : text);
       if (m) return { ok: false, category, matched: m[0] };
     }
   }
@@ -101,6 +104,17 @@ export function aboutLater(c, nowMs) {
   return null;
 }
 
+/**
+ * A claim about talks, interest or who is favoured: sources rarely confirm those even when true, so silence
+ * would decide the bet and a right reader would lose it. Measured on 7 Nov 2026 (the first live run opened
+ * "confirms trade discussions" and "confirms they will not trade" lines). Returns the words, or null.
+ */
+export function aboutTalks(c) {
+  const text = [c.claim, c.statement].filter(Boolean).join(" ");
+  const m = /\b(?:talks|discussions|negotiations|interest(?:ed)? in|considering|exploring|eyeing|entertaining|front-?runner|shortlist(?:ed)?|in the running|linked to|told (?:him|her|them|[A-Z][a-z]+(?: [A-Z][a-z]+)?) (?:that )?(?:they|it|he|she) (?:will|would) not|will not trade|won't trade|not be traded)\b/i.exec(text);
+  return m ? m[0] : null;
+}
+
 const UNSEEN = /[\p{Cc}\p{Cf}\p{Co}\p{Cn}]/u; // format and control characters: they hide letters, or turn text around on the page
 const twoAlphabets = (s) => String(s).split(/\s+/).some((w) => /\p{Script=Latin}/u.test(w) && /[\p{Script=Cyrillic}\p{Script=Greek}]/u.test(w));
 
@@ -131,10 +145,11 @@ export const REVIEW_PROMPT = [
   '- "refuse": true if the claim touches any of these, even indirectly: anyone\'s health, injuries or medical events; crime, arrests, charges, investigations or court cases; deaths, violence, wars or attacks; anyone under 18; a private individual (anyone who is not a public figure acting in public life, a company or an official body); sex or relationships; who wins an election, a game, a match or a race; a forecast of a price or a number. Else false.',
   '- "category": the first of these it touches: health, crime, violence, minors, private_person, sex, election, game_result, forecast; or "" when none',
   '- "status": is it already settled today, judging by the headline and what you know? "confirmed" if the organisation or person the claim is about has already announced, confirmed or done it (for example "X announces", "X confirms", "X signs", a completed deal), or it is already on the record; "denied" if they denied it or ruled it out; "unconfirmed" for anything else: a news outlet\'s report that cites sources or insiders (even when its headline states it as fact), a rumour, talks, a plan, or a scheduled decision that has not happened yet',
-  '- "settles_in_time": will the answer really be public by the settle-by date? true if what it is about is due to happen, be decided or be announced by then, or has already happened and the named source normally says so. false if it concerns a later date (next year, a future product or season), or if the named source never comments on such things, so the answer would stay unknown',
+  '- "fits": true if the question asks exactly what the claim settles: the same event at the same strength (talks are not a deal, a plan is not a launch, a report is not a confirmation), so anyone who answers the question right also wins the bet. false if someone could answer the question right and still lose the bet',
+  '- "settles_in_time": will the answer really be public by the settle-by date? true if what it is about is due to happen, be decided or be announced by then, or has already happened and the named source normally says so. false if it concerns a later date (next year, a future product or season), if the named source never comments on such things, so the answer would stay unknown, or if it is about talks, interest, discussions, who is favoured, or a promise not to do something, which sources rarely confirm even when true',
   '- "definite": true if something is due to be published by the settle-by date that settles it either way (a scheduled announcement, release, decision, filing or deadline); false if it settles only if someone chooses to speak',
   '- "reason": one short sentence',
-  'Reply with JSON only: {"reviews":[{"i":0,"refuse":false,"category":"","status":"unconfirmed","settles_in_time":true,"definite":false,"reason":"..."}]}',
+  'Reply with JSON only: {"reviews":[{"i":0,"refuse":false,"category":"","status":"unconfirmed","fits":true,"settles_in_time":true,"definite":false,"reason":"..."}]}',
 ].join("\n");
 
 export function reviewRequest(model, candidates, nowMs) {
@@ -160,6 +175,8 @@ export function parseReviews(content, n) {
       refuse: r.refuse === true || r.refuse === "true",
       category: String(r.category || "").toLowerCase().trim().replace(/[\s-]+/g, "_") || null,
       status: STATUS.has(status) ? status : null,
+      // only an explicit false refuses: a reply without the field is read as before
+      fits: r.fits === false || r.fits === "false" ? false : r.fits === true || r.fits === "true" ? true : null,
       settles_in_time: r.settles_in_time === true || r.settles_in_time === "true",
       definite: r.definite === true || r.definite === "true",
       reason: String(r.reason || "").replace(/\s+/g, " ").trim().slice(0, 240),
@@ -345,7 +362,9 @@ export async function runGate(a) {
     if (!p.ok) { refuse(d, "policy", `Never priced: it touches ${policyWords(p.category)} ("${p.matched}").`, { by: "code", category: p.category, matched: p.matched }); continue; }
     d.checks.policy = { ok: true, by: ["code"] };
     const later = aboutLater(d.candidate, nowMs);
-    if (later) refuse(d, "settles", `It is about ${later}: nobody can know that within days, whatever its date says.`, { by: "code", later });
+    if (later) { refuse(d, "settles", `It is about ${later}: nobody can know that within days, whatever its date says.`, { by: "code", later }); continue; }
+    const talks = aboutTalks(d.candidate);
+    if (talks) refuse(d, "settles", `It is about "${talks}": sources rarely confirm that even when it's true, so silence would decide the bet.`, { by: "code", talks });
   }
 
   // 2b. policy, 3. unconfirmed, 4. settles: the second model, one call for all
@@ -359,6 +378,8 @@ export async function runGate(a) {
       d.review = r;
       if (r.refuse) { refuse(d, "policy", `The second model refused it: ${policyWords(r.category)}${r.reason ? `. ${r.reason}` : "."}`, { by: "model", category: r.category }); return; }
       d.checks.policy.by.push("model");
+      if (r.fits === false) { refuse(d, "question", `Its question doesn't ask what the claim settles, so a right answer could lose the bet.${r.reason ? ` ${r.reason}` : ""}`, { by: "model", question: d.candidate.question }); return; }
+      d.checks.question = { ok: true, by: ["model"] };
       if (r.status !== "unconfirmed") { refuse(d, "unconfirmed", r.status ? `Already ${r.status} today, judging by its headline: nobody would bet against it.${r.reason ? ` ${r.reason}` : ""}` : "The second model could not say whether it is still unconfirmed.", { by: "model", status: r.status }); return; }
       d.checks.unconfirmed = { ok: true, by: ["model"] };
       if (!r.settles_in_time) { refuse(d, "settles", `Its source can't settle it by ${d.candidate.settles.by_words}.${r.reason ? ` ${r.reason}` : ""}`, { by: "model" }); return; }
@@ -376,6 +397,16 @@ export async function runGate(a) {
     taken.push({ candidate_id: d.id, text: d.candidate.claim, statement: d.candidate.statement, question: d.candidate.question, source_url: d.candidate.source?.url ?? null });
   }
 
+  // 5b. variety: a day's lines span the topics, at most a.topicCap from any one, counting the lines opened
+  // earlier that day (a.topicsToday). Those within the cap go first, so the web check and the day's slots
+  // go to them; the rest wait behind and are refused at the cap below, never opened past it
+  const topicCap = a.topicCap ?? Infinity;
+  const seen = { ...(a.topicsToday || {}) };
+  const within = [], over = [];
+  for (const d of live()) { const t = d.candidate.topic; seen[t] = (seen[t] || 0) + 1; (seen[t] <= topicCap ? within : over).push(d); }
+  const order = [...within, ...over];
+  const pending = () => order.filter((d) => d.status === "pending");
+
   // capacity: the day's slots and the money, in the scout's order
   const slots = Math.max(0, (a.perDay ?? 4) - (a.openedToday ?? 0));
   const headroom = a.capacity ? headroomMicro({ ...a.capacity, floorMicro: a.floorMicro ?? 0 }) : null;
@@ -384,7 +415,7 @@ export async function runGate(a) {
   // 3b. unconfirmed, again, on the web: as many as could open (and a spare or two), or all of them for a measurement
   const want = a.verifyAll ? Infinity : slots + (a.spare ?? 2);
   if (!a.verify) for (const d of live()) d.checks.unconfirmed.by.push("no web check");
-  const toVerify = a.verify ? live().slice(0, want) : [];
+  const toVerify = a.verify ? pending().slice(0, want) : [];
   for (let i = 0; i < toVerify.length; i += 3) { // a search takes about 25 s: three at a time
     const part = toVerify.slice(i, i + 3);
     const got = await Promise.all(part.map((d) => a.verify(d.candidate)));
@@ -402,7 +433,10 @@ export async function runGate(a) {
   const spare = a.capacity?.spareNear, minSpare = a.minSpareNear ?? 0.3;
   const noStorage = spare !== undefined && (spare === null || spare < minSpare);
   const pass = [];
-  for (const d of live()) {
+  const perTopic = { ...(a.topicsToday || {}) };
+  for (const d of pending()) {
+    const t = d.candidate.topic;
+    if ((perTopic[t] || 0) >= topicCap) { refuse(d, "variety", `Today already has ${perTopic[t]} ${t} line${perTopic[t] === 1 ? "" : "s"}, the most one topic takes in a day (NEWS_TOPIC_CAP).`, { topic: t, cap: topicCap }); continue; }
     if (noStorage) { refuse(d, "capacity", spare === null ? "The market account's NEAR could not be read, so nothing opens." : `The market account has ${spare.toFixed(2)} NEAR spare for storage and keeps at least ${minSpare}: every trade and free bet needs it too.`, { spare_near: spare }); continue; }
     if (a.verify && !d.checks.unconfirmed.by.includes("web")) { refuse(d, "capacity", `Today's ${a.perDay ?? 4} news lines are already chosen, so it was not checked on the web.`, { slots: 0 }); continue; }
     const p0 = p0Of(d.candidate.estimate);
@@ -414,6 +448,7 @@ export async function runGate(a) {
     left -= need;
     d.status = "passed";
     d.checks.capacity = { ok: true, need_micro: need, left_micro: left };
+    d.checks.variety = { ok: true, topic: t, of_today: (perTopic[t] = (perTopic[t] || 0) + 1) };
     pass.push(d);
   }
   const counts = { candidates: decisions.length, passed: pass.length };

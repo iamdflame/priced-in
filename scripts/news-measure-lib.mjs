@@ -101,4 +101,4 @@ export async function juryPanel(client, { claim, evidence, n = 900 }) {
   return { panel, votes };
 }
 
-export const write = (rel, obj) => { fs.writeFileSync(path.join(ROOT, rel), JSON.stringify(obj, null, 1) + "\n"); return rel; };
+export const write = (rel, obj) => { fs.mkdirSync(path.dirname(path.resolve(ROOT, rel)), { recursive: true }); fs.writeFileSync(path.resolve(ROOT, rel), JSON.stringify(obj, null, 1) + "\n"); return rel; };

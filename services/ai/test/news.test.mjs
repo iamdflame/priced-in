@@ -6,7 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { parseRss, parseFeeds, readFeeds, claimText, dateWords, daysFrom, endOfDay, parseCandidates, scoutRequest, jsonIn, SCOUT_PROMPT, TOPICS, DEFAULT_FEEDS } from "../src/scout.js";
-import { aboutLater, spareNearOf, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
+import { aboutLater, aboutTalks, spareNearOf, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
 import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, checkPassed } from "../src/settle.js";
 import { parseEvidence, normForMatch, checkReceipts, newsDeadline } from "../src/receipts.js";
 import { supportRequest, ABSENCE_PROMPT, SUPPORT_PROMPT } from "../src/support.js";
@@ -107,6 +107,9 @@ test("policy in code: the spike's misses are refused, and so are the other topic
   assert.equal(no("By 12 November 2026, the club confirms it signed a 16-year-old.", "Football").category, "minors");
   assert.equal(no("By 12 November 2026, the singer confirms her divorce.", "Entertainment").category, "private_person");
   assert.equal(no("By 12 November 2026, officials confirm the recount.", "Officials").category, "election");
+  assert.equal(no("By 14 November 2026, Anthropic or an SEC filing confirms that Anthropic has filed for an IPO.", "Tech", "Anthropic IPO meets AI backlash after midterms show stinging rebuke of data centers - CNBC").ok, true, "a headline that mentions an election doesn't make the bet one");
+  assert.equal(no("By 14 November 2026, the party confirms its candidate won the midterm seat.", "Officials").category, "election");
+  assert.equal(no("By 14 November 2026, the club confirms the signing.", "Football", "Star striker hospitalized before the signing").category, "health", "the headline still counts for everything else");
   assert.equal(no("By 12 November 2026, Arsenal beat Spurs.", "Football").category, "game_result");
   assert.equal(no("By 12 November 2026, CoinGecko shows Bitcoin above $120,000.", "Crypto").category, "forecast");
   assert.equal(no("By 12 November 2026, the Fed confirms it will cut rates.", "Money").category, "forecast");
@@ -133,7 +136,7 @@ test("shape: a claim settles 1 to 7 days out, fits the market, and the scout's p
 
 test("the second model's reviews: tolerant JSON, one per claim, missing ones stay null", () => {
   const r = parseReviews('Sure! {"reviews":[{"i":1,"refuse":"true","category":"Game result","status":"UNCONFIRMED","settles_in_time":true,"definite":false,"reason":"r"},{"i":0,"refuse":false,"status":"confirmed"},{"i":7}]}', 3);
-  assert.deepEqual(r[1], { refuse: true, category: "game_result", status: "unconfirmed", settles_in_time: true, definite: false, reason: "r" });
+  assert.deepEqual(r[1], { refuse: true, category: "game_result", status: "unconfirmed", fits: null, settles_in_time: true, definite: false, reason: "r" });
   assert.equal(r[0].status, "confirmed");
   assert.equal(r[2], null);
   const req = reviewRequest(REVIEW_MODEL, [cand()], NOW);
@@ -225,6 +228,59 @@ test("the gate: every candidate gets one result, refusals say which check and wh
   assert.deepEqual([broke.decisions[0].failed, /spend cap/.test(broke.decisions[0].reason)], ["policy", true], "no review, no line");
   const definite = await runGate({ candidates: [cand({ id: "z" })], nowMs: NOW, requireDefinite: true, review: async () => [{ refuse: false, status: "unconfirmed", settles_in_time: true, definite: false }], verify: null, capacity: { treasuryMicro: "9000000", reservedMicro: "0", capMicro: "9000000", laneBudgetMicro: "0" } });
   assert.equal(definite.decisions[0].failed, "settles", "NEWS_REQUIRE_DEFINITE asks for an event that settles it either way");
+});
+
+test("the gate: a day's lines span the topics, and a question must ask what its claim settles", async () => {
+  const mk = (id, topic, subject) => cand({ id, topic, question: `Is ${subject} confirming the deal?`, statement: `${subject} confirms the deal with partner ${id}.`, claim: `By 13 November 2026, ${subject} confirms the deal with partner ${id}.`, url: `https://example.com/${id}` });
+  const c = [mk("s1", "Sports", "the Colts"), mk("s2", "Sports", "the Ravens"), mk("s3", "Sports", "the Knicks"), mk("t1", "Tech", "Nvidia"), mk("m1", "Money", "Barclays")];
+  const verified = [];
+  const ok = { refuse: false, category: null, status: "unconfirmed", fits: true, settles_in_time: true, definite: false, reason: "" };
+  const money = { treasuryMicro: "60000000", reservedMicro: "0", capMicro: "100000000", laneBudgetMicro: "0" };
+  const g = await runGate({
+    candidates: c, nowMs: NOW, review: async (list) => list.map(() => ok),
+    verify: async (x) => { verified.push(x.id); return { status: "unconfirmed", sources: [], note: null }; },
+    open: [], capacity: money, perDay: 4, openedToday: 1, topicsToday: { Sports: 1 }, topicCap: 2, spare: 0, bMicro: 500_000,
+  });
+  const by = Object.fromEntries(g.decisions.map((d) => [d.id, [d.status, d.failed]]));
+  assert.deepEqual(by, { s1: ["passed", null], s2: ["refused", "variety"], s3: ["refused", "variety"], t1: ["passed", null], m1: ["passed", null] });
+  assert.deepEqual(verified, ["s1", "t1", "m1"], "the web check goes to the lines within the cap first");
+  assert.match(g.decisions.find((d) => d.id === "s2").reason, /Today already has 2 Sports lines/);
+  assert.deepEqual(g.pass.map((d) => d.id), ["s1", "t1", "m1"]);
+  assert.equal(CHECKS.reduce((n, k) => n + g.counts[`refused_${k}`], 0) + g.counts.passed, 5, "every candidate is counted once");
+  const loose = await runGate({ candidates: c, nowMs: NOW, review: async (list) => list.map(() => ok), verify: null, open: [], capacity: money, perDay: 4, bMicro: 500_000 });
+  assert.equal(loose.pass.length, 4, "with no cap set, the scout's order and the day's slots decide, as before");
+
+  const misfit = await runGate({
+    candidates: [cand({ id: "pause", question: "Is Tesla ending Cybertruck production?", statement: "Tesla confirms it is pausing Cybertruck production for two weeks.", claim: "By 14 November 2026, Tesla confirms it is pausing Cybertruck production for two weeks." })],
+    nowMs: NOW, review: async () => [{ ...ok, fits: false, reason: "A pause is not an end." }], verify: null, open: [], capacity: money, bMicro: 500_000,
+  });
+  assert.deepEqual([misfit.decisions[0].failed, misfit.decisions[0].reason], ["question", "Its question doesn't ask what the claim settles, so a right answer could lose the bet. A pause is not an end."]);
+  const silent = await runGate({ candidates: [cand({ id: "old" })], nowMs: NOW, review: async () => [{ ...ok, fits: undefined }], verify: null, open: [], capacity: money, bMicro: 500_000 });
+  assert.equal(silent.pass.length, 1, "a review without the field is read as before");
+  assert.deepEqual(parseReviews('{"reviews":[{"i":0,"fits":"false","status":"unconfirmed"},{"i":1,"status":"unconfirmed"}]}', 2).map((r) => r.fits), [false, null]);
+  assert.match(reviewRequest("m", [c[0]], NOW).messages[0].content, /"fits"/);
+});
+
+test("silence never decides a bet: claims about talks, interest or a promise not to act are refused in code", async () => {
+  const live = [
+    "By 14 November 2026, the Indianapolis Colts or an official team statement confirms trade discussions involving Daniel Jones. Reports citing unnamed sources don't count.",
+    "By 14 November 2026, the Baltimore Ravens or an official team statement confirms they will not trade Derrick Henry. Reports citing unnamed sources don't count.",
+    "By 10 November 2026, the Indianapolis Colts confirm that they are entertaining trade discussions for Daniel Jones. Reports citing unnamed sources don't count.",
+    "By 10 November 2026, the Baltimore Ravens confirm they have told Derrick Henry they will not trade him. Reports citing unnamed sources don't count.",
+    "By 14 November 2026, Real Madrid confirms it is in talks to sign the striker. Reports citing unnamed sources don't count.",
+  ];
+  for (const claim of live) assert.ok(aboutTalks({ claim }), claim);
+  const fair = [
+    "By 14 November 2026, NC State officially confirms Philip Rivers as its next head football coach. Reports citing unnamed sources don't count.",
+    "By 13 November 2026, Microsoft confirms that it is winding down its deal to rent AI cloud capacity from Oracle.",
+    "By 14 November 2026, the Indianapolis Colts announce a trade of Daniel Jones. Reports citing unnamed sources don't count.",
+    "By 14 November 2026, Eon Productions confirms Robert Pattinson has been cast as the next James Bond. Reports citing unnamed sources don't count.",
+  ];
+  for (const claim of fair) assert.equal(aboutTalks({ claim }), null, claim);
+  const ok = { refuse: false, category: null, status: "unconfirmed", fits: true, settles_in_time: true, definite: false, reason: "" };
+  const g = await runGate({ candidates: [cand({ id: "talk", claim: live[0], statement: "The Colts confirm trade discussions involving Daniel Jones." })], nowMs: NOW, review: async (l) => l.map(() => ok), verify: null, open: [], capacity: { treasuryMicro: "60000000", reservedMicro: "0", capMicro: "100000000", laneBudgetMicro: "0" }, bMicro: 500_000 });
+  assert.deepEqual([g.decisions[0].failed, g.decisions[0].checks.settles.by], ["settles", "code"]);
+  assert.match(g.decisions[0].reason, /silence would decide the bet/);
 });
 
 // ---------- settling ----------

@@ -5,7 +5,7 @@
 // today, will a public source settle it within 7 days, and does it touch anything we never price?
 // Nothing is opened, signed or posted.
 //
-//   node scripts/measure-scout.mjs [--out deployments/scout-test.json] [--budget 0.5]
+//   node scripts/measure-scout.mjs [--out deployments/scout-test.json] [--budget 0.5] [--topic-cap 2]
 //
 // NEARAI_API_KEY1 from .env (never printed). About $0.10 a run.
 import { readFeeds, proposeClaims, DEFAULT_FEEDS, dateWords, isoDay, jsonIn, NO_THINKING } from "../services/ai/src/scout.js";
@@ -32,6 +32,8 @@ const gate = await runGate({
   review: async (cands) => parseReviews((await wrap("review").chat(reviewRequest(REVIEW_MODEL, cands, now), { timeoutMs: 120_000 })).content, cands.length),
   verify: (c) => verifyOnWeb({ client: wrap("verify"), model: VERIFY_MODEL, candidate: c, nowMs: now }),
   verifyAll: true,
+  // as the hosted scout does: at most this many lines a topic (NEWS_TOPIC_CAP)
+  topicCap: Number(arg("--topic-cap", "2")),
   open,
   capacity: money.capacity,
   openedToday: 0,

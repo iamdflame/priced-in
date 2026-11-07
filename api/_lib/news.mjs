@@ -46,6 +46,8 @@ export function newsConfig(env = process.env) {
   return {
     enabled: env.NEWS_ENABLED === "1",
     perDay: whole(env.NEWS_PER_DAY, 0, 24, 4),
+    // the most lines one topic opens in a UTC day, so the day's claims are never one story told four times
+    topicCap: whole(env.NEWS_TOPIC_CAP, 1, 24, 2),
     bMicro: whole(env.NEWS_B_MICRO, 100_000, 5_000_000, 1_450_000),
     chainKind: ["data", "document", "judgment"].includes(env.NEWS_CHAIN_KIND) ? env.NEWS_CHAIN_KIND : "document",
     scoutHoursUtc: hours(env.NEWS_SCOUT_HOURS_UTC, [6, 18]),
@@ -178,10 +180,12 @@ export async function scoutRound(d) {
   const claims = await d.claims();
   const lines = doc.lines || {};
   const open = claims.filter((c) => c.status !== "Settled").map((c) => ({ claim_id: c.id, text: c.text, question: lines[c.id]?.question ?? null, source_url: lines[c.id]?.source?.url ?? null }));
-  const openedToday = Object.values(lines).filter((l) => isoDay(l.opened_at) === isoDay(nowMs)).length;
+  const today = Object.values(lines).filter((l) => isoDay(l.opened_at) === isoDay(nowMs));
+  const openedToday = today.length;
+  const topicsToday = today.reduce((m, l) => ({ ...m, [l.topic]: (m[l.topic] || 0) + 1 }), {});
   const gate = await runGate({
     candidates: proposal.candidates, nowMs, review: d.review, verify: cfg.webVerify ? d.verify : null, open,
-    capacity: await d.capacity(), openedToday, perDay: cfg.perDay, bMicro: cfg.bMicro, floorMicro: cfg.floorMicro, minSpareNear: cfg.minSpareNear, requireDefinite: cfg.requireDefinite,
+    capacity: await d.capacity(), openedToday, topicsToday, topicCap: cfg.topicCap, perDay: cfg.perDay, bMicro: cfg.bMicro, floorMicro: cfg.floorMicro, minSpareNear: cfg.minSpareNear, requireDefinite: cfg.requireDefinite,
   });
   out.candidates = gate.counts.candidates;
   out.passed = gate.pass.length;
