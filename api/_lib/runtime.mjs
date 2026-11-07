@@ -28,6 +28,7 @@ import { ClaimsSnapshot } from "./snapshot.mjs";
 import { storeMeter } from "./meter.mjs";
 import { ledgerChecks } from "./sentinel.mjs";
 import { cachedLines, mergeNews, newsConfig } from "./news.mjs";
+import { officialWriter, pagesConfig } from "./pages.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, "../..");
@@ -117,7 +118,9 @@ function build({ agents = true } = {}) {
   }
   // the jury's receipt checks live in the store's Sentinel ledger, shared by every instance
   const receipts = { store: ledgerChecks(p.state) };
-  const layer = mountAi(app, ai, { log, overrides: agents ? { receipts } : { receipts, crowd: { signer: NO_AGENTS, reconcile: null } } });
+  // with OFFICIAL_PAGES=1 the writer works on the articles' own paragraphs (api/_lib/pages.mjs)
+  const writer = pagesConfig(p.env).enabled ? { official: officialWriter({ links: () => p.journals.read("links.jsonl") }) } : undefined;
+  const layer = mountAi(app, ai, { log, overrides: agents ? { receipts, writer } : { receipts, writer, crowd: { signer: NO_AGENTS, reconcile: null } } });
   for (const r of evidence.values()) if (!app.rewrites.get(r.id) || app.rewrites.get(r.id).anchor?.status !== "anchored") app.rewrites.put(r);
   for (const e of p.journals.read("events.jsonl")) app.hub.publish(e);
   return { app, layer, ai, api, evidence };

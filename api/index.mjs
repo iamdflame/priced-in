@@ -14,6 +14,8 @@ import { parseSigningKey } from "../services/api/src/planner.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { newsConfig } from "./_lib/news.mjs";
 import { claimsWithNews, isNewsRoute, newsRoutes } from "./_lib/today-routes.mjs";
+import { pagesConfig } from "./_lib/pages.mjs";
+import { isPagesRoute, pagesRoute } from "./_lib/pages-routes.mjs";
 
 /** CDN caching per route: many browsers polling share one function call. */
 const CACHE = [
@@ -75,6 +77,8 @@ export default async function handler(req, res) {
     : route === "/rulings" ? () => rulingsRoute(p)
     : route === "/attestations" ? () => attestationsRoute(url, layer)
     : route === "/lane/status" ? () => laneStatusRoute(url, req, ctx, p)
+    // the official pages: only with OFFICIAL_PAGES=1 (off, these paths fall through to a 404 as before)
+    : pagesConfig().enabled && isPagesRoute(route) ? () => pagesRoute(route, p)
     : null;
   if (read) {
     try {

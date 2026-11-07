@@ -9,6 +9,7 @@
 //     4. a signed correction the keeper asked for (a line ruled FALSE with none yet)
 //     5. anchor any signed rewrite not anchored yet (anchor_rewrite through the signer)
 //     6. if nothing happened for 20 hours, refresh the stalest paragraph at today's prices
+//     6b. with OFFICIAL_PAGES=1, the page sweep: the paragraphs due a rewrite, stalest first (api/_lib/pages.mjs)
 //   agents (the jobs' lock, given up between steps when a visitor's trade is waiting for it):
 //     7. the agents' cycle: roster, open intents reconciled, settled winnings redeemed; then a look
 //        at the stalest open claims (they bet only when their signed credence beats the price,
@@ -30,7 +31,7 @@ import { putCheck, readLedger } from "./_lib/sentinel.mjs";
 import { checkReceipts, FAILED, unsettled } from "../services/ai/src/receipts.js";
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { labelSentences, PRICEABLE } from "../services/api/src/planner.mjs";
-import { paragraphsOf } from "../services/ai/src/writer.js";
+import { cronSweep } from "./_lib/pages-routes.mjs";
 
 const RUN_MS = 285_000; // Vercel stops this function at 300 s
 const CORRECTIONS = "keeper/corrections.json";
@@ -137,7 +138,7 @@ export default async function handler(req, res) {
       const claims = await app.claims.all();
       for (const key of Object.keys(wanted).slice(0, 2)) {
         const c = claims.find((x) => x.id === Number(key));
-        const paras = c ? paragraphsOf(c.page, claims.filter((x) => x.page === c.page), layer.writer.pagesDoc) : [];
+        const paras = c ? layer.writer.paragraphsFor(c.page, claims.filter((x) => x.page === c.page)) : [];
         const i = paras.findIndex((para) => para.some((x) => x.id === Number(key)));
         if (i >= 0 && deadline - Date.now() > 45_000) {
           const prices = new Map(paras[i].map((x) => [x.id, x.price_yes_ppm]));
@@ -165,7 +166,7 @@ export default async function handler(req, res) {
       const claims = (await app.claims.all()).filter((c) => c.status === "Open");
       let stalest = null;
       for (const page of [...new Set(claims.map((c) => c.page))].filter((pg) => !isNewsPage(pg))) {
-        paragraphsOf(page, claims.filter((c) => c.page === page), layer.writer.pagesDoc).forEach((para, i) => {
+        layer.writer.paragraphsFor(page, claims.filter((c) => c.page === page)).forEach((para, i) => {
           const at = app.rewrites.byPage(page).find((x) => x.paragraph === i)?.createdAt || 0;
           if (para.length && (!stalest || at < stalest.at)) stalest = { page, i, para, at };
         });
@@ -176,6 +177,8 @@ export default async function handler(req, res) {
         out.refreshed = rec ? `${rec.id} ${rec.status}` : null;
       }
     }
+    const sweep = await cronSweep({ p, app, layer, deadline, log }).catch((e) => { failures.push(`sweep: ${e.message}`); return null; });
+    if (sweep !== undefined) out.sweep = sweep;
     out.compacted = await p.journals.compact().catch((e) => { failures.push(`compact: ${e.message}`); return 0; });
     return out;
   }, { lock: "writer", agents: false, waitMs: 20_000, budgetMs: Math.max(50_000, Math.min(100_000, remaining() - 130_000)), reanchor: true });

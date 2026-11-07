@@ -400,6 +400,7 @@ export function createApp(config, deps = {}) {
         },
         truth_api: await meter.totals(),
         quote: "/v1/quote?claim=<id>&side=yes|no&amount_usd=<n>",
+        ...(process.env.OFFICIAL_PAGES === "1" ? { pages: "/v1/pages/<slug>", record: "/v1/record" } : {}),
         mcp: "claude mcp add pricedin -- npx -y pricedin-mcp (tools: ask, get_claim, quote, bet).",
       });
     }
