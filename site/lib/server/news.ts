@@ -4,7 +4,7 @@
 import "server-only";
 import { cache } from "react";
 import { API_ORIGIN, get, type Res } from "./api";
-import type { Board, Period, Today } from "../news";
+import { boardScore, type Board, type Period, type Today } from "../news";
 
 export type News = { on: false } | { on: true; today: Today };
 
@@ -27,6 +27,18 @@ async function probe(): Promise<News> {
 }
 
 export const getNews = cache(probe);
+
+/**
+ * Each person's free $1 score, for the board: what their free bet has grown to, from the portfolio of the same
+ * key's lane identity. Null for a key that never bet its free $1, credited or not. Capped, cached a minute.
+ */
+export async function getScores(ids: string[]): Promise<Record<string, number | null>> {
+  const rows = await Promise.all(ids.slice(0, 30).map(async (id) => {
+    const r = await get<{ balance_usd: number | null; positions: { value_usd: number | null }[] }>(`/portfolio?trader=${encodeURIComponent(`lane:${id}`)}`, 60);
+    return [id, r.ok ? boardScore(r.value) : null] as const;
+  }));
+  return Object.fromEntries(rows);
+}
 
 /** The board for a period: people and the three AI traders side by side. */
 export const getBoard = cache((period: Period): Promise<Res<Board>> => get<Board>(`/leaderboard?period=${period}`, 15));

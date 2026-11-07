@@ -82,7 +82,7 @@ function Row({ r, facts, free, onCollect, collecting = false }: { r: PositionRow
         <h3 className="q"><Link href={`/c/${r.claim_id}`}>{question}</Link></h3>
         <div className="nums">
           {r.shares > 0 ? <span>Shares <b>{r.shares.toFixed(2)}</b></span> : null}
-          {r.value_usd !== null ? <span>{open ? "Worth at today’s chance" : "Worth"} <b>{money(r.value_usd)}</b></span> : null}
+          {free && r.state === "collected" ? <span>Added to your score <b>{money(r.received_usd)}</b></span> : r.value_usd !== null ? <span>{open ? "Worth at today’s chance" : "Worth"} <b>{money(r.value_usd)}</b></span> : null}
           {!free && r.pnl_usd !== null ? <span>Profit or loss <b className={tone(r.pnl_usd)}>{signed(r.pnl_usd)}</b></span> : null}
         </div>
       </div>
@@ -223,6 +223,8 @@ function FreeBet({ facts, picks = false }: { facts: FactMap; picks?: boolean }) 
   // the score: the free $1 as it stands, its balance (won and collected, or sold) and what its bets are worth
   const balance = Math.max(0, data?.balance_usd ?? 0);
   const worth = balance + rows.reduce((n, r) => n + (r.value_usd ?? 0), 0);
+  // a credited free $1 nobody has bet yet is still the free $1, not a score
+  const betOnce = (data?.positions.length ?? 0) > 0;
   const [collecting, setCollecting] = useState<number | null>(null);
   const [failed, setFailed] = useState<string | null>(null);
   // a won free bet goes into the score with the browser's own key (the lane key may redeem); nothing leaves the market
@@ -238,7 +240,7 @@ function FreeBet({ facts, picks = false }: { facts: FactMap; picks?: boolean }) 
   return (
     <section aria-labelledby="pf-free">
       <div className="pf-sec"><h2 id="pf-free"><Icon name="gift" />Your free $1</h2><span className="score-note">Free winnings are score, not cash</span></div>
-      {rows.length || balance > 0 ? (
+      {betOnce ? (
         <>
           <div className="pf-stats pf-stats-2">
             <Stat k="Your score" v={money(worth)} s="Your free $1 as it stands. It can’t be cashed out." lead />

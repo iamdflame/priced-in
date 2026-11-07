@@ -33,7 +33,7 @@ function Who({ r, you }: { r: BoardRow; you: boolean }) {
   );
 }
 
-function Row({ r, you, rank }: { r: BoardRow; you: boolean; rank: string }) {
+function Row({ r, you, rank, score }: { r: BoardRow; you: boolean; rank: string; score: number | null | undefined }) {
   return (
     <tr className={`${r.kind}${you ? " me" : ""}${r.ranked ? "" : " unranked"}`}>
       <td><div className="lb-who"><span className="lb-rk">{rank}</span><Who r={r} you={you} /></div></td>
@@ -41,23 +41,24 @@ function Row({ r, you, rank }: { r: BoardRow; you: boolean; rank: string }) {
       <td className="n" data-l="Streak">{r.streak.current}<small>best {r.streak.best}</small></td>
       <td className="n" data-l="Caught">{r.caught}</td>
       <td className="n" data-l="Points">{r.points}</td>
+      <td className="n lb-sc" data-l="Free $1 score">{r.kind === "person" && score != null ? money(score) : "—"}</td>
     </tr>
   );
 }
 
-function Table({ b, me }: { b: Board; me: string | null }) {
+function Table({ b, me, scores }: { b: Board; me: string | null; scores: Record<string, number | null> }) {
   const unranked = [...b.ai.filter((a) => !a.ranked), ...b.waiting];
   return (
     <div className="panel boardwrap">
       <table className="board stack lbt">
-        <thead><tr><th scope="col">Who</th><th scope="col" className="n">Right</th><th scope="col" className="n">Streak</th><th scope="col" className="n">Caught</th><th scope="col" className="n">Points</th></tr></thead>
+        <thead><tr><th scope="col">Who</th><th scope="col" className="n">Right</th><th scope="col" className="n">Streak</th><th scope="col" className="n">Caught</th><th scope="col" className="n">Points</th><th scope="col" className="n lb-sc">Free $1 score</th></tr></thead>
         <tbody>
-          {b.board.map((r) => <Row key={r.id} r={r} you={r.id === me} rank={`${r.rank}`} />)}
+          {b.board.map((r) => <Row key={r.id} r={r} you={r.id === me} rank={`${r.rank}`} score={scores[r.id]} />)}
           {!b.board.length && (
-            <tr className="lb-empty"><td colSpan={5}><b>Nobody is ranked {PERIODS.find((p) => p.id === b.period)?.empty} yet.</b> Ranking starts at {b.min_settled} settled picks, for people and AI traders alike. Here is everyone on the way.</td></tr>
+            <tr className="lb-empty"><td colSpan={6}><b>Nobody is ranked {PERIODS.find((p) => p.id === b.period)?.empty} yet.</b> Ranking starts at {b.min_settled} settled picks, for people and AI traders alike. Here is everyone on the way.</td></tr>
           )}
-          {unranked.length > 0 && b.board.length > 0 && <tr className="lb-sep"><td colSpan={5}>Not ranked yet: {b.min_settled} settled picks to rank</td></tr>}
-          {unranked.map((r) => <Row key={r.id} r={r} you={r.id === me} rank="—" />)}
+          {unranked.length > 0 && b.board.length > 0 && <tr className="lb-sep"><td colSpan={6}>Not ranked yet: {b.min_settled} settled picks to rank</td></tr>}
+          {unranked.map((r) => <Row key={r.id} r={r} you={r.id === me} rank="—" score={scores[r.id]} />)}
         </tbody>
       </table>
     </div>
@@ -111,7 +112,7 @@ function YourCard({ rec, onSaved, score }: { rec: MyRecord | null; onSaved: (nic
   );
 }
 
-export function BoardView({ boards, initial = "week" }: { boards: Record<Period, Board | null>; initial?: Period }) {
+export function BoardView({ boards, scores = {}, initial = "week" }: { boards: Record<Period, Board | null>; scores?: Record<string, number | null>; initial?: Period }) {
   const [period, setPeriod] = useState<Period>(initial);
   const [me, setMe] = useState<string | null>(null);
   const [rec, setRec] = useState<MyRecord | null>(null);
@@ -122,7 +123,7 @@ export function BoardView({ boards, initial = "week" }: { boards: Record<Period,
     if (!k) return;
     setMe(k.publicKey);
     myRecord().then((r) => { if (r?.ok) setRec(r); });
-    myScore().then((s) => { if (s && (s.worthUsd > 0 || s.portfolio.positions.length)) setScore(s); });
+    myScore().then((s) => { if (s && s.portfolio.positions.length) setScore(s); });
   }, []);
   const b = boards[period];
   // a nickname just saved shows at once; the board catches up on its next read
@@ -147,7 +148,7 @@ export function BoardView({ boards, initial = "week" }: { boards: Record<Period,
         )}
       </div>
       <div className="lb-grid">
-        {shown ? <Table b={shown} me={me} /> : <div className="panel quiet"><Icon name="alert" /><div><b>The board didn’t load.</b><p>Picks are kept either way. Try again in a moment.</p></div></div>}
+        {shown ? <Table b={shown} me={me} scores={scores} /> : <div className="panel quiet"><Icon name="alert" /><div><b>The board didn’t load.</b><p>Picks are kept either way. Try again in a moment.</p></div></div>}
         <aside className="panel lb-side" aria-label="You">
           <YourCard rec={rec} score={score} onSaved={(n) => { const k = existingKey(); if (k) { setMe(k.publicKey); setNames({ [k.publicKey]: n }); } }} />
         </aside>

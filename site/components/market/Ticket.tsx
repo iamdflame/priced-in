@@ -128,7 +128,7 @@ function BetTicket(p: TicketProps) {
   const failure = bet.stage === "failed" ? bet.failure : null;
   const ref = useRef<HTMLElement>(null);
   const pick = usePickHere(p, side, done);
-  const right = (q: NonNullable<typeof quotes>["yes"]) => (scoreUsd ? `Right: ${money(scoreUsd)} becomes ${backUsd(q)}` : payoutWords(q).right);
+  const right = (q: NonNullable<typeof quotes>["yes"]) => (scoreUsd ? `Right: it becomes ${backUsd(q)}` : payoutWords(q).right);
   const confirm = () => { if (scoring && score) { setScoreBet(true); void flow.confirm(scoreMicro(score)); } else void flow.confirm(); };
   if (p.closed) {
     return (
@@ -175,7 +175,7 @@ function BetTicket(p: TicketProps) {
         <button type="button" className="linkbtn tk-justpick hide-dock" onClick={() => void pick.save(side)} disabled={pick.busy}>{pick.busy ? "Saving…" : "Or just save it as a free pick: wins nothing, counts on the leaderboard"}</button>
       )}
       {done && !flow.receiptOpen && <button type="button" className="btn soft" onClick={flow.openReceipt}>See your receipt</button>}
-      {!p.recorded && flow.lane.state === "preparing" && !busy && <p className="fine hide-dock">Preparing your free $1 in this browser…</p>}
+      {!p.recorded && flow.lane.state === "preparing" && !busy && <p className="fine hide-dock">{scoring ? "Getting your key ready in this browser…" : "Preparing your free $1 in this browser…"}</p>}
       {p.recorded ? <p className="fine hide-dock">This is a replay of the real free $1 bet on this fact. Nothing is sent.</p> : scoring ? <p className="fine">Score is free play: it can’t be cashed out. Bet real USDC to win real money.</p> : <p className="fine">{quotes ? `${payoutWords(quotes.yes).wrong}. ` : ""}<FreeCashNote /></p>}
       {!p.recorded && <WalletEntry claimId={p.id} question={p.question} status={p.claim.status} outcome={p.claim.outcome} side={side} />}
       {flow.receiptOpen && flow.store && bet.ctx && (

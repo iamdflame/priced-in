@@ -233,6 +233,14 @@ export function pickableOrWhy(l: Pick<TodayLine, "status" | "overdue" | "settles
   return null;
 }
 
+/**
+ * A person's free $1 score from their lane identity's portfolio: its balance and what its bets are worth.
+ * Null until they've bet it: a free $1 only credited is still the free $1.
+ */
+export function boardScore(p: { balance_usd: number | null; positions: { value_usd: number | null }[] }): number | null {
+  return p.positions.length ? Math.max(0, p.balance_usd ?? 0) + p.positions.reduce((n, r) => n + (r.value_usd ?? 0), 0) : null;
+}
+
 /** "71%" from 0.71; null stays null. */
 export const pctWords = (a: number | null) => (a === null ? "—" : `${Math.round(a * 100)}%`);
 

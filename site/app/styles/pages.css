@@ -614,6 +614,8 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .lb-who { display: flex; align-items: center; min-width: 0; }
 .lb-rk { flex: none; width: 52px; font: 700 17px var(--disp); color: var(--ink3); font-feature-settings: 'tnum'; }
 .lbt td.n { font: 600 17px var(--disp); color: var(--ink); }
+.lbt th.lb-sc, .lbt td.lb-sc { box-shadow: inset 1px 0 0 var(--line); }
+.lbt td.lb-sc { color: var(--ink2); }
 .lbt td.n small { display: block; margin-top: 2px; font: 400 12px var(--text); color: var(--ink3); white-space: nowrap; }
 .lbt tr.me td { background: var(--surface2); }
 .lbt tr.unranked td.n { color: var(--ink2); }

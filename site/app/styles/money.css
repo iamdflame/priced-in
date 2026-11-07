@@ -219,6 +219,7 @@
 .legal .upd { font-size: 13px; color: var(--ink3); margin-top: 8px; }
 
 @media (max-width: 760px) {
+  .pf-stats-2 .pf-stat { grid-column: 1 / -1; }
   .pf-picks li { grid-template-columns: minmax(0, 1fr) auto; }
   .pf-picks li .pf-pq { grid-column: 1 / -1; grid-row: 1; }
   .pf-why { grid-column: 1 / -1; }
