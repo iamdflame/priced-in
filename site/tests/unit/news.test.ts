@@ -1,7 +1,7 @@
 // What the home and the money path decide from the API's lines: which line leads, what a card may take, how a
 // source reads, and that a challenge's evidence is in the shape the jury runner checks.
 import { describe, expect, it } from "vitest";
-import { arrange, boardScore, headlineOf, isNewsPage, newsArt, outletOf, pickableOrWhy, refusalWords, shortDate, type TodayLine } from "@/lib/news";
+import { arrange, blockArt, boardScore, claimParts, headlineOf, isNewsPage, NEWS_ART, newsArt, outletOf, pickableOrWhy, refusalWords, shortDate, type TodayLine } from "@/lib/news";
 import { checkChallenge } from "@/lib/money/rules";
 import { challengeEvidence, challengeTx } from "@/lib/money/tx";
 import { moneyConfig } from "@/lib/money/config";
@@ -81,6 +81,45 @@ describe("a line's words", () => {
     expect(isNewsPage("Tether")).toBe(false);
     expect(newsArt("Football")).toBe("football");
     expect(newsArt("Something new")).toBe("corp");
+  });
+});
+
+describe("each topic's objects", () => {
+  it("never shows the same object twice in a block while its topic has another", () => {
+    // the first live run: four Sports claims at once
+    const four = [39, 40, 41, 42].map((claim_id) => ({ claim_id, topic: "Sports" }));
+    expect([...blockArt(four).values()]).toEqual(["sports", "podium", "stopwatch", "sports"]);
+    const mixed = blockArt([{ claim_id: 1, topic: "Tech" }, { claim_id: 2, topic: "Football" }, { claim_id: 3, topic: "Tech" }, { claim_id: 4, topic: "Nope" }]);
+    expect([...mixed.values()]).toEqual(["tech", "football", "laptop", "corp"]);
+    // a block on its own starts again from each topic's first object
+    expect(blockArt([{ claim_id: 5, topic: "Tech" }]).get(5)).toBe("tech");
+  });
+
+  it("gives every scout topic at least two objects, each once, with a file in both sets", async () => {
+    const { existsSync } = await import("node:fs");
+    const names = Object.values(NEWS_ART).flat();
+    expect(new Set(names).size).toBe(names.length);
+    for (const [topic, set] of Object.entries(NEWS_ART)) {
+      expect(set.length, topic).toBeGreaterThanOrEqual(2);
+      for (const n of set) {
+        expect(existsSync(`public/art/${n}.webp`), `dark ${n}`).toBe(true);
+        expect(existsSync(`public/art/light/${n}.webp`), `light ${n}`).toBe(true);
+      }
+    }
+  });
+});
+
+describe("what Yes means", () => {
+  it("keeps the claim's deadline and rule, and moves who doesn't count to the small print", () => {
+    expect(claimParts("By 14 November 2026, NC State officially confirms Philip Rivers as its next head football coach. Reports citing unnamed sources don't count.")).toEqual({
+      yes: "By 14 November 2026, NC State officially confirms Philip Rivers as its next head football coach.",
+      fine: "Reports citing unnamed sources don't count.",
+    });
+    expect(claimParts("By 14 November 2026, Anthropic or a filing confirms it is pressing ahead with an IPO targeting a $1.5tn valuation. Reports citing unnamed sources don’t count.").yes)
+      .toBe("By 14 November 2026, Anthropic or a filing confirms it is pressing ahead with an IPO targeting a $1.5tn valuation.");
+    expect(claimParts("By 1 December 2026, U.S. officials confirm the deal.")).toEqual({ yes: "By 1 December 2026, U.S. officials confirm the deal.", fine: null });
+    // a claim that is only small print stays the claim
+    expect(claimParts("Reports citing unnamed sources don't count.").yes).toBe("Reports citing unnamed sources don't count.");
   });
 });
 

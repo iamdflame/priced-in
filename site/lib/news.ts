@@ -7,17 +7,57 @@
 export const NEWS_PAGE = /^news-\d{4}-\d{2}-\d{2}$/;
 export const isNewsPage = (page: string | null | undefined) => NEWS_PAGE.test(String(page ?? ""));
 
-/** The scout's topics (services/ai/src/scout.js TOPICS), each with its object in both art sets. */
-export const NEWS_ART: Record<string, string> = {
-  Football: "football",
-  Sports: "sports",
-  Money: "money",
-  Tech: "tech",
-  Entertainment: "entertainment",
-  Officials: "officials",
-  Crypto: "bitcoin",
+/**
+ * The scout's topics (services/ai/src/scout.js TOPICS), each with its objects in both art sets, first one first.
+ * The scout opens at most two of a topic a day, and a day can still lead with several, so each topic has more
+ * than one object: a block of cards never shows the same object twice while its topic has another (blockArt).
+ */
+export const NEWS_ART: Record<string, readonly string[]> = {
+  Football: ["football", "goal"],
+  Sports: ["sports", "podium", "stopwatch"],
+  Money: ["money", "growth"],
+  Tech: ["tech", "laptop"],
+  Entertainment: ["entertainment", "microphone"],
+  Officials: ["officials", "lectern"],
+  Crypto: ["bitcoin", "blocks"],
 };
-export const newsArt = (topic: string) => NEWS_ART[topic] ?? "corp";
+const NO_TOPIC = ["corp"] as const;
+/** A topic's first object: a line on its own (its page, a fact card, a share card). */
+export const newsArt = (topic: string) => (NEWS_ART[topic] ?? NO_TOPIC)[0];
+
+/**
+ * The objects for one block of cards or rows, in the order shown: each line takes the first object of its topic
+ * not already shown in the block, and only once a topic has run out does one repeat (its next in turn).
+ */
+export function blockArt(lines: readonly { claim_id: number; topic: string }[]): Map<number, string> {
+  const shown = new Set<string>();
+  const seen: Record<string, number> = {};
+  const out = new Map<number, string>();
+  for (const l of lines) {
+    const set = NEWS_ART[l.topic] ?? NO_TOPIC;
+    const n = seen[l.topic] ?? 0;
+    const name = set.find((x) => !shown.has(x)) ?? set[n % set.length];
+    seen[l.topic] = n + 1;
+    shown.add(name);
+    out.set(l.claim_id, name);
+  }
+  return out;
+}
+
+/**
+ * What a line's claim says Yes means, and its small print: the scout ends a claim with who doesn't count
+ * ("Reports citing unnamed sources don't count."), which reads as small print, not as the claim.
+ */
+export function claimParts(claim: string): { yes: string; fine: string | null } {
+  const text = claim.replace(/\s+/g, " ").trim();
+  // a sentence ends at . ! or ? before a space and a capital, so "$1.5tn" and "U.S. officials" stay whole
+  const sentences = text.split(/(?<=[a-z0-9)”’"'][.!?])\s+(?=[A-Z“‘"'])/).filter(Boolean);
+  const small = (x: string) => /\b(unnamed|anonymous)\b|\b(don[’']t|do not|does not|doesn[’']t) count\b/i.test(x);
+  let cut = sentences.length;
+  while (cut > 1 && small(sentences[cut - 1])) cut--;
+  const fine = sentences.slice(cut).join(" ");
+  return { yes: sentences.slice(0, cut).join(" "), fine: fine || null };
+}
 
 export interface NewsSource { headline: string; url: string; outlet: string | null; published_at: number | null }
 

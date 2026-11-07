@@ -6,11 +6,13 @@ import { LineList } from "./Lists";
 import { YouPanel } from "./YouPanel";
 import { clockUtc, plural } from "@/lib/format";
 import type { Fact } from "@/lib/model";
-import { arrange, type Today } from "@/lib/news";
+import { arrange, blockArt, type Today } from "@/lib/news";
 import { getBoard } from "@/lib/server/news";
 
 export async function TodayBlock({ today, facts, history, now }: { today: Today; facts: Map<number, Fact>; history: Record<string, [number, number][]>; now: number }) {
   const a = arrange(today.lines, now);
+  // the lead shows the dial, not an object, so the cards' block starts at each topic's first object
+  const art = blockArt(a.cards);
   const board = await getBoard("all");
   const b = board.ok ? board.value : null;
   const questions: Record<number, string> = Object.fromEntries([...[...facts.values()].map((f) => [f.id, f.question] as const), ...today.lines.map((l) => [l.claim_id, l.question] as const)]);
@@ -41,7 +43,7 @@ export async function TodayBlock({ today, facts, history, now }: { today: Today;
       </div>
       {a.cards.length > 0 && (
         <div className="grid tgrid" data-n={Math.min(4, a.cards.length)}>
-          {a.cards.map((l) => <ClaimCard key={l.claim_id} l={l} f={facts.get(l.claim_id)} now={now} points={history[String(l.claim_id)]} />)}
+          {a.cards.map((l) => <ClaimCard key={l.claim_id} l={l} f={facts.get(l.claim_id)} now={now} points={history[String(l.claim_id)]} art={art.get(l.claim_id)} />)}
         </div>
       )}
       {(a.next.length > 0 || a.decided.length > 0) && (

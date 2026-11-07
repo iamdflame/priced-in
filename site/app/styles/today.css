@@ -43,6 +43,12 @@ a.fromnews.lead { white-space: normal; font-size: 14px; line-height: 1.45; text-
 .settles { display: flex; gap: 6px; align-items: flex-start; font-size: 12.5px; line-height: 1.45; color: var(--ink3); }
 .settles .ic { width: 14px; height: 14px; margin-top: 1.5px; }
 .settles b { color: var(--ink2); font-weight: 600; }
+/* What Yes and No mean, in the claim's own words: a quiet block, read before the pick */
+.yesif { display: flex; flex-direction: column; gap: 3px; padding: 11px 14px 12px; border-radius: 14px; background: var(--surface2); font-size: 14px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
+.yesif b { margin-right: 3px; font-weight: 600; color: var(--ink); }
+.yesif q { color: var(--ink); quotes: "“" "”"; }
+.yesif .noif { font-size: 13px; color: var(--ink3); }
+.yesif .noif b { color: var(--ink2); }
 .closed { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 14px; background: var(--surface2); font-size: 13px; line-height: 1.45; color: var(--ink2); text-wrap: pretty; }
 .closed .ic { width: 16px; height: 16px; margin-top: 1px; color: var(--ink3); }
 .closed b { color: var(--ink); font-weight: 600; }

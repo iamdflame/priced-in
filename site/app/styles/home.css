@@ -70,7 +70,11 @@
 
 .today-top { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: stretch; }
 .tlead .ftext { gap: 0; }
-.tlead .picks { margin-top: auto; padding-top: 14px; }
+/* the claim fills the room between the headline and Yes/No: any height left over (a returning visitor's results
+   make the row taller) is shared above and below it, so neither card shows an empty band */
+.tlead .yesif { margin: auto 0; }
+.tlead .fhd { margin-bottom: 12px; }
+.tlead .picks { padding-top: 14px; }
 .tlead .settles { margin-top: 10px; font-size: 13px; }
 .tlead .payline { margin-top: 4px; }
 .tlead .closed { margin-top: 10px; }
@@ -93,6 +97,8 @@
 /* You against the AIs: first visit, or your results first */
 .you { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px 18px; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--card-shadow); }
 .you > .btn { align-self: flex-start; margin-top: auto; }
+/* when the lead is the taller card, the room left in this one goes round the AIs' records, not into a gap over the button */
+@media (min-width: 1241px) { .you > .vs { margin-block: auto; } .you > .vs + * { margin-top: 0; } }
 .you-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
 .you-hd h2 { font: 600 18px/1.2 var(--disp); letter-spacing: -.01em; }
 .you-hd span { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
@@ -146,7 +152,11 @@
   .today-top { display: flex; flex-direction: column; gap: 12px; }
   [data-picker='1'] & .today-top > .you { order: -1; }
   .you { padding: 14px; border-radius: var(--r-lg); }
-  .tlead .picks { margin-top: 4px; }
+  .tlead .fhd { margin-bottom: 0; }
+  .tlead .picks { margin-top: 4px; padding-top: 0; }
+  /* the phone keeps its compact card: Yes and No first, then what they mean */
+  .tlead .yesif { order: 1; margin: 12px 0 0; padding: 10px 12px; font-size: 13.5px; }
+  .tlead .settles, .tlead .payline { order: 2; }
   .wikihd { margin-top: 32px; padding-top: 22px; }
 }
 

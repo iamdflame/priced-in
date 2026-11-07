@@ -6,7 +6,7 @@ import { Icon } from "../Icon";
 import { More } from "./More";
 import { MyPickBadge } from "./MyPick";
 import { dayTimeUtc } from "@/lib/format";
-import { newsArt, shortDate, type TodayLine } from "@/lib/news";
+import { blockArt, shortDate, type TodayLine } from "@/lib/news";
 
 const SHOWN = 5;
 
@@ -17,12 +17,12 @@ function where(l: TodayLine, now: number): { text: string; tone: "" | "warn" | "
   return { text: `Settles by ${shortDate(l.settles.by)}: ${l.settles.source}`, tone: "" };
 }
 
-function Row({ l, now }: { l: TodayLine; now: number }) {
+function Row({ l, now, art }: { l: TodayLine; now: number; art: string }) {
   const w = where(l, now);
   const p = l.price_yes ?? l.first_estimate;
   return (
     <li className="lrow">
-      <span className="lr-art" aria-hidden="true"><Art name={newsArt(l.topic)} width={112} height={64} /></span>
+      <span className="lr-art" aria-hidden="true"><Art name={art} width={112} height={64} /></span>
       <div className="lr-main">
         <Link className="lr-q" href={`/c/${l.claim_id}`} prefetch={false}>{l.question}</Link>
         <p className={`lr-s ${w.tone}`}>{w.tone === "warn" && <Icon name="clock" />}{w.text}</p>
@@ -39,11 +39,12 @@ function Row({ l, now }: { l: TodayLine; now: number }) {
 
 export function LineList({ id, title, sub, lines, now }: { id: string; title: string; sub: string; lines: TodayLine[]; now: number }) {
   if (!lines.length) return null;
+  const art = blockArt(lines);
   return (
     <section className="tlist" aria-labelledby={id}>
       <div className="tlist-hd"><h3 id={id}>{title}</h3><p>{sub}</p></div>
       <More n={lines.length} shown={SHOWN} label={`Show all ${lines.length}`}>
-        {lines.map((l) => <Row key={l.claim_id} l={l} now={now} />)}
+        {lines.map((l) => <Row key={l.claim_id} l={l} now={now} art={art.get(l.claim_id)!} />)}
       </More>
     </section>
   );

@@ -12,7 +12,7 @@ import { PickButtons } from "./PickButtons";
 import { MyPickBadge } from "./MyPick";
 import { money, plural } from "@/lib/format";
 import { priceWords, type Fact, type FactStatus } from "@/lib/model";
-import { headlineOf, newsArt, outletOf, shortDate, type TodayLine } from "@/lib/news";
+import { claimParts, headlineOf, newsArt, outletOf, shortDate, type TodayLine } from "@/lib/news";
 
 /** The numbers priceWords needs, from the claim view when there is one, else from the line itself. */
 function numbers(l: TodayLine, f: Fact | undefined) {
@@ -41,13 +41,24 @@ export function FromNews({ l, lead = false }: { l: TodayLine; lead?: boolean }) 
   );
 }
 
-/** When it settles and by whose word. */
-export function SettlesLine({ l }: { l: TodayLine }) {
+/** When it settles and by whose word, and the claim's own small print when there is room for it. */
+export function SettlesLine({ l, fine }: { l: TodayLine; fine?: string | null }) {
   return (
     <p className="settles">
       <Icon name="clock" />
-      <span>Settles by <b>{shortDate(l.settles.by)}</b>: {l.settles.source}</span>
+      <span>Settles by <b>{shortDate(l.settles.by)}</b>: {l.settles.source}{fine ? <>. {fine}</> : null}</span>
     </p>
+  );
+}
+
+/** Exactly what Yes means: the claim itself, with its deadline and rule; and what No means, by the API's rule. */
+export function YesIf({ l, yes }: { l: TodayLine; yes: string }) {
+  const ended = l.status === "decided";
+  return (
+    <div className="yesif">
+      <p><b>Yes if</b> <q>{yes}</q></p>
+      <p className="noif"><b>No if</b> {l.settles.by_words} {ended ? "passed" : "passes"} without it, or the source denies it.</p>
+    </div>
   );
 }
 
@@ -86,7 +97,7 @@ export function PickSplit({ l }: { l: TodayLine }) {
 
 const takesPicks = (l: TodayLine, now: number) => l.status === "open" && !l.overdue && now < l.settles.due_at;
 
-export function ClaimCard({ l, f, now, points }: { l: TodayLine; f?: Fact; now: number; points?: [number, number][] }) {
+export function ClaimCard({ l, f, now, points, art }: { l: TodayLine; f?: Fact; now: number; points?: [number, number][]; art?: string }) {
   const n = numbers(l, f);
   const w = priceWords(n);
   const href = `/c/${l.claim_id}`;
@@ -94,7 +105,7 @@ export function ClaimCard({ l, f, now, points }: { l: TodayLine; f?: Fact; now: 
   return (
     <article className={`card ncard${l.status === "decided" ? " settled" : ""}`} aria-labelledby={`nq${l.claim_id}`}>
       <Link className="art" href={href} tabIndex={-1} aria-hidden="true" prefetch={false}>
-        <Art name={newsArt(l.topic)} width={560} height={320} sizes="(max-width: 760px) 96px, (max-width: 1240px) 33vw, 330px" />
+        <Art name={art ?? newsArt(l.topic)} width={560} height={320} sizes="(max-width: 760px) 96px, (max-width: 1240px) 33vw, 330px" />
         <div className="top">
           <span className="tag"><TopicIcon icon={`news:${l.topic.toLowerCase()}`} />{l.topic}</span>
           <StatusTag l={l} />
@@ -123,6 +134,7 @@ export function ClaimLead({ l, f, now, rules }: { l: TodayLine; f?: Fact; now: n
   const n = numbers(l, f);
   const w = priceWords(n);
   const open = takesPicks(l, now);
+  const c = claimParts(l.claim);
   return (
     <section className="feature tlead" aria-labelledby="tlead-q">
       <div className="ftext">
@@ -138,8 +150,9 @@ export function ClaimLead({ l, f, now, rules }: { l: TodayLine; f?: Fact; now: n
           </div>
           <div className="feature-dial phone"><Dial p={n.price} sizes="96px" /><p className="mini">chance it’s true</p></div>
         </div>
+        <YesIf l={l} yes={c.yes} />
         {open ? <PickButtons id={l.claim_id} question={l.question} quotes={f?.quotes ?? null} settlesBy={shortDate(l.settles.by)} size="lead" /> : <Closed l={l} />}
-        <SettlesLine l={l} />
+        <SettlesLine l={l} fine={c.fine} />
         <p className="payline">Picks are free and win nothing. Right calls climb the <span className="nowrap">leaderboard.<Explain label="What is a pick?"><b>A pick is your call, free.</b> {rules} Three AI traders are on the same board. Back your pick with your free $1 or with USDC if you want something on it.</Explain></span></p>
       </div>
       <div className="fside">
