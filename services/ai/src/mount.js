@@ -56,6 +56,7 @@ export function mountAi(app, ai, deps = {}) {
     journalFile: dir ? path.join(dir, "signer.jsonl") : null, dailySpendMicro: ai.agents.dailySpendMicro, dailyBillMicro: ai.agents.billing.dailyBillMicro,
     dailyOpens: ai.agents.dailyOpens, dailyChallenges: ai.agents.dailyChallenges,
     dailyDisputes: ai.agents.dailyDisputes, dailyDisputeMicro: ai.agents.dailyDisputeMicro, maxDisputeBondMicro: ai.agents.maxDisputeBondMicro,
+    dailyNewsOpens: ai.agents.dailyNewsOpens, dailyNewsChallenges: ai.agents.dailyNewsChallenges, dailyReportChallenges: ai.agents.dailyReportChallenges,
     yoctoPerMicro: ai.agents.billing.yoctoPerMicro, supersededAfterMs: ai.agents.supersededAfterMs, log,
   });
   const anchorOn = () => Boolean(signer?.operator?.market?.ok);

@@ -94,6 +94,10 @@ export function loadAiConfig(env = process.env) {
       dailyDisputes: num(env.SIGNER_DAILY_DISPUTES, undefined),
       dailyDisputeMicro: num(env.SIGNER_DAILY_DISPUTE_MICRO, undefined),
       maxDisputeBondMicro: num(env.SIGNER_MAX_DISPUTE_BOND_MICRO, undefined),
+      // news lines' and readers' reports' own caps (undefined keeps DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES, DAILY_REPORT_CHALLENGES)
+      dailyNewsOpens: num(env.SIGNER_DAILY_NEWS_OPENS, undefined),
+      dailyNewsChallenges: num(env.SIGNER_DAILY_NEWS_CHALLENGES, undefined),
+      dailyReportChallenges: num(env.SIGNER_DAILY_REPORT_CHALLENGES, undefined),
     },
     jury: {
       models: list(env.JURY_MODELS).length ? list(env.JURY_MODELS) : DEFAULT_JURY_MODELS,

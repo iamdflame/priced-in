@@ -34,6 +34,10 @@
 // carried over, so a line ruled FALSE is never stranded behind the cap for long. The Sentinel's
 // disputes: three a day, $10 of bonds a day, at most $8 in one (the third round on a $1 bond),
 // and only against a challenger the provisional outcome sides with, at the round the chain is at.
+// News lines (NEWS_ENABLED) have caps of their own, so they never take a corrected line's or the
+// daily sitting's: six opened a day, only on a news page (news-YYYY-MM-DD), with the same $5 of
+// liquidity at most; eight news challenges a day, only on a line whose page is a news page and that
+// is open; and two challenges a day for readers' reports. Nothing calls these while it is off.
 
 import { fork } from "node:child_process";
 import fs from "node:fs";
@@ -164,6 +168,12 @@ export const DAILY_CHALLENGES = 6;
 export const DAILY_DISPUTES = 3;
 export const DAILY_DISPUTE_MICRO = 10_000_000n;
 export const MAX_DISPUTE_BOND_MICRO = 8_000_000n;
+// ... and on news lines and readers' reports (SIGNER_DAILY_NEWS_OPENS, SIGNER_DAILY_NEWS_CHALLENGES,
+// SIGNER_DAILY_REPORT_CHALLENGES): counted apart from the corrected lines' opens and the sitting's challenges
+export const DAILY_NEWS_OPENS = 6;
+export const DAILY_NEWS_CHALLENGES = 8;
+export const DAILY_REPORT_CHALLENGES = 2;
+export const NEWS_PAGE = /^news-\d{4}-\d{2}-\d{2}$/;
 
 // ---------- the parent side: no keys here ----------
 
@@ -207,6 +217,9 @@ export class SignerClient {
       SIGNER_DAILY_DISPUTE_MICRO: String(o.dailyDisputeMicro ?? DAILY_DISPUTE_MICRO),
       SIGNER_MAX_DISPUTE_BOND_MICRO: String(o.maxDisputeBondMicro ?? MAX_DISPUTE_BOND_MICRO),
       SIGNER_MAX_OPEN_B_MICRO: String(o.maxOpenBMicro ?? Number(HARD_MAX_OPEN_B_MICRO)),
+      SIGNER_DAILY_NEWS_OPENS: String(o.dailyNewsOpens ?? DAILY_NEWS_OPENS),
+      SIGNER_DAILY_NEWS_CHALLENGES: String(o.dailyNewsChallenges ?? DAILY_NEWS_CHALLENGES),
+      SIGNER_DAILY_REPORT_CHALLENGES: String(o.dailyReportChallenges ?? DAILY_REPORT_CHALLENGES),
     };
     this.child = fork(SELF, ["--signer-child"], { env, stdio: ["ignore", "pipe", "pipe", "ipc"], execArgv: [] });
     this.child.stdout.on("data", (d) => String(d).split("\n").filter(Boolean).forEach((l) => this.log(`signer: ${l}`)));
@@ -267,6 +280,12 @@ export class SignerClient {
   openClaim(intent, o) { return this.request({ type: "open_claim", intent, open: { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro } }); }
   /** The Checker's challenge, bonded from its own balance. */
   challenge(intent, c) { return this.request({ type: "challenge", intent, challenge: { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence } }); }
+  /** Open a news line (the keeper key), under the news lines' own daily cap: only on a news page. */
+  openNews(intent, o) { return this.request({ type: "open_news", intent, open: { text: o.text, page: o.page, kind: o.kind, p0_ppm: o.p0_ppm, b_micro: o.b_micro } }); }
+  /** The Checker settles a news line that came due, under the news lines' own daily cap. */
+  challengeNews(intent, c) { return this.request({ type: "challenge_news", intent, challenge: { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence } }); }
+  /** The Checker challenges with a reader's verified report, under the reports' own daily cap. */
+  challengeReport(intent, c) { return this.request({ type: "challenge_report", intent, challenge: { claim_id: c.claim_id, claimed_outcome: c.claimed_outcome, evidence: c.evidence } }); }
   /** The Sentinel's dispute, bonded from its own balance: refused unless the chain is at that round and the provisional outcome sides with the challenger. */
   dispute(intent, d) { return this.request({ type: "dispute", intent, dispute: { challenge_id: d.challenge_id, round: d.round, evidence: d.evidence } }, 90_000); }
   issueKey(persona_hash) { return this.request({ type: "issue_key", persona_hash }); }
@@ -307,6 +326,9 @@ async function runChild() {
   const dailyDisputes = Number(env.SIGNER_DAILY_DISPUTES || DAILY_DISPUTES);
   const dailyDisputeMicro = BigInt(env.SIGNER_DAILY_DISPUTE_MICRO || DAILY_DISPUTE_MICRO);
   const maxDisputeBond = BigInt(env.SIGNER_MAX_DISPUTE_BOND_MICRO || MAX_DISPUTE_BOND_MICRO);
+  const dailyNewsOpens = Number(env.SIGNER_DAILY_NEWS_OPENS || DAILY_NEWS_OPENS);
+  const dailyNewsChallenges = Number(env.SIGNER_DAILY_NEWS_CHALLENGES || DAILY_NEWS_CHALLENGES);
+  const dailyReportChallenges = Number(env.SIGNER_DAILY_REPORT_CHALLENGES || DAILY_REPORT_CHALLENGES);
   const ksDir = env.KEYSTORE_DIR || null;
   const rpc = new Rpc(config.rpcUrls, { timeoutMs: 8000 });
   const journal = new Journal(env.SIGNER_JOURNAL || null);
@@ -521,7 +543,7 @@ async function runChild() {
     switch (m?.type) {
       case "agents": await refresh(Boolean(m.force)); return { ok: true, agents: view(), unheld, operator: opView(), keystoreErrors };
       case "spent": return { ok: true, ...spentView() };
-      case "caps": return { ok: true, day: day(), challenges: { used: countToday("challenge"), cap: dailyChallenges }, opens: { used: countToday("open_claim"), cap: dailyOpens }, disputes: { used: countToday("dispute"), cap: dailyDisputes, used_micro: String(disputed.get(day()) || 0n), cap_micro: String(dailyDisputeMicro), max_bond_micro: String(maxDisputeBond) } };
+      case "caps": return { ok: true, day: day(), challenges: { used: countToday("challenge"), cap: dailyChallenges }, opens: { used: countToday("open_claim"), cap: dailyOpens }, disputes: { used: countToday("dispute"), cap: dailyDisputes, used_micro: String(disputed.get(day()) || 0n), cap_micro: String(dailyDisputeMicro), max_bond_micro: String(maxDisputeBond) }, news_opens: { used: countToday("open_news"), cap: dailyNewsOpens }, news_challenges: { used: countToday("challenge_news"), cap: dailyNewsChallenges }, report_challenges: { used: countToday("challenge_report"), cap: dailyReportChallenges } };
       case "outcome": {
         const rec = intents.get(m.intent);
         if (!rec) return { ok: false, final: true, unknownIntent: true, error: "this signer never saw that intent" };
@@ -583,6 +605,29 @@ async function runChild() {
         const o = opEntry("checker");
         if (!intents.has(m.intent) && countToday("challenge") >= dailyChallenges) throw new Error(`challenge: ${dailyChallenges} challenges already posted today`);
         return once(m.intent, "challenge", { agent: o.accountId, signer: o.accountId, sender: o.sender, method: "challenge", args: c, gasTgas: 30 });
+      }
+      case "open_news": {
+        const a = validateOpen(m.open, { maxBMicro: maxOpenB });
+        if (!NEWS_PAGE.test(a.page)) throw new Error("open: a news line opens only on a news page (news-YYYY-MM-DD)");
+        const o = opEntry("keeper");
+        if (!intents.has(m.intent) && countToday("open_news") >= dailyNewsOpens) throw new Error(`open: ${dailyNewsOpens} news lines already opened today`);
+        return once(m.intent, "open_news", { agent: null, signer: o.accountId, sender: o.sender, method: "open_claim", args: a, gasTgas: 30 });
+      }
+      case "challenge_news":
+      case "challenge_report": {
+        const c = validateChallenge(m.challenge);
+        const o = opEntry("checker");
+        const news = m.type === "challenge_news";
+        const cap = news ? dailyNewsChallenges : dailyReportChallenges;
+        if (!intents.has(m.intent)) {
+          if (countToday(m.type) >= cap) throw new Error(`challenge: ${cap} ${news ? "news" : "report"} challenges already posted today`);
+          // the chain right before signing: the line is open, and a news challenge is only ever on a news line
+          const claim = await rpc.viewFunction(marketId, "get_claim", { claim_id: c.claim_id });
+          if (!claim) throw new Error(`challenge: there is no claim ${c.claim_id}`);
+          if (claim.status !== "Open") throw new Error(`challenge: claim ${c.claim_id} is ${claim.status}, not open`);
+          if (news && !NEWS_PAGE.test(String(claim.page))) throw new Error(`challenge: claim ${c.claim_id} is not a news line`);
+        }
+        return once(m.intent, m.type, { agent: o.accountId, signer: o.accountId, sender: o.sender, method: "challenge", args: c, gasTgas: 30 });
       }
       case "dispute": {
         const d = validateDispute(m.dispute);
