@@ -5,6 +5,7 @@
 // polling with ?since=, and a health check for this runtime.
 
 import { readContext, prepare, sendJson, log } from "./_lib/runtime.mjs";
+import { storeKind } from "./_lib/store.mjs";
 import { activityRoute, attestationsRoute, clockOf, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute } from "./_lib/routes.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
 import { readLedger } from "./_lib/sentinel.mjs";
@@ -283,7 +284,7 @@ async function health(res, ctxP) {
       spend: p.spend.status(),
       ai: snapDoc?.value ? { at: snapDoc.value.at, writer: snapDoc.value.status?.writer?.writer ?? null, agents: snapDoc.value.status?.agents?.status ?? null, jury: snapDoc.value.status?.jury?.status ?? null, anchoring: snapDoc.value.status?.anchoring ?? null } : null,
       events: app ? { buffered: app.hub.buf.length, lastSeq: app.hub.seq } : null,
-      store: ctx ? { ok: !ctx.storeError, hydratedAt: iso(p.journals.hydratedAt) } : { ok: null, note: "this instance is still reading the store (cold start); outcomes are the cron's" },
+      store: ctx ? { ok: !ctx.storeError, kind: storeKind(p.state), hydratedAt: iso(p.journals.hydratedAt) } : { ok: null, kind: storeKind(p.state), note: "this instance is still reading the store (cold start); outcomes are the cron's" },
     },
   };
   return sendJson(res, failures.length ? 503 : 200, body, { "server-timing": `total;dur=${Date.now() - t0}` });

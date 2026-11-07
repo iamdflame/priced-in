@@ -93,6 +93,10 @@ if (local.NEWS_ENABLED !== undefined) plain.NEWS_ENABLED = local.NEWS_ENABLED ==
 // The official pages (api/_lib/pages.mjs) work the same way: OFFICIAL_PAGES=1 in .env and this script
 // turn them on, OFFICIAL_PAGES=0 there removes them. The site reads the API, so it follows on its own.
 if (local.OFFICIAL_PAGES !== undefined) plain.OFFICIAL_PAGES = local.OFFICIAL_PAGES === "1" ? "1" : "";
+// The store (api/_lib/store.mjs): STATE_STORE=postgres in .env, with SUPABASE_DB_URL (Supabase's transaction pooler,
+// port 6543), moves the API's state to Postgres once scripts/vercel/pg-migrate.mjs has copied it there. STATE_STORE=blob
+// goes back to the Blob store at the next deploy; the URL stays, encrypted, for the next try.
+if (local.STATE_STORE !== undefined) plain.STATE_STORE = local.STATE_STORE === "postgres" ? "postgres" : "";
 const secret = {
   NEARAI_API_KEY: local.NEARAI_API_KEY2,
   LANE_PRIVATE_KEY: lane.privateKey,
@@ -102,6 +106,8 @@ const secret = {
   CRON_SECRET: null, // made below, once
   ...x402.secret,
 };
+// encrypted, as every key is: the database password is in it
+if (local.SUPABASE_DB_URL) secret.SUPABASE_DB_URL = local.SUPABASE_DB_URL;
 
 const i = process.argv.indexOf("--local");
 if (i > 0) {

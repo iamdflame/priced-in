@@ -14,7 +14,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
-import { put, get, del } from "@vercel/blob";
+import { put, get, del, list } from "@vercel/blob";
 
 const ACCESS = "private";
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -102,6 +102,21 @@ export class BlobState {
 
   async deleteChunks(names) {
     if (names.length) await del(names.map((n) => this.key(n)), { token: this.token }).catch((e) => this.log(`store: delete: ${e.message}`));
+  }
+
+  /** Every document and chunk under this prefix, for the migration: { docs: [{ name, etag }], chunks: [{ name, bytes }] }. */
+  async listKeys() {
+    const docs = [], chunks = [];
+    let cursor;
+    do {
+      const r = await list({ prefix: this.prefix, cursor, limit: 1000, token: this.token });
+      for (const b of r.blobs) {
+        const name = b.pathname.slice(this.prefix.length);
+        (name.endsWith(".jsonl") ? chunks : docs).push(name.endsWith(".jsonl") ? { name, bytes: b.size } : { name, etag: null });
+      }
+      cursor = r.hasMore ? r.cursor : undefined;
+    } while (cursor);
+    return { docs, chunks };
   }
 
   // ---------- locks ----------
@@ -224,13 +239,160 @@ export class FsState extends BlobState {
   async deleteChunks(names) {
     for (const n of names) fs.rmSync(this.file(n), { force: true });
   }
+
+  /** Every document and chunk under this prefix, as the Blob store lists them. */
+  async listKeys() {
+    const docs = [], chunks = [];
+    const walk = (dir, rel) => {
+      if (!fs.existsSync(dir)) return;
+      for (const e of fs.readdirSync(dir, { withFileTypes: true })) {
+        const name = rel ? `${rel}/${e.name}` : e.name;
+        if (e.isDirectory()) walk(path.join(dir, e.name), name);
+        else if (name.endsWith(".jsonl")) chunks.push({ name, bytes: fs.statSync(path.join(dir, e.name)).size });
+        else if (!name.endsWith(".tmp")) docs.push({ name, etag: null });
+      }
+    };
+    walk(path.join(this.dir, ...this.prefix.replace(/\/$/, "").split("/")), "");
+    return { docs, chunks };
+  }
 }
 
-/** The store for this runtime: the local disk when STATE_DIR is set, else the Vercel Blob store. */
+// ---------- the same store in Postgres: Supabase, through its transaction pooler ----------
+
+export const PG_SCHEMA = "pricedin";
+
+/**
+ * The store's tables, in a schema of their own that Supabase's REST API doesn't expose. Idempotent:
+ * scripts/vercel/pg-migrate.mjs runs it, and so do the tests. A document keeps the exact bytes written
+ * (body) and an ETag over them, as the disk store does; docs_json shows the same documents as JSON for
+ * Supabase's table editor and SQL, and the store never reads it.
+ */
+export const PG_DDL = [
+  "create schema if not exists pricedin",
+  "create table if not exists pricedin.docs (key text primary key, body text not null, etag text not null, updated_at timestamptz not null default now())",
+  "create table if not exists pricedin.chunks (key text primary key, body bytea not null, bytes integer not null, created_at timestamptz not null default now())",
+  "alter table pricedin.docs enable row level security",
+  "alter table pricedin.chunks enable row level security",
+  "create or replace view pricedin.docs_json with (security_invoker = true) as select key, body::jsonb as value, etag, updated_at from pricedin.docs",
+];
+
+const pgClients = new Map(); // one connection pool per database URL and instance
+const pgPlaces = (n, from = 1) => Array.from({ length: n }, (_, i) => "$" + (i + from)).join(", ");
+
+/**
+ * The same store in Postgres (STATE_STORE=postgres with SUPABASE_DB_URL): documents with compare-and-swap
+ * on an ETag over their bytes, immutable chunks, and the same locks and daily limits, inherited. Many
+ * instances at once, like the Blob store, and with no charge per operation.
+ */
+export class PgState extends BlobState {
+  /** @param {{ prefix: string, url?: string, query?: (text: string, params: any[]) => Promise<object[]>, log?: (m: string) => void }} o */
+  constructor({ prefix, url, query = null, log = () => {} }) {
+    super({ prefix, token: "postgres", log });
+    if (!query && !url) throw new StoreError("SUPABASE_DB_URL is not set: the Postgres store is not connected");
+    this.url = url;
+    this.run = query;
+  }
+
+  /** One statement. Reads and immutable writes are sent once more if the connection dropped first. */
+  async q(text, params = [], { retry = false } = {}) {
+    if (!this.run) {
+      let c = pgClients.get(this.url);
+      if (!c) {
+        const { default: postgres } = await import("postgres");
+        // the transaction pooler gives each statement any connection, so nothing is prepared
+        c = postgres(this.url, { prepare: false, max: 4, idle_timeout: 20, max_lifetime: 300, connect_timeout: 10, ssl: "require", onnotice: () => {} });
+        pgClients.set(this.url, c);
+      }
+      this.run = (t, p) => c.unsafe(t, p);
+    }
+    try { return await this.run(text, params); } catch (e) {
+      if (!retry || !/CONNECTION_(?:ENDED|CLOSED|DESTROYED)|CONNECT_TIMEOUT|ECONNRESET|EPIPE/.test(String(e?.code) + " " + String(e?.message))) throw e;
+      this.log("store: postgres: " + (e.code || e.message) + ", sent once more");
+      return this.run(text, params);
+    }
+  }
+
+  async getDoc(name, { ifNoneMatch } = {}) {
+    this.ops.gets++;
+    // an unchanged document comes back without its body
+    const rows = await this.q("select etag, case when etag = $2 then null else body end as body from pricedin.docs where key = $1", [this.key(name), ifNoneMatch || ""], { retry: true });
+    if (!rows.length) return null;
+    const r = rows[0];
+    if (ifNoneMatch && r.etag === ifNoneMatch) return { notModified: true, etag: r.etag };
+    return { value: JSON.parse(r.body), etag: r.etag };
+  }
+
+  async putDoc(name, value, { etag = null } = {}) {
+    this.ops.puts++;
+    const body = JSON.stringify(value);
+    const next = '"' + sha(Buffer.from(body)) + '"';
+    const rows = etag
+      ? await this.q("update pricedin.docs set body = $2, etag = $3, updated_at = now() where key = $1 and etag = $4 returning key", [this.key(name), body, next, etag])
+      : await this.q("insert into pricedin.docs (key, body, etag) values ($1, $2, $3) on conflict (key) do nothing returning key", [this.key(name), body, next]);
+    if (!rows.length) throw Object.assign(new Error(etag ? "precondition failed (412)" : "this blob already exists (precondition)"), { name: "BlobPreconditionFailedError" });
+    return next;
+  }
+
+  async putChunk(name, buf) {
+    this.ops.puts++;
+    const b = Buffer.from(buf);
+    await this.q("insert into pricedin.chunks (key, body, bytes) values ($1, $2::bytea, $3) on conflict (key) do nothing", [this.key(name), b, b.length], { retry: true });
+    this.chunkCache.set(name, b);
+  }
+
+  async getChunk(name) {
+    const hit = this.chunkCache.get(name);
+    if (hit) return hit;
+    this.ops.gets++;
+    const rows = await this.q("select body from pricedin.chunks where key = $1", [this.key(name)], { retry: true });
+    if (!rows.length) throw new StoreError("chunk " + name + " is missing");
+    const buf = Buffer.from(rows[0].body);
+    this.chunkCache.set(name, buf);
+    return buf;
+  }
+
+  /** Many chunks in one round trip, into the cache: a cold instance rebuilds its journals in one query. */
+  async prefetchChunks(names) {
+    const want = [...new Set(names)].filter((n) => !this.chunkCache.has(n));
+    for (let i = 0; i < want.length; i += 200) {
+      const part = want.slice(i, i + 200);
+      this.ops.gets++;
+      const rows = await this.q("select key, body from pricedin.chunks where key in (" + pgPlaces(part.length) + ")", part.map((n) => this.key(n)), { retry: true });
+      for (const r of rows) this.chunkCache.set(r.key.slice(this.prefix.length), Buffer.from(r.body));
+    }
+  }
+
+  async deleteChunks(names) {
+    for (let i = 0; i < names.length; i += 200) {
+      const part = names.slice(i, i + 200);
+      await this.q("delete from pricedin.chunks where key in (" + pgPlaces(part.length) + ")", part.map((n) => this.key(n))).catch((e) => this.log("store: delete: " + e.message));
+    }
+  }
+
+  /** Every document and chunk under this prefix, for the migration: { docs: [{ name, etag }], chunks: [{ name, bytes }] }. */
+  async listKeys() {
+    const p = this.prefix;
+    const docs = await this.q("select key, etag from pricedin.docs where starts_with(key, $1) order by key", [p], { retry: true });
+    const chunks = await this.q("select key, bytes from pricedin.chunks where starts_with(key, $1) order by key", [p], { retry: true });
+    return { docs: docs.map((r) => ({ name: r.key.slice(p.length), etag: r.etag })), chunks: chunks.map((r) => ({ name: r.key.slice(p.length), bytes: Number(r.bytes) })) };
+  }
+
+  /** Close this URL's pool (scripts end with it; a function instance keeps its pool). */
+  async close() { const c = pgClients.get(this.url); pgClients.delete(this.url); if (c) await c.end({ timeout: 5 }); }
+}
+
+/**
+ * The store for this runtime: the local disk when STATE_DIR is set; Postgres (Supabase) when STATE_STORE is
+ * postgres; else the Vercel Blob store. STATE_STORE=blob, or unset, goes back to Blob at once.
+ */
 export function makeState({ prefix, log = () => {}, env = process.env }) {
   if (env.STATE_DIR) return new FsState({ prefix, dir: env.STATE_DIR, log });
+  if (String(env.STATE_STORE || "").toLowerCase() === "postgres") return new PgState({ prefix, url: env.SUPABASE_DB_URL, log });
   return new BlobState({ prefix, log });
 }
+
+/** Which store this is, for /health: blob, postgres or disk. */
+export const storeKind = (s) => (s instanceof FsState ? "disk" : s instanceof PgState ? "postgres" : "blob");
 
 // ---------- journals: DATA_DIR rebuilt from chunks, appends uploaded as new chunks ----------
 
@@ -258,6 +420,7 @@ export class JournalDir {
     const index = doc?.value || { files: {} };
     fs.mkdirSync(this.dir, { recursive: true });
     const names = [...new Set(Object.values(index.files).flat())].filter((n) => !this.state.chunkCache.has(n));
+    if (names.length && this.state.prefetchChunks) await this.state.prefetchChunks(names);
     // fetch what this instance has not seen yet, a few at a time
     for (let i = 0; i < names.length; i += 12) await Promise.all(names.slice(i, i + 12).map((n) => this.state.getChunk(n)));
     for (const [file, chunks] of Object.entries(index.files)) {
@@ -314,7 +477,8 @@ export class JournalDir {
       for (const a of adds) {
         const list = files[a.file] || [];
         // a file the code rewrote (compaction) replaces the chunks it was built from, and keeps any added since
-        files[a.file] = a.replace ? [a.name, ...list.filter((n) => !a.replaced.includes(n))] : [...list, a.name];
+        // a name already listed (a retry after a lost answer) is not listed twice, or its lines would be read twice
+        files[a.file] = a.replace ? [a.name, ...list.filter((n) => !a.replaced.includes(n) && n !== a.name)] : list.includes(a.name) ? list : [...list, a.name];
       }
       return { ...cur, files, updatedAt: new Date().toISOString() };
     });
