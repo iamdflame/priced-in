@@ -72,7 +72,8 @@ function PricePanel({ m, recorded }: { m: Market; recorded: boolean }) {
         <p className="dialcap"><b>{Math.round(f.price * 100)}% {words.means}</b><span>{words.whose}</span>{words.firstRead && <WhyEstimate pct={Math.round((f.openPrice ?? f.price) * 100)} />}</p>
       </div>
       <div>
-        <div className="hd"><span>Chance it’s true, after each bet</span><span>{f.trades ? `${money(f.volumeUsd)} bet so far · ${plural(f.trades, "bet")}` : "No bets yet"}</span></div>
+        {/* a replay knows how many bets there were, not their dollars: it says the count alone, never "$0.00 bet so far" */}
+        <div className="hd"><span>Chance it’s true, after each bet</span><span>{f.trades ? (f.volumeUsd > 0 ? `${money(f.volumeUsd)} bet so far · ${plural(f.trades, "bet")}` : plural(f.trades, "bet")) : "No bets yet"}</span></div>
         {f.trades > 0 ? (
           <Chart points={m.points} bets={m.bets} now={f.price} nowAt={m.nowAt} ruled={ruled} openLabel={m.corrects ? "Reopened at" : "At the start"} />
         ) : (
