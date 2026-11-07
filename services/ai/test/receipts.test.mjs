@@ -141,6 +141,74 @@ test("a PDF is read in pure JavaScript, so it runs in a Vercel function, and a q
   assert.match(broken.reason, /PDF could not be read/);
 });
 
+// ---------- a source that attacks the reader ----------
+
+/** A one-page PDF whose content stream is compressed, as hostile as its content. */
+function deflatedPdf(content) {
+  const stream = zlib.deflateSync(content, { level: 9 });
+  const objs = [Buffer.from("<< /Type /Catalog /Pages 2 0 R >>"), Buffer.from("<< /Type /Pages /Kids [3 0 R] /Count 1 >>"), Buffer.from("<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>"), Buffer.concat([Buffer.from(`<< /Length ${stream.length} /Filter /FlateDecode >>\nstream\n`), stream, Buffer.from("\nendstream")]), Buffer.from("<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>")];
+  const parts = [Buffer.from("%PDF-1.4\n")];
+  let n = parts[0].length;
+  const at = [];
+  objs.forEach((o, i) => { at.push(n); const b = Buffer.concat([Buffer.from(`${i + 1} 0 obj\n`), o, Buffer.from("\nendobj\n")]); parts.push(b); n += b.length; });
+  parts.push(Buffer.from(`xref\n0 ${objs.length + 1}\n0000000000 65535 f \n${at.map((x) => `${String(x).padStart(10, "0")} 00000 n \n`).join("")}trailer\n<< /Size ${objs.length + 1} /Root 1 0 R >>\nstartxref\n${n}\n%%EOF\n`));
+  return Buffer.concat(parts);
+}
+const repeated = (unit, mb) => { const b = Buffer.alloc(mb * 1048576); const u = Buffer.from(unit); for (let i = 0; i + u.length <= b.length; i += u.length) u.copy(b, i); return b; };
+const TEXT_OP = "BT /F1 12 Tf 72 712 Td (aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa) Tj ET\n";
+
+test("a hostile page can't stall the reader: HTML is read in one pass, whatever never closes", () => {
+  for (const [name, html] of [["tags", "<a ".repeat(100_000)], ["comments", "<!--".repeat(75_000)], ["scripts", "<script ".repeat(37_500)], ["quotes", '<a "'.repeat(75_000)], ["block tags", "<div ".repeat(60_000)]]) {
+    const t0 = performance.now();
+    htmlText(html);
+    const ms = performance.now() - t0;
+    assert.ok(ms < 1500, `${name}: ${Math.round(ms)} ms on ${html.length} bytes`);
+  }
+});
+
+test("HTML read in one pass reads what it read before: blocks, comments, declarations, raw elements, and text after a tag that never closes", () => {
+  assert.equal(htmlText("<!DOCTYPE html><P>one</P><DIV>two<BR>three</DIV>"), "one\ntwo\nthree");
+  assert.doesNotMatch(htmlText("a<!-- x > y -->b"), /x|y/);
+  assert.equal(htmlText("before<SCRIPT type='a'>var a = '<p>no</p>';</SCRIPT >after"), "before after");
+  assert.equal(htmlText("<svg><title>icon</title></svg>x<template><p>t</p></template>"), "x");
+  assert.equal(htmlText("1 < 2 and 3 <4"), "1 < 2 and 3 <4");
+  assert.equal(htmlText("<script>never closed"), "never closed", "with no closing tag only the tag goes, as a page that forgot one still has words");
+  assert.match(htmlText('<p>kept words</p><a href="never closed>and the rest'), /kept words\n?\s*<a href="never closed>and the rest/, "a tag that never closes stays as text and nothing after it is lost");
+});
+
+test("a hostile PDF can't take the function down: too long, too much memory or too slow is a refusal, not a crash", async () => {
+  const words = deflatedPdf(repeated(TEXT_OP, 8)); // 24 KB that unpack to 8 MB of text operators
+  assert.ok(words.length < 40_000);
+  const long = await readSource({ body: words, content_type: "application/pdf" }, { pdfChars: 100_000 });
+  assert.equal(long.text, "");
+  assert.match(long.error, /PDF could not be read \(its text is longer than 100000 characters\)/);
+
+  const blank = deflatedPdf(repeated(" ", 200)); // nothing but spaces: no JavaScript heap to speak of, all of it in a buffer
+  assert.ok(blank.length < 400_000);
+  const huge = await readSource({ body: blank, content_type: "application/pdf" }, { pdfRssMb: 64 });
+  assert.equal(huge.text, "");
+  assert.match(huge.error, /PDF could not be read \(it needs too much memory\)/);
+
+  const t0 = performance.now();
+  const slow = await readSource({ body: words, content_type: "application/pdf" }, { pdfMs: 150 });
+  assert.match(slow.error, /PDF could not be read \(it took more than 0\.15 s\)/);
+  assert.ok(performance.now() - t0 < 2500, "the limit holds while the reader is busy");
+  const after = await readSource({ body: tinyPdf("Still reads a real file"), content_type: "application/pdf" });
+  assert.match(after.text, /Still reads a real file/, "a refused file leaves nothing behind");
+});
+
+test("a check has one clock: slow sources share it, so one challenge can't outlast the function", async () => {
+  let clock = Date.parse("2026-11-07T10:00:00Z");
+  const asked = [];
+  const slow = async (url, o) => { asked.push(o.timeoutMs); clock += o.timeoutMs; return failed(null, `no complete answer within ${o.timeoutMs / 1000} s`, url); };
+  const urls = ["a", "b", "c", "d"].map((x) => `https://${x}.example.org/page`);
+  const r = await checkReceipts({ claim: "x", evidence: `${urls.map((u) => `Source: ${u}`).join("\n")}\nReceipt excerpt: "${QUOTE}"`, fetchSource: slow, now: () => clock, limits: { timeoutMs: 8000, maxSources: 4, concurrency: 1, totalMs: 20_000, retryWaitMs: 0 } });
+  assert.equal(r.result, "unfetchable");
+  assert.ok(asked.reduce((a, b) => a + b, 0) <= 20_000, `asked ${asked.join(", ")}`);
+  assert.ok(r.sources.length === 4, "every source is on the record, read or not");
+  assert.match(r.sources.at(-1).error, /out of time/);
+});
+
 // ---------- each result ----------
 
 test("verified: the quote is at the source, and the record says what was fetched, when, and its hash", async () => {

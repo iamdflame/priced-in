@@ -34,6 +34,7 @@ import dns from "node:dns";
 import http from "node:http";
 import https from "node:https";
 import net from "node:net";
+import { Worker } from "node:worker_threads";
 import zlib from "node:zlib";
 import errors from "../../../corpus/ERRORS.json" with { type: "json" };
 import committedReceipts from "./corpus-receipts.json" with { type: "json" };
@@ -45,7 +46,10 @@ export const RESULTS = Object.freeze(["verified", "quote_not_found", "unfetchabl
 export const FAILED = Object.freeze(["quote_not_found", "unfetchable", "record_mismatch", "unsupported"]);
 
 export const USER_AGENT = "PricedInSentinel/1.0 (+https://isitpriced.com; checks the receipts a challenge cites)";
-export const LIMITS = Object.freeze({ timeoutMs: 10_000, maxBytes: 6 * 1024 * 1024, maxRedirects: 5, maxSources: 6, concurrency: 3, retries: 1, minQuoteChars: 16, minQuoteWords: 3 });
+// A source is written by whoever posted the challenge, so reading one has limits too. totalMs is one
+// clock for every fetch of a check; a PDF is read off the main thread, stopped at pdfMs, at pdfChars
+// of text, at pdfHeapMb of heap, and at pdfRssMb more of the process's memory
+export const LIMITS = Object.freeze({ timeoutMs: 10_000, totalMs: 45_000, retryWaitMs: 600, maxBytes: 6 * 1024 * 1024, maxRedirects: 5, maxSources: 6, concurrency: 3, retries: 1, minQuoteChars: 16, minQuoteWords: 3, pdfMs: 8000, pdfChars: 8_000_000, pdfHeapMb: 192, pdfRssMb: 320 });
 
 const sha256 = (b) => createHash("sha256").update(b).digest("hex");
 const iso = (ms) => new Date(ms).toISOString();
@@ -357,18 +361,66 @@ export function decodeEntities(s) {
   });
 }
 
-// a tag, with any ">" inside its quoted attribute values ("click->tracker#event")
-const TAG = /<\/?[A-Za-z][^>"']*(?:(?:"[^"]*"|'[^']*')[^>"']*)*>/g;
-const BLOCK_TAG = /<\/?(?:p|div|li|ul|ol|tr|td|th|table|thead|tbody|h[1-6]|section|article|header|footer|main|nav|aside|blockquote|pre|br|hr|dt|dd|dl|figcaption)\b[^>"']*(?:(?:"[^"]*"|'[^']*')[^>"']*)*>/gi;
+const BLOCK_TAGS = new Set("p div li ul ol tr td th table thead tbody h1 h2 h3 h4 h5 h6 section article header footer main nav aside blockquote pre br hr dt dd dl figcaption".split(" "));
+const RAW_CLOSE = new Map(["script", "style", "noscript", "svg", "template", "iframe"].map((n) => [n, new RegExp(`</${n}\\s*>`, "gi")]));
+const isLetter = (c) => (c >= 65 && c <= 90) || (c >= 97 && c <= 122);
+const isWordChar = (c) => isLetter(c) || (c >= 48 && c <= 57) || c === 95;
 
-/** The visible text of an HTML page. */
+/**
+ * The visible text of an HTML page, in one pass. A page is the challenger's to write, so nothing here
+ * can look at the same text twice: a search that found nothing is never repeated, and a tag that
+ * never closes ends the tags, with the rest kept as text. (Regular expressions over the page took
+ * 20 s on 300 KB of "<a ", and a function has 60.)
+ */
 export function htmlText(html) {
-  return decodeEntities(String(html)
-    .replace(/<!--[\s\S]*?-->/g, " ")
-    .replace(/<(script|style|noscript|svg|template|iframe)\b[\s\S]*?<\/\1\s*>/gi, " ")
-    .replace(BLOCK_TAG, "\n")
-    .replace(TAG, " ")
-    .replace(/<![^>]*>/g, " "))
+  const s = String(html), n = s.length, out = [];
+  const closeless = new Set(); // raw elements with no closing tag from here on
+  let i = 0, text = 0, noComment = false, noGt = false;
+  const cut = (to, sep, next) => { if (to > text) out.push(s.slice(text, to)); out.push(sep); text = i = next; };
+  while (i < n) {
+    const lt = s.indexOf("<", i);
+    if (lt < 0) break;
+    if (s.charCodeAt(lt + 1) === 33) { // a comment, or a declaration
+      if (!noComment && s.startsWith("<!--", lt)) {
+        const end = s.indexOf("-->", lt + 4);
+        if (end >= 0) { cut(lt, " ", end + 3); continue; }
+        noComment = true;
+      }
+      const gt = noGt ? -1 : s.indexOf(">", lt);
+      if (gt >= 0) { cut(lt, " ", gt + 1); continue; }
+      noGt = true;
+      i = lt + 1;
+      continue;
+    }
+    const closing = s.charCodeAt(lt + 1) === 47;
+    const start = lt + (closing ? 2 : 1);
+    if (!isLetter(s.charCodeAt(start))) { i = lt + 1; continue; }
+    let j = start;
+    while (j < n && isWordChar(s.charCodeAt(j))) j++;
+    const name = s.slice(start, j).toLowerCase();
+    // to the first > outside quotes, as a browser reads a tag
+    let end = -1;
+    for (let k = j; k < n; k++) {
+      const c = s.charCodeAt(k);
+      if (c === 62) { end = k; break; }
+      if (c === 34 || c === 39) {
+        const q = s.indexOf(c === 34 ? '"' : "'", k + 1);
+        if (q < 0) break;
+        k = q;
+      }
+    }
+    if (end < 0) break;
+    const raw = closing || closeless.has(name) ? null : RAW_CLOSE.get(name);
+    if (raw) {
+      raw.lastIndex = end + 1;
+      const m = raw.exec(s);
+      if (m) { cut(lt, " ", m.index + m[0].length); continue; }
+      closeless.add(name);
+    }
+    cut(lt, BLOCK_TAGS.has(name) ? "\n" : " ", end + 1);
+  }
+  if (text < n) out.push(s.slice(text));
+  return decodeEntities(out.join(""))
     .replace(/[ \t\f\v\r]+/g, " ")
     .replace(/\n\s*\n+/g, "\n")
     .trim();
@@ -399,13 +451,77 @@ const mostlyText = (b) => {
   return head.length > 0 && bad / head.length < 0.02;
 };
 
-let pdfjs = null;
-/** A PDF's text, with the pinned unpdf (a serverless build of PDF.js): no native tool, so it runs in a Vercel function. */
-export async function pdfText(body) {
-  pdfjs ||= import("unpdf");
-  const { extractText, getDocumentProxy } = await pdfjs;
-  const doc = await getDocumentProxy(new Uint8Array(body));
-  try { return (await extractText(doc, { mergePages: true })).text; } finally { await doc.destroy?.().catch?.(() => {}); }
+/** The pinned unpdf, by file, for the PDF reader's thread. This literal import also keeps it in the function's bundle. */
+export const loadUnpdf = () => import("unpdf");
+const unpdfUrl = () => import.meta.resolve("unpdf");
+
+// Runs in its own thread: a 60 KB PDF unpacks to 20 MB of content, 6 MB to gigabytes, and PDF.js holds
+// all of it. Pages one at a time (unpdf's extractText opens them all at once), joined as it joins them.
+const PDF_THREAD = String.raw`
+const { parentPort, workerData: w } = require("node:worker_threads");
+(async () => {
+  const { getDocumentProxy } = await import(w.unpdf);
+  const doc = await getDocumentProxy(new Uint8Array(w.body));
+  const pages = [];
+  let chars = 0;
+  for (let i = 1; i <= doc.numPages; i++) {
+    const page = await doc.getPage(i);
+    const content = await page.getTextContent();
+    let t = "";
+    for (const x of content.items) if (x.str != null) t += x.str + (x.hasEOL ? "\n" : "");
+    page.cleanup();
+    chars += t.length + 1;
+    if (chars > w.maxChars) return parentPort.postMessage({ error: "its text is longer than " + w.maxChars + " characters" });
+    pages.push(t);
+  }
+  parentPort.postMessage({ text: pages.join("\n").replace(/[^\S\n]+/g, " ").replace(/ ?\n ?/g, "\n").replace(/\n{3,}/g, "\n\n") });
+})().catch((e) => parentPort.postMessage({ error: String((e && e.message) || e) }));
+`;
+
+const reading = new Set(); // the PDF threads alive now, each { limit, stop }
+let rssAtStart = 0, watching = null;
+
+/** Every thread's limit against one starting point: their memory adds up, and ArrayBuffers are outside a thread's heap limit. */
+function watchMemory(entry) {
+  if (!reading.size) rssAtStart = process.memoryUsage.rss();
+  reading.add(entry);
+  watching ||= setInterval(() => {
+    const grew = process.memoryUsage.rss() - rssAtStart;
+    for (const e of [...reading]) if (grew > e.limit) e.stop(new Error("it needs too much memory"));
+  }, 10);
+}
+function unwatchMemory(entry) {
+  reading.delete(entry);
+  if (!reading.size) { clearInterval(watching); watching = null; }
+}
+
+/**
+ * A PDF's text, read with the pinned unpdf (a serverless build of PDF.js: no native tool, so it runs in
+ * a Vercel function) on a thread that can be stopped mid-instruction. Rejects past any limit.
+ * @param {Buffer|Uint8Array} body
+ * @param {{ pdfMs?: number, pdfChars?: number, pdfHeapMb?: number, pdfRssMb?: number }} [limits]
+ */
+export function pdfText(body, limits = {}) {
+  const { pdfMs, pdfChars, pdfHeapMb, pdfRssMb } = { ...LIMITS, ...limits };
+  return new Promise((resolve, reject) => {
+    const thread = new Worker(PDF_THREAD, { eval: true, workerData: { unpdf: unpdfUrl(), body: new Uint8Array(body), maxChars: pdfChars }, stdout: true, stderr: true, resourceLimits: { maxOldGenerationSizeMb: pdfHeapMb, maxYoungGenerationSizeMb: 32 } });
+    thread.stdout.resume(); // PDF.js writes a warning per oddity, and a hostile file has many
+    thread.stderr.resume();
+    let over = false;
+    const finish = (fn, v) => {
+      if (over) return;
+      over = true;
+      clearTimeout(timer);
+      unwatchMemory(entry);
+      thread.terminate().catch(() => {}).finally(() => fn(v));
+    };
+    const entry = { limit: pdfRssMb * 1048576, stop: (e) => finish(reject, e) };
+    const timer = setTimeout(() => finish(reject, new Error(`it took more than ${pdfMs / 1000} s`)), pdfMs);
+    watchMemory(entry);
+    thread.on("message", (m) => (m.error ? finish(reject, new Error(m.error)) : finish(resolve, m.text)));
+    thread.on("error", (e) => finish(reject, e?.code === "ERR_WORKER_OUT_OF_MEMORY" ? new Error("it needs too much memory") : e));
+    thread.on("exit", (code) => finish(reject, new Error(`the reader stopped (${code})`)));
+  });
 }
 
 /**
@@ -413,12 +529,12 @@ export async function pdfText(body) {
  * `raw` is the body itself with script escapes undone, searched when the visible text misses: a
  * page that renders from data keeps its words there.
  */
-export async function readSource({ body, content_type: contentType }) {
+export async function readSource({ body, content_type: contentType }, limits = {}) {
   if (!body?.length) return { kind: "empty", text: "", raw: "" };
   const ct = String(contentType || "").toLowerCase();
   const head = body.subarray(0, 1024).toString("latin1").trimStart();
   if (ct.includes("pdf") || head.startsWith("%PDF-")) {
-    try { return { kind: "pdf", text: await pdfText(body), raw: "" }; }
+    try { return { kind: "pdf", text: await pdfText(body, limits), raw: "" }; }
     catch (e) { return { kind: "pdf", text: "", raw: "", error: `the PDF could not be read (${clip(e.message, 100)})` }; }
   }
   if (!ct.startsWith("text/") && !/json|xml|csv|javascript|markdown|application\/text/.test(ct) && !mostlyText(body)) return { kind: "binary", text: "", raw: "" };
@@ -507,17 +623,24 @@ export async function checkReceipts({ claim, evidence, claimed = null, fetchSour
   // 2. every source the evidence names, fetched now
   const urls = parsed.urls.slice(0, L.maxSources);
   const skipped = parsed.urls.length - urls.length;
+  // one clock for all of them: slow sources can't add up past the function's own time limit
+  const until = now() + L.totalMs;
+  const once = (url) => {
+    const left = until - now();
+    if (left < 250) return { url, final_url: url, status: null, fetched_at: iso(now()), error: "out of time for this check", hay: [] };
+    return get(url, { timeoutMs: Math.min(L.timeoutMs, left), maxBytes: L.maxBytes, maxRedirects: L.maxRedirects });
+  };
   const fetched = await mapLimit(urls, L.concurrency, async (url) => {
     if (!get) return { url, final_url: url, status: null, fetched_at: iso(now()), error: "no live fetch here", hay: [] };
-    let f = await get(url, { timeoutMs: L.timeoutMs, maxBytes: L.maxBytes, maxRedirects: L.maxRedirects });
-    for (let i = 0; i < L.retries && transient(f); i++) {
-      await new Promise((r) => setTimeout(r, 600));
-      f = await get(url, { timeoutMs: L.timeoutMs, maxBytes: L.maxBytes, maxRedirects: L.maxRedirects });
+    let f = await once(url);
+    for (let i = 0; i < L.retries && transient(f) && until - now() >= 250; i++) {
+      await new Promise((r) => setTimeout(r, L.retryWaitMs));
+      f = await once(url);
     }
     const hay = [];
     let text = "";
     if (!f.error && f.body) {
-      const read = await readSource(f);
+      const read = await readSource(f, L);
       text = read.text || read.raw;
       if (read.error) f = { ...f, error: read.error };
       else if (!read.text && !read.raw) f = { ...f, error: `nothing readable in it (${read.kind})` };

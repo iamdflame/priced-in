@@ -24,8 +24,9 @@ import { recordEvents, txEvents } from "./runtime.mjs";
 
 export const LEDGER = "sentinel/ledger.json";
 const KEEP = 400;
-// the per-minute function has 60 s: a receipt check there gets 8 s a source
-export const SENTINEL_LIMITS = { timeoutMs: 8000, maxSources: 4 };
+// the per-minute function has 60 s: a receipt check there gets 8 s a source and 24 s in all, and a
+// PDF 6 s, which leaves the dispute its time
+export const SENTINEL_LIMITS = { timeoutMs: 8000, totalMs: 24_000, maxSources: 4, pdfMs: 6000 };
 
 const blank = () => ({ checks: {}, sentinel: {}, updated_at: null });
 const prune = (m) => {
