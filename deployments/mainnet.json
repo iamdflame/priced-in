@@ -341,6 +341,30 @@
    "method": "ft_transfer_call",
    "tx": "APiXrDSx7tarMeWksGBz2nHjpwYidKwtpfw2DUaHRy5p",
    "link": "https://nearblocks.io/txns/APiXrDSx7tarMeWksGBz2nHjpwYidKwtpfw2DUaHRy5p"
+  },
+  {
+   "tag": "gas 0.203 NEAR",
+   "method": "transfer",
+   "tx": "52J9nannRP4wv3Ntb92uiSYXXw5Ld7CM3AdQXd57xUsg",
+   "link": "https://nearblocks.io/txns/52J9nannRP4wv3Ntb92uiSYXXw5Ld7CM3AdQXd57xUsg"
+  },
+  {
+   "tag": "USDC registration",
+   "method": "storage_deposit",
+   "tx": "7kzvKnBfvwodcFksebGnb37e4Mden89KPKhA87UtszT9",
+   "link": "https://nearblocks.io/txns/7kzvKnBfvwodcFksebGnb37e4Mden89KPKhA87UtszT9"
+  },
+  {
+   "tag": "withdraw $8.00",
+   "method": "withdraw",
+   "tx": "J4bA8pGPYDtMnvVm4JettPFLywccQKf3cHLqz3XMHerQ",
+   "link": "https://nearblocks.io/txns/J4bA8pGPYDtMnvVm4JettPFLywccQKf3cHLqz3XMHerQ"
+  },
+  {
+   "tag": "treasury +$8.00",
+   "method": "ft_transfer_call",
+   "tx": "GHMfXZsZP8MMo77qoNxjvJuhwAV2YDgNMp1puMaraADN",
+   "link": "https://nearblocks.io/txns/GHMfXZsZP8MMo77qoNxjvJuhwAV2YDgNMp1puMaraADN"
   }
  ],
  "keys_set_at": "2026-11-05T22:06:38.206Z",
@@ -798,7 +822,39 @@
  },
  "sentinel": {
   "account": "sentinel.isitpriced.near",
-  "bond_micro": "10000000",
-  "at": "2026-11-07T03:01:22.292Z"
+  "bond_micro": "2000000",
+  "at": "2026-11-07T03:01:22.292Z",
+  "returned": [
+   {
+    "at": "2026-11-07T05:25:18.650Z",
+    "amount_micro": "8000000",
+    "txs": [
+     {
+      "tag": "gas 0.203 NEAR",
+      "method": "transfer",
+      "tx": "52J9nannRP4wv3Ntb92uiSYXXw5Ld7CM3AdQXd57xUsg",
+      "link": "https://nearblocks.io/txns/52J9nannRP4wv3Ntb92uiSYXXw5Ld7CM3AdQXd57xUsg"
+     },
+     {
+      "tag": "USDC registration",
+      "method": "storage_deposit",
+      "tx": "7kzvKnBfvwodcFksebGnb37e4Mden89KPKhA87UtszT9",
+      "link": "https://nearblocks.io/txns/7kzvKnBfvwodcFksebGnb37e4Mden89KPKhA87UtszT9"
+     },
+     {
+      "tag": "withdraw $8.00",
+      "method": "withdraw",
+      "tx": "J4bA8pGPYDtMnvVm4JettPFLywccQKf3cHLqz3XMHerQ",
+      "link": "https://nearblocks.io/txns/J4bA8pGPYDtMnvVm4JettPFLywccQKf3cHLqz3XMHerQ"
+     },
+     {
+      "tag": "treasury +$8.00",
+      "method": "ft_transfer_call",
+      "tx": "GHMfXZsZP8MMo77qoNxjvJuhwAV2YDgNMp1puMaraADN",
+      "link": "https://nearblocks.io/txns/GHMfXZsZP8MMo77qoNxjvJuhwAV2YDgNMp1puMaraADN"
+     }
+    ]
+   }
+  ]
  }
 }
