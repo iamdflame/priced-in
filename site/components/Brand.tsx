@@ -1,5 +1,6 @@
 // The lockup and the topic icons. The lockup is the kit's outlined General Sans wordmark (logo/), drawn
 // in currentColor so it follows the theme without a second file; the needle and the i's dot stay cyan.
+import { Icon, type IconName } from "./Icon";
 import type { Fact } from "@/lib/model";
 
 const WORD = [
@@ -33,8 +34,12 @@ export function Lockup({ className = "" }: { className?: string }) {
 
 const MONO: Record<string, string> = { "mono:DeFi": "DF", "mono:Ka": "Ka", "mono:Pm": "Pm", "mono:N": "N", "mono:Au": "Au" };
 
+/** Today's claims: each news topic's line icon, drawn on the same small disc as a monogram. */
+const NEWS_ICON: Record<string, IconName> = { football: "ball", sports: "trophy", money: "trend", tech: "chip", entertainment: "film", officials: "landmark", crypto: "coin" };
+
 export function TopicIcon({ icon }: { icon: Fact["icon"] }) {
   if (icon.startsWith("mono:")) return <span className="ti mono" aria-hidden="true">{MONO[icon] ?? icon.slice(5, 7)}</span>;
+  if (icon.startsWith("news:")) return <span className="ti mono news" aria-hidden="true"><Icon name={NEWS_ICON[icon.slice(5)] ?? "pulse"} /></span>;
   // eslint-disable-next-line @next/next/no-img-element
   return <span className="ti" aria-hidden="true"><img src={`/icons/coin-${icon}.svg`} alt="" width={22} height={22} /></span>;
 }

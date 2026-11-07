@@ -31,6 +31,12 @@ const PATHS = {
   shield: '<path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
   users: '<circle cx="9" cy="9" r="3.5"/><path d="M2.5 19a6.5 6.5 0 0113 0M16 5.5a3.5 3.5 0 010 7M21.5 19a6.5 6.5 0 00-4-6"/>',
   bot: '<rect x="4.5" y="8" width="15" height="11" rx="3"/><path d="M12 4v4M9 13h.01M15 13h.01M9.5 16.5h5"/>',
+  ball: '<circle cx="12" cy="12" r="8.5"/><path d="M12 8.2l3.2 2.3-1.2 3.8h-4l-1.2-3.8zM12 8.2V3.5M15.2 10.5l4.3-1.6M14 14.3l2.8 3.9M10 14.3l-2.8 3.9M8.8 10.5L4.5 8.9"/>',
+  trophy: '<path d="M8 4.5h8v5a4 4 0 01-8 0zM8 6.5H5.5a2.5 2.5 0 003 3.6M16 6.5h2.5a2.5 2.5 0 01-3 3.6M12 13.5v3.5M8.5 20.5h7M9.5 17h5v3.5h-5z"/>',
+  trend: '<path d="M4 20h16M6.5 20v-4M10.5 20v-7M14.5 20v-9.5M18.5 20V6"/>',
+  film: '<rect x="4" y="9" width="16" height="11" rx="1.5"/><path d="M4 9l15-4 .6 2.4L4.6 11.4M8 8l2.5 2M13 6.6l2.5 2"/>',
+  landmark: '<path d="M3.5 20.5h17M5 18h14M6.5 18v-6M10 18v-6M14 18v-6M17.5 18v-6M4.5 12h15M6 12a6 6 0 0112 0M12 6V3.5"/>',
+  board: '<path d="M8 20.5h8M12 16.5v4M7 4.5h10v4a5 5 0 01-10 0zM7 6H4.5a2.5 2.5 0 002.8 3.5M17 6h2.5a2.5 2.5 0 01-2.8 3.5"/>',
 } as const;
 
 export type IconName = keyof typeof PATHS;

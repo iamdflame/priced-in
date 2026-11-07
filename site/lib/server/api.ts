@@ -11,7 +11,7 @@ export const API_ORIGIN = (process.env.API_ORIGIN || "https://isitpriced.com").r
 
 export type Res<T> = { ok: true; value: T } | { ok: false; error: string; status: number };
 
-async function get<T>(path: string, revalidate = 10, timeoutMs = 8000): Promise<Res<T>> {
+export async function get<T>(path: string, revalidate = 10, timeoutMs = 8000): Promise<Res<T>> {
   try {
     const r = await fetch(`${API_ORIGIN}/api${path}`, { headers: { accept: "application/json" }, next: { revalidate }, signal: AbortSignal.timeout(timeoutMs) });
     const body = await r.json().catch(() => null);
@@ -61,6 +61,30 @@ export interface Ruling {
   payout_usd: number | null;
   bonds?: { who: string; trader: string; paid_usd: number; tx: string }[];
   correction: { claim_id: number; text: string; open_tx: string; rewrite_id?: string; at: number } | null;
+  /** what the evidence's receipts were, checked where they live (docs/API.md); null before anything checked them */
+  receipt_check?: ReceiptCheck | null;
+  /** the Sentinel's watch on this ruling, null before it looked */
+  sentinel?: SentinelWatch | null;
+}
+
+export type ReceiptResult = "verified" | "quote_not_found" | "unfetchable" | "record_mismatch" | "no_receipt" | "unsupported";
+
+export interface ReceiptCheck {
+  result: ReceiptResult | string;
+  reason: string;
+  checked_at: string;
+  via: "corpus" | "source" | null;
+  record: { id: string; found: boolean; hash_matches: boolean; sentence_matches: boolean } | null;
+  quotes: { text: string; found: boolean; url: string | null }[];
+  sources: { url: string; via: string; status: number | null; sha256: string | null; bytes: number | null; fetched_at: string | null; error: string | null }[];
+  support: { verdict: string; unanimous: boolean; answers?: { model: string; answer: string; verified: boolean }[] } | null;
+}
+
+export interface SentinelWatch {
+  status: "watching" | "disputed" | "no_dispute" | "blocked" | string;
+  note: string;
+  last_look_at: string | null;
+  disputes: { round: number; bond_usd: number; tx: string; at: string }[];
 }
 
 export interface Rulings {

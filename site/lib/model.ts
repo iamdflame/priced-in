@@ -4,10 +4,21 @@
 // Facts are serializable, so server components hand them to client components as they are.
 import type { Claim } from "./core/api";
 import type { ClaimMarket } from "./core/lmsr";
+import type { NewsField, NewsSettles, NewsSource } from "./news";
 import { quoteClaim, type Quotes } from "./quote";
 
-/** A claim as the market contract's v3 views give it, with the exact market behind its price. */
-export type ClaimView = Claim & ClaimMarket;
+/** A claim as the market contract's v3 views give it, with the exact market behind its price. A news
+ *  line also carries `news` when the API has today's claims on (docs/API.md). */
+export type ClaimView = Claim & ClaimMarket & { news?: NewsField | null };
+
+/** What a news line adds to a Fact: where it came from and how it settles. */
+export interface NewsMeta {
+  why: string;
+  source: NewsSource | null;
+  settles: NewsSettles;
+  firstEstimate: number;
+  openedAt: number;
+}
 
 export interface Caught {
   today: string;
@@ -50,12 +61,16 @@ export interface Fact {
   quotes: Quotes | null;
   challengeId: number | null;
   feeBps: number;
+  /** a bounty held on the line, paid to the first challenger proven right (bounty_micro) */
+  bountyUsd: number;
+  /** a line from today's news, or null for a Wikipedia sentence */
+  news: NewsMeta | null;
 }
 
 export const statusOf = (c: Pick<Claim, "status">): FactStatus => (c.status === "Settled" ? "settled" : c.status === "Open" ? "open" : "deciding");
 
 /** The numbers of a Fact from a claim view: everything that changes while a page is open. */
-export function liveNumbers(c: ClaimView): Pick<Fact, "status" | "chainStatus" | "outcome" | "provisional" | "price" | "trades" | "volumeUsd" | "quotes" | "challengeId" | "feeBps"> {
+export function liveNumbers(c: ClaimView): Pick<Fact, "status" | "chainStatus" | "outcome" | "provisional" | "price" | "trades" | "volumeUsd" | "quotes" | "challengeId" | "feeBps" | "bountyUsd"> {
   const status = statusOf(c);
   return {
     status,
@@ -69,6 +84,7 @@ export function liveNumbers(c: ClaimView): Pick<Fact, "status" | "chainStatus" |
     quotes: status === "settled" ? null : quoteClaim(c),
     challengeId: c.challenge_id ?? null,
     feeBps: Number(c.fee_bps ?? 0),
+    bountyUsd: Number(c.bounty_micro ?? 0) / 1e6,
   };
 }
 
