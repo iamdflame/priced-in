@@ -32,10 +32,10 @@ function where(c: ReceiptCheck) {
 export function Receipts({ r }: { r: Ruling }) {
   const c = r.receipt_check ?? null;
   const s: SentinelWatch | null = r.sentinel ?? null;
-  if (!c && !s) return <p className="rcpt none"><Icon name="info" />Not checked: this challenge came before receipts were checked at their source.</p>;
+  if (!c && !s) return <p className="rcpt rcpt-none"><Icon name="info" />Not checked: this challenge came before receipts were checked at their source.</p>;
   const res = c ? RESULT[c.result] ?? { word: c.result, tone: "none" as const, icon: "info" as IconName } : null;
   return (
-    <details className={`rcpt ${res?.tone ?? "none"}`}>
+    <details className={`rcpt rcpt-${res?.tone ?? "none"}`}>
       <summary>
         {res && c && <span className="rcpt-k"><Icon name={res.icon} />{res.word}{where(c) ? ` ${where(c)}` : ""}</span>}
         {s && <span className="rcpt-s">{SENTINEL[s.status] ?? s.status}</span>}
@@ -46,7 +46,7 @@ export function Receipts({ r }: { r: Ruling }) {
         {c && c.quotes.length > 0 && (
           <ul className="rcpt-q">
             {c.quotes.map((q, i) => (
-              <li key={i} className={q.found ? "ok" : "bad"}><Icon name={q.found ? "check" : "x"} /><span>“{clip(q.text)}”{q.url ? <> at <a className="link" href={q.url} target="_blank" rel="noopener nofollow">{host(q.url)}</a></> : null}</span></li>
+              <li key={i} className={q.found ? "rq-found" : "rq-missing"}><Icon name={q.found ? "check" : "x"} /><span>“{clip(q.text)}”{q.url ? <> at <a className="link" href={q.url} target="_blank" rel="noopener nofollow">{host(q.url)}</a></> : null}</span></li>
             ))}
           </ul>
         )}

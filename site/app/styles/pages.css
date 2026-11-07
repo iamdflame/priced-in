@@ -671,19 +671,19 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .rcpt summary:hover .rcpt-k { text-decoration: underline; text-underline-offset: 3px; }
 .rcpt-k { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
 .rcpt-k .ic { width: 14px; height: 14px; stroke-width: 2.6; }
-.rcpt.ok .rcpt-k { color: var(--yes); }
-.rcpt.bad .rcpt-k { color: var(--no); }
-.rcpt.none .rcpt-k { color: var(--ink3); }
+.rcpt-ok .rcpt-k { color: var(--yes); }
+.rcpt-bad .rcpt-k { color: var(--no); }
+.rcpt-none .rcpt-k { color: var(--ink3); }
 .rcpt-s { color: var(--ink3); }
 .rcpt-b { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 10px 12px; border-radius: 12px; background: var(--surface2); font-size: 13px; line-height: 1.45; color: var(--ink2); }
 .rcpt-q, .rcpt-src { display: flex; flex-direction: column; gap: 4px; }
 .rcpt-q li { display: flex; gap: 6px; align-items: flex-start; color: var(--ink2); overflow-wrap: anywhere; }
 .rcpt-q .ic { width: 14px; height: 14px; margin-top: 2px; stroke-width: 2.6; }
-.rcpt-q .ok .ic { color: var(--yes); }
-.rcpt-q .bad .ic { color: var(--no); }
+.rcpt-q .rq-found .ic { color: var(--yes); }
+.rcpt-q .rq-missing .ic { color: var(--no); }
 .rcpt-src li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; overflow-wrap: anywhere; }
 .rcpt-src a { color: var(--brand-text); }
 .rcpt-src .mono, .rcpt-rec .mono { font-size: 12px; overflow-wrap: anywhere; }
-p.rcpt.none { display: flex; gap: 6px; align-items: center; color: var(--ink3); }
+p.rcpt.rcpt-none { display: flex; gap: 6px; align-items: center; color: var(--ink3); }
 p.rcpt .ic { width: 14px; height: 14px; }
 }
