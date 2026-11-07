@@ -210,6 +210,7 @@ test.describe("with today's news on", () => {
     await expect(refusal).toContainText("challenge it yourself with your own bond.");
     await expect(refusal).not.toContainText("GET /api");
     await expect(refusal.getByRole("link").first()).toHaveAttribute("href", /^https:\/\/[a-z0-9.-]+$/);
+    await expect(sheet.getByTestId("report-send")).toBeDisabled();
     // a different page takes the refusal away
     await sheet.getByLabel("A page that shows it").fill("https://example.org/another");
     await expect(refusal).toHaveCount(0);

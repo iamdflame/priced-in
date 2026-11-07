@@ -150,7 +150,7 @@ export function ReportSheet() {
           </div>
           {refusal && <div className="notice err" role="alert"><Icon name="alert" /><p><RefusalWords refusal={refusal} /></p></div>}
           {refusal?.code === "untrusted_source" && <WalletInstead req={req} receipt={r} />}
-          <button type="button" className="btn primary lg full" disabled={busy || !!problem} onClick={() => void send()} data-testid="report-send">
+          <button type="button" className="btn primary lg full" disabled={busy || !!problem || refusal?.code === "untrusted_source"} onClick={() => void send()} data-testid="report-send">
             {busy ? <><span className="spin" />Sending…</> : "Send report"}
           </button>
           {problem && (r.url || r.quote) ? <p className="fine rp-hint">{problem}</p> : null}
