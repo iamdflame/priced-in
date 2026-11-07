@@ -1,11 +1,16 @@
 // Read-only NEAR JSON-RPC with failover. No dependencies, no keys: the judge only reads.
 export const TESTNET_RPCS = ["https://test.rpc.fastnear.com", "https://rpc.testnet.near.org", "https://testnet-rpc.intea.rs"];
 export const MAINNET_RPCS = ["https://rpc.fastnear.com", "https://near.lava.build", "https://rpc.mainnet.near.org"];
+// Ordinary nodes keep a few days of transactions; older ones are only on archival nodes.
+export const TESTNET_ARCHIVAL = ["https://archival-rpc.testnet.fastnear.com", "https://archival-rpc.testnet.near.org"];
+export const MAINNET_ARCHIVAL = ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"];
+const UNKNOWN_TX = /UNKNOWN_TRANSACTION|doesn.t exist/i;
 
 export class Rpc {
-  constructor(urls = TESTNET_RPCS, timeoutMs = 15_000) {
+  constructor(urls = TESTNET_RPCS, timeoutMs = 15_000, archival = urls.some((u) => /mainnet|rpc\.fastnear\.com|lava/.test(u) && !/test/.test(u)) ? MAINNET_ARCHIVAL : TESTNET_ARCHIVAL) {
     this.urls = urls;
     this.timeoutMs = timeoutMs;
+    this.archival = archival;
   }
   async call(method, params) {
     let last;
@@ -37,7 +42,13 @@ export class Rpc {
   }
   account(id) { return this.call("query", { request_type: "view_account", finality: "final", account_id: id }); }
   state(id, prefix = "") { return this.call("query", { request_type: "view_state", finality: "final", account_id: id, prefix_base64: Buffer.from(prefix).toString("base64") }); }
-  tx(hash, sender) { return this.call("EXPERIMENTAL_tx_status", { tx_hash: hash, sender_account_id: sender, wait_until: "NONE" }); }
+  async tx(hash, sender) {
+    const params = { tx_hash: hash, sender_account_id: sender, wait_until: "NONE" };
+    try { return await this.call("EXPERIMENTAL_tx_status", params); } catch (e) {
+      if (!UNKNOWN_TX.test(String(e.message)) || !this.archival?.length) throw e;
+      return new Rpc(this.archival, this.timeoutMs, []).call("EXPERIMENTAL_tx_status", params);
+    }
+  }
 }
 
 /** The market's NEP-297 events in a transaction, from receipts the market executed. */

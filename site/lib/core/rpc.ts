@@ -151,9 +151,22 @@ export class NearRpc {
     throw new RpcError(`not final within ${deadlineMs} ms${last ? ` (${(last as Error).message})` : ""}`, { transport: true, name: "STALL" });
   }
 
-  /** A transaction's outcome, for reading its logs (verify's anchor check). */
-  txStatus(txHash: string, senderId: string) {
-    return this.call<TxOutcome>("EXPERIMENTAL_tx_status", { tx_hash: txHash, sender_account_id: senderId, wait_until: "NONE" });
+  /** A transaction's outcome, for reading its logs (verify's anchor check). Ordinary nodes keep a few
+   *  days of transactions, so an older one is read from an archival node of the same network. */
+  async txStatus(txHash: string, senderId: string) {
+    const params = { tx_hash: txHash, sender_account_id: senderId, wait_until: "NONE" };
+    try {
+      return await this.call<TxOutcome>("EXPERIMENTAL_tx_status", params);
+    } catch (e) {
+      if (!/UNKNOWN_TRANSACTION|doesn.t exist/i.test(String((e as Error).message))) throw e;
+      const testnet = this.urls.some((u) => /testnet/.test(u));
+      const archival = testnet ? ["https://archival-rpc.testnet.fastnear.com", "https://archival-rpc.testnet.near.org"] : ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"];
+      let last: unknown = e;
+      for (const url of archival) {
+        try { return await this.callOn<TxOutcome>(url, "EXPERIMENTAL_tx_status", params); } catch (err) { last = err; }
+      }
+      throw last;
+    }
   }
 }
 

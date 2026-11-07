@@ -24,10 +24,13 @@ async function get<T>(path: string, revalidate = 15, timeoutMs = 8000): Promise<
 
 /** Mainnet RPCs, tried in order. */
 export const RPC_URLS = ["https://rpc.fastnear.com", "https://free.rpc.fastnear.com", "https://near.drpc.org"];
+// Ordinary nodes keep a few days of transactions; older ones are only on archival nodes.
+const ARCHIVAL_URLS = ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"];
 
 async function rpc<T>(method: string, params: unknown, revalidate = 60): Promise<Res<T>> {
   let last = "No NEAR RPC answered.";
-  for (const url of RPC_URLS) {
+  const urls = method === "tx" || method === "EXPERIMENTAL_tx_status" ? [...RPC_URLS, ...ARCHIVAL_URLS] : RPC_URLS;
+  for (const url of urls) {
     try {
       const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }), next: { revalidate }, signal: AbortSignal.timeout(6000) });
       const j = await r.json().catch(() => null);
