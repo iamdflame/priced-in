@@ -114,11 +114,11 @@
 .landed-big { display: flex; align-items: center; gap: 8px; font: 700 24px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); }
 .landed.won .landed-big { color: var(--yes); animation: pi-land .6s var(--spring); }
 .landed-big .ic { width: 24px; height: 24px; stroke-width: 2.8; }
-.landed ul { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-.landed li { display: flex; flex-direction: column; gap: 1px; font-size: 13.5px; line-height: 1.35; }
+.landed ul { display: flex; flex-direction: column; gap: 6px; margin-top: 8px; }
+.landed li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: baseline; font-size: 13.5px; line-height: 1.35; }
 .landed li a { font-weight: 600; color: var(--ink); }
 .landed li a:hover { color: var(--brand-text); }
-.landed li span { font-size: 12.5px; color: var(--ink2); }
+.landed li span { font-size: 12.5px; color: var(--ink2); white-space: nowrap; }
 .landed li.right span { color: var(--yes); font-weight: 600; }
 .you-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 0; overflow: hidden; border-radius: 14px; background: var(--line); }
 .you-stats div { padding: 8px 10px; background: var(--surface); }
@@ -219,6 +219,7 @@
   .home > .notice { order: 2; margin-bottom: 10px; }
   .home > section, .home > div:not(.hero) { order: 4; }
   /* with today's claims: the promise, then today's claims with their Yes/No, then the numbers, then Wikipedia */
+  .home.has-today .judgesline { display: none; }
   .home.has-today > .today { order: 2; }
   .home.has-today > .wikihd { order: 4; }
   .home.has-today > .hero { order: 5; }

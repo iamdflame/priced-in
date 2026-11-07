@@ -97,7 +97,7 @@ export function YouPanel({ ai, board, minSettled, questions }: Props) {
             {fresh.slice(0, 3).map((p) => (
               <li key={p.claim_id} className={p.state}>
                 <Link href={`/c/${p.claim_id}`}>{q(p)}</Link>
-                <span>{p.state === "right" ? `Right · +${p.points} points` : `You picked ${p.side === "yes" ? "Yes" : "No"}`}</span>
+                <span>{p.state === "right" ? `+${p.points} points` : `You said ${p.side === "yes" ? "Yes" : "No"}`}</span>
               </li>
             ))}
           </ul>
