@@ -210,6 +210,25 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 - The fee is the owner's income, and the owner sets it: fees reach the owner through `withdraw_treasury`.
 - **Fee-blind clients.** `services/api/src/credence.mjs` (the truth API and the MCP `bet`) quotes without the fee and sets `min_shares_micro` 1% under that quote. Measured at 100 bps on $0.10 to $5 orders, $1.45 and $3 of liquidity: the fill clears that floor by only 0.04% to 0.17%, so a small price move refuses the bet. From 150 bps every such bet is refused. It fails safe, as a refusal, and goes away once those clients quote with `fee_bps`. Agents (`services/ai/src/agents.js`) keep 2% and are fine at 100 bps.
 
+## 13. Hostile sources and readers' reports
+
+From the security review of 2026-11-07 (`.apex/streams/security-result.md`), where every finding, its test and its commit are listed.
+
+**Attack: a source that attacks the reader.** Whoever posts a challenge or a report chooses the page we read. 300 KB of unclosed tags took 20 s in the HTML regular expressions, so about 1 MB outlasted the Sentinel's 60 s function; a 200 KB PDF unpacks past its 1 GB of memory. Nothing was stored, so every minute repeated it. One $1 challenge stopped the Sentinel for every challenge, which let its own forged receipt through, and one free report stopped the hourly news round.
+
+**Defence.** HTML is read in one pass that never looks at the same text twice (`htmlText`). A PDF is read on its own thread, stopped by time, text length and the process's memory (`pdfText`), because a decompression buffer sits outside a thread's heap limit. All of a check's fetches share one clock (`totalMs`, 24 s in the Sentinel). A file past a limit is `unfetchable`, so its challenger loses the argument.
+
+**Attack: a forged receipt on our bond.** A report is free, a page the reporter wrote passes the word check and the support panel by construction, and the Sentinel never disputes a verified receipt. Our Checker would post it on-chain with our bond, for nothing. The reporter could then dispute with $2 and win the Checker's $1, or take a wrong settlement on a line they bet on, and two lost bonds a day drain the balance the daily sitting needs.
+
+**Defence.** The Checker bonds only on the line's own sources, official sites and established outlets, wherever the page redirects (`trustedSource`, `reportVerdict`). A report names one URL, with no second one in its URL or its words. Every model that answered must agree. A report leaves the sitting's bond alone (`REPORT_KEEP_BONDS`), and reports have a daily check cap and run one round at a time.
+
+**Residual.**
+- **A page on a trusted host can still be wrong.** The list is a judgment, not a proof: an established outlet can be mistaken, and a site on a line's coverage list got there through a web search.
+- **The settler isn't under this bar.** It cites what its own web search finds, so a page written to rank for a line's story could become our Checker's receipt, and only the settler's model and the support panel stand in the way. Restricting it would leave more lines waiting, so it is left for a decision.
+- **A trusted-host report that loses still costs $1,** at most 2 a day, and the Sentinel doesn't defend the Checker against a dispute.
+- **Honest sources outside the list** must use their own bond. That is the price of the bar.
+- **A PDF has only been read on a thread locally.** Watch the first one on the hosted runtime: if the thread can't start there, an honest PDF receipt reads as `unfetchable`, and the Sentinel would dispute it.
+
 ## Other limits found by the streams
 
 These are copied from each stream's own result file in `.apex/streams/`, and checked against the code where noted.
