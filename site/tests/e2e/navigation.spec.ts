@@ -4,6 +4,7 @@
 // on the founder's screenshot: the home stats row collapsed into a column after visiting /trust.
 import { expect, test, type Page } from "@playwright/test";
 import { guard } from "./guard";
+import { NEWS } from "./news";
 import { differences, freshShot, settle, shoot } from "./visit";
 
 test.use({ reducedMotion: "reduce" });
@@ -28,7 +29,8 @@ const foot = async (page: Page, name: string) => {
 function walk(main: (page: Page, name: string) => Promise<unknown>): Step[] {
   return [
     ["Results, from the main nav", (p) => main(p, "Results"), /\/rulings$/],
-    ["AI traders, from the main nav", (p) => main(p, "AI traders"), /\/agents$/],
+    // with news on, the leaderboard takes the AI traders' place in the header and the phone bar
+    NEWS ? ["the leaderboard, from the main nav", (p) => main(p, "Leaderboard"), /\/leaderboard$/] : ["AI traders, from the main nav", (p) => main(p, "AI traders"), /\/agents$/],
     ["home, after a proof page", (p) => p.locator("header.nav .logo:visible, .pbar .logo:visible").first().click(), /:\d+\/$/],
     ["Trust, from the footer", (p) => foot(p, "Trust"), /\/trust$/],
     ["home again, by the back button", (p) => p.goBack(), /:\d+\/$/],
@@ -58,7 +60,7 @@ const SIZES = [
   { name: "phone", width: 390, height: 844, main: (p: Page, name: string) => p.locator(".pnav").getByRole("link", { name, exact: true }).click() },
 ];
 
-const ROUTES = ["/how", "/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
+const ROUTES = ["/how", "/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio", ...(NEWS ? ["/leaderboard"] : [])];
 
 // the founder's trigger: the logo, from any page, must land on the same home a fresh load gives
 for (const size of SIZES) {

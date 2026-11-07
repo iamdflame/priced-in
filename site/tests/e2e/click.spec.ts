@@ -3,9 +3,10 @@
 // holds across pages; the footer is real and close; and nothing jumps or complains in the console.
 import { expect, test, type Page } from "@playwright/test";
 import { guard, type Guard } from "./guard";
+import { FACT_CARDS, NEWS } from "./news";
 import { settle } from "./visit";
 
-const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
+const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio", ...(NEWS ? ["/leaderboard", "/c/9001"] : [])];
 
 const quiet = (g: Guard) => { expect(g.errors, "console errors").toEqual([]); expect(g.laneKeys, "asked for a free-bet key").toBe(0); expect(g.sends, "sent a transaction").toBe(0); };
 
@@ -70,20 +71,21 @@ test("the footer is close on the home page: three rows, then See all expands in 
   await guard(page);
   await page.setViewportSize({ width: 1508, height: 800 });
   await page.goto("/");
-  const cards = page.locator(".grid .card:visible");
+  const cards = page.locator(`${FACT_CARDS}:visible`);
   await expect(cards).toHaveCount(12);
-  const all = await page.locator(".grid .card").count();
+  const all = await page.locator(FACT_CARDS).count();
   const button = page.getByRole("button", { name: `See all ${all} facts` });
   await expect(button).toBeVisible();
   const top = await page.locator("footer.foot").evaluate((el) => el.getBoundingClientRect().top + scrollY);
-  expect(top, "the footer is too far down").toBeLessThan(2300);
+  // today's claims sit above the facts while news is on: the page is longer by that block, no more
+  expect(top, "the footer is too far down").toBeLessThan(NEWS ? 3500 : 2300);
   await button.click();
   await expect(cards).toHaveCount(all);
   await expect(button).toBeHidden();
   // a filter or a search shows everything it finds
   await page.reload();
   await page.getByRole("searchbox", { name: "Search facts" }).first().fill("Tether");
-  await expect(page.locator(".grid .card:visible").first()).toBeVisible();
+  await expect(page.locator(`${FACT_CARDS}:visible`).first()).toBeVisible();
   await expect(page.getByRole("button", { name: /^See all/ })).toBeHidden();
 });
 
@@ -92,7 +94,7 @@ for (const size of [{ name: "phone", width: 390, rows: 4 }, { name: "tablet", wi
     await guard(page);
     await page.setViewportSize({ width: size.width, height: 844 });
     await page.goto("/");
-    await expect(page.locator(".grid .card:visible")).toHaveCount(size.rows);
+    await expect(page.locator(`${FACT_CARDS}:visible`)).toHaveCount(size.rows);
   });
 }
 
@@ -122,7 +124,7 @@ test("search filters as you type, finds nothing kindly, and works from another p
   await box.fill("zzzqqq");
   await expect(page.getByRole("heading", { name: "No facts match" })).toBeVisible();
   await page.getByRole("button", { name: "Show every fact" }).click();
-  await expect(page.locator(".grid .card:visible").first()).toBeVisible();
+  await expect(page.locator(`${FACT_CARDS}:visible`).first()).toBeVisible();
   await page.goto("/rulings");
   await box.fill("Tether");
   await box.press("Enter");
@@ -144,10 +146,10 @@ test("the topic filters each show their own facts, and All brings them back", as
     const want = Number(await tab.locator(".n").textContent());
     await tab.click();
     await expect(tab).toHaveAttribute("aria-pressed", "true");
-    await expect(page.locator(".grid .card:visible")).toHaveCount(want);
+    await expect(page.locator(`${FACT_CARDS}:visible`)).toHaveCount(want);
   }
   await tabs.first().click();
-  await expect(page.locator(".grid .card:visible")).toHaveCount(12);
+  await expect(page.locator(`${FACT_CARDS}:visible`)).toHaveCount(12);
   quiet(g);
 });
 

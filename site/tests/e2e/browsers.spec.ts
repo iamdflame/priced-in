@@ -4,6 +4,7 @@
 import { expect, test } from "@playwright/test";
 import { audit, brokenImages } from "./audit";
 import { guard } from "./guard";
+import { NEWS } from "./news";
 import { settle } from "./visit";
 
 test("land, click across pages and back, and every stop is sound", async ({ page, isMobile }) => {
@@ -19,7 +20,8 @@ test("land, click across pages and back, and every stop is sound", async ({ page
   expect(proof).toBe("row");
 
   const links = page.locator(isMobile ? ".pnav" : ".navlinks");
-  for (const [name, url] of [["Results", /\/rulings$/], ["AI traders", /\/agents$/], ["Portfolio", /\/portfolio$/]] as const) {
+  const stops: [string, RegExp][] = [["Results", /\/rulings$/], NEWS ? ["Leaderboard", /\/leaderboard$/] : ["AI traders", /\/agents$/], ["Portfolio", /\/portfolio$/]];
+  for (const [name, url] of stops) {
     await links.getByRole("link", { name, exact: true }).click();
     await expect(page).toHaveURL(url);
     await clean(name);

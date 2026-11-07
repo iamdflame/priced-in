@@ -21,6 +21,9 @@ export default defineConfig({
     { name: "navigation", use: { ...devices["Desktop Chrome"] }, testMatch: /navigation.spec/ },
     { name: "widths", use: { ...devices["Desktop Chrome"] }, testMatch: /widths.spec/ },
     { name: "click", use: { ...devices["Desktop Chrome"] }, testMatch: /click.spec/ },
+    // today's claims, picks, the board and reports (off by default; E2E_NEWS=on with tests/mock/api.mjs),
+    // and the free $1's score, in either state
+    { name: "today", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, testMatch: /(today|score)\.spec/ },
     // judges use Safari: the main flows again in every engine
     { name: "firefox", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } }, testMatch: /(flow|browsers).spec/ },
     { name: "webkit", use: { ...devices["Desktop Safari"], viewport: { width: 1440, height: 900 } }, testMatch: /(flow|browsers).spec/ },

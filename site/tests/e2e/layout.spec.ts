@@ -69,7 +69,7 @@ test("touch targets are at least 44 px on the phone", async ({ page }) => {
         if (el.closest("h1, h2, h3, .tape, .ticker, .foot .ft-fine, .ev, .story, .lab, .tl .what, .reason, .t, .pop, details, .skip")) continue; // inline text links
         if (el.classList.contains("whyest")) continue; // 18 px glyph with a 44 px hit area (::before)
         if (r.height < 43.5 && r.width < 43.5) out.push(`${el.tagName} ${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)} ${Math.round(r.width)}x${Math.round(r.height)}`);
-        else if (r.height < 43.5 && !el.matches(".src, .link, .rq, .q, .row .w a, .tl .when a")) out.push(`${el.tagName} ${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)} h${Math.round(r.height)}`);
+        else if (r.height < 43.5 && !el.matches(".src, .link, .rq, .q, .row .w a, .tl .when a, .fromnews, .lr-q")) out.push(`${el.tagName} ${(el.textContent || el.getAttribute("aria-label") || "").trim().slice(0, 30)} h${Math.round(r.height)}`);
       }
       return out;
     });

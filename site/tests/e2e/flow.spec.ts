@@ -2,6 +2,7 @@
 // the real mainnet run. Neither spends a cent: see guard.ts.
 import { expect, test } from "@playwright/test";
 import { guard, noMoneySpent } from "./guard";
+import { FACT_CARDS, NEWS } from "./news";
 
 test("home → market → free bet → receipt", async ({ page }) => {
   const trade = { claimId: 0, side: "no" as const, beforePpm: 400000, afterPpm: 318000, sharesMicro: "1398001" };
@@ -11,25 +12,33 @@ test("home → market → free bet → receipt", async ({ page }) => {
   await expect(page.getByText("Pick true or false")).toBeVisible();
   await expect(page.getByText("3 AI judges decide")).toBeVisible();
   await expect(page.getByText("Right answers win")).toBeVisible();
-  await expect(page.getByText("Free play: a right answer adds to your score. Bet real USDC to win real money.")).toBeVisible();
-  await page.getByRole("button", { name: "What is the score, and what does $1 pay?" }).first().click();
-  const score = page.getByRole("dialog", { name: "What is the score, and what does $1 pay?" });
-  await expect(score.getByRole("link", { name: "Portfolio" })).toHaveAttribute("href", "/portfolio");
-  await expect(score).toContainText("can’t be cashed out");
-  await expect(score).toContainText("so a small market pays a little less than the odds alone.");
-  await page.keyboard.press("Escape");
+  if (!NEWS) {
+    await expect(page.getByText("Free play: a right answer adds to your score. Bet real USDC to win real money.")).toBeVisible();
+    await page.getByRole("button", { name: "What is the score, and what does $1 pay?" }).first().click();
+    const score = page.getByRole("dialog", { name: "What is the score, and what does $1 pay?" });
+    await expect(score.getByRole("link", { name: "Portfolio" })).toHaveAttribute("href", "/portfolio");
+    await expect(score).toContainText("can’t be cashed out");
+    await expect(score).toContainText("so a small market pays a little less than the odds alone.");
+    await page.keyboard.press("Escape");
+  }
   // the lead and the cards say where each claim comes from, and link to its market
   await expect(page.locator(".feature a.fromwiki")).toContainText(/^From Wikipedia: \S/);
-  await expect(page.locator(".grid .card a.fromwiki").first()).toHaveAttribute("href", /^\/c\/\d+$/);
+  await expect(page.locator(`${FACT_CARDS} a.fromwiki`).first()).toHaveAttribute("href", /^\/c\/\d+$/);
   // no key is asked for on a page view
   expect(g.laneKeys).toBe(0);
 
-  // tap No on the first card in the grid
-  const no = page.locator(".grid a.bet.no").first();
+  // tap No on the first card in the grid: a bet's link with news off; with it on, a free pick whose tray
+  // leads to the same ticket with the side picked
+  const no = page.locator(`${FACT_CARDS} a.bet.no`).first();
   await expect(no).toContainText("No, it’s false");
-  await expect(no).toContainText(/Right: \$1 becomes \$\d\.\d\d/);
+  if (!NEWS) await expect(no).toContainText(/Right: \$1 becomes \$\d\.\d\d/);
   trade.claimId = Number(/\/c\/(\d+)/.exec((await no.getAttribute("href"))!)![1]);
   await no.click();
+  if (NEWS) {
+    await expect(no).toHaveAttribute("aria-pressed", "true");
+    expect(g.laneKeys, "a pick asks the lane for nothing").toBe(0);
+    await page.getByRole("complementary", { name: "Your pick" }).getByRole("link", { name: "Back it with your free $1" }).click();
+  }
   await expect(page).toHaveURL(`/c/${trade.claimId}?side=no`);
   await expect(page.getByText("What Wikipedia says (what you’re betting on)")).toBeVisible();
 
