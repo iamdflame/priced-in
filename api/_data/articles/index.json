@@ -1,0 +1,102 @@
+[
+ {
+  "slug": "aave",
+  "title": "Aave",
+  "sentences": 24
+ },
+ {
+  "slug": "avalanche",
+  "title": "Avalanche (blockchain platform)",
+  "sentences": 84
+ },
+ {
+  "slug": "bitcoin",
+  "title": "Bitcoin",
+  "sentences": 218
+ },
+ {
+  "slug": "cardano",
+  "title": "Cardano (blockchain platform)",
+  "sentences": 74
+ },
+ {
+  "slug": "chainlink",
+  "title": "Chainlink (blockchain oracle)",
+  "sentences": 24
+ },
+ {
+  "slug": "dai",
+  "title": "Dai (cryptocurrency)",
+  "sentences": 36
+ },
+ {
+  "slug": "defi",
+  "title": "Decentralized finance",
+  "sentences": 107
+ },
+ {
+  "slug": "ethereum",
+  "title": "Ethereum",
+  "sentences": 187
+ },
+ {
+  "slug": "monero",
+  "title": "Monero",
+  "sentences": 75
+ },
+ {
+  "slug": "near",
+  "title": "NEAR (blockchain platform)",
+  "sentences": 22
+ },
+ {
+  "slug": "polkadot",
+  "title": "Polkadot (blockchain platform)",
+  "sentences": 40
+ },
+ {
+  "slug": "polymarket",
+  "title": "Polymarket",
+  "sentences": 136
+ },
+ {
+  "slug": "prediction-market",
+  "title": "Prediction market",
+  "sentences": 238
+ },
+ {
+  "slug": "proof-of-stake",
+  "title": "Proof of stake",
+  "sentences": 60
+ },
+ {
+  "slug": "solana",
+  "title": "Solana (blockchain platform)",
+  "sentences": 49
+ },
+ {
+  "slug": "stablecoin",
+  "title": "Stablecoin",
+  "sentences": 197
+ },
+ {
+  "slug": "tether",
+  "title": "Tether (cryptocurrency)",
+  "sentences": 190
+ },
+ {
+  "slug": "uniswap",
+  "title": "Uniswap",
+  "sentences": 35
+ },
+ {
+  "slug": "usdc",
+  "title": "USDC (cryptocurrency)",
+  "sentences": 24
+ },
+ {
+  "slug": "zcash",
+  "title": "Zcash",
+  "sentences": 46
+ }
+]
