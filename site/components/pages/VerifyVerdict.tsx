@@ -11,10 +11,13 @@ import { Icon } from "../Icon";
 import { MARKET_ID } from "@/lib/nav";
 
 const RPCS = ["https://free.rpc.fastnear.com", "https://rpc.fastnear.com", "https://near.drpc.org"];
+// ordinary nodes keep a few days of transactions; an older verdict is read from an archival node, as
+// lib/core/rpc.ts does for the replay's verify (32bf0de)
+const ARCHIVAL = ["https://archival-rpc.mainnet.fastnear.com", "https://archival-rpc.mainnet.near.org"];
 
-async function rpc(method: string, params: unknown) {
+async function rpc(method: string, params: unknown, urls: string[] = RPCS) {
   let last: unknown = null;
-  for (const url of RPCS) {
+  for (const url of urls) {
     try {
       const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }) });
       const j = await r.json();
@@ -40,7 +43,8 @@ export function VerifyVerdict({ tx, model, requestHash, responseHash, sender = "
     setState("busy"); setErr(null);
     try {
       const out: Step[] = [];
-      const t = await rpc("tx", { tx_hash: tx, sender_account_id: sender, wait_until: "NONE" });
+      const q = { tx_hash: tx, sender_account_id: sender, wait_until: "NONE" };
+      const t = await rpc("tx", q).catch(() => rpc("tx", q, ARCHIVAL));
       const fc = t.transaction.actions.find((a: any) => a.FunctionCall)?.FunctionCall;
       const args = JSON.parse(new TextDecoder().decode(unb64(fc.args)));
       out.push({ label: "Read the verdict’s transaction from NEAR", ok: fc.method_name === "submit_verdict" && args.model === model, detail: `${fc.method_name} by ${model}` });
