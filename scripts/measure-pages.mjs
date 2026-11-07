@@ -4,7 +4,10 @@
 // anchor. Then the same sentences at set prices, so every band is tried on real text, not only the bands
 // today's prices happen to be in. Nothing is opened, signed, posted or stored.
 //
-//   node scripts/measure-pages.mjs [--out deployments/pages-test.json] [--budget 1] [--no-bands]
+//   node scripts/measure-pages.mjs [--out deployments/pages-test.json] [--budget 1] [--no-bands] [--records]
+//
+// --records keeps every record the writer made, signature and exact bytes included, so they can be checked
+// offline (verifyProvenance) and shown: the site's stand-in API serves deployments/pages-sweep.json's.
 //
 // NEARAI_API_KEY1 from .env (never printed). About $0.02 a run.
 import { Attestor } from "../services/ai/src/nearai.js";
@@ -135,6 +138,6 @@ const summary = {
   full_sweep_usd: round(usd), band_cases: byBand, band_requests: bands.length, band_passed: bands.filter((r) => r.ok).length, spent_usd_all: round(spend.usd), model_calls: spend.calls,
   pages: pages.map((p) => ({ slug: p.slug, ...p.totals })),
 };
-write(OUT, { summary, rewrites: rows, bands });
+write(OUT, { summary, rewrites: rows, bands, ...(process.argv.includes("--records") ? { records } : {}) });
 console.log(JSON.stringify(summary, null, 1));
 console.log(`\nwrote ${OUT}`);
