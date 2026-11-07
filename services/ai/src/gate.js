@@ -283,6 +283,9 @@ export function headroomMicro({ treasuryMicro, reservedMicro, capMicro, laneBudg
   return h > 0n ? Number(h) : 0;
 }
 
+/** What an account can still spend on storage, in NEAR, from view_account: its balance less what its bytes lock. */
+export const spareNearOf = (acct) => Number((BigInt(acct.amount) - BigInt(acct.storage_usage) * 10n ** 19n) / 10n ** 20n) / 1e4;
+
 /**
  * The market's treasury, reserved total and reserve cap from its raw STATE (borsh, `pub struct
  * PricedIn` in contracts/market/src/lib.rs). `stats` has no reserve cap, so it is read from storage:
@@ -315,7 +318,7 @@ const usd = (micro) => `$${(Number(micro) / 1e6).toFixed(2)}`;
  *   review?: (candidates: object[]) => Promise<(object|null)[]>,
  *   verify?: ((candidate: object) => Promise<{ status: string|null, sources: object[], note: string|null, error?: string }>)|null,
  *   open?: object[], capacity?: { treasuryMicro: string|null, reservedMicro: string|null, capMicro: string|null, laneBudgetMicro: string|null }|null,
- *   openedToday?: number, perDay?: number, bMicro?: number, floorMicro?: number, requireDefinite?: boolean, verifyAll?: boolean, spare?: number }} a
+ *   openedToday?: number, perDay?: number, bMicro?: number, floorMicro?: number, minSpareNear?: number, requireDefinite?: boolean, verifyAll?: boolean, spare?: number }} a
  * @returns {Promise<{ decisions: object[], pass: object[], counts: object, headroom_micro: number|null }>}
  */
 export async function runGate(a) {
@@ -386,9 +389,13 @@ export async function runGate(a) {
     });
   }
 
-  // 6. capacity
+  // 6. capacity. Every line and ruling grows the market's state, paid in NEAR from its account: past
+  // that, every call that stores anything fails, free bets and trades included, so storage comes first
+  const spare = a.capacity?.spareNear, minSpare = a.minSpareNear ?? 0.3;
+  const noStorage = spare !== undefined && (spare === null || spare < minSpare);
   const pass = [];
   for (const d of live()) {
+    if (noStorage) { refuse(d, "capacity", spare === null ? "The market account's NEAR could not be read, so nothing opens." : `The market account has ${spare.toFixed(2)} NEAR spare for storage and keeps at least ${minSpare}: every trade and free bet needs it too.`, { spare_near: spare }); continue; }
     if (a.verify && !d.checks.unconfirmed.by.includes("web")) { refuse(d, "capacity", `Today's ${a.perDay ?? 4} news lines are already chosen, so it was not checked on the web.`, { slots: 0 }); continue; }
     const p0 = p0Of(d.candidate.estimate);
     const need = reserveMicro(bMicro, p0);

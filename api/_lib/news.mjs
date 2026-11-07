@@ -20,7 +20,7 @@
 
 import { createHash } from "node:crypto";
 import { isoDay, dateWords, endOfDay, DEFAULT_FEEDS, parseFeeds } from "../../services/ai/src/scout.js";
-import { runGate, reserveFromState } from "../../services/ai/src/gate.js";
+import { runGate, reserveFromState, spareNearOf } from "../../services/ai/src/gate.js";
 import { settleTiming, firstPassing } from "../../services/ai/src/settle.js";
 
 export const LINES = "news/lines.json";
@@ -49,6 +49,7 @@ export function newsConfig(env = process.env) {
     chainKind: ["data", "document", "judgment"].includes(env.NEWS_CHAIN_KIND) ? env.NEWS_CHAIN_KIND : "document",
     scoutHoursUtc: hours(env.NEWS_SCOUT_HOURS_UTC, [6, 18]),
     floorMicro: whole(env.NEWS_TREASURY_FLOOR_MICRO, 0, 1_000_000_000, 1_500_000),
+    minSpareNear: Number.isFinite(Number(env.NEWS_MARKET_MIN_NEAR)) && Number(env.NEWS_MARKET_MIN_NEAR) > 0 ? Number(env.NEWS_MARKET_MIN_NEAR) : 0.3,
     webVerify: env.NEWS_WEB_VERIFY !== "0",
     requireDefinite: env.NEWS_REQUIRE_DEFINITE === "1",
     graceH: whole(env.NEWS_SETTLE_GRACE_H, 0, 72, 6),
@@ -118,14 +119,15 @@ export const forgetCachedLines = () => { cached = { at: 0, value: null, pending:
  */
 export async function readCapacity(rpc, marketId) {
   try {
-    const [stats, raw] = await Promise.all([
+    const [stats, raw, acct] = await Promise.all([
       rpc.viewFunction(marketId, "stats", {}),
       rpc.call("query", { request_type: "view_state", finality: "final", account_id: marketId, prefix_base64: Buffer.from("STATE").toString("base64") }, { timeoutMs: 8000 }),
+      rpc.call("query", { request_type: "view_account", finality: "final", account_id: marketId }, { timeoutMs: 8000 }).catch(() => null),
     ]);
     const v = (raw?.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
     if (!v) return null;
     const st = reserveFromState(Buffer.from(v.value, "base64"));
-    return { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), capMicro: st.capMicro, laneBudgetMicro: String(stats.lane_budget_micro) };
+    return { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), capMicro: st.capMicro, laneBudgetMicro: String(stats.lane_budget_micro), spareNear: acct ? spareNearOf(acct) : null };
   } catch { return null; }
 }
 
@@ -176,7 +178,7 @@ export async function scoutRound(d) {
   const openedToday = Object.values(lines).filter((l) => isoDay(l.opened_at) === isoDay(nowMs)).length;
   const gate = await runGate({
     candidates: proposal.candidates, nowMs, review: d.review, verify: cfg.webVerify ? d.verify : null, open,
-    capacity: await d.capacity(), openedToday, perDay: cfg.perDay, bMicro: cfg.bMicro, floorMicro: cfg.floorMicro, requireDefinite: cfg.requireDefinite,
+    capacity: await d.capacity(), openedToday, perDay: cfg.perDay, bMicro: cfg.bMicro, floorMicro: cfg.floorMicro, minSpareNear: cfg.minSpareNear, requireDefinite: cfg.requireDefinite,
   });
   out.candidates = gate.counts.candidates;
   out.passed = gate.pass.length;
@@ -369,7 +371,7 @@ export function mergeNews(claims, doc) {
 const STATUS = (c) => (c.status === "Settled" ? "decided" : c.status === "Open" ? "open" : "ruling");
 
 /** One line as /api/today serves it. */
-export function todayLine(meta, c, { section, picks = null, settleTime = null }) {
+export function todayLine(meta, c, { section, picks = null, settleTime = null, nowMs = Date.now() }) {
   const n = newsField(meta);
   return {
     claim_id: meta.claim_id, section, kind: "news",
@@ -379,6 +381,7 @@ export function todayLine(meta, c, { section, picks = null, settleTime = null })
     trades: c?.trades ?? 0, volume_usd: c ? usd(c.volume_micro) : 0, open_interest_usd: c ? usd(c.open_interest_micro) : 0,
     liquidity_b_usd: usd(meta.b_micro), cost_to_move: c ? { up_10_points_usd: usd(c.cost_up_10_micro), down_10_points_usd: usd(c.cost_down_10_micro) } : null,
     status: c ? STATUS(c) : "unknown", chain_status: c?.status ?? null,
+    overdue: c?.status === "Open" && nowMs >= n.settles.due_at,
     outcome: c?.outcome === true ? "true" : c?.outcome === false ? "false" : null,
     decided_at: c?.status === "Settled" ? settleTime : null,
     ruling: c && c.status !== "Open" && c.challenge_id !== null && c.challenge_id !== undefined ? { challenge_id: c.challenge_id, provisional: c.provisional === true ? "true" : c.provisional === false ? "false" : null } : null,
@@ -403,7 +406,7 @@ export function todayOf({ claims, doc, events = [], pickCounts = new Map(), nowM
   for (const meta of Object.values(doc?.lines || {})) {
     const c = byId.get(meta.claim_id);
     if (!c) continue;
-    const view = (section) => todayLine(meta, c, { section, picks: pickCounts.get(meta.claim_id), settleTime: settledAt.get(meta.claim_id) ?? null });
+    const view = (section) => todayLine(meta, c, { section, picks: pickCounts.get(meta.claim_id), settleTime: settledAt.get(meta.claim_id) ?? null, nowMs });
     if (c.status === "Settled") {
       const at = settledAt.get(meta.claim_id) ?? null;
       if (at === null || nowMs - at <= 7 * 24 * H) decided.push(view("decided"));

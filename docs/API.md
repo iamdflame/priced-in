@@ -465,7 +465,7 @@ The Sentinel's minute (`vercel.json`, `* * * * *`). Only Vercel's cron can call 
 
 **What a news line is.** A claim from today's news that nobody had confirmed when it opened, with its deadline and its settling source inside the text the jury reads, for example `By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production. Reports citing unnamed sources don't count.` Every line ends with the rule "Reports citing unnamed sources don't count.", so the jury and the support panel apply it too. It is an ordinary market on the chain: page `news-YYYY-MM-DD` (the day it opened), kind `document` on the chain (the contract accepts only `data`, `document` and `judgment`; the API says `kind: "news"`), opened by the keeper's `open_claim` key at the scout's first estimate (clamped to 20..80%) with `NEWS_B_MICRO` of liquidity ($1.45 by default). It settles TRUE when the named source confirms it on or before the date, FALSE when the date passes without that or the source denies it. The question, topic, headline, settling source and first estimate live in the store (`news/lines.json`); every candidate the scout proposed, opened or refused, with the check that stopped it, is in the `scout.jsonl` journal.
 
-**The settings.** `NEWS_PER_DAY` (4), `NEWS_B_MICRO` (1450000), `NEWS_SCOUT_HOURS_UTC` (`6,18`), `NEWS_TREASURY_FLOOR_MICRO` (1500000: kept in the treasury, on top of the lane budget, which pays the free bets), `NEWS_WEB_VERIFY` (on; `0` skips the web check), `NEWS_REQUIRE_DEFINITE` (off; `1` passes only claims with an event due that settles them either way), `NEWS_SETTLE_GRACE_H` (6), `NEWS_EARLY_LOOK_H` (24), `NEWS_DUE_LOOK_H` (12: how often a due line that can't settle yet is looked at again), `NEWS_SETTLE_PER_RUN` (3), `NEWS_SPEND_SHARE` (50: news stops at this percent of `NEARAI_DAILY_CAP_USD`, so the jury, the writer and the agents always have the rest), `NEWS_FEEDS` (extra feeds, `id|https://...|why;...`), `NEWS_SCOUT_MODEL`, `NEWS_REVIEW_MODEL`, `NEWS_VERIFY_MODEL`. The signer's own caps: `SIGNER_DAILY_NEWS_OPENS` (6), `SIGNER_DAILY_NEWS_CHALLENGES` (8), `SIGNER_DAILY_REPORT_CHALLENGES` (2), counted apart from the corrected lines' `SIGNER_DAILY_OPENS` and the sitting's `SIGNER_DAILY_CHALLENGES`. Limits per UTC day: `PICKS_PER_KEY_PER_DAY` (60), `PICKS_PER_IP_PER_DAY` (400), `PROFILES_PER_KEY_PER_DAY` (5), `PROFILES_PER_IP_PER_DAY` (60), `REPORTS_PER_KEY_PER_DAY` (3), `REPORTS_PER_IP_PER_DAY` (10); `LEADERBOARD_MIN_SETTLED` (5).
+**The settings.** `NEWS_PER_DAY` (4), `NEWS_B_MICRO` (1450000), `NEWS_SCOUT_HOURS_UTC` (`6,18`), `NEWS_TREASURY_FLOOR_MICRO` (1500000: kept in the treasury, on top of the lane budget, which pays the free bets), `NEWS_MARKET_MIN_NEAR` (0.3: the market account's spare NEAR for storage the gate never touches, because past it nothing can be stored, free bets and trades included), `NEWS_WEB_VERIFY` (on; `0` skips the web check), `NEWS_REQUIRE_DEFINITE` (off; `1` passes only claims with an event due that settles them either way), `NEWS_SETTLE_GRACE_H` (6), `NEWS_EARLY_LOOK_H` (24), `NEWS_DUE_LOOK_H` (12: how often a due line that can't settle yet is looked at again), `NEWS_SETTLE_PER_RUN` (3), `NEWS_SPEND_SHARE` (50: news stops at this percent of `NEARAI_DAILY_CAP_USD`, so the jury, the writer and the agents always have the rest), `NEWS_FEEDS` (extra feeds, `id|https://...|why;...`), `NEWS_SCOUT_MODEL`, `NEWS_REVIEW_MODEL`, `NEWS_VERIFY_MODEL`. The signer's own caps: `SIGNER_DAILY_NEWS_OPENS` (6), `SIGNER_DAILY_NEWS_CHALLENGES` (8), `SIGNER_DAILY_REPORT_CHALLENGES` (2), counted apart from the corrected lines' `SIGNER_DAILY_OPENS` and the sitting's `SIGNER_DAILY_CHALLENGES`. Limits per UTC day: `PICKS_PER_KEY_PER_DAY` (60), `PICKS_PER_IP_PER_DAY` (400), `PROFILES_PER_KEY_PER_DAY` (5), `PROFILES_PER_IP_PER_DAY` (60), `REPORTS_PER_KEY_PER_DAY` (3), `REPORTS_PER_IP_PER_DAY` (10); `LEADERBOARD_MIN_SETTLED` (5).
 
 **Signing.** Picks, nicknames and reports are signed by the ed25519 key the browser already holds for the free bet (`site/lib/core/lane.ts`; the same key, `ed25519:<base58>`). The browser signs the UTF-8 bytes of one exact message and sends the signature as 128 hex characters (or 88 base64). `issued_at` is the browser's clock in ms and must be within 10 minutes of the server's. With near-api-js:
 
@@ -482,8 +482,8 @@ fetch("/api/picks", { method: "POST", headers: { "content-type": "application/js
 | What | The message |
 |---|---|
 | A pick | `pricedin\|pick\|v1\|<network>\|<claim_id>\|<yes or no>\|<issued_at>` |
-| A nickname | `pricedin\|profile\|v1\|<network>\|<nickname, as sent after trimming>\|<issued_at>` |
-| A report | `pricedin\|report\|v1\|<network>\|<claim_id>\|<false or true>\|<sha256 hex of JSON.stringify([url, quote, note])>\|<issued_at>` |
+| A nickname | `pricedin\|profile\|v1\|<network>\|<nickname, NFKC, trimmed, each run of spaces made one>\|<issued_at>` |
+| A report | `pricedin\|report\|v1\|<network>\|<claim_id>\|<false or true>\|<sha256 hex of JSON.stringify([url, quote, note])>\|<issued_at>`, with `url` trimmed and `quote` and `note` trimmed and each run of whitespace made one space |
 
 `<network>` is `mainnet` on isitpriced.com. A bad signature is `401 bad_signature` with the message the server expected; a stale one is `400 stale_signature`.
 
@@ -505,7 +505,7 @@ Today's lines first (opened in the last 24 hours and still open), then the open 
    "first_estimate":0.45,
    "price_yes":0.45,"price_yes_ppm":450000,"trades":0,"volume_usd":0,"open_interest_usd":0,"liquidity_b_usd":1.45,
    "cost_to_move":{"up_10_points_usd":0.38,"down_10_points_usd":0.33},
-   "status":"open","chain_status":"Open","outcome":null,"decided_at":null,"ruling":null,
+   "status":"open","chain_status":"Open","overdue":false,"outcome":null,"decided_at":null,"ruling":null,
    "settler":null,
    "picks":{"yes":2,"no":1,"total":3},
    "bounty_usd":0,"opened_at":1794038700000,"open_tx":"8dZz…","url":"/c/40"}],
@@ -517,6 +517,7 @@ Today's lines first (opened in the last 24 hours and still open), then the open 
 |---|---|
 | `section` | `today`, `settling` or `decided`. |
 | `status` | `open` (takes bets and picks), `ruling` (a challenge is live: no picks) or `decided`. `chain_status` is the market's own (`Open`, `Challenged`, `Escalated`, `Settled`). |
+| `overdue` | true when its date has passed and it is still open on the chain: the settler is looking for receipts that pass the check, or waiting for them. It takes no picks, and `settler.note` says why it hasn't settled. A line stays this way until its receipts pass: we would rather wait than pay the wrong side. |
 | `outcome`, `decided_at` | `"true"`, `"false"` or null; the settle event's time in ms. |
 | `ruling` | `{challenge_id, provisional}` while a challenge is live, else null. |
 | `settles.due_at` | The end of the settle-by day (UTC), in ms: picks close then, and the settler looks after `NEWS_SETTLE_GRACE_H` more. |

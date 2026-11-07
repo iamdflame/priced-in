@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NearAI } from "../services/ai/src/nearai.js";
-import { reserveFromState } from "../services/ai/src/gate.js";
+import { reserveFromState, spareNearOf } from "../services/ai/src/gate.js";
 
 export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
 export const env = Object.fromEntries(fs.readFileSync(path.join(ROOT, ".env"), "utf8").split(/\r?\n/).map((l) => /^([A-Z0-9_]+)=(.*)$/.exec(l.trim())).filter(Boolean).map((m) => [m[1], m[2].trim()]));
@@ -73,7 +73,8 @@ export async function capacity() {
       if (v) { st = reserveFromState(Buffer.from(v.value, "base64")); break; }
     } catch { /* next */ }
   }
-  return { stats, capacity: st ? { treasuryMicro: stats.treasury_micro, reservedMicro: stats.reserved_micro, capMicro: st.capMicro, laneBudgetMicro: stats.lane_budget_micro } : null };
+  const acct = await fetch(RPCS[0], { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params: { request_type: "view_account", finality: "final", account_id: MARKET } }), signal: AbortSignal.timeout(10_000) }).then((r) => r.json()).then((j) => j.result).catch(() => null);
+  return { stats, capacity: st ? { treasuryMicro: stats.treasury_micro, reservedMicro: stats.reserved_micro, capMicro: st.capMicro, laneBudgetMicro: stats.lane_budget_micro, spareNear: acct ? spareNearOf(acct) : null } : null };
 }
 
 /** Every claim on the mainnet market. */

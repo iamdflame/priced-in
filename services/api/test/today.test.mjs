@@ -168,6 +168,10 @@ test("/api/today: today's lines, then the soonest to settle, then the ones just 
   assert.deepEqual([l.question, l.kind, l.topic, l.price_yes, l.first_estimate, l.picks.total, l.liquidity_b_usd, l.url], ["Question 40?", "news", "Tech", 0.5, 0.4, 3, 1.45, "/c/40"]);
   assert.deepEqual(l.settles, { by: "2026-11-13", by_words: "13 November 2026", due_at: Date.parse("2026-11-14T00:00:00Z"), source: "X's newsroom", source_url: "https://x.example/news", event: "X says so", rule: "By 13 November 2026, X confirms 40." });
   assert.deepEqual(t.lines[1].ruling, { challenge_id: 5, provisional: "true" });
+  assert.equal(t.lines[0].overdue, false);
+  const late = todayOf({ claims, doc, events, nowMs: Date.parse("2026-11-15T00:00:00Z") });
+  assert.equal(late.lines.find((x) => x.claim_id === 42).overdue, true, "past its date and still open on the chain");
+  assert.equal(late.lines.find((x) => x.claim_id === 41).overdue, false, "a ruling is running: it is not waiting");
   assert.deepEqual([t.lines[3].outcome, t.lines[3].decided_at], ["false", NOW - DAY]);
   assert.equal(t.next_scout_at, Date.parse("2026-11-07T18:05:00Z"));
   assert.match(t.rules.picks, /win nothing/);

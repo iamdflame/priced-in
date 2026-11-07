@@ -78,7 +78,7 @@ const summary = {
   passed_every_check_but_capacity: passedChecks.length,
   would_open_today: gate.pass.length,
   headroom_usd: gate.headroom_micro === null ? null : gate.headroom_micro / 1e6,
-  market: money.capacity ? { treasury_usd: Number(money.capacity.treasuryMicro) / 1e6, lane_budget_usd: Number(money.capacity.laneBudgetMicro) / 1e6, reserved_usd: Number(money.capacity.reservedMicro) / 1e6, reserve_cap_usd: Number(money.capacity.capMicro) / 1e6 } : null,
+  market: money.capacity ? { treasury_usd: Number(money.capacity.treasuryMicro) / 1e6, lane_budget_usd: Number(money.capacity.laneBudgetMicro) / 1e6, reserved_usd: Number(money.capacity.reservedMicro) / 1e6, reserve_cap_usd: Number(money.capacity.capMicro) / 1e6, spare_near: money.capacity.spareNear } : null,
   blind_check: {
     checked: checked.length,
     unconfirmed_today: checked.filter((b) => b.status === "unconfirmed").length,

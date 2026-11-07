@@ -6,7 +6,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { parseRss, parseFeeds, readFeeds, claimText, dateWords, daysFrom, endOfDay, parseCandidates, scoutRequest, jsonIn, SCOUT_PROMPT, TOPICS, DEFAULT_FEEDS } from "../src/scout.js";
-import { aboutLater, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
+import { aboutLater, spareNearOf, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
 import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, firstPassing, checkPassed } from "../src/settle.js";
 import { parseEvidence, normForMatch } from "../src/receipts.js";
 import { SignerClient, OPERATOR_METHODS, DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES, DAILY_REPORT_CHALLENGES, DAILY_OPENS, NEWS_PAGE } from "../src/signer.js";
@@ -395,4 +395,15 @@ test("the receipt check on each receipt alone: the panel reads only the first so
   assert.equal(checkPassed({ result: "verified", support: { verdict: "unanswered" } }), false);
   assert.equal(checkPassed({ result: "verified", support: null }), true);
   assert.equal(checkPassed({ result: "unfetchable" }), false);
+});
+
+test("storage comes first: every line grows the market's state, and past its NEAR nothing can be stored, free bets included", async () => {
+  assert.equal(spareNearOf({ amount: "4791000000000000000000000", storage_usage: 464842 }), 0.1425, "mainnet on 2026-11-07");
+  const base = { candidates: [cand({ id: "s" })], nowMs: NOW, review: async () => [{ refuse: false, status: "unconfirmed", settles_in_time: true }], verify: null };
+  const money = { treasuryMicro: "90000000", reservedMicro: "0", capMicro: "90000000", laneBudgetMicro: "0" };
+  const low = await runGate({ ...base, capacity: { ...money, spareNear: 0.14 } });
+  assert.equal(low.decisions[0].failed, "capacity");
+  assert.match(low.decisions[0].reason, /0\.14 NEAR spare for storage and keeps at least 0\.3/);
+  assert.match((await runGate({ ...base, capacity: { ...money, spareNear: null } })).decisions[0].reason, /could not be read/);
+  assert.equal((await runGate({ ...base, capacity: { ...money, spareNear: 1.2 } })).pass.length, 1);
 });
