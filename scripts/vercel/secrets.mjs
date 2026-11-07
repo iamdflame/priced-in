@@ -80,10 +80,11 @@ if (MAIN) Object.assign(plain, {
   CHECKER_MIN_BETS: "1",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
-  // news lines, when they are on (NEWS_ENABLED below): at most 4 a day, each with $1.45 of liquidity,
-  // as the Wikipedia lines have; each reserves about $1.01 to $2.34 of the treasury, by its opening price
+  // news lines, when they are on (NEWS_ENABLED below): at most 4 a day, each with $0.50 of liquidity, so the
+  // money already in the treasury carries them: each reserves about $0.35 to $0.80, by its opening price.
+  // Most of their traffic is free picks, which move no price; raise this once the treasury can carry more
   NEWS_PER_DAY: "4",
-  NEWS_B_MICRO: "1450000",
+  NEWS_B_MICRO: "500000",
 }, x402.plain);
 // Today's claims (api/news.mjs, /api/today, picks, reports, the leaderboard) stay off unless this is
 // "1". Unset by default: the script leaves it alone. To turn it on, put NEWS_ENABLED=1 in .env and run
