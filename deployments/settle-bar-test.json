@@ -1,0 +1,742 @@
+{
+ "at": "2026-11-07T05:59:37.970Z",
+ "method": "settlerBar over each recorded line that reached a challenge: its cited receipts, its claim and its settling source. No model, no search, no network. direct: the final runs that kept URLs. proxy: the same claims in an earlier version of the settler, for the 9 lines whose final run kept no URLs. Corroboration is counted only among cited receipts, because the runs kept no page text, so stranded lines may be overcounted.",
+ "baseline": {
+  "reached_a_challenge": 22,
+  "measurable_directly": 13,
+  "final_run_without_urls": 9,
+  "proxied": 9
+ },
+ "tied": {
+  "direct": {
+   "reached_before": 13,
+   "reach_now": 9,
+   "stranded": 4,
+   "matched_before": 11,
+   "matched_lost": 2,
+   "disagreed_before": 1,
+   "disagreed_stopped": 1,
+   "no_ruling_stopped": 1,
+   "by": {
+    "alone": 8,
+    "corroborated": 1,
+    "one_voice": 4
+   },
+   "lines": [
+    {
+     "question": "Did DeepSeek raise $15B from Tencent and CATL?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "aiweekly.co"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Microsoft offering buyouts to 60,000 staff?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "nbcnews.com",
+      "techcrunch.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "nbcnews.com",
+      "techcrunch.com"
+     ]
+    },
+    {
+     "question": "Is Meta raising up to $95B for AI?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "investopedia.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Troy Aikman leaving ESPN for the Cowboys?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "espnpressroom.com",
+      "profootballnetwork.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "espnpressroom.com"
+     ]
+    },
+    {
+     "question": "Is the Dutch government cutting 25,000 jobs?",
+     "outcome": "TRUE",
+     "ruling": null,
+     "independent": "TRUE",
+     "matched_independent": false,
+     "receipts": [
+      "aiinsider.nl"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is DoorDash buying Instacart?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com"
+     ]
+    },
+    {
+     "question": "Is Solidigm planning a $45B US chip plant?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "news.skhynix.com",
+      "tomshardware.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "news.skhynix.com"
+     ]
+    },
+    {
+     "question": "Is Connor Storrie in talks for Ghost Rider?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "variety.com",
+      "deadline.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "variety.com",
+      "deadline.com"
+     ]
+    },
+    {
+     "question": "Was Dangote's refinery IPO 3x oversubscribed?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "FALSE",
+     "matched_independent": false,
+     "receipts": [
+      "african.business"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Has Instacart discussed selling itself to DoorDash or Uber?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com",
+      "techcrunch.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com",
+      "techcrunch.com"
+     ]
+    },
+    {
+     "question": "Is Microsoft raising $25B in debt?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "cnbc.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "cnbc.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI raising $30B at a $1.25T valuation?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "bloomberg.com",
+      "techbytes.app"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "bloomberg.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI buying Google TPUs?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "trendforce.com",
+      "techtimes.com"
+     ],
+     "bar": "corroborated",
+     "passes": true,
+     "alone": []
+    }
+   ]
+  },
+  "proxy": {
+   "reached_before": 9,
+   "reach_now": 4,
+   "stranded": 5,
+   "matched_before": 8,
+   "matched_lost": 4,
+   "disagreed_before": 0,
+   "disagreed_stopped": 0,
+   "no_ruling_stopped": 1,
+   "by": {
+    "alone": 3,
+    "corroborated": 1,
+    "one_voice": 5
+   },
+   "lines": [
+    {
+     "question": "Has DeepSeek raised $15bn from Tencent and CATL?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "chinadaily.com.cn"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is OpenAI seeking $30B at a $1.25T valuation?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "tech-insider.org"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Have J&J and Smith+Nephew merger talks collapsed?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "marketscreener.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Will the UK government approve the Jackdaw gas field?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "gov.uk"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "gov.uk"
+     ]
+    },
+    {
+     "question": "Is Amazon's Mass Effect series still in production?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "gameinformer.com",
+      "comicbasics.com"
+     ],
+     "bar": "corroborated",
+     "passes": true,
+     "alone": []
+    },
+    {
+     "question": "Will DoorDash announce a deal to buy Instacart?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com",
+      "ir.doordash.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI buying Google TPUs?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "1023jack.com",
+      "1023jack.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Meta raising $95B for AI buildout?",
+     "outcome": "TRUE",
+     "ruling": null,
+     "independent": "TRUE",
+     "matched_independent": false,
+     "receipts": [
+      "ainvesting.org"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is SK Hynix planning a $45B US chip plant?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "news.skhynix.com",
+      "bloomberg.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "news.skhynix.com",
+      "bloomberg.com"
+     ]
+    }
+   ]
+  },
+  "all_22_estimate": {
+   "reached_before": 22,
+   "stranded": 9,
+   "stranded_share": 0.409,
+   "matched_before": 20,
+   "matched_lost": 7
+  }
+ },
+ "as_specified": {
+  "direct": {
+   "reached_before": 13,
+   "reach_now": 9,
+   "stranded": 4,
+   "matched_before": 11,
+   "matched_lost": 2,
+   "disagreed_before": 1,
+   "disagreed_stopped": 1,
+   "no_ruling_stopped": 1,
+   "by": {
+    "alone": 8,
+    "corroborated": 1,
+    "one_voice": 4
+   },
+   "lines": [
+    {
+     "question": "Did DeepSeek raise $15B from Tencent and CATL?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "aiweekly.co"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Microsoft offering buyouts to 60,000 staff?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "nbcnews.com",
+      "techcrunch.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "nbcnews.com",
+      "techcrunch.com"
+     ]
+    },
+    {
+     "question": "Is Meta raising up to $95B for AI?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "investopedia.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Troy Aikman leaving ESPN for the Cowboys?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "espnpressroom.com",
+      "profootballnetwork.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "espnpressroom.com"
+     ]
+    },
+    {
+     "question": "Is the Dutch government cutting 25,000 jobs?",
+     "outcome": "TRUE",
+     "ruling": null,
+     "independent": "TRUE",
+     "matched_independent": false,
+     "receipts": [
+      "aiinsider.nl"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is DoorDash buying Instacart?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com"
+     ]
+    },
+    {
+     "question": "Is Solidigm planning a $45B US chip plant?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "news.skhynix.com",
+      "tomshardware.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "news.skhynix.com"
+     ]
+    },
+    {
+     "question": "Is Connor Storrie in talks for Ghost Rider?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "variety.com",
+      "deadline.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "variety.com",
+      "deadline.com"
+     ]
+    },
+    {
+     "question": "Was Dangote's refinery IPO 3x oversubscribed?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "FALSE",
+     "matched_independent": false,
+     "receipts": [
+      "african.business"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Has Instacart discussed selling itself to DoorDash or Uber?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com",
+      "techcrunch.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com",
+      "techcrunch.com"
+     ]
+    },
+    {
+     "question": "Is Microsoft raising $25B in debt?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "cnbc.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "cnbc.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI raising $30B at a $1.25T valuation?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "bloomberg.com",
+      "techbytes.app"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "bloomberg.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI buying Google TPUs?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "trendforce.com",
+      "techtimes.com"
+     ],
+     "bar": "corroborated",
+     "passes": true,
+     "alone": []
+    }
+   ]
+  },
+  "proxy": {
+   "reached_before": 9,
+   "reach_now": 4,
+   "stranded": 5,
+   "matched_before": 8,
+   "matched_lost": 4,
+   "disagreed_before": 0,
+   "disagreed_stopped": 0,
+   "no_ruling_stopped": 1,
+   "by": {
+    "alone": 3,
+    "corroborated": 1,
+    "one_voice": 5
+   },
+   "lines": [
+    {
+     "question": "Has DeepSeek raised $15bn from Tencent and CATL?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "chinadaily.com.cn"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is OpenAI seeking $30B at a $1.25T valuation?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "tech-insider.org"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Have J&J and Smith+Nephew merger talks collapsed?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "marketscreener.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Will the UK government approve the Jackdaw gas field?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "gov.uk"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "gov.uk"
+     ]
+    },
+    {
+     "question": "Is Amazon's Mass Effect series still in production?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "gameinformer.com",
+      "comicbasics.com"
+     ],
+     "bar": "corroborated",
+     "passes": true,
+     "alone": []
+    },
+    {
+     "question": "Will DoorDash announce a deal to buy Instacart?",
+     "outcome": "TRUE",
+     "ruling": "TRUE",
+     "independent": "TRUE",
+     "matched_independent": true,
+     "receipts": [
+      "ir.doordash.com",
+      "ir.doordash.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "ir.doordash.com"
+     ]
+    },
+    {
+     "question": "Is OpenAI buying Google TPUs?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "1023jack.com",
+      "1023jack.com"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is Meta raising $95B for AI buildout?",
+     "outcome": "TRUE",
+     "ruling": null,
+     "independent": "TRUE",
+     "matched_independent": false,
+     "receipts": [
+      "ainvesting.org"
+     ],
+     "bar": "one_voice",
+     "passes": false,
+     "alone": []
+    },
+    {
+     "question": "Is SK Hynix planning a $45B US chip plant?",
+     "outcome": "FALSE",
+     "ruling": "FALSE",
+     "independent": "FALSE",
+     "matched_independent": true,
+     "receipts": [
+      "news.skhynix.com",
+      "bloomberg.com"
+     ],
+     "bar": "alone",
+     "passes": true,
+     "alone": [
+      "news.skhynix.com",
+      "bloomberg.com"
+     ]
+    }
+   ]
+  },
+  "all_22_estimate": {
+   "reached_before": 22,
+   "stranded": 9,
+   "stranded_share": 0.409,
+   "matched_before": 20,
+   "matched_lost": 7
+  }
+ }
+}

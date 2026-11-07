@@ -38,6 +38,7 @@ test("off unless NEWS_ENABLED=1: no scout round, no settle round, no route; the 
   assert.deepEqual(await scoutRound({ cfg: off }), { off: true });
   assert.deepEqual(await settleRound({ cfg: off }), { off: true });
   assert.equal(newsConfig({ NEWS_ENABLED: "true" }).enabled, false, "only exactly 1 turns it on");
+  assert.deepEqual([newsConfig({ NEWS_ENABLED: "1" }).settleBar, newsConfig({ NEWS_ENABLED: "1", NEWS_SETTLE_BAR: "1" }).settleBar], [false, true], "the settler's source bar stays off until someone chooses it");
   const on = newsConfig({ NEWS_ENABLED: "1" });
   assert.deepEqual([on.perDay, on.bMicro, on.chainKind, on.scoutHoursUtc, on.floorMicro, on.webVerify, on.requireDefinite], [4, 1_450_000, "document", [6, 18], 1_500_000, true, false]);
   const set = newsConfig({ NEWS_ENABLED: "1", NEWS_PER_DAY: "2", NEWS_B_MICRO: "3000000", NEWS_CHAIN_KIND: "news", NEWS_SCOUT_HOURS_UTC: "9,21", NEWS_B_MICRO_X: "1" });

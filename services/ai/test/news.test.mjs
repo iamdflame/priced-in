@@ -15,6 +15,7 @@ import { operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
 import { startMockRpc } from "../../api/test/mock-rpc.mjs";
 import { Research } from "../src/research.js";
+import { namesIn, primarySource, registrable, settlerBar } from "../src/sources.js";
 
 const NOW = Date.parse("2026-11-07T10:00:00Z");
 const HEADLINES = [
@@ -479,4 +480,55 @@ test("a house agent reads a search result as the receipt check does: no private 
     assert.deepEqual((await json.get("https://en.wikipedia.org/w/api.php", { json: true })).body, { a: 1 });
     assert.equal(called, 0, "the plain fetch is never used");
   } finally { globalThis.fetch = real; }
+});
+
+// ---------- the settler's source bar (NEWS_SETTLE_BAR) ----------
+
+const barLine = { claim: "By 31 October 2026, Instacart or DoorDash or Uber confirms the sale. Reports citing unnamed sources don't count.", settles: { source: "Instacart's investor relations or an SEC filing", source_url: "https://investors.instacart.com/" } };
+const urls = (...u) => u.map((url) => ({ url }));
+
+test("the bar: a named source, an official site, a listed outlet or a primary source stands alone", () => {
+  for (const [u, why] of [["https://investors.instacart.com/news/1", "named by the page"], ["https://www.instacart.com/about", "the same company's site"], ["https://www.sec.gov/Archives/x", "official"], ["https://www.reuters.com/a", "a listed outlet"], ["https://ir.doordash.com/news/1", "a primary source named in the claim"], ["https://newsroom.uber.com/a", "a primary source named in the claim"]]) {
+    const b = settlerBar(urls(u), barLine);
+    assert.deepEqual([b.ok, b.why], [true, "alone"], why);
+  }
+  assert.equal(settlerBar(urls("https://www.qatarenergy.qa/a"), { claim: "x", settles: { source: "QatarEnergy's newsroom" } }).why, "alone", "the named source's own domain, with no page named");
+  assert.deepEqual([...namesIn("SK Hynix's newsroom or an SEC filing")].sort(), ["hynix", "skhynix"], "SK is short, SEC is a regulator and not a company in the line");
+  assert.equal(registrable("news.bbc.co.uk"), "bbc.co.uk");
+});
+
+test("the bar: the pattern alone is anyone's for the price of a domain, so a primary source must carry a name the line uses", () => {
+  for (const u of ["https://ir.attacker.example/acme", "https://press.instacart-news.com/a", "https://newsroom.doordashes.com/a"]) {
+    assert.equal(primarySource(new URL(u).hostname, barLine), false, u);
+    assert.deepEqual([settlerBar(urls(u), barLine).ok, settlerBar(urls(u), barLine).why], [false, "one_voice"], u);
+    assert.equal(settlerBar(urls(u), barLine, { tied: false }).ok, true, `the pattern with no name lets ${u} through, which is why it isn't used`);
+  }
+});
+
+test("the bar: any other page needs a second host of another registrable domain, and an open host is no second voice", () => {
+  const two = settlerBar(urls("https://aiweekly.co/a", "https://localpaper.example/b"), barLine);
+  assert.deepEqual([two.ok, two.why], [true, "corroborated"]);
+  for (const [name, list] of [["one page", ["https://aiweekly.co/a"]], ["two pages of one site", ["https://a.aiweekly.co/1", "https://b.aiweekly.co/2"]], ["two blogs on one platform", ["https://one.github.io/a", "https://two.github.io/b"]], ["a page and a post", ["https://aiweekly.co/a", "https://x.com/someone/status/1"]], ["two posts", ["https://x.com/a/status/1", "https://reddit.com/r/b/1"]]]) assert.equal(settlerBar(urls(...list), barLine).why, "one_voice", name);
+  assert.equal(settlerBar([{ url: "https://www.reuters.com/a", final_url: "https://evil.example/landed" }], barLine).why, "one_voice", "a redirect counts as where it landed");
+  assert.equal(settlerBar([], barLine).why, "no_receipt");
+});
+
+const settling = (bar, cited) => {
+  let seconds = 0;
+  const quote = "the company declined to comment on the reports at all";
+  const client = { chat: async () => ({ content: JSON.stringify({ outcome: "TRUE", basis: "confirmed", when: "2026-10-29", receipts: cited.map((_, i) => ({ s: i + 1, quote })), reason: "It says so." }) }) };
+  const fetch = async (url) => ({ url, final_url: url, status: 200, error: null, content_type: "text/plain", body: Buffer.from(quote) });
+  return findReceipts({ client, line: { ...barLine, question: "Sold?", settles: { ...barLine.settles, source_url: null, by: "2026-10-31" } }, nowMs: Date.parse("2026-11-07T10:00:00Z"), fetch, search: async () => ({ results: cited.map((url) => ({ url })), error: null }), second: async () => { seconds++; return { answer: "TRUE", note: null }; }, bar }).then((r) => ({ ...r, seconds }));
+};
+
+test("the bar is off unless asked for: on, one unknown page waits; off, the settler is as it was", async () => {
+  const lone = ["https://aiweekly.co/a"];
+  const off = await settling(false, lone);
+  assert.deepEqual([off.outcome, off.bar], ["TRUE", undefined]);
+  assert.ok(off.evidence);
+  const on = await settling(true, lone);
+  assert.deepEqual([on.outcome, on.basis, on.evidence, on.bar.why], ["UNKNOWN", "none", null, "one_voice"]);
+  assert.match(on.reason, /rest on aiweekly\.co alone/);
+  const named = await settling(true, ["https://ir.doordash.com/a"]);
+  assert.deepEqual([named.outcome, named.bar.why], ["TRUE", "alone"]);
 });

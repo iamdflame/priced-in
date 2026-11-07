@@ -13,6 +13,10 @@
 //                receipt check normalises); the evidence cites each source and its exact words
 //   5. confirm   a FALSE needs a second, separate search that finds it unconfirmed too
 //
+// With NEWS_SETTLE_BAR=1 a step comes before 5: the receipts must pass settlerBar (sources.js), an
+// official or primary source, or two independent hosts. Off by default: on the recorded runs it
+// strands 9 of the 22 lines that reached a challenge (deployments/settle-bar-test.json).
+//
 // The hosted job then runs the full receipt check, the support panel included, on that evidence
 // (the same gate our jury runner applies), and challenges only when it verifies.
 
@@ -20,6 +24,7 @@ import { fetchSource, readSource, normForMatch, quoteIn } from "./receipts.js";
 import { searchResults } from "./gate.js";
 import { NO_THINKING, dateWords, endOfDay, isoDay, jsonIn } from "./scout.js";
 import { excerpt } from "./research.js";
+import { settlerBar } from "./sources.js";
 
 export const SETTLE_MODEL = "deepseek-ai/DeepSeek-V4.1-Flash-1017";
 export const SEARCH_MODEL = "z-ai/glm-5.3-flash";
@@ -165,7 +170,7 @@ export const checkPassed = (c) => c?.result === "verified" && !["unanswered", "u
  * @param {{ client: object, line: object, nowMs?: number, fetch?: typeof fetchSource, model?: string, searchModel?: string, search?: Function }} a
  * @returns {Promise<{ outcome: "TRUE"|"FALSE"|"UNKNOWN", basis: string, when: string|null, receipts: object[], evidence: string|null, sources: object[], search: object, reason: string, dropped: object[] }>}
  */
-export async function findReceipts({ client, line, nowMs = Date.now(), fetch: get = fetchSource, model = SETTLE_MODEL, searchModel = SEARCH_MODEL, search = searchLine, second = secondLook }) {
+export async function findReceipts({ client, line, nowMs = Date.now(), fetch: get = fetchSource, model = SETTLE_MODEL, searchModel = SEARCH_MODEL, search = searchLine, second = secondLook, bar = false }) {
   const past = nowMs >= endOfDay(line.settles.by);
   const found = await search({ client, model: searchModel, line, nowMs });
   const urls = [line.settles.source_url, ...found.results.map((r) => r.url), ...(line.coverage || [])].filter(Boolean);
@@ -181,6 +186,10 @@ export async function findReceipts({ client, line, nowMs = Date.now(), fetch: ge
   Object.assign(out, { outcome: d.outcome, basis: d.basis, when: d.when, receipts: d.receipts, reason: d.reason, dropped: d.dropped });
   if (d.outcome !== "UNKNOWN" && !d.receipts.length) { out.outcome = "UNKNOWN"; out.reason = `No quote it gave is in its source word for word, so there is no receipt. ${d.reason}`.trim(); return out; }
   if (d.outcome === "TRUE" && d.when && d.when > line.settles.by) { out.outcome = past ? "FALSE" : "UNKNOWN"; out.basis = "late"; out.reason = `Confirmed on ${d.when}, after its date: that is a FALSE. ${d.reason}`.trim(); }
+  if (bar && out.outcome !== "UNKNOWN") {
+    out.bar = settlerBar(out.receipts.map((r) => ({ ...r, final_url: read.find((s) => s.url === r.url)?.final_url ?? null })), line);
+    if (!out.bar.ok) { out.outcome = "UNKNOWN"; out.basis = "none"; out.reason = `Its receipts rest on ${out.bar.hosts.join(", ")} alone, with no official or primary source and no second site beside it, so it waits. ${d.reason}`.trim(); }
+  }
   if (out.outcome === "FALSE") {
     out.second_look = await second({ client, model: searchModel, line, nowMs });
     if (out.second_look.answer !== "FALSE") { out.reason = `A second search does not agree it went unconfirmed (${out.second_look.answer ?? "no answer"}), so it waits. ${out.second_look.note ?? ""}`.trim(); out.outcome = "UNKNOWN"; out.basis = "none"; }

@@ -18,6 +18,7 @@ import nacl from "tweetnacl";
 import { createHash } from "node:crypto";
 import { baseDecode } from "near-api-js";
 import { endOfDay, unconfuse } from "../../services/ai/src/scout.js";
+import { hostOf, isOfficial, isOpenHost, isOutlet } from "../../services/ai/src/sources.js";
 import { chronological, timeOf } from "./views.mjs";
 
 export const PICKS = "picks.jsonl";
@@ -183,14 +184,8 @@ const URL_OK = /^https:\/\/[^\s"'<>`{}|\\^[\]\u201C\u201D\u2018\u2019\u00AB\u00B
 // Our Checker's bond is ours, and a report is free: a page the reporter wrote passes the word check and
 // the support panel by construction, and the Sentinel never disputes a verified receipt. So the Checker
 // bonds only on a page it already relies on for this line, or on an official site or an established
-// outlet. Anyone with another source can still challenge with their own bond (GET /api/challenge).
-const OFFICIAL = /(?:^|\.)(?:gov|mil|int|gov\.uk|gov\.au|gov\.ie|gov\.in|gov\.sg|govt\.nz|gc\.ca|canada\.ca|europa\.eu|gouv\.fr|bund\.de|go\.jp|gob\.es|gob\.mx|gov\.br)$/;
-const OUTLETS = ["reuters.com", "apnews.com", "afp.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "ft.com", "wsj.com", "nytimes.com", "washingtonpost.com", "theguardian.com", "economist.com", "cnbc.com", "cnn.com", "nbcnews.com", "cbsnews.com", "abcnews.go.com", "npr.org", "axios.com", "politico.com", "theverge.com", "techcrunch.com", "arstechnica.com", "wired.com", "espn.com", "skysports.com", "variety.com", "hollywoodreporter.com", "deadline.com", "coindesk.com", "theblock.co", "un.org", "imf.org", "worldbank.org"];
-// hosts anyone can post to: on these only the very page the line cites counts, never its neighbours
-const OPEN_HOSTS = ["x.com", "twitter.com", "facebook.com", "instagram.com", "threads.net", "tiktok.com", "youtube.com", "linkedin.com", "reddit.com", "medium.com", "substack.com", "github.com", "githubusercontent.com", "gitlab.com", "bitbucket.org", "google.com", "googleapis.com", "amazonaws.com", "dropbox.com", "notion.so", "notion.site", "pastebin.com", "telegra.ph", "t.me", "discord.com", "wikipedia.org", "wordpress.com", "blogspot.com", "tumblr.com"];
-
-const hostOf = (u) => { try { return new URL(u).hostname.toLowerCase().replace(/\.$/, "").replace(/^www\./, ""); } catch { return null; } };
-const under = (host, domain) => host === domain || host.endsWith(`.${domain}`);
+// outlet (the lists are in services/ai/src/sources.js). Anyone with another source can still challenge
+// with their own bond (GET /api/challenge).
 const pageOf = (u) => { const x = new URL(u); return `${hostOf(u)}${x.pathname.replace(/\/+$/, "")}`; };
 
 /**
@@ -204,8 +199,8 @@ export function trustedSource(url, { news = null, extra = [] } = {}) {
   const hosts = [...new Set(own.map(hostOf))];
   const host = hostOf(url);
   if (!host) return { ok: false, hosts };
-  if (OFFICIAL.test(host) || [...OUTLETS, ...extra].some((d) => under(host, d))) return { ok: true, hosts };
-  const open = OPEN_HOSTS.some((d) => under(host, d));
+  if (isOfficial(host) || isOutlet(host, extra)) return { ok: true, hosts };
+  const open = isOpenHost(host);
   return { ok: own.some((u) => (open ? pageOf(u) === pageOf(url) : hostOf(u) === host)), hosts };
 }
 

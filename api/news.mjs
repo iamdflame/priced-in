@@ -119,7 +119,7 @@ export default async function handler(req, res) {
     try {
       out.settle = await settleRound({
         cfg, store, claims, left, budget,
-        find: (meta, nowMs) => findReceipts({ client: t.client, line: { claim: meta.claim, question: meta.question, settles: meta.settles, coverage: meta.coverage }, nowMs }),
+        find: (meta, nowMs) => findReceipts({ client: t.client, line: { claim: meta.claim, question: meta.question, settles: meta.settles, coverage: meta.coverage }, nowMs, bar: cfg.settleBar }),
         check: t.check,
         challenge: async (plans) => {
           const r = await withSigner("news-settle", (s) => postNewsChallenges(plans, { ...s, trigger: triggerJury }));

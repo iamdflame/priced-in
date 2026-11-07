@@ -52,6 +52,8 @@ export function newsConfig(env = process.env) {
     floorMicro: whole(env.NEWS_TREASURY_FLOOR_MICRO, 0, 1_000_000_000, 1_500_000),
     minSpareNear: Number.isFinite(Number(env.NEWS_MARKET_MIN_NEAR)) && Number(env.NEWS_MARKET_MIN_NEAR) > 0 ? Number(env.NEWS_MARKET_MIN_NEAR) : 0.3,
     webVerify: env.NEWS_WEB_VERIFY !== "0",
+    // off: on the recorded runs it strands 9 of 22 lines (deployments/settle-bar-test.json), and the contract can't void a line
+    settleBar: env.NEWS_SETTLE_BAR === "1",
     requireDefinite: env.NEWS_REQUIRE_DEFINITE === "1",
     graceH: whole(env.NEWS_SETTLE_GRACE_H, 0, 72, 6),
     earlyEveryH: whole(env.NEWS_EARLY_LOOK_H, 1, 168, 24),
