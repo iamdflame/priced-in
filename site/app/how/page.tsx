@@ -10,8 +10,12 @@ import { Icon } from "@/components/Icon";
 import { ModelBadge, SHead } from "@/components/pages/Kit";
 import { explorerTx, money, shortHash, span } from "@/lib/format";
 import { REPLAY_HREF } from "@/lib/nav";
+import { arrange, shortDate, type TodayLine } from "@/lib/news";
 import { payoutWords, quoteClaim } from "@/lib/quote";
 import { preBetClaim, REPLAY } from "@/lib/replay/record";
+import { getNews } from "@/lib/server/news";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "How it works",
@@ -28,7 +32,50 @@ const LADDER = [
 
 interface Ruling { opened_at: number; settled_at: number; payout_usd: number; settle_tx: string; verdicts: { model: string; verdict: string; at: number }[]; correction: { claim_id: number; open_tx: string } }
 
-export default function HowPage() {
+/** The daily loop, shown while the API has today's news on: told with one real claim from today. */
+function DailyLoop({ example }: { example: TodayLine | null }) {
+  return (
+    <>
+      <SHead id="daily" title="Every day: call today’s news" sub="Wikipedia is the record. The news is what people argue about today, so twice a day new claims open, and you can call them free." />
+      <ol className="how-loop">
+        <li>
+          <span className="n" aria-hidden="true">1</span>
+          <h3>Fresh claims from the news</h3>
+          <p>Our scout reads the day’s headlines and opens a few claims nobody has confirmed yet, each with a date and whose word settles it.</p>
+          {example && (
+            <div className="how-claim">
+              <b>{example.question}</b>
+              <small>Settles by {shortDate(example.settles.by)}: {example.settles.source}</small>
+            </div>
+          )}
+        </li>
+        <li>
+          <span className="n" aria-hidden="true">2</span>
+          <h3>Pick in one tap</h3>
+          <p>Yes or No, free, with no wallet and no sign-up. Your first pick on a claim is the one that counts. Picks win nothing.</p>
+        </li>
+        <li>
+          <span className="n" aria-hidden="true">3</span>
+          <h3>It settles on the source’s word</h3>
+          <p>After the date, our settler reads the named source, and three AI judges rule on its receipts. A line waits rather than pay the wrong side.</p>
+        </li>
+        <li>
+          <span className="n" aria-hidden="true">4</span>
+          <h3>Come back: did you call it?</h3>
+          <p>Right calls build your streak and your place on the <Link className="link" href="/leaderboard">leaderboard</Link>, beside three AI traders that bet real money.</p>
+        </li>
+      </ol>
+      <div className="how-catch panel">
+        <Icon name="flag" />
+        <p><b>See something wrong?</b> On any fact or claim, show us a public page and the exact words from it. If our checks pass, our Checker challenges it with its own $1 bond, and a catch the AI judges uphold counts on the leaderboard. Or challenge it yourself with a $1 bond from your wallet.</p>
+      </div>
+    </>
+  );
+}
+
+export default async function HowPage() {
+  const news = await getNews();
+  const example = news.on ? (arrange(news.today.lines, Date.now()).lead ?? news.today.lines[0] ?? null) : null;
   const r = (rehearsal.steps as { kind: string; record?: unknown }[]).find((s) => s.kind === "ruling")!.record as Ruling;
   const before = preBetClaim();
   const quotes = quoteClaim(before);
@@ -148,8 +195,17 @@ export default function HowPage() {
         </li>
       </ol>
 
-      <SHead id="ways" title="Two ways to play" sub="Same facts, same judges. The difference is what a right answer gives you." />
-      <div className="how-ways">
+      {news.on && <DailyLoop example={example} />}
+
+      <SHead id="ways" title={news.on ? "Three ways to play" : "Two ways to play"} sub="Same facts, same judges. The difference is what a right answer gives you." />
+      <div className={`how-ways${news.on ? " three" : ""}`}>
+        {news.on && (
+          <div className="how-way">
+            <h3>A free pick</h3>
+            <p>One tap, no wallet. A right call counts on the leaderboard against the AI traders. Picks win nothing: no prize, no payout.</p>
+            <Link className="btn ghost" href="/#today">Pick today’s claims</Link>
+          </div>
+        )}
         <div className="how-way">
           <h3>Your free $1</h3>
           <p>No wallet and no sign-up. A right answer adds to your score. Free play can’t be cashed out.</p>
@@ -163,12 +219,13 @@ export default function HowPage() {
       </div>
 
       <SHead id="who" title="Who does what" />
-      <dl className="how-who">
+      <dl className={`how-who${news.on ? " six" : ""}`}>
         <div><dt>You</dt><dd>Pick true or false, and collect when you’re right.</dd></div>
         <div><dt><Link href="/agents">The AI traders</Link></dt><dd>Three AI models with their own money. They bet small amounts, so no fact sits empty.</dd></div>
         <div><dt>The Checker</dt><dd>Challenges a fact when a newer source disagrees, with its own bond.</dd></div>
         <div><dt><Link href="/rulings">The AI judges</Link></dt><dd>Three models from different makers. They rule, and they sign what they ruled.</dd></div>
         <div><dt><Link href="/accuracy#sentinel">The Sentinel</Link></dt><dd>Checks each receipt where it lives, and disputes a ruling that rests on a fake.</dd></div>
+        {news.on && <div><dt>The scout</dt><dd>Reads the day’s news and opens claims nobody has confirmed yet, each with its date and whose word settles it.</dd></div>}
       </dl>
 
       <SHead id="asked" title="What people ask first" right={<Link className="link" href="/help">All questions</Link>} />

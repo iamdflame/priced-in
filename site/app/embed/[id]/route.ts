@@ -1,6 +1,7 @@
 // The embed: "Is it true?" for one fact, as a self-contained HTML document any site can frame. A route
 // handler rather than a page, so it carries none of the site's chrome. Yes and No open the fact on this
 // site in a new tab: a bet never happens inside someone else's page.
+import { shortDate } from "@/lib/news";
 import { backUsd } from "@/lib/quote";
 import { SITE_URL } from "@/lib/nav";
 import { getSite } from "@/lib/server/site";
@@ -42,7 +43,8 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const href = `${SITE_URL}/c/${f.id}`;
   const pct = Math.round(f.price * 100);
   const settled = f.status === "settled";
-  const whose = settled ? `Ruled ${f.outcome ? "true" : "false"} by 3 AI judges` : f.trades ? "chance it’s true" : "chance it’s true · no bets yet";
+  // a claim from the news says when it settles: that's what a reader of the embedding page needs to know
+  const whose = settled ? `Ruled ${f.outcome ? "true" : "false"} by 3 AI judges` : f.news ? `chance it’s true · settles by ${shortDate(f.news.settles.by)}` : f.trades ? "chance it’s true" : "chance it’s true · no bets yet";
   const bets = f.quotes
     ? `<div class="b"><a class="y" href="${href}?side=yes" target="_blank" rel="noopener">Yes, it’s true<small>Bet $1 → get ${esc(backUsd(f.quotes.yes))} back</small></a><a class="x" href="${href}?side=no" target="_blank" rel="noopener">No, it’s false<small>Bet $1 → get ${esc(backUsd(f.quotes.no))} back</small></a></div>`
     : "";

@@ -7,6 +7,9 @@ import type { ReactNode } from "react";
 import { PageHero, SHead } from "@/components/pages/Kit";
 import { LIMITS } from "@/lib/money/rules";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
+import { getNews } from "@/lib/server/news";
+
+export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: "Help",
@@ -64,7 +67,23 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
   },
 ];
 
-export default function HelpPage() {
+/** Shown while the API has today's news on: picks, the leaderboard and catching a mistake. */
+const PICKS: { id: string; title: string; sub: string; items: QA[] } = {
+  id: "picks", title: "Today’s claims and free picks", sub: "Claims from the news, a free call on each, and the leaderboard.",
+  items: [
+    { q: "What are today’s claims?", a: <>Claims from the day’s news that nobody had confirmed when they opened, each with a date and the source whose word settles it, such as a company’s newsroom or an official site. Reports citing unnamed sources don’t count. A claim settles true if that source confirms it by the date, and false if the date passes without it or the source denies it.</> },
+    { q: "What is a pick?", a: <>Your call on a claim or a fact, in one tap: free, with no wallet and no sign-up. It’s signed by a key your browser keeps, the same one as your free $1. Your first pick on a claim is the one that counts. Picks win nothing: no purchase, no prize, no payout.</> },
+    { q: "How is the leaderboard ranked?", a: <>By how often you’re right, once you have 5 settled picks, then by how many settled, then by points. A right pick earns more points the less likely the market thought it was. Three AI traders are on the same board, counted the same way: their first bet on a claim is their pick. See the <Link href="/leaderboard">leaderboard</Link>.</> },
+    { q: "Can I bet money on a claim?", a: <>Yes. After a pick, back it with your free $1 or with USDC from a wallet. The bet is a trade like any other, and right answers get paid. A news claim takes no new bets once its date has passed.</> },
+    { q: "How do I report a mistake?", a: <>On any fact or claim, tap Report a mistake and give a public page and the exact words from it. We fetch the page and look for the words, and three AI checkers read it. If they agree, our Checker challenges with its own $1 bond and three AI judges rule. A catch they uphold counts on the leaderboard. Reporting is free, and the status shows on the page and on your <Link href="/portfolio">Portfolio</Link>.</> },
+    { q: "Why did my report get refused?", a: <>The page must be public and the words must be on it exactly as you copied them; the refusal says which check failed. A claim from the news can’t be shown false before its date: until then it might still happen.</> },
+    { q: "What is a bounty?", a: <>Money anyone can add to a line, paid to the first challenger proven right. A line that holds one says how much.</> },
+  ],
+};
+
+export default async function HelpPage() {
+  const news = await getNews();
+  const sections = news.on ? [SECTIONS[0], PICKS, ...SECTIONS.slice(1)] : SECTIONS;
   return (
     <main id="main" className="wrap pg">
       <PageHero
@@ -73,7 +92,7 @@ export default function HelpPage() {
         title="Questions, answered plainly."
         lede={<>How betting works, what the free $1 is, who decides what’s true and how real money moves. Every transaction is public, and so is the code.</>}
       />
-      {SECTIONS.map((s) => (
+      {sections.map((s) => (
         <section key={s.id} aria-labelledby={s.id}>
           <SHead id={s.id} title={s.title} sub={s.sub} />
           <div className="panel cc">

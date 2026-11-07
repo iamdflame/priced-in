@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState, useSyncExternalStore } from 
 import { Art } from "../Art";
 import { Icon, type IconName } from "../Icon";
 import { Sk } from "../States";
+import { PicksRecord } from "../today/PicksRecord";
 import { GeoLine } from "./ui";
 import { useBridgeStatus } from "./useBridge";
 import { moneyChain } from "@/lib/money/chain";
@@ -202,7 +203,7 @@ function Wallet({ account, facts }: { account: string; facts: FactMap }) {
   );
 }
 
-function FreeBet({ facts }: { facts: FactMap }) {
+function FreeBet({ facts, picks = false }: { facts: FactMap; picks?: boolean }) {
   const [trader, setTrader] = useState<string | null | undefined>(undefined);
   useEffect(() => {
     // only a browser that already has the key: reading this page must never make one
@@ -228,7 +229,7 @@ function FreeBet({ facts }: { facts: FactMap }) {
           <div className="pf-list pf-gap">{rows.map((r) => <Row key={`${r.claim_id}${r.side}`} r={r} facts={facts} free />)}</div>
         </>
       ) : trader === undefined || (trader && !data) ? <Sk h={88} r={20} /> : (
-        <div className="panel pf-empty"><div><h3>Your free $1 is ready</h3><p>Tap Yes or No on any fact. No wallet, no sign-up.</p></div><Link className="btn primary" href="/#facts">Pick a fact</Link></div>
+        <div className="panel pf-empty"><div><h3>Your free $1 is ready</h3><p>{picks ? "Open any fact or claim and bet it from its page. No wallet, no sign-up." : "Tap Yes or No on any fact. No wallet, no sign-up."}</p></div><Link className="btn primary" href="/#facts">Pick a fact</Link></div>
       )}
     </section>
   );
@@ -249,12 +250,14 @@ function ConnectCard() {
   );
 }
 
-export function PortfolioView({ facts }: { facts: FactMap }) {
+export function PortfolioView({ facts, picks = false }: { facts: FactMap; picks?: boolean }) {
   const w = useWallet();
+  const questions = Object.fromEntries(Object.values(facts).map((f) => [f.id, f.question]));
   return (
     <main id="main" className="wrap pf">
-      <div className="pf-top"><div><h1>Portfolio</h1><p>What you hold, what it’s worth and what you can collect.</p></div></div>
-      {w.accountId ? <><Wallet account={w.accountId} facts={facts} /><FreeBet facts={facts} /></> : <><FreeBet facts={facts} /><div className="pf-gap-lg"><ConnectCard /></div></>}
+      <div className="pf-top"><div><h1>Portfolio</h1><p>{picks ? "What you hold, what it’s worth and what you can collect, and your free picks." : "What you hold, what it’s worth and what you can collect."}</p></div></div>
+      {w.accountId ? <><Wallet account={w.accountId} facts={facts} /><FreeBet facts={facts} picks={picks} /></> : <><FreeBet facts={facts} picks={picks} /><div className="pf-gap-lg"><ConnectCard /></div></>}
+      {picks && <PicksRecord questions={questions} />}
     </main>
   );
 }
