@@ -7,12 +7,13 @@ import { Art } from "@/components/Art";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { ErrorState } from "@/components/States";
+import { EncSpecimen, specimenOf } from "@/components/pages/HeroSides";
 import { PageHero } from "@/components/pages/Kit";
 import { plural } from "@/lib/format";
 import { writtenWords, type PageSummary } from "@/lib/pages";
 import { ARTICLES } from "@/lib/server/encyclopedia";
 import { getNews } from "@/lib/server/news";
-import { getOfficial } from "@/lib/server/pages";
+import { getOfficial, getOfficialPage } from "@/lib/server/pages";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 30;
@@ -29,10 +30,13 @@ export default async function EncyclopediaPage() {
     .map((a) => ({ ...a, facts: site.facts.filter((f) => f.page === a.slug) }))
     .filter((a) => a.facts.length > 0)
     .sort((a, b) => b.facts.length - a.facts.length);
+  // beside the hero: one real sentence from the page the AI has written most of, as Wikipedia has it and as it reads now
+  const most = official.on ? [...official.index.pages].sort((a, b) => b.written_by_ai - a.written_by_ai)[0] : undefined;
+  const spec = official.on && most?.written_by_ai ? specimenOf(await getOfficialPage(most.slug)) : null;
   return (
     <main id="main" className="wrap pg">
       {official.on
-        ? <PageHero kick="The encyclopedia, written from the odds" title="The encyclopedia the market writes." lede={<>Each page starts as Wikipedia’s. Where a sentence has a market, AI rewrites it from the odds and signs it: <b>plain where the money is sure, hedged where it isn’t</b>. Sentences with no market keep Wikipedia’s words.</>} actions={record ? <Link className="btn ghost" href="/record">See the record of decided claims</Link> : undefined} />
+        ? <PageHero kick="The encyclopedia, written from the odds" title="The encyclopedia the market writes." lede={<>Each page starts as Wikipedia’s. Where a sentence has a market, AI rewrites it from the odds and signs it: <b>plain where the money is sure, hedged where it isn’t</b>. Sentences with no market keep Wikipedia’s words.</>} actions={record ? <Link className="btn ghost" href="/record">See the record of decided claims</Link> : undefined} side={<EncSpecimen spec={spec} index={official.index} />} />
         : <PageHero kick="The encyclopedia, priced" title="Read Wikipedia with the odds on." lede={<>Every sentence with a market is tinted by what the money says: <b>red if it looks false, green if it looks true</b>. Tap one to bet.</>} />}
       {site.ok ? (
         <div className="pagelist shelf">

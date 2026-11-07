@@ -4,6 +4,7 @@
 import "../styles/pages.css";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { AiBar } from "@/components/pages/HeroSides";
 import { PageHero } from "@/components/pages/Kit";
 import { BoardView } from "@/components/today/Board";
 import type { Board, Period } from "@/lib/news";
@@ -30,6 +31,7 @@ export default async function LeaderboardPage() {
         kick="Leaderboard"
         title="Who calls it best: people or the AIs?"
         lede={<>Everyone who picks today’s claims, side by side with <b>three AI traders that bet real money</b>, ranked by how often they’re right once they have {min} settled picks. A catch the AI judges uphold counts too.</>}
+        side={boards.all?.ai.length ? <AiBar ai={boards.all.ai} minSettled={boards.all.min_settled} people={boards.all.totals.people} /> : undefined}
       />
       <BoardView boards={boards} scores={scores} />
       <section className="panel cc lb-rules" aria-labelledby="lb-how">

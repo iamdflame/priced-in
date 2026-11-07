@@ -12,6 +12,33 @@
 .phero .lede b { color: var(--ink); font-weight: 600; }
 .phero .acts { margin-top: 20px; }
 .phero-side { display: flex; flex-direction: column; justify-content: center; gap: 12px; min-width: 0; }
+/* Beside the hero's words, something true to look at: one real sentence, two ways (/p); the AIs to beat (/leaderboard) */
+.hside { display: flex; flex-direction: column; gap: 14px; padding: 20px 22px; border-radius: var(--r-lg); background: var(--surface2); }
+.spec { display: flex; flex-direction: column; gap: 6px; margin: 0; }
+.spec-k { font-size: 12px; font-weight: 600; color: var(--ink3); }
+.spec-k + * { margin-bottom: 6px; }
+.spec-wiki { margin: 0; font: 400 16px/1.55 var(--quote); font-variation-settings: 'opsz' 18; color: var(--ink2); text-wrap: pretty; }
+.spec-mkt { font: 500 16.5px/1.6 var(--text); color: var(--ink); text-wrap: pretty; }
+.spec-mkt .hs { padding: 1px 3px; }
+.spec-mkt ins { text-decoration: none; font-weight: 650; }
+.spec figcaption { font-size: 13px; line-height: 1.45; color: var(--ink2); text-wrap: pretty; }
+.spec figcaption b { color: var(--ink); font-weight: 600; }
+.hstats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 2px 0 0; padding-top: 12px; border-top: 1px solid var(--line-strong); }
+.hstats > div { padding: 0 12px; }
+.hstats > div:first-child { padding-left: 0; }
+.hstats > div + div { border-left: 1px solid var(--line-strong); }
+.hstats dt { font-size: 12px; color: var(--ink3); }
+.hstats dd { margin: 2px 0 0; font: 700 22px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); font-feature-settings: 'tnum'; }
+.hstats small { font: 500 11.5px/1.3 var(--text); letter-spacing: 0; color: var(--ink3); display: block; margin-top: 2px; }
+.aibar ol { display: flex; flex-direction: column; gap: 12px; }
+.aibar li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 6px 12px; align-items: end; }
+.ab-n b { display: block; font: 600 16px/1.2 var(--disp); color: var(--ink); }
+.ab-n small { font-size: 12.5px; color: var(--ink3); }
+.ab-v { font: 700 30px/1 var(--disp); letter-spacing: -.035em; color: var(--ink); font-feature-settings: 'tnum'; }
+.ab-v i { font-style: normal; font-size: .52em; margin-left: 1px; }
+.ab-bar { grid-column: 1 / -1; height: 6px; border-radius: 999px; background: var(--surface3); overflow: hidden; }
+.ab-bar i { display: block; height: 100%; border-radius: inherit; background: var(--ink); }
+.aibar .btn { align-self: flex-start; }
 
 /* The live clock card (next ruling) */
 .clockc { padding: 20px 22px; border-radius: var(--r-lg); background: oklch(from var(--bg) l c h / .55); box-shadow: inset 0 0 0 1px var(--line-strong); }
@@ -752,6 +779,30 @@ p.rcpt .ic { width: 14px; height: 14px; }
 .recl-src span { color: var(--ink3); }
 .recl-go { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; }
 .recnone { margin-top: 16px; padding: 18px 20px; }
+/* The margin: on a card wide enough, the text keeps its 39rem measure and the room beside it becomes a margin
+   column, as in a printed encyclopedia: beside each paragraph with a market, its sentences' odds in order and how
+   it came to read as it does. Narrower cards drop the margin; "What changed" carries the same proof. */
+.article.mktv, .article.wikiv { container-type: inline-size; }
+.pnote { display: none; }
+@container (min-width: 850px) {
+  .article:is(.mktv, .wikiv) > section { display: grid; grid-template-columns: minmax(0, 39rem) minmax(0, 1fr); column-gap: clamp(32px, 5cqw, 56px); align-items: start; }
+  .article:is(.mktv, .wikiv) > section > * { grid-column: 1 / -1; }
+  .article:is(.mktv, .wikiv) > section > p, .article:is(.mktv, .wikiv) > section > .chg { grid-column: 1; }
+  .article:is(.mktv, .wikiv) > section > .pnote { grid-column: 2; display: flex; }
+  .article:is(.mktv, .wikiv) > section > .pnote + p, .article:is(.mktv, .wikiv) > section > .chg + p { margin-top: 12px; }
+}
+.pnote { flex-direction: column; gap: 8px; margin-top: 6px; padding-left: 14px; border-left: 1px solid var(--line-strong); font: 400 12.5px/1.4 var(--text); color: var(--ink3); }
+.pnote ul { display: flex; flex-direction: column; gap: 6px; }
+.pn-m { --h: .5; display: grid; grid-template-columns: 9px auto minmax(0, 1fr); align-items: baseline; gap: 4px 7px; color: var(--ink2); border-radius: 6px; }
+.pn-m:hover span { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.pn-dot { width: 9px; height: 9px; border-radius: 50%; align-self: center; background: color-mix(in oklch, var(--yes) calc(var(--h) * 100%), var(--no)); }
+.pn-m.unbet .pn-dot { background: transparent; box-shadow: inset 0 0 0 1.5px var(--ink3); }
+.pn-m.gone .pn-dot { background: var(--no); }
+.pn-m b { font: 700 13px/1.4 var(--disp); color: var(--ink); font-feature-settings: 'tnum'; white-space: nowrap; }
+.pn-m.unbet b { font-weight: 600; color: var(--ink3); }
+.pn-m span { min-width: 0; text-wrap: pretty; } /* a few words, never cut: the opening ends in an ellipsis of its own */
+.article .pnote .pn-proof { display: flex; align-items: flex-start; gap: 5px; max-width: none; margin: 0; font: 400 12.5px/1.45 var(--text); color: var(--ink3); text-wrap: pretty; }
+.pn-proof .ic { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--yes); stroke-width: 2.4; }
 @media (pointer: coarse) { .chg-open { min-height: 44px; } }
 @media (max-width: 760px) {
   .viewbar { padding: 0 16px 16px; }

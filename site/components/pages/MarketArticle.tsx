@@ -76,6 +76,49 @@ function Changed({ p, id, hidden }: { p: SlimParagraph; id: string; hidden: bool
   );
 }
 
+/** The first words of a sentence, for the margin: enough to find it in the paragraph beside. */
+const opening = (text: string, n = 6) => {
+  const w = text.replace(/\s+/g, " ").trim().split(" ");
+  return w.length > n ? `${w.slice(0, n).join(" ").replace(/[,;:]$/, "")}…` : w.join(" ");
+};
+
+/**
+ * The margin beside a paragraph with a market (wide cards only, pages.css): each priced sentence's odds in the
+ * paragraph's order, and how the paragraph came to read as it does. It repeats what the text and "What changed"
+ * already say, so it's hidden from assistive tech and out of the tab order; a click still opens the market.
+ */
+function Note({ p, ctx }: { p: SlimParagraph; ctx: Ctx }) {
+  const priced = p.lines.filter((l) => l.claim);
+  if (!priced.length) return null;
+  const market = ctx.view === "market";
+  const proof = market ? p.proofs?.at(-1) : undefined;
+  const ruled = market && !proof ? p.rulings?.[0] : undefined;
+  return (
+    <aside className="pnote" aria-hidden="true">
+      <ul>
+        {priced.map((l, i) => {
+          const m = markOf(l, ctx.view);
+          return (
+            <li key={i}>
+              <a className={`pn-m ${m.cls}`} href={`/c/${m.id}`} tabIndex={-1} style={{ "--h": m.h } as CSSProperties} onClick={ctx.facts.has(m.id) ? ctx.onTap(m.id) : undefined}>
+                <i className="pn-dot" /><b>{m.sup}</b><span>{opening(market ? l.text : l.wiki ?? l.text)}</span>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+      {proof && (
+        <p className="pn-proof">
+          {proof.signed === "signed" ? <Icon name="check" /> : null}
+          <span>{proof.correction ? "Corrected from its source" : "Rewritten from these odds"} <Ago at={proof.at} />{proof.model ? `, by ${modelShort(proof.model)}` : ""}{proof.signed === "signed" ? ". Signed" : ""}{proof.tx ? "; anchored on NEAR" : ""}.</span>
+        </p>
+      )}
+      {ruled && <p className="pn-proof"><span>Ruled {ruled.outcome} by {ruled.by}.</span></p>}
+      {market && !proof && !ruled && priced.every((l) => !l.claim!.trades && !l.claim!.decided) && <p className="pn-proof"><span>Wikipedia’s words until someone bets.</span></p>}
+    </aside>
+  );
+}
+
 function Paragraph({ p, ctx }: { p: SlimParagraph; ctx: Ctx }) {
   const [open, setOpen] = useState(false);
   const id = `chg-${p.index}`;
@@ -83,6 +126,7 @@ function Paragraph({ p, ctx }: { p: SlimParagraph; ctx: Ctx }) {
   return (
     <>
       <p>{p.lines.map((l, i) => <Line key={i} l={l} ctx={ctx} />)}</p>
+      <Note p={p} ctx={ctx} />
       {changed && (
         <div className="chg">
           <button type="button" className="chg-open" aria-expanded={open} aria-controls={id} onClick={() => setOpen((x) => !x)}>
