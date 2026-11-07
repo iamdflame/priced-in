@@ -449,7 +449,8 @@ export function recordOf({ doc, claims, rulings = [], network = "mainnet" }) {
       text: c.outcome === true ? c.text : ruledFalseSentence(c.text, r),
       decided_at: r?.settled_at ?? null, by: rulingView(r, c, network).by,
       sources: sourcesOf(n, r),
-      ruling: { challenge_id: r?.challenge_id ?? c.challenge_id ?? null, url: `/c/${c.id}#ruling`, tx: r?.settle_tx ?? null, explorer: r?.settle_tx ? `${EXPLORER(network)}${r.settle_tx}` : null },
+      // the fact's page shows a ruling the index has settled: only then does #ruling lead somewhere
+      ruling: { challenge_id: r?.challenge_id ?? c.challenge_id ?? null, url: r?.settle_tx ? `/c/${c.id}#ruling` : `/c/${c.id}`, tx: r?.settle_tx ?? null, explorer: r?.settle_tx ? `${EXPLORER(network)}${r.settle_tx}` : null },
       market_url: `/c/${c.id}`,
     });
   }

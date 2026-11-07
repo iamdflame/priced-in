@@ -131,6 +131,14 @@ test("/p/tether: a tinted sentence opens the sheet, Escape closes it and returns
 test("/p/tether: a ruled sentence is struck through, with its correction beside it", async ({ page }) => {
   await guard(page);
   await page.goto("/p/tether");
+  if (PAGES) {
+    // the market's page says the correction in the line's place, and Wikipedia's words strike the line
+    await expect(page.locator("a.hs", { hasText: "$122.84 billion" })).toHaveCount(1);
+    await expect(page.locator("a.hs", { hasText: "$72.6 billion" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Wikipedia’s words" }).click();
+    await expect(page.locator("a.hs.gone", { hasText: "$72.6 billion" })).toHaveCount(1);
+    return;
+  }
   // every ruled sentence on the page is struck through, the T-Bills one among them
   await expect(page.locator("a.hs.gone", { hasText: "$72.6 billion" })).toHaveCount(1);
   await expect(page.locator("a.hs.new", { hasText: "$122.84 billion" })).toHaveCount(1);

@@ -32,7 +32,11 @@ function Line({ l }: { l: RecordLine }) {
       <ul className="recl-src" aria-label="Sources">
         {l.sources.map((s) => <li key={s.url}><span>{KIND[s.kind] ?? "Source"}</span> <a className="link" href={s.url} target="_blank" rel="noopener">{s.label ?? host(s.url)}</a></li>)}
       </ul>
-      <p className="recl-go"><Link className="link" href={l.ruling.url}>The ruling</Link><Link className="link" href={l.market_url}>The market</Link></p>
+      <p className="recl-go">
+        {l.ruling.url !== l.market_url && <Link className="link" href={l.ruling.url}>The ruling</Link>}
+        <Link className="link" href={l.market_url}>The market</Link>
+        {l.ruling.explorer && <a className="link" href={l.ruling.explorer} target="_blank" rel="noopener">The ruling on NEAR</a>}
+      </p>
     </li>
   );
 }

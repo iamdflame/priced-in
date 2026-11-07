@@ -228,7 +228,10 @@ test.describe("the record, with the official pages and today's news on", () => {
     await expect(first.locator("h2")).toHaveText(record.lines[0].question);
     await expect(first.locator(".verdict")).toHaveText(/Ruled (true|false)/);
     await expect(first.locator(".recl-src a")).toHaveCount(record.lines[0].sources.length);
-    await expect(first.getByRole("link", { name: "The ruling" })).toHaveAttribute("href", /^\/c\/\d+#ruling$/);
+    // a ruling the index settled links its section on the fact's page; the stand-in's lines have none, so they link the fact
+    const line = record.lines[0] as unknown as { ruling: { url: string }; market_url: string };
+    await expect(first.getByRole("link", { name: "The market" })).toHaveAttribute("href", line.market_url);
+    await expect(first.getByRole("link", { name: "The ruling", exact: true })).toHaveCount(line.ruling.url === line.market_url ? 0 : 1);
     quiet(g);
   });
 

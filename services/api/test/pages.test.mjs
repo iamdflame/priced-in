@@ -376,6 +376,8 @@ test("the record: each decided news line, as ruled, with its sources and links, 
   assert.deepEqual(l.ruling, { challenge_id: 8, url: "/c/2#ruling", tx: "SettleTx", explorer: "https://nearblocks.io/txns/SettleTx" });
   assert.deepEqual(l.sources.map((s) => [s.kind, s.url]), [["settled_by", "https://x.example/news"], ["headline", "https://news.example/2"], ["receipt", "https://x.example/receipt-final"], ["coverage", "https://cover.example/1"]]);
   assert.equal(r.lines[1].text, "Line 1.", "ruled true: the claim, plainly");
+  const unindexed = recordOf({ doc: { lines: { 2: meta(2) } }, claims, rulings: [settled({ claim_id: 2, settle_tx: null })] });
+  assert.deepEqual(unindexed.lines[0].ruling, { challenge_id: 3, url: "/c/2", tx: null, explorer: null }, "no settled ruling in the index: no #ruling to point at");
 });
 
 test("the record with no news: empty and harmless", () => {
