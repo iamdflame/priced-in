@@ -61,8 +61,10 @@ function ShareActions({ claimId, text }: { claimId: number; text: string }) {
   );
 }
 
-export function Receipt({ bet, store, question, sentence, recorded, replayBlock, onClose }: {
+export function Receipt({ bet, store, question, sentence, recorded, replayBlock, onClose, score = false }: {
   bet: DoubtState; store: Store; question: string; sentence: string; recorded: boolean; replayBlock: number | null; onClose: () => void;
+  /** a bet of the browser's score (its free $1's winnings), not the free $1 itself */
+  score?: boolean;
 }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
@@ -75,13 +77,14 @@ export function Receipt({ bet, store, question, sentence, recorded, replayBlock,
   const shares = c.trade ? Number(c.trade.shares_micro) / 1e6 : c.quote?.shares ?? 0;
   const word = c.side === "yes" ? "true" : "false";
   const [from, to] = [Math.round(before * 100), Math.round(after * 100)];
+  const staked = score ? `${money(Number(c.amountMicro) / 1e6)} of score` : "$1";
   return (
     <dialog ref={dialog} className="sheet" aria-labelledby="rc-h" onClose={onClose} onClick={(e) => { if (e.target === dialog.current) dialog.current?.close(); }}>
       <button type="button" className="iconbtn sheet-close" aria-label="Close the receipt" onClick={() => dialog.current?.close()}><Icon name="x" /></button>
       <div className="rc">
         <section className="panel slip" aria-label="Your receipt">
           <Status bet={bet} recorded={recorded} replayBlock={replayBlock} />
-          <h2 id="rc-h">You bet $1 that it’s {word}</h2>
+          <h2 id="rc-h">You bet {staked} that it’s {word}</h2>
           <p className="lq">{question}</p>
           <div className="move">
             <SwingDial from={before} to={after} />
@@ -89,17 +92,17 @@ export function Receipt({ bet, store, question, sentence, recorded, replayBlock,
               <div className="big-move num" aria-label={`${from}% to ${to}% chance it’s true`}>
                 <span className="from">{from}%</span><Arrow /><span><Count from={from} to={to} /><i>%</i></span>
               </div>
-              <span className="lab"><b>chance it’s true</b><span>Your $1 moved it.</span></span>
+              <span className="lab"><b>chance it’s true</b><span>{score ? "Your bet moved it." : "Your $1 moved it."}</span></span>
             </div>
           </div>
           <div className="lines">
-            <div className="kv"><span>Right (it’s {word}): $1 becomes</span><b>{money(shares)}</b></div>
-            <div className="kv"><span>Wrong</span><b>The free $1 is gone</b></div>
+            <div className="kv"><span>Right (it’s {word}): {staked} becomes</span><b>{money(shares)}{score ? " of score" : ""}</b></div>
+            <div className="kv"><span>Wrong</span><b>{score ? "That score is gone" : "The free $1 is gone"}</b></div>
             <div className="kv"><span>You got</span><b>{shares.toFixed(2)} shares, $1 each if you’re right</b></div>
             {c.txHash && <div className="kv"><span>Transaction</span><a className="hashv" href={explorerTx(c.txHash)} target="_blank" rel="noopener">{shortHash(c.txHash)}</a></div>}
           </div>
-          <ShareActions claimId={c.claimId ?? 0} text={`I bet $1 that this is ${word}: “${question}” It’s ${to}% chance it’s true now. Is it true? Bet on it.`} />
-          <p className="fine">{recorded ? "A replay of the real run on 5 Nov 2026: the transaction, the rewrite and the reply are the recorded ones." : "Recorded on NEAR. Your free $1’s winnings count as score."}</p>
+          <ShareActions claimId={c.claimId ?? 0} text={`I bet ${staked} that this is ${word}: “${question}” It’s ${to}% chance it’s true now. Is it true? Bet on it.`} />
+          <p className="fine">{recorded ? "A replay of the real run on 5 Nov 2026: the transaction, the rewrite and the reply are the recorded ones." : score ? "Recorded on NEAR. Score can’t be cashed out: right answers grow it, and you can bet it again." : "Recorded on NEAR. Your free $1’s winnings count as score, and you can bet them again."}</p>
         </section>
         <div className="side">
           <RewritePanel bet={bet} store={store} sentence={sentence} />

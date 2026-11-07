@@ -42,7 +42,7 @@ export function FreeCashNote() {
     <span className="freecash">
       <span className="freecash-text">Free play: a right answer adds to your score. Bet real USDC to win real money.</span>
       <Explain label="What is the score, and what does $1 pay?">
-        <b>Your score</b> adds up what your free bets win. You can see it on your <Link className="link" href="/portfolio">Portfolio</Link>. It isn’t money, so it can’t be cashed out. To win money you can keep, bet real USDC, a digital dollar, from a wallet.
+        <b>Your score</b> adds up what your free bets win, and you can bet it again on any fact. You can see it on your <Link className="link" href="/portfolio">Portfolio</Link>. It isn’t money, so it can’t be cashed out. To win money you can keep, bet real USDC, a digital dollar, from a wallet.
         <span className="pop-next">{PAYOUT_WHY}</span>
       </Explain>
     </span>

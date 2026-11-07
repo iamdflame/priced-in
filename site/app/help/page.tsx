@@ -32,7 +32,7 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
     id: "free", title: "The free $1", sub: "One real bet per browser, with no wallet and no sign-up.",
     items: [
       { q: "Is the $1 really free?", a: <>Yes. Each browser gets one free $1 bet, paid from our budget. It’s a real trade on NEAR, signed by a key your browser makes for itself. We never ask for your name or email.</> },
-      { q: "What is the score?", a: <>The free $1 is free play. If you’re right, the winnings add to your score, which you can see on your <Link href="/portfolio">Portfolio</Link>. Score can’t be cashed out. To win money you can withdraw, bet real USDC from a wallet.</> },
+      { q: "What is the score?", a: <>The free $1 is free play. If you’re right, the winnings become your score, which you can see on your <Link href="/portfolio">Portfolio</Link>. Add a won bet to your score there, then bet the score again on any fact: right answers grow it. Score can’t be cashed out. To win money you can withdraw, bet real USDC from a wallet.</> },
       { q: "Why is my free bet unavailable?", a: <>Free bets come from a daily budget, and each network gets a daily limit so one place can’t use them all. When either runs out, the site says so before you tap. You can still <Link href={REPLAY_HREF}>watch a replay</Link> or bet with a wallet.</> },
       { q: "I cleared my browser. Where did my free bet go?", a: <>The key for your free bet lives only in your browser, so clearing its storage loses access to that bet’s score. The trade itself stays on NEAR for anyone to see.</> },
     ],

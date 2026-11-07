@@ -9,6 +9,8 @@ import { Icon } from "../Icon";
 import { markIntent } from "@/lib/client/intent";
 import { myBets } from "@/lib/client/mybets";
 import { setPicksOn } from "@/lib/client/picks";
+import { canBetScore, myScore, type Score } from "@/lib/client/score";
+import { money } from "@/lib/format";
 import { canAddMoney } from "@/lib/money/geo";
 import { openSheet, useGeo, useWallet, type SheetReq } from "@/lib/money/hooks";
 import { payoutWords } from "@/lib/quote";
@@ -20,12 +22,16 @@ export function PickTray() {
   const geo = useGeo();
   const path = usePathname();
   const [freeUsed, setFreeUsed] = useState(false);
+  const [score, setScore] = useState<Score | null>(null);
 
   useEffect(() => { setPicksOn(true); }, []);
   useEffect(() => { closeTray(); }, [path]);
   useEffect(() => {
     if (!t) return;
-    setFreeUsed(myBets().length > 0);
+    const used = myBets().length > 0;
+    setFreeUsed(used);
+    // the free $1 spent: its score, if it has grown, can back the pick instead
+    if (used) void myScore().then(setScore);
     const esc = (e: KeyboardEvent) => { if (e.key === "Escape") closeTray(); };
     addEventListener("keydown", esc);
     return () => removeEventListener("keydown", esc);
@@ -37,6 +43,7 @@ export function PickTray() {
   const pay = q ? payoutWords(q) : null;
   const trade: SheetReq = { kind: "trade", claimId: t.claimId, question: t.question, mode: "buy", side: t.side };
   const usdc = canAddMoney(geo.access);
+  const scored = freeUsed && canBetScore(score);
   return (
     <aside className="ptray" aria-label="Your pick">
       <div className="ptray-hd">
@@ -45,17 +52,20 @@ export function PickTray() {
       </div>
       <p className="ptray-q">{t.question}</p>
       <p className="ptray-rule">Picks are free and win nothing. {t.settlesBy ? <>Come back after {t.settlesBy} to see if you called it.</> : <>Come back when it settles to see if you called it.</>}</p>
-      {(pay && !freeUsed) || usdc ? (
+      {(pay && !freeUsed) || scored || usdc ? (
         <div className="ptray-acts">
           {pay && !freeUsed && (
             <Link className="btn primary" href={`/c/${t.claimId}?side=${t.side}`} onClick={() => { markIntent(); closeTray(); }}>Back it with your free $1</Link>
+          )}
+          {scored && (
+            <Link className="btn primary" href={`/c/${t.claimId}?side=${t.side}`} onClick={() => { markIntent(); closeTray(); }}>Back it with your score</Link>
           )}
           {usdc && (
             <button type="button" className="btn soft" onClick={() => { closeTray(); openSheet(w.status === "in" ? trade : { kind: "connect", then: trade }); }}>Bet real USDC</button>
           )}
         </div>
       ) : null}
-      {pay && !freeUsed ? <p className="ptray-fine">{pay.right}. {pay.wrong}.</p> : freeUsed ? <p className="ptray-fine">You’ve used your free $1. Real USDC wins real money.</p> : null}
+      {pay && !freeUsed ? <p className="ptray-fine">{pay.right}. {pay.wrong}.</p> : scored && score ? <p className="ptray-fine">Your free $1 has won you {money(score.balanceUsd)} of score. Score can’t be cashed out; real USDC wins real money.</p> : freeUsed ? <p className="ptray-fine">You’ve used your free $1. Real USDC wins real money.</p> : null}
     </aside>
   );
 }

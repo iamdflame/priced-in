@@ -16,7 +16,7 @@ import { canAddMoney, canTakeOut } from "@/lib/money/geo";
 import { openSheet, useAccount, useGeo, useWallet } from "@/lib/money/hooks";
 import { onLedger, pendingBridges, txLog, type PendingBridge, type TxRecord } from "@/lib/money/ledger";
 import { STATUS_WORDS } from "@/lib/money/oneclick";
-import { chainRow, fetchPortfolio, groupPositions, mergeHistory, scoreOf, unindexedClaims, type HistoryRow, type Portfolio, type PositionRow } from "@/lib/money/portfolio";
+import { chainRow, fetchPortfolio, groupPositions, mergeHistory, unindexedClaims, type HistoryRow, type Portfolio, type PositionRow } from "@/lib/money/portfolio";
 import { canSell } from "@/lib/money/rules";
 import { fmtMicro } from "@/lib/money/units";
 import { ago, explorerTx, money, shortHash } from "@/lib/format";
@@ -64,7 +64,7 @@ function Stat({ k, v, s, sTone = "", lead = false, children }: { k: string; v: s
   );
 }
 
-function Row({ r, facts, free }: { r: PositionRow; facts: FactMap; free: boolean }) {
+function Row({ r, facts, free, onCollect, collecting = false }: { r: PositionRow; facts: FactMap; free: boolean; onCollect?: (claimId: number) => void; collecting?: boolean }) {
   const geo = useGeo();
   const f = facts[r.claim_id];
   const question = f?.question ?? `Fact ${r.claim_id}`;
@@ -86,7 +86,11 @@ function Row({ r, facts, free }: { r: PositionRow; facts: FactMap; free: boolean
           {!free && r.pnl_usd !== null ? <span>Profit or loss <b className={tone(r.pnl_usd)}>{signed(r.pnl_usd)}</b></span> : null}
         </div>
       </div>
-      {free ? null : (
+      {free ? (r.redeemable && onCollect ? (
+        <div className="acts4">
+          <button type="button" className="btn primary" data-testid={`score-collect-${r.claim_id}`} disabled={collecting} onClick={() => onCollect(r.claim_id)}>{collecting ? <><span className="spin" />Adding…</> : `Add ${money(r.redeem_usd)} to your score`}</button>
+        </div>
+      ) : null) : (
         <div className="acts4">
           {r.redeemable && canTakeOut(geo.access) ? <button type="button" className="btn primary" data-testid={`collect-${r.claim_id}`} onClick={() => openSheet({ kind: "collect", claimId: r.claim_id, question, winMicro: String(Math.round(r.redeem_usd * 1e6)) })}>You called it · collect {money(r.redeem_usd)}</button> : null}
           {open && r.shares > 0 && canTakeOut(geo.access) && (!f || canSell(f.status)) ? <button type="button" className="btn soft" data-testid={`sell-${r.claim_id}`} onClick={() => openSheet({ kind: "trade", claimId: r.claim_id, question, mode: "sell", side: r.side })}>Sell</button> : null}
@@ -214,19 +218,36 @@ function FreeBet({ facts, picks = false }: { facts: FactMap; picks?: boolean }) 
     }, () => { if (!off) setTrader(null); });
     return () => { off = true; };
   }, []);
-  const { data } = usePortfolio(trader ?? null);
+  const { data, retry } = usePortfolio(trader ?? null);
   const rows = (data?.positions ?? []).filter((r) => r.shares > 0 || r.state === "collected");
-  const worth = rows.reduce((n, r) => n + (r.value_usd ?? 0), 0);
+  // the score: the free $1 as it stands, its balance (won and collected, or sold) and what its bets are worth
+  const balance = Math.max(0, data?.balance_usd ?? 0);
+  const worth = balance + rows.reduce((n, r) => n + (r.value_usd ?? 0), 0);
+  const [collecting, setCollecting] = useState<number | null>(null);
+  const [failed, setFailed] = useState<string | null>(null);
+  // a won free bet goes into the score with the browser's own key (the lane key may redeem); nothing leaves the market
+  const collect = async (claimId: number) => {
+    setCollecting(claimId); setFailed(null);
+    try {
+      const { liveEngine } = await import("@/lib/client/engine");
+      const r = await liveEngine().lane.redeem(claimId);
+      if (r.ok) { await r.final; retry(); } else setFailed(r.failure.message);
+    } catch { setFailed("We couldn’t add it to your score just now. Try again."); }
+    setCollecting(null);
+  };
   return (
     <section aria-labelledby="pf-free">
       <div className="pf-sec"><h2 id="pf-free"><Icon name="gift" />Your free $1</h2><span className="score-note">Free winnings are score, not cash</span></div>
-      {rows.length ? (
+      {rows.length || balance > 0 ? (
         <>
           <div className="pf-stats pf-stats-2">
-            <Stat k="Your free $1 is worth" v={money(worth)} lead />
-            <Stat k="Score" v={scoreOf(rows).toFixed(2)} s="What your decided free bets won" />
+            <Stat k="Your score" v={money(worth)} s="Your free $1 as it stands. It can’t be cashed out." lead />
+            <Stat k="Ready to bet again" v={money(balance)} s={balance >= 0.01 ? undefined : "Add a win to your score to bet it again"}>
+              {balance >= 0.01 ? <div className="acts3"><Link className="btn soft" href="/#facts" data-testid="score-bet">Bet it on any fact</Link></div> : null}
+            </Stat>
           </div>
-          <div className="pf-list pf-gap">{rows.map((r) => <Row key={`${r.claim_id}${r.side}`} r={r} facts={facts} free />)}</div>
+          {failed ? <div className="notice err pf-gap" role="alert"><Icon name="alert" /><p>{failed}</p></div> : null}
+          <div className="pf-list pf-gap">{rows.map((r) => <Row key={`${r.claim_id}${r.side}`} r={r} facts={facts} free onCollect={collect} collecting={collecting === r.claim_id} />)}</div>
         </>
       ) : trader === undefined || (trader && !data) ? <Sk h={88} r={20} /> : (
         <div className="panel pf-empty"><div><h3>Your free $1 is ready</h3><p>{picks ? "Open any fact or claim and bet it from its page. No wallet, no sign-up." : "Tap Yes or No on any fact. No wallet, no sign-up."}</p></div><Link className="btn primary" href="/#facts">Pick a fact</Link></div>

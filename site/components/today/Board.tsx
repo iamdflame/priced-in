@@ -6,6 +6,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../Icon";
 import { existingKey, myRecord, saveNickname } from "@/lib/client/picks";
+import { myScore, type Score } from "@/lib/client/score";
+import { money } from "@/lib/format";
 import { aiName, pctWords, recordWords, type Board, type BoardRow, type MyRecord, type Period } from "@/lib/news";
 
 const PERIODS: { id: Period; label: string; empty: string }[] = [
@@ -62,7 +64,18 @@ function Table({ b, me }: { b: Board; me: string | null }) {
   );
 }
 
-function YourCard({ rec, onSaved }: { rec: MyRecord | null; onSaved: (nick: string) => void }) {
+/** Beside the picks, the free $1's score: a separate thing, in its own words, never money. */
+function ScoreLine({ score }: { score: Score | null }) {
+  if (!score) return null;
+  return (
+    <div className="lb-score" data-testid="board-score">
+      <p><span>Your score</span><b className="num">{money(score.worthUsd)}</b></p>
+      <p className="sub">{score.balanceUsd >= 0.01 ? <>Your free $1 as it stands, {money(score.balanceUsd)} of it ready to bet again. <Link className="link" href="/#facts">Bet it on any fact</Link>.</> : "Your free $1 as it stands."} Score can’t be cashed out.</p>
+    </div>
+  );
+}
+
+function YourCard({ rec, onSaved, score }: { rec: MyRecord | null; onSaved: (nick: string) => void; score: Score | null }) {
   const [nick, setNick] = useState("");
   const [state, setState] = useState<{ busy: boolean; msg: string | null; ok: boolean }>({ busy: false, msg: null, ok: false });
   useEffect(() => { if (rec?.nickname) setNick(rec.nickname); }, [rec?.nickname]);
@@ -85,6 +98,7 @@ function YourCard({ rec, onSaved }: { rec: MyRecord | null; onSaved: (nick: stri
       ) : (
         <p className="lb-you-none">You haven’t picked yet. <Link className="link" href="/#today">Pick today’s claims</Link>: it’s free, and every right call counts here.</p>
       )}
+      <ScoreLine score={score} />
       <form className="lb-nick" onSubmit={(e) => { e.preventDefault(); void save(); }}>
         <label htmlFor="nick">Your name on the board</label>
         <div className="lb-nick-row">
@@ -102,11 +116,13 @@ export function BoardView({ boards, initial = "week" }: { boards: Record<Period,
   const [me, setMe] = useState<string | null>(null);
   const [rec, setRec] = useState<MyRecord | null>(null);
   const [names, setNames] = useState<Record<string, string>>({});
+  const [score, setScore] = useState<Score | null>(null);
   useEffect(() => {
     const k = existingKey();
     if (!k) return;
     setMe(k.publicKey);
     myRecord().then((r) => { if (r?.ok) setRec(r); });
+    myScore().then((s) => { if (s && (s.worthUsd > 0 || s.portfolio.positions.length)) setScore(s); });
   }, []);
   const b = boards[period];
   // a nickname just saved shows at once; the board catches up on its next read
@@ -133,7 +149,7 @@ export function BoardView({ boards, initial = "week" }: { boards: Record<Period,
       <div className="lb-grid">
         {shown ? <Table b={shown} me={me} /> : <div className="panel quiet"><Icon name="alert" /><div><b>The board didn’t load.</b><p>Picks are kept either way. Try again in a moment.</p></div></div>}
         <aside className="panel lb-side" aria-label="You">
-          <YourCard rec={rec} onSaved={(n) => { const k = existingKey(); if (k) { setMe(k.publicKey); setNames({ [k.publicKey]: n }); } }} />
+          <YourCard rec={rec} score={score} onSaved={(n) => { const k = existingKey(); if (k) { setMe(k.publicKey); setNames({ [k.publicKey]: n }); } }} />
         </aside>
       </div>
       {b && <p className="fine lb-totals">{b.totals.people === 1 ? "1 person" : `${b.totals.people} people`} · {b.totals.picks} picks · {b.totals.settled_picks} settled · {b.totals.catches_upheld} {b.totals.catches_upheld === 1 ? "catch" : "catches"} upheld</p>}

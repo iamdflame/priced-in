@@ -102,11 +102,12 @@ export function useBetFlow({ claim, question, initialSide, recorded }: { claim: 
     void load().then((e) => e.warm());
   }, [load]);
 
-  const confirm = useCallback(async () => {
+  /** The free $1, or (amountMicro) the browser's own score: the same bet from the same key, its balance paying. */
+  const confirm = useCallback(async (amountMicro?: bigint) => {
     if (!side) return;
     const e = await load();
     if (e.store.state.doubt.stage === "failed") e.store.resetDoubt();
-    await e.store.doubt(`c${id}`, side);
+    await e.store.doubt(`c${id}`, side, amountMicro);
   }, [side, load, id]);
 
   const closeReceipt = useCallback(() => {
@@ -114,5 +115,5 @@ export function useBetFlow({ claim, question, initialSide, recorded }: { claim: 
     store?.resetDoubt();
   }, [store]);
 
-  return { store, bet, busy, done, lane, side, pick, confirm, quotes, mine, receiptOpen, openReceipt: () => setReceiptOpen(true), closeReceipt };
+  return { store, bet, busy, done, lane, side, pick, confirm, quotes, view, mine, receiptOpen, openReceipt: () => setReceiptOpen(true), closeReceipt };
 }
