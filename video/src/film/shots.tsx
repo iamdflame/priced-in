@@ -138,7 +138,6 @@ const Tap: React.FC<P> = ({shot, t, T}) => {
   const ripple = T >= tap ? clamp01((T - tap) / 0.5) : 0;
   const chip = shot.chip ? ease(T, shot.chip, 0.4, EASE.spring) : 0;
   const pose = tall ? {ry: mix(-16, -6, k), rx: mix(10, 3, k), rz: 1.5, s: mix(0.94, 1.02, k)} : {ry: mix(-30, -17, k), rx: mix(14, 6, k), rz: mix(5, 2.5, k), s: mix(0.92, 1.0, k)};
-  const before = ft < 2.3; // the replay's caption reads "$0.00 bet so far": only the true "5 bets" is shown
   return (
     <Ground glow={tall ? '50% 60%' : '68% 50%'}>
       <AbsoluteFill style={{flexDirection: tall ? 'column' : 'row', alignItems: 'center', justifyContent: tall ? 'flex-start' : 'space-between', padding: tall ? '110px 70px 0' : '0 150px 40px 130px', gap: tall ? 30 : 40}}>
@@ -157,9 +156,6 @@ const Tap: React.FC<P> = ({shot, t, T}) => {
         </div>
         <div style={{flex: 'none'}}>
           <Phone3D src={src} width={tall ? 450 : 400} pose={pose} sheen={clamp01(t / 1.6)}>
-            {before ? (
-              <div style={{position: 'absolute', left: '7.5%', top: '53.6%', width: '44%', height: '2.6%', background: '#FFFFFF', display: 'flex', alignItems: 'center', font: `400 ${tall ? 19 : 16}px ${FONT.text}`, color: C.ink2}}>5 bets</div>
-            ) : null}
             {ripple > 0 && ripple < 1 ? (
               <div style={{position: 'absolute', left: '74%', top: '86%', width: 70, height: 70, margin: '-35px 0 0 -35px', borderRadius: '50%', background: 'rgba(17,22,30,0.16)', opacity: 1 - ripple, transform: `scale(${1 + ripple * 3})`}} />
             ) : null}
