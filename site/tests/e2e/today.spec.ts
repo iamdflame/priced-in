@@ -132,6 +132,20 @@ test.describe("with today's news on", () => {
     expect(g.errors, g.errors.join("\n")).toEqual([]);
   });
 
+  test("the leaderboard: the free $1 score beside picks, for people only, and never in a rank", async ({ page, request }) => {
+    await scenario(request, page, { scenario: "returning" }, { path: "/leaderboard", has: "Visitor 99r6yL" });
+    const g = await guard(page);
+    await page.addInitScript((key) => localStorage.setItem("pricedin.lane.mainnet.v1", key), secret);
+    await page.goto("/leaderboard");
+    await page.getByRole("button", { name: "All time" }).click();
+    await expect(page.locator(".lbt th.lb-sc")).toHaveText("Free $1 score");
+    await expect(page.locator(".lbt tr", { hasText: "Visitor 99r6yL" }).locator("td.lb-sc")).toHaveText("$1.20");
+    await expect(page.locator(".lbt tr", { hasText: "The Quant" }).locator("td.lb-sc")).toHaveText("—");
+    await expect(page.getByTestId("board-score")).toContainText("$1.20");
+    await expect(page.locator("main")).toContainText("it doesn’t change a rank");
+    expect(g.laneKeys).toBe(0);
+  });
+
   test("the leaderboard: the AI traders beside people, the empty board said honestly, a nickname signed by the key", async ({ page, request }) => {
     await scenario(request, page, { scenario: "first" });
     const g = await guard(page);

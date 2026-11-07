@@ -55,6 +55,25 @@ test("with no score, the spent free $1 says so, and nothing more is offered", as
   noMoneySpent(g);
 });
 
+test("/portfolio: a free $1 credited but not bet yet is still the free $1, not a score", async ({ page }) => {
+  await guard(page);
+  await page.addInitScript((key) => localStorage.setItem("pricedin.lane.mainnet.v1", key), KEY);
+  await page.route(/\/api\/portfolio\?trader=lane%3A/, (r) => r.fulfill({ json: { balance_usd: 1, totals: { value_usd: 0, spent_usd: 0, received_usd: 0, pnl_usd: 0, redeemable_usd: 0, positions: 0 }, positions: [], history: [] } }));
+  await page.goto("/portfolio");
+  const free = page.locator("section[aria-labelledby='pf-free']");
+  await expect(free.getByRole("heading", { name: "Your free $1 is ready" })).toBeVisible();
+  await expect(free.getByText("Your score", { exact: true })).toHaveCount(0);
+});
+
+test("/portfolio: a collected free bet says what it added to the score, not what it's worth", async ({ page }) => {
+  await guard(page);
+  await spentFreeBet(page, 1.2, [{ claim_id: 18, side: "no", shares: 0, spent_usd: 1, received_usd: 1.2, value_usd: 0, pnl_usd: 0.2, state: "collected", redeemable: false, redeem_usd: 0 }]);
+  await page.goto("/portfolio");
+  const free = page.locator("section[aria-labelledby='pf-free']");
+  await expect(free).toContainText("Added to your score");
+  await expect(free).not.toContainText("Worth");
+});
+
 test("/portfolio: the score, what's ready to bet again, and a won free bet added to it with the browser's own key", async ({ page }) => {
   const g = await guard(page, { claimId: 18, side: "no", beforePpm: 99800, afterPpm: 99800, sharesMicro: "1203049" });
   await spentFreeBet(page, 0.6, [{ claim_id: 18, side: "no", shares: 1.203049, spent_usd: 1, received_usd: 0, value_usd: 1.203049, pnl_usd: 0.203049, state: "won", redeemable: true, redeem_usd: 1.203049 }]);

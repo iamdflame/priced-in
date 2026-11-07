@@ -6,6 +6,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { floorBy, isFail, quoteWalletBuy } from "@/lib/money/quotes";
 import { fmtMicroDown } from "@/lib/money/units";
 import { guard, type Guard } from "../guard";
+import { NEWS } from "../news";
 import { ACCOUNT, FakeChain, type ClaimState } from "./chain";
 
 const OPEN = 32;
@@ -174,6 +175,31 @@ test("collect a settled win, then withdraw to the NEAR wallet", async ({ page })
   await expect(wd.getByTestId("money-done")).toContainText("$1.81 withdrawn");
   expect(chain.sent.at(-1)?.actions[0]).toMatchObject({ method: "withdraw", args: { amount_micro: "1810000" } });
   expect(chain.balance).toBe(0n);
+  done(g, chain);
+});
+
+test("challenge a line with your own $1 bond: the page and its words go in as evidence, one call, then the judges are asked", async ({ page }) => {
+  test.skip(!NEWS, "catching a mistake needs today's news on");
+  const chain = world();
+  chain.balance = 5_000_000n;
+  const g = await setup(page, chain);
+  let asked = 0;
+  await page.route(/\/api\/after-challenge$/, (r) => { asked++; return r.fulfill({ json: { status: "e2e: not asked" } }); });
+  await page.goto("/portfolio");
+  await connect(page);
+  await page.goto(`/c/${OPEN}`);
+  await page.getByTestId("challenge-open").click();
+  const sheet = page.getByRole("dialog", { name: "Challenge with your bond" });
+  await expect(sheet).toContainText("If you’re wrong:");
+  await expect(sheet.getByTestId("challenge-confirm")).toBeDisabled();
+  await sheet.getByLabel("A public page that shows it").fill("https://example.org/a-newer-source");
+  await sheet.getByLabel("The exact words from that page").fill("a newer source says otherwise");
+  await sheet.getByTestId("challenge-confirm").click();
+  await expect(sheet.getByTestId("money-done")).toContainText("Challenge sent");
+  expect(chain.sent.at(-1)?.actions).toHaveLength(1);
+  expect(chain.sent.at(-1)?.actions[0]).toMatchObject({ method: "challenge", args: { claim_id: OPEN, claimed_outcome: false, evidence: 'This line is FALSE.\nSource: https://example.org/a-newer-source\nReceipt excerpt: "a newer source says otherwise"' } });
+  expect(chain.balance).toBe(4_000_000n);
+  await expect.poll(() => asked).toBe(1);
   done(g, chain);
 });
 

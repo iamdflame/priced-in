@@ -11,7 +11,9 @@ const C = moneyConfig("mainnet");
 const b64 = (v: unknown) => Buffer.from(JSON.stringify(v)).toString("base64");
 let n = 0;
 
-export interface ClaimState { id: number; text: string; status: "Open" | "Settled"; outcome: boolean | null; b_micro: string; d0: string; q_yes_micro: string; q_no_micro: string; fee_bps: number }
+export interface ClaimState { id: number; text: string; status: "Open" | "Challenged" | "Settled"; outcome: boolean | null; b_micro: string; d0: string; q_yes_micro: string; q_no_micro: string; fee_bps: number }
+
+const BOND = 1_000_000n;
 
 export class FakeChain {
   balance = 0n;
@@ -78,6 +80,11 @@ export class FakeChain {
         const win = c.outcome ? p.yes : p.no;
         if (win === 0n) return this.panic("nothing to redeem");
         p.yes = 0n; p.no = 0n; this.balance += win; last = String(win);
+      } else if (a.method === "challenge") {
+        const c = this.claims.get(g.claim_id)!;
+        if (c.status !== "Open") return this.panic("not open");
+        if (BOND > this.balance) return this.panic("not enough balance");
+        this.balance -= BOND; c.status = "Challenged"; last = undefined;
       } else if (a.method === "withdraw") {
         const amt = BigInt(g.amount_micro);
         if (amt > this.balance) return this.panic("not enough balance");
