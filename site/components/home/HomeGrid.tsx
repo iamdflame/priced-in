@@ -46,10 +46,12 @@ function useSearchTerm() {
   return [q, setQ] as const;
 }
 
-export function HomeGrid({ initial, points, reopened }: {
+export function HomeGrid({ initial, points, reopened, picks = false }: {
   initial: Fact[];
   points: Record<string, [number, number][]>;
   reopened: number[];
+  /** today's news is on: every card's Yes and No is a free pick */
+  picks?: boolean;
 }) {
   const facts = useLiveFacts(initial);
   const [q, setQ] = useSearchTerm();
@@ -83,7 +85,7 @@ export function HomeGrid({ initial, points, reopened }: {
         </div>
       </div>
       <div className={`grid${clamped ? " clamped" : ""}`} ref={grid}>
-        {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} />)}
+        {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} picks={picks} />)}
       </div>
       {clamped && shown.length > 4 && <div className="seeall"><button type="button" className="btn soft lg" onClick={seeAll}>See all {shown.length} facts</button></div>}
       {!shown.length && (

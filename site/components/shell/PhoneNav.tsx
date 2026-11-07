@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import type { CSSProperties } from "react";
 import { Icon } from "../Icon";
-import { NAV } from "@/lib/nav";
+import { navFor } from "@/lib/nav";
 
-export function PhoneNav() {
+export function PhoneNav({ news = false }: { news?: boolean }) {
   const path = usePathname();
-  const items = NAV.filter((n) => n.phone).slice(0, 4);
+  const items = navFor(news).filter((n) => n.phone).slice(0, 4);
   return (
     <nav className="pnav" aria-label="Main" style={{ "--n": items.length } as CSSProperties}>
       {items.map((n) => (

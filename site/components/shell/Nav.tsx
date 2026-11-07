@@ -9,7 +9,7 @@ import { WalletButton } from "../money/WalletButton";
 import { NavMenu } from "./NavMenu";
 import { Search } from "./Search";
 import { ThemeToggle } from "./ThemeToggle";
-import { NAV, REPLAY_HREF } from "@/lib/nav";
+import { navFor, REPLAY_HREF } from "@/lib/nav";
 
 function ReplayBar() {
   return (
@@ -22,8 +22,9 @@ function ReplayBar() {
   );
 }
 
-export function Nav() {
+export function Nav({ news = false }: { news?: boolean }) {
   const path = usePathname();
+  const items = navFor(news);
   const recorded = useSearchParams().get("recorded") === "1";
   const cta = recorded ? REPLAY_HREF : "/#facts";
   return (
@@ -34,7 +35,7 @@ export function Nav() {
           <Link className="logo" href="/" aria-label="Priced In, home"><Lockup /></Link>
           <Search />
           <nav className="navlinks" aria-label="Main">
-            {NAV.map((n) => (
+            {items.map((n) => (
               <Link key={n.href} href={n.href} aria-current={(n.match ? n.match(path) : path === n.href) ? "page" : undefined}>{n.label}</Link>
             ))}
           </nav>
@@ -42,7 +43,7 @@ export function Nav() {
             <ThemeToggle />
             <WalletButton />
             <Link className="btn primary" href={cta}>Bet $1 free</Link>
-            <NavMenu />
+            <NavMenu news={news} />
           </div>
         </div>
       </header>

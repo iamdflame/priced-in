@@ -5,9 +5,8 @@ import { fontVars } from "./fonts";
 import { Toasts } from "@/components/Toasts";
 import { Footer } from "@/components/shell/Footer";
 import { LiveStrip, LiveStripSkeleton } from "@/components/shell/LiveStrip";
-import { Nav } from "@/components/shell/Nav";
+import { NavWithNews } from "@/components/shell/NavServer";
 import { OfflineNotice } from "@/components/shell/OfflineNotice";
-import { PhoneNav } from "@/components/shell/PhoneNav";
 import { FILM_SCRIPT } from "@/lib/client/film";
 import { SITE_URL } from "@/lib/nav";
 import { getSite, proofOf } from "@/lib/server/site";
@@ -29,13 +28,13 @@ export const viewport: Viewport = {
   themeColor: [{ media: "(prefers-color-scheme: dark)", color: "#0B0F13" }, { media: "(prefers-color-scheme: light)", color: "#FFFFFF" }],
 };
 
-// Before paint: ?theme= wins, then the visitor's choice, else the default on <html>, light; and film mode
-// (lib/client/film.ts).
-const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');${FILM_SCRIPT}}catch(e){}`;
+// Before paint: ?theme= wins, then the visitor's choice, else the default on <html>, light; film mode
+// (lib/client/film.ts); and a browser that has made free picks (lib/client/picks.ts) gets its results first.
+const THEME = `try{var t=new URLSearchParams(location.search).get('theme')||localStorage.getItem('pi-theme');if(t==='light'||t==='dark')document.documentElement.dataset.theme=t;if(new URLSearchParams(location.search).has('still'))document.documentElement.classList.add('still');if(localStorage.getItem('pricedin.picks.v1'))document.documentElement.dataset.picker='1';${FILM_SCRIPT}}catch(e){}`;
 
 /** The nav reads the URL in the browser; until then, bars of the same height on every screen, so nothing moves. */
 function NavPlaceholder() {
-  return <><div className="nav" style={{ height: 69 }} /><div className="pbar" /></>;
+  return <><div className="nav" style={{ height: 69 }} /><div className="pbar" /><div className="pnav" aria-hidden="true" /></>;
 }
 
 /** The strip reads the market on its own, so a slow API never holds up the page. */
@@ -61,14 +60,13 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <a className="skip" href="#main">Skip to content</a>
         <Toasts>
           <Suspense fallback={<NavPlaceholder />}>
-            <Nav />
+            <NavWithNews />
           </Suspense>
           <Suspense fallback={<LiveStripSkeleton />}>
             <LiveBets />
           </Suspense>
           {children}
           <Footer />
-          <PhoneNav />
           <OfflineNotice />
         </Toasts>
       </body>

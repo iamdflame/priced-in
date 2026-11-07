@@ -5,9 +5,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "../Icon";
-import { NAV } from "@/lib/nav";
+import { navFor } from "@/lib/nav";
 
-export function NavMenu() {
+export function NavMenu({ news = false }: { news?: boolean }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
   const box = useRef<HTMLDivElement>(null);
@@ -29,7 +29,7 @@ export function NavMenu() {
         <Icon name={open ? "x" : "menu"} />
       </button>
       <nav id={id} className="navmenu-panel" aria-label="Menu" hidden={!open}>
-        {NAV.map((n) => (
+        {navFor(news).map((n) => (
           <Link key={n.href} href={n.href} onClick={() => setOpen(false)} aria-current={(n.match ? n.match(path) : path === n.href) ? "page" : undefined}><Icon name={n.icon} />{n.label}</Link>
         ))}
       </nav>

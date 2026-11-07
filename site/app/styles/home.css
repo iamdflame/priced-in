@@ -60,6 +60,94 @@
 .deciding .timer .num { color: var(--ink2); }
 
 
+/* Today's claims: the front door while the API has news on. The lead claim and "you vs the AIs" share a
+   row, as the lead fact and the rails do below; then the next claims as cards; then two compact lists. */
+.today { margin-top: 2px; }
+.today-hd { display: flex; align-items: flex-end; justify-content: space-between; gap: 6px 20px; flex-wrap: wrap; margin: 6px 0 12px; }
+.today-hd h2 { font: 700 28px/1.08 var(--disp); letter-spacing: -.024em; }
+.today-hd p { margin-top: 4px; font-size: 15px; line-height: 1.45; color: var(--ink2); text-wrap: pretty; }
+.today-meta { display: flex; flex-wrap: wrap; gap: 2px 14px; font-size: 13px; color: var(--ink3); }
+
+.today-top { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 16px; align-items: stretch; }
+.tlead .ftext { gap: 0; }
+.tlead .picks { margin-top: auto; padding-top: 14px; }
+.tlead .settles { margin-top: 10px; font-size: 13px; }
+.tlead .payline { margin-top: 4px; }
+.tlead .closed { margin-top: 10px; }
+.tlead.quiet { display: block; padding: 24px; }
+.tlead.quiet h2 { font-size: 24px; }
+.tgrid { margin-top: 14px; }
+@media (min-width: 1001px) {
+  .tgrid[data-n='3'] { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .tgrid[data-n='2'], .tgrid[data-n='1'] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  /* one list alone runs the full width: two columns of rows, so a verdict never sits a screen away from its question */
+  .tlists > :only-child .lrows { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; }
+  .tlists > :only-child .lrow { border-top: 0; border-bottom: 1px solid var(--line); }
+}
+.tlists { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 14px; align-items: start; }
+.tlists > :only-child { grid-column: 1 / -1; }
+.wikihd { margin: 44px 0 14px; padding-top: 28px; border-top: 1px solid var(--line); }
+.wikihd h2 { font: 700 28px/1.08 var(--disp); letter-spacing: -.024em; }
+.wikihd p { margin-top: 4px; font-size: 15px; color: var(--ink2); }
+
+/* You against the AIs: first visit, or your results first */
+.you { display: flex; flex-direction: column; gap: 10px; min-width: 0; padding: 16px 18px; border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--card-shadow); }
+.you > .btn { align-self: flex-start; margin-top: auto; }
+.you-hd { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.you-hd h2 { font: 600 18px/1.2 var(--disp); letter-spacing: -.01em; }
+.you-hd span { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
+.you-lede { font-size: 14px; line-height: 1.5; color: var(--ink2); text-wrap: pretty; }
+.you-rule { font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.you-sk { display: flex; flex-direction: column; gap: 10px; padding: 6px 0; }
+.you-sk .sk { display: block; height: 18px; }
+.vs { display: flex; flex-direction: column; }
+.vs li { display: grid; grid-template-columns: minmax(0, 1fr) auto 48px; gap: 10px; align-items: center; min-height: 40px; padding: 6px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+.vs li:first-child { border-top: 0; }
+.vs-n { display: flex; align-items: center; gap: 8px; min-width: 0; font-weight: 600; color: var(--ink); }
+.vs-n .ic { width: 16px; height: 16px; color: var(--ink3); }
+.vs li.you { margin: 0 -10px; padding: 6px 10px; border-radius: 10px; border-top-color: transparent; background: var(--surface2); }
+.vs li.you + li { border-top-color: transparent; }
+.vs-r { font-size: 12.5px; color: var(--ink3); white-space: nowrap; }
+.vs-a { text-align: right; font: 700 16px var(--disp); color: var(--ink); }
+.landed { padding: 12px 14px; border-radius: 16px; background: var(--surface2); }
+.landed.won { background: var(--yes-bg); }
+.landed-big { display: flex; align-items: center; gap: 8px; font: 700 24px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); }
+.landed.won .landed-big { color: var(--yes); animation: pi-land .6s var(--spring); }
+.landed-big .ic { width: 24px; height: 24px; stroke-width: 2.8; }
+.landed ul { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.landed li { display: flex; flex-direction: column; gap: 1px; font-size: 13.5px; line-height: 1.35; }
+.landed li a { font-weight: 600; color: var(--ink); }
+.landed li a:hover { color: var(--brand-text); }
+.landed li span { font-size: 12.5px; color: var(--ink2); }
+.landed li.right span { color: var(--yes); font-weight: 600; }
+.you-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1px; margin: 0; overflow: hidden; border-radius: 14px; background: var(--line); }
+.you-stats div { padding: 8px 10px; background: var(--surface); }
+.you-stats dt { font-size: 12px; color: var(--ink3); }
+.you-stats dd { margin: 2px 0 0; font: 700 17px/1.2 var(--disp); color: var(--ink); white-space: nowrap; }
+.you-stats small { margin-left: 4px; font: 500 11.5px var(--text); color: var(--ink3); }
+@media (max-width: 1240px) {
+  .today-top { grid-template-columns: minmax(0, 1fr); }
+  .you { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); column-gap: 20px; align-items: start; }
+  .you > :not(.vs):not(.you-stats) { grid-column: 1; }
+  .you > .vs, .you > .you-stats { grid-column: 2; grid-row: 1 / span 4; }
+  .you.back > .you-stats { grid-row: 1; }
+  .you.back > .vs { grid-row: 2 / span 3; }
+}
+@media (max-width: 1000px) {
+  .tlists { grid-template-columns: minmax(0, 1fr); }
+  .you { display: flex; align-items: stretch; }
+}
+@media (max-width: 760px) {
+  .today-hd { margin: 2px 0 10px; }
+  .today-hd h2, .wikihd h2 { font-size: 23px; }
+  .today-hd p, .wikihd p { font-size: 14px; }
+  .today-top { display: flex; flex-direction: column; gap: 12px; }
+  [data-picker='1'] & .today-top > .you { order: -1; }
+  .you { padding: 14px; border-radius: var(--r-lg); }
+  .tlead .picks { margin-top: 4px; }
+  .wikihd { margin-top: 32px; padding-top: 22px; }
+}
+
 /* The grid shows about three rows, then a button expands the rest in place, so the footer is close */
 .grid.clamped > :nth-child(n+13) { display: none; }
 .seeall { display: flex; justify-content: center; margin-top: 18px; }
@@ -129,9 +217,17 @@
   .home > .proof { order: 3; padding: 14px 0 0; gap: 4px 14px; }
   .home > .notice { order: 2; margin-bottom: 10px; }
   .home > section, .home > div:not(.hero) { order: 4; }
+  /* with today's claims: the promise, then today's claims with their Yes/No, then the numbers, then Wikipedia */
+  .home.has-today > .today { order: 2; }
+  .home.has-today > .wikihd { order: 4; }
+  .home.has-today > .hero { order: 5; }
+  .home.has-today > section:not(.today):not(.intro) { order: 6; }
   .home .sec { margin-top: 20px; }
   .home .sec .tab { height: 44px; }
   /* one swipeable row of topics, not four wrapped lines */
   .home .sec .tabs { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; width: calc(100% + var(--gut) * 2); margin: 4px calc(var(--gut) * -1) 0; padding: 0 var(--gut); scroll-padding: 0 var(--gut); }
   .home .sec .tabs::-webkit-scrollbar { display: none; }
 }
+
+/* the "You called it" stamp lands (a keyframe can't sit inside the route's scope block) */
+@keyframes pi-land { from { transform: scale(.92); opacity: 0; } }

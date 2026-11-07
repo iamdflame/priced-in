@@ -9,16 +9,18 @@ import { Icon } from "../Icon";
 import { ThemeToggle } from "./ThemeToggle";
 import { plural } from "@/lib/format";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
+import { getNews } from "@/lib/server/news";
 import { getSite } from "@/lib/server/site";
 
 const NPM_URL = "https://www.npmjs.com/package/pricedin-mcp";
 const CONTRACT_URL = `https://nearblocks.io/address/${MARKET_ID}`;
 
-interface FootLink { href: string; label: ReactNode; out?: boolean }
+interface FootLink { href: string; label: ReactNode; out?: boolean; news?: boolean }
 
 const GROUPS: { title: string; links: FootLink[] }[] = [
   { title: "Product", links: [
     { href: "/", label: "Facts" },
+    { href: "/leaderboard", label: "Leaderboard", news: true },
     { href: "/rulings", label: "Results" },
     { href: "/agents", label: "AI traders" },
     { href: "/portfolio", label: "Portfolio" },
@@ -55,6 +57,36 @@ const TOPICS: { slug: string; label: string }[] = [
   { slug: "dai", label: "Dai" },
   { slug: "defi", label: "DeFi" },
 ];
+
+/** The link groups. The leaderboard is listed only while the API has today's news on. */
+function Groups({ news }: { news: boolean }) {
+  const groups = GROUPS.map((g) => ({ ...g, links: g.links.filter((l) => news || !l.news) }));
+  return (
+    <>
+      {groups.map((g) => (
+        <div key={g.title} className="ft-col">
+          <h2 className="ft-h">{g.title}</h2>
+          <ul>{g.links.map((l) => <li key={l.href}><FootA l={l} /></li>)}</ul>
+        </div>
+      ))}
+      {groups.map((g) => (
+        <details key={g.title} className="ft-acc">
+          <summary><span>{g.title}</span><svg className="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg></summary>
+          <ul>{g.links.map((l) => <li key={l.href}><FootA l={l} /></li>)}</ul>
+        </details>
+      ))}
+    </>
+  );
+}
+
+async function GroupsNow() {
+  return <Groups news={(await getNews()).on} />;
+}
+
+/** One sentence in the fine print while picks exist: what they are, as /terms says. */
+async function PicksFine() {
+  return (await getNews()).on ? <> Free picks win nothing: no purchase, no prize, no payout. They count only on the leaderboard.</> : null;
+}
 
 function FootA({ l }: { l: FootLink }) {
   return l.out
@@ -117,18 +149,7 @@ export function Footer() {
             <Suspense fallback={<TopicList counts={null} />}><Topics /></Suspense>
           </section>
           <nav className="ft-groups" aria-label="Footer">
-            {GROUPS.map((g) => (
-              <div key={g.title} className="ft-col">
-                <h2 className="ft-h">{g.title}</h2>
-                <ul>{g.links.map((l) => <li key={l.href}><FootA l={l} /></li>)}</ul>
-              </div>
-            ))}
-            {GROUPS.map((g) => (
-              <details key={g.title} className="ft-acc">
-                <summary><span>{g.title}</span><svg className="chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg></summary>
-                <ul>{g.links.map((l) => <li key={l.href}><FootA l={l} /></li>)}</ul>
-              </details>
-            ))}
+            <Suspense fallback={<Groups news={false} />}><GroupsNow /></Suspense>
           </nav>
         </div>
 
@@ -146,7 +167,7 @@ export function Footer() {
         </div>
 
         <p className="ft-fine">
-          <b>Runs on NEAR. Paid in USDC.</b> Priced In is a micro-stakes research preview on NEAR mainnet. Bets are in USDC and settle in the public contract <a href={CONTRACT_URL} target="_blank" rel="noopener">{MARKET_ID}</a>. Real-money trading isn’t available in the US or other <Link href="/terms#regions" prefetch={false}>restricted regions</Link>. The free $1 is free play: its winnings are score and can’t be cashed out. Rulings are made by AI models and can be wrong, and any ruling can be disputed with a bond inside its window. Trading involves risk of loss. See our <Link href="/terms" prefetch={false}>Terms</Link> and <Link href="/privacy" prefetch={false}>Privacy</Link>.
+          <b>Runs on NEAR. Paid in USDC.</b> Priced In is a micro-stakes research preview on NEAR mainnet. Bets are in USDC and settle in the public contract <a href={CONTRACT_URL} target="_blank" rel="noopener">{MARKET_ID}</a>. Real-money trading isn’t available in the US or other <Link href="/terms#regions" prefetch={false}>restricted regions</Link>. The free $1 is free play: its winnings are score and can’t be cashed out.<Suspense fallback={null}><PicksFine /></Suspense> Rulings are made by AI models and can be wrong, and any ruling can be disputed with a bond inside its window. Trading involves risk of loss. See our <Link href="/terms" prefetch={false}>Terms</Link> and <Link href="/privacy" prefetch={false}>Privacy</Link>.
         </p>
         <p className="ft-fine">Facts quote Wikipedia, whose text is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>.</p>
       </div>

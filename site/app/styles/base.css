@@ -60,6 +60,9 @@ main.wrap { flex: 1; padding-bottom: 56px; }
 .btn.soft { background: var(--surface2); color: var(--ink); }
 .btn.soft:hover:not(:disabled) { background: var(--surface3); }
 .btn.lg { height: 52px; font-size: 16px; padding: 0 26px; }
+.btn.sm { height: 38px; font-size: 14px; padding: 0 14px; gap: 6px; }
+.btn.sm .ic { width: 16px; height: 16px; }
+@media (max-width: 760px) { .btn.sm { height: 44px; } }
 .btn.yesfill { background: var(--yes-fill); color: var(--yes-ink); }
 .btn.nofill { background: var(--no-fill); color: var(--no-ink); }
 .iconbtn { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--ink2); flex: none; }

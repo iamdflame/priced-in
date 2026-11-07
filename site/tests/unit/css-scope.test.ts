@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 const DIR = join(dirname(fileURLToPath(import.meta.url)), "../../app/styles");
 
 /** Loaded on every page, in a fixed order, and meant to be shared. */
-const SHARED = new Set(["tokens.css", "base.css", "shell.css", "instruments.css", "cards.css", "kit.css", "feedback.css"]);
+const SHARED = new Set(["tokens.css", "base.css", "shell.css", "instruments.css", "cards.css", "kit.css", "feedback.css", "today.css"]);
 /** Each route's sheet and the class on its <main>. */
 const SCOPED: Record<string, string> = { "home.css": "home", "market.css": "market", "receipt.css": "market", "pages.css": "pg" };
 

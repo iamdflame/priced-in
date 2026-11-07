@@ -8,6 +8,7 @@ import { TopicIcon } from "./Brand";
 import { Spark } from "./Chart";
 import { WhyEstimate } from "./Explain";
 import { Icon } from "./Icon";
+import { PickButtons } from "./today/PickButtons";
 import { money, plural } from "@/lib/format";
 import { priceWords, type Fact } from "@/lib/model";
 import { payoutWords } from "@/lib/quote";
@@ -45,8 +46,10 @@ function PctOnArt({ f, reopened }: { f: Fact; reopened: boolean }) {
 
 const sparkLabel = (f: Fact) => `${plural(f.trades, "bet")}: ${Math.round((f.openPrice ?? f.price) * 100)}% at the start, ${Math.round(f.price * 100)}% now`;
 
-export function FactCard({ f, points, reopened = false, eager = false }: {
+export function FactCard({ f, points, reopened = false, eager = false, picks = false }: {
   f: Fact; points?: [number, number][]; reopened?: boolean; eager?: boolean;
+  /** today's news is on: Yes and No are a free pick, as on every card of the page */
+  picks?: boolean;
 }) {
   const href = `/c/${f.id}`;
   const settled = f.status === "settled";
@@ -71,11 +74,13 @@ export function FactCard({ f, points, reopened = false, eager = false }: {
         )}
         {settled ? (
           <div className="result"><span>The AI judges ruled it <b className={f.outcome ? "pos" : "neg"}>{f.outcome ? "true" : "false"}</b></span><Link className="link" href={href}>See the ruling</Link></div>
+        ) : picks && f.status === "open" ? (
+          <PickButtons id={f.id} question={f.question} quotes={f.quotes} />
         ) : (
           <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
         )}
         <div className="meta">
-          <span>{settled ? "Decided" : f.quotes ? payoutWords(f.quotes.yes).wrong : ""}</span>
+          <span>{settled ? "Decided" : picks && f.status === "open" ? "Free pick · wins nothing" : f.quotes ? payoutWords(f.quotes.yes).wrong : ""}</span>
           <span>{f.trades ? `${plural(f.trades, "bet")} · ${money(f.volumeUsd)}` : "Be the first to bet"}</span>
         </div>
       </div>

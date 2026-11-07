@@ -12,6 +12,21 @@ export const NAV: NavItem[] = [
   { href: "/how", label: "How it works", icon: "info" },
 ];
 
+/**
+ * With today's news on (the API answers /api/today), the leaderboard takes the AI traders' place in the
+ * header and the phone bar: it sets people and the three AI traders side by side, and links each AI to
+ * its page. With it off, the list is NAV as it was: no link to a page that would 404.
+ */
+export const NEWS_NAV: NavItem[] = [
+  NAV[0],
+  { href: "/leaderboard", label: "Leaderboard", icon: "board", phone: true },
+  NAV[1],
+  NAV[3],
+  NAV[4],
+];
+
+export const navFor = (news: boolean) => (news ? NEWS_NAV : NAV);
+
 /** The replay of the complete mainnet run: every "watch a replay" link goes here. */
 export const REPLAY_HREF = "/c/18?recorded=1";
 

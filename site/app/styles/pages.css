@@ -428,7 +428,8 @@
 &.narrow { max-width: 860px; }
 .pagetitle { font: 700 34px/1.1 var(--disp); letter-spacing: -.026em; margin: 22px 0 14px; }
 .shelf { margin-top: 16px; }
-.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+/* a column of blocks (/developers); only on a div, so a stacked table (.board.stack) stays a table on desktop */
+div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .sk-stack { display: flex; flex-direction: column; gap: 12px; }
 .sk-top { margin-top: 16px; }
 .attribution { padding: 0 30px 22px; }
@@ -579,4 +580,102 @@
   .how-close h2 { font-size: 32px; }
   .how-close .btn { width: 100%; }
 }
+
+/* /how, while the API has today's news on: the daily loop and a third way to play */
+.how-ways.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.how-who.six { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 0 22px; }
+@media (max-width: 1100px) { .how-who.six { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 22px; } }
+@media (max-width: 860px) { .how-who.six { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
+.how-loop { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 16px; counter-reset: none; }
+.how-loop li { display: flex; flex-direction: column; gap: 8px; padding: 20px; border-radius: var(--r-lg); background: var(--panel); box-shadow: var(--card-shadow); }
+.how-loop .n { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; background: var(--surface2); font: 700 14px var(--disp); color: var(--ink); }
+.how-loop li:first-child .n { background: var(--brand); color: var(--brand-ink); }
+.how-loop h3 { font: 700 19px/1.2 var(--disp); letter-spacing: -.012em; }
+.how-loop p { font-size: 14.5px; line-height: 1.55; color: var(--ink2); text-wrap: pretty; }
+.how-claim { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; padding: 12px 14px; border-radius: 14px; background: var(--surface2); }
+.how-claim b { font: 600 15px/1.3 var(--disp); color: var(--ink); }
+.how-claim small { font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.how-catch { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; padding: 18px 20px; }
+.how-catch > .ic { width: 20px; height: 20px; margin-top: 2px; color: var(--ink2); }
+.how-catch p { font-size: 15px; line-height: 1.55; color: var(--ink2); max-width: 90ch; }
+.how-catch b { color: var(--ink); }
+@media (max-width: 1240px) {
+  .how-loop { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 860px) {
+  .how-ways.three, .how-loop { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* /leaderboard: people and the three AI traders in one table, you beside it */
+.lb-top { display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; flex-wrap: wrap; margin: 24px 0 12px; }
+.lb-sum { font-size: 14px; line-height: 1.45; color: var(--ink2); }
+.lb-sum b { color: var(--ink); font-weight: 600; }
+.lb-grid { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px; align-items: start; }
+.lb-who { display: flex; align-items: center; min-width: 0; }
+.lb-rk { flex: none; width: 52px; font: 700 17px var(--disp); color: var(--ink3); font-feature-settings: 'tnum'; }
+.lbt td.n { font: 600 17px var(--disp); color: var(--ink); }
+.lbt td.n small { display: block; margin-top: 2px; font: 400 12px var(--text); color: var(--ink3); white-space: nowrap; }
+.lbt tr.me td { background: var(--surface2); }
+.lbt tr.unranked td.n { color: var(--ink2); }
+.lbt .who a:hover { color: var(--brand-text); }
+.lb-av { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border-radius: 50%; background: var(--surface3); font: 700 15px var(--disp); color: var(--ink); }
+.lb-av.ai { background: var(--surface2); color: var(--ink2); box-shadow: inset 0 0 0 1px var(--line); }
+.lb-av .ic { width: 18px; height: 18px; }
+.lb-av.you { background: var(--ink); color: var(--bg); }
+.youtag { display: inline-flex; align-items: center; height: 20px; margin-left: 8px; padding: 0 8px; border-radius: 999px; background: var(--ink); color: var(--bg); font: 600 11.5px var(--text); vertical-align: 2px; }
+.lb-empty td { padding: 16px; font-size: 14px; line-height: 1.5; color: var(--ink2); }
+.lb-empty b { color: var(--ink); }
+.lb-sep td { padding: 9px 16px; font-size: 12.5px; color: var(--ink3); background: var(--surface2); }
+.lb-side { position: sticky; top: 84px; padding: 18px; }
+.lb-you-k { font: 600 18px var(--disp); color: var(--ink); }
+.lb-you-s { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 10px 0 16px; }
+.lb-you-s dt { font-size: 12px; color: var(--ink3); }
+.lb-you-s dd { margin: 2px 0 0; font: 700 24px/1.1 var(--disp); letter-spacing: -.02em; color: var(--ink); }
+.lb-you-s dd.sub { font: 400 12px/1.3 var(--text); letter-spacing: 0; color: var(--ink3); }
+.lb-you-none { margin: 8px 0 16px; font-size: 14px; line-height: 1.5; color: var(--ink2); }
+.lb-nick label { font-size: 13px; font-weight: 600; color: var(--ink2); }
+.lb-nick-row { display: flex; gap: 8px; margin-top: 6px; }
+.lb-nick input { flex: 1; min-width: 0; height: 44px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--surface2); color: var(--ink); font: 400 15px var(--text); }
+.lb-nick input::placeholder { color: var(--ink3); opacity: 1; }
+.lb-nick input:focus { outline: 2px solid var(--focus); outline-offset: 0; background: var(--surface); }
+.lb-nick .btn { flex: none; }
+.lb-nick-m { margin-top: 6px; font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.lb-nick-m.ok { color: var(--yes); }
+.lb-nick-m.bad { color: var(--no); }
+.lb-totals { margin-top: 10px; }
+.lb-rules { margin-top: 24px; }
+.lb-rules h2 { margin-bottom: 10px; font: 600 19px var(--disp); }
+.lb-rules ul { display: flex; flex-direction: column; gap: 8px; font-size: 14.5px; line-height: 1.55; color: var(--ink2); }
+.lb-rules b { color: var(--ink); font-weight: 600; }
+@media (max-width: 1000px) {
+  .lb-grid { grid-template-columns: minmax(0, 1fr); }
+  .lb-side { position: static; }
+}
+@media (max-width: 760px) {
+  .lb-rk { width: 44px; font-size: 15px; }
+  .lbt td.n small { display: inline; margin: 0 0 0 6px; }
+}
+
+/* /rulings: what each challenge's receipts were, and what the Sentinel did */
+.rcpt { margin-top: 6px; font-size: 12.5px; }
+.rcpt summary { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 2px 12px; min-height: 28px; cursor: pointer; list-style: none; }
+.rcpt summary::-webkit-details-marker { display: none; }
+.rcpt summary:hover .rcpt-k { text-decoration: underline; text-underline-offset: 3px; }
+.rcpt-k { display: inline-flex; align-items: center; gap: 5px; font-weight: 600; }
+.rcpt-k .ic { width: 14px; height: 14px; stroke-width: 2.6; }
+.rcpt.ok .rcpt-k { color: var(--yes); }
+.rcpt.bad .rcpt-k { color: var(--no); }
+.rcpt.none .rcpt-k { color: var(--ink3); }
+.rcpt-s { color: var(--ink3); }
+.rcpt-b { display: flex; flex-direction: column; gap: 6px; margin-top: 6px; padding: 10px 12px; border-radius: 12px; background: var(--surface2); font-size: 13px; line-height: 1.45; color: var(--ink2); }
+.rcpt-q, .rcpt-src { display: flex; flex-direction: column; gap: 4px; }
+.rcpt-q li { display: flex; gap: 6px; align-items: flex-start; }
+.rcpt-q .ic { width: 14px; height: 14px; margin-top: 2px; stroke-width: 2.6; }
+.rcpt-q .ok .ic { color: var(--yes); }
+.rcpt-q .bad .ic { color: var(--no); }
+.rcpt-src li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 2px 12px; }
+.rcpt-src a { color: var(--brand-text); }
+.rcpt-src .mono, .rcpt-rec .mono { font-size: 12px; }
+p.rcpt.none { display: flex; gap: 6px; align-items: center; color: var(--ink3); }
+p.rcpt .ic { width: 14px; height: 14px; }
 }

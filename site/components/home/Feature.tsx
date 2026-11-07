@@ -9,6 +9,7 @@ import { Dial } from "../Dial";
 import { WhyEstimate, WrongExplain } from "../Explain";
 import { Icon } from "../Icon";
 import { FreeCashNote } from "../Live";
+import { PickButtons } from "../today/PickButtons";
 import { bettor, type Bet } from "@/lib/bets";
 import { money, plural } from "@/lib/format";
 import { priceWords, type Fact } from "@/lib/model";
@@ -18,7 +19,7 @@ function LastBet({ b }: { b: Bet }) {
   return <li>{bettor(b)} · {b.free ? "free $1" : money(b.usd)} on <b className={b.side === "yes" ? "pos" : "neg"}>{b.side === "yes" ? "Yes" : "No"}</b></li>;
 }
 
-export function Feature({ f, points, bets }: { f: Fact; points: [number, number][]; bets: Bet[] }) {
+export function Feature({ f, points, bets, picks = false }: { f: Fact; points: [number, number][]; bets: Bet[]; picks?: boolean }) {
   const words = priceWords(f);
   const pct = Math.round(f.price * 100);
   return (
@@ -36,8 +37,17 @@ export function Feature({ f, points, bets }: { f: Fact; points: [number, number]
           <div className="feature-dial phone"><Dial p={f.price} sizes="96px" /><p className="mini">chance it’s true</p></div>
         </div>
         {f.caught?.line && <p className="ev hide-phone"><Icon name="flag" /><span>A newer source says {f.caught.line}.</span></p>}
-        <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
-        <p className="payline">{f.quotes ? `${payoutWords(f.quotes.yes).wrong}. ` : ""}<FreeCashNote /></p>
+        {picks ? (
+          <>
+            <PickButtons id={f.id} question={f.question} quotes={f.quotes} size="lead" />
+            <p className="payline">Picks are free and win nothing. To win something, back yours with the free $1 or USDC on its page.</p>
+          </>
+        ) : (
+          <>
+            <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
+            <p className="payline">{f.quotes ? `${payoutWords(f.quotes.yes).wrong}. ` : ""}<FreeCashNote /></p>
+          </>
+        )}
       </div>
       <div className="fside">
         <div className="feature-dial"><Dial p={f.price} sizes="150px" priority /><p className="mini">chance it’s true</p></div>
