@@ -43,7 +43,7 @@ export const OPENED_SECTION = "Opened since this revision";
 const MODEL_WORDS = new Set(["signed", "unsigned"]);
 /** The sweep gives a paragraph whose last try came to nothing this long before the next. */
 export const RETRY_AFTER_MS = H;
-const SWEEP_MARGIN_MS = 45_000; // a rewrite and its anchor, inside the run's time
+const SWEEP_MARGIN_MS = 30_000; // a rewrite and its anchor, inside the run's time
 
 const whole = (v, min, max, d) => (v !== undefined && v !== "" && Number.isInteger(Number(v)) && Number(v) >= min && Number(v) <= max ? Number(v) : d);
 

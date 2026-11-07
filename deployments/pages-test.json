@@ -1,0 +1,2250 @@
+{
+ "summary": {
+  "at": "2026-11-07T15:35:00.664Z",
+  "model": "z-ai/glm-5.3-flash",
+  "prompt": "page-1",
+  "market": "market.isitpriced.near",
+  "note": "Off-chain: nothing was anchored, opened or stored.",
+  "live_pages": 10,
+  "paragraphs": 399,
+  "priced_sentences": 32,
+  "rewrites": 15,
+  "sentences_written": 17,
+  "passed_first_time": 15,
+  "passed_after_retry": 0,
+  "fell_back_to_template": 0,
+  "signed": 15,
+  "unsigned": 0,
+  "other": 0,
+  "usd_total": 0.001794,
+  "usd_per_rewrite": 0.00012,
+  "usd_per_rewrite_max": 0.000161,
+  "ms_per_rewrite_avg": 2669,
+  "tokens_per_rewrite": {
+   "prompt": 1113,
+   "completion": 61
+  },
+  "full_sweep_usd": 0.001794,
+  "band_cases": {
+   "assert at 95%": {
+    "requests": 28,
+    "passed": 28
+   },
+   "hedge at 76%": {
+    "requests": 18,
+    "passed": 18
+   },
+   "hedge at 62%": {
+    "requests": 18,
+    "passed": 18
+   },
+   "disputed at 50%": {
+    "requests": 28,
+    "passed": 28
+   },
+   "hedge at 42%": {
+    "requests": 18,
+    "passed": 18
+   },
+   "negate at 20%": {
+    "requests": 28,
+    "passed": 28
+   }
+  },
+  "band_requests": 138,
+  "band_passed": 138,
+  "spent_usd_all": 0.018042,
+  "model_calls": 153,
+  "pages": [
+   {
+    "slug": "tether",
+    "paragraphs": 52,
+    "written_by_ai": 10,
+    "sentences": 190,
+    "facts_priced": 20,
+    "facts_decided": 0,
+    "facts_no_bets": 7,
+    "rewrites": 9,
+    "signed": 9,
+    "anchored": 0,
+    "last_changed": 1794065569525,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "prediction-market",
+    "paragraphs": 69,
+    "written_by_ai": 4,
+    "sentences": 238,
+    "facts_priced": 4,
+    "facts_decided": 0,
+    "facts_no_bets": 2,
+    "rewrites": 2,
+    "signed": 2,
+    "anchored": 0,
+    "last_changed": 1794065573744,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "bitcoin",
+    "paragraphs": 61,
+    "written_by_ai": 0,
+    "sentences": 218,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 1,
+    "rewrites": 0,
+    "signed": 0,
+    "anchored": 0,
+    "last_changed": null,
+    "models": []
+   },
+   {
+    "slug": "dai",
+    "paragraphs": 10,
+    "written_by_ai": 1,
+    "sentences": 36,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 0,
+    "rewrites": 1,
+    "signed": 1,
+    "anchored": 0,
+    "last_changed": 1794065575333,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "defi",
+    "paragraphs": 31,
+    "written_by_ai": 1,
+    "sentences": 107,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 0,
+    "rewrites": 1,
+    "signed": 1,
+    "anchored": 0,
+    "last_changed": 1794065577863,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "ethereum",
+    "paragraphs": 55,
+    "written_by_ai": 1,
+    "sentences": 187,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 1,
+    "rewrites": 0,
+    "signed": 0,
+    "anchored": 0,
+    "last_changed": 1793946006006,
+    "models": []
+   },
+   {
+    "slug": "near",
+    "paragraphs": 6,
+    "written_by_ai": 1,
+    "sentences": 22,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 0,
+    "rewrites": 1,
+    "signed": 1,
+    "anchored": 0,
+    "last_changed": 1794065584014,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "polymarket",
+    "paragraphs": 39,
+    "written_by_ai": 1,
+    "sentences": 136,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 0,
+    "rewrites": 1,
+    "signed": 1,
+    "anchored": 0,
+    "last_changed": 1794065585840,
+    "models": [
+     "z-ai/glm-5.3-flash"
+    ]
+   },
+   {
+    "slug": "stablecoin",
+    "paragraphs": 65,
+    "written_by_ai": 1,
+    "sentences": 197,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 1,
+    "rewrites": 0,
+    "signed": 0,
+    "anchored": 0,
+    "last_changed": 1793955603296,
+    "models": []
+   },
+   {
+    "slug": "uniswap",
+    "paragraphs": 11,
+    "written_by_ai": 1,
+    "sentences": 35,
+    "facts_priced": 1,
+    "facts_decided": 0,
+    "facts_no_bets": 0,
+    "rewrites": 0,
+    "signed": 0,
+    "anchored": 0,
+    "last_changed": 1793950803281,
+    "models": []
+   }
+  ]
+ },
+ "rewrites": [
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000123,
+   "prompt_tokens": 1110,
+   "completion_tokens": 69,
+   "ms": 6363,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 0,
+     "band": "hedge",
+     "probability": 0.812,
+     "claim": "It is represented by its currency codes USD₮ and USDT.",
+     "text": "It is probably represented by its currency codes USD₮ and USDT."
+    },
+    {
+     "claim_id": 1,
+     "band": "hedge",
+     "probability": 0.794,
+     "claim": "Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies.",
+     "text": "Tether is thought to be the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000141,
+   "prompt_tokens": 1118,
+   "completion_tokens": 103,
+   "ms": 2090,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 2,
+     "band": "disputed",
+     "probability": 0.459,
+     "claim": "As of July 2024, Tether has more than 350 million users worldwide.",
+     "text": "It is disputed whether, as of July 2024, Tether had more than 350 million users worldwide."
+    },
+    {
+     "claim_id": 3,
+     "band": "hedge",
+     "probability": 0.745,
+     "claim": "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange.",
+     "text": "Tether Limited appears to be owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000101,
+   "prompt_tokens": 1060,
+   "completion_tokens": 32,
+   "ms": 2187,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 4,
+     "band": "hedge",
+     "probability": 0.669,
+     "claim": "Tether Holdings Limited is headquartered in El Salvador as of January 2025.",
+     "text": "Tether Holdings Limited is apparently headquartered in El Salvador as of January 2025."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000107,
+   "prompt_tokens": 1121,
+   "completion_tokens": 35,
+   "ms": 2486,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 5,
+     "band": "hedge",
+     "probability": 0.599,
+     "claim": "Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited.",
+     "text": "Tether Limited is reportedly a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000161,
+   "prompt_tokens": 1282,
+   "completion_tokens": 117,
+   "ms": 2825,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 7,
+     "band": "negate",
+     "probability": 0.359,
+     "claim": "There are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network.",
+     "text": "Traders doubt that there are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000121,
+   "prompt_tokens": 1159,
+   "completion_tokens": 57,
+   "ms": 1521,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 9,
+     "band": "hedge",
+     "probability": 0.424,
+     "claim": "As of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims.",
+     "text": "As of September 2024, it is uncertain whether the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000101,
+   "prompt_tokens": 1062,
+   "completion_tokens": 33,
+   "ms": 1620,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 10,
+     "band": "disputed",
+     "probability": 0.524,
+     "claim": "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer.",
+     "text": "It is disputed whether Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 27,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000123,
+   "prompt_tokens": 1108,
+   "completion_tokens": 69,
+   "ms": 2831,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 12,
+     "band": "negate",
+     "probability": 0.3,
+     "claim": "As of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion.",
+     "text": "Traders doubt that, as of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion."
+    }
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000106,
+   "prompt_tokens": 1086,
+   "completion_tokens": 39,
+   "ms": 1748,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 14,
+     "band": "hedge",
+     "probability": 0.631,
+     "claim": "They are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron.",
+     "text": "They are reportedly issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+    }
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.00011,
+   "prompt_tokens": 1098,
+   "completion_tokens": 44,
+   "ms": 2471,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 25,
+     "band": "correct",
+     "probability": 0.313,
+     "claim": "However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025.",
+     "text": "However, according to Polymarket, it is blocked in Alberta, British Columbia, Ontario and Quebec."
+    }
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000098,
+   "prompt_tokens": 1021,
+   "completion_tokens": 33,
+   "ms": 1589,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 30,
+     "band": "hedge",
+     "probability": 0.848,
+     "claim": "Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain.",
+     "text": "Augur is probably a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+    }
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000136,
+   "prompt_tokens": 1159,
+   "completion_tokens": 86,
+   "ms": 2530,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 26,
+     "band": "correct",
+     "probability": 0.678,
+     "claim": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts.",
+     "text": "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization; according to Sky, SKY has been voted in as the sole governance token of the Sky Protocol, and its owners may propose and vote on changes to certain parameters in its smart contracts."
+    }
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.00014,
+   "prompt_tokens": 1130,
+   "completion_tokens": 99,
+   "ms": 6151,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 27,
+     "band": "correct",
+     "probability": 0.258,
+     "claim": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols.",
+     "text": "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged about $78 billion a week in June 2025 according to DefiLlama, and about $67 billion a week in Q2 2025 according to CoinGecko, with more than 9.7 million unique wallets interacting with DeFi protocols."
+    }
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000108,
+   "prompt_tokens": 1071,
+   "completion_tokens": 45,
+   "ms": 1826,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 29,
+     "band": "hedge",
+     "probability": 0.66,
+     "claim": "It was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020.",
+     "text": "It was reportedly founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+    }
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "status": "signed",
+   "calls": 1,
+   "passed_first_time": true,
+   "first_reply_old_check": null,
+   "first_reply_page_check": null,
+   "usd": 0.000118,
+   "prompt_tokens": 1113,
+   "completion_tokens": 57,
+   "ms": 1799,
+   "reason": null,
+   "sentences": [
+    {
+     "claim_id": 28,
+     "band": "negate",
+     "probability": 0.369,
+     "claim": "0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money.",
+     "text": "Traders doubt that 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+    }
+   ]
+  }
+ ],
+ "bands": [
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is represented by its currency codes USD₮ and USDT.",
+    "Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is reportedly represented by its currency codes USD₮ and USDT.",
+    "It is uncertain whether Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is reportedly represented by its currency codes USD₮ and USDT.",
+    "Tether is said to be the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether it is represented by its currency codes USD₮ and USDT.",
+    "It is disputed whether Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is probably represented by its currency codes USD₮ and USDT.",
+    "Tether is thought to be the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2024, Tether is believed to have had more than 350 million users worldwide.",
+    "Tether Limited appears to be owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 0,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that it is represented by its currency codes USD₮ and USDT.",
+    "Traders doubt that Tether is the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2024, Tether has more than 350 million users worldwide.",
+    "Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2024, Tether is reported to have more than 350 million users worldwide.",
+    "According to reports, Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of July 2024, Tether had more than 350 million users worldwide.",
+    "It is disputed whether Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Holdings Limited is generally understood to be headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2024, it is unclear whether Tether had more than 350 million users worldwide.",
+    "Tether Limited is said to be owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Holdings Limited is headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Holdings Limited is apparently headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 1,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that as of July 2024, Tether has more than 350 million users worldwide.",
+    "Traders doubt that Tether Limited is owned by iFinex, a company based in the British Virgin Islands which also operates the Bitfinex cryptocurrency exchange."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Holdings Limited is reportedly headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Limited is probably a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Tether Holdings Limited is headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 5,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Tether Holdings Limited is headquartered in El Salvador as of January 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether Limited is reportedly a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is uncertain whether Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 6,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Tether Limited is a fully owned subsidiary of British Virgin Islands–based Tether Holdings Limited."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron; according to Tether, checked 2026-11-05, it is no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand.",
+    "There are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "There are reportedly a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron, and that, according to Tether, checked 2026-11-05, it is no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand.",
+    "Traders doubt that there are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "There are believed to be a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "There are said to be a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 7,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Tether issues tokens on Algorand, Avalanche, Celo, Ethereum, EOS, Liquid Network, Near, Polygon, Solana, Bitcoin Cash's Standard Ledger Protocol, Statemint, Tezos, and Tron; according to Tether, checked 2026-11-05, it is no longer issuing on Kusama, Bitcoin Cash SLP, Omni, EOS and Algorand.",
+    "It is disputed whether there are a total of five distinct Tether tokens: United States dollar tether (USD₮) on bitcoin's Omni layer, euro tether (EUR₮) on bitcoin's Omni layer, United States dollar tether (USD₮) as an ERC-20 token, and euro tether (EUR₮) as an ERC-20 token, and added in 2020 United States dollar tether (USD₮) as a TRC-20 token on the TRON network."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2021, Tether is tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of July 2021, Tether is tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2021, Tether appears to be tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2021, Tether is reportedly tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of July 2021, Tether was reportedly tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 11,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, as of July 2021, Tether is tied to half of all bitcoin trades."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of September 2024, the Tether-initiated T3 Financial Crime Unit had reportedly frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of September 2024, the Tether-initiated T3 Financial Crime Unit is generally understood to have frozen about $12 million in USDT linked to scams and fraud, and to have identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Cantor Fitzgerald reportedly serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Cantor Fitzgerald probably serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of September 2024, it is uncertain whether the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 18,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that as of September 2024, the Tether-initiated T3 Financial Crime Unit had frozen about $12 million in USDT linked to scams and fraud, and had identified eleven victims."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is unclear whether Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 24,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Cantor Fitzgerald serves as its reserve custodian and preferred primary dealer."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Anchorage Digital Bank is thought to also serve as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Anchorage Digital Bank is said to also serve as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Anchorage Digital Bank is said to also serve as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 25,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Anchorage Digital Bank also serves as the issuer of Tether's U.S.-focused stablecoin, USAT."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 27,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "They are apparently issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "They are generally understood to be issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
+    "They are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 27,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, as of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 27,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of 30 June 2026, Tether reported approximately $187.8 billion in assets and $183.6 billion in liabilities, with its reserves exceeding liabilities by approximately $4.11 billion."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is unclear whether they are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 36,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "According to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 36,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, according to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
+    "It is disputed whether they are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 30,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 2,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that each XAU₮ token purports to represent ownership of one troy fine ounce of physical gold stored in vaults in Switzerland.",
+    "Traders doubt that they are issued as both an ERC-20 token on Ethereum and a TRC-20 token on Tron."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 37,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether claims its tokens are backed 100% by reserve assets, but has faced scrutiny for failing to publish an external audit."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 37,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Tether's tokens are backed 100% by reserve assets, and it has faced scrutiny for failing to publish an external audit."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 37,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Tether's tokens are backed 100% by reserve assets and that it has faced scrutiny for failing to publish an external audit."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 36,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, according to Tether's website, Tether can be newly issued by purchase for dollars or redeemed by exchanges and qualified corporate customers, excluding U.S.-based customers."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether is believed to have not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Tether is reported to have not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is uncertain whether Tether has publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 42,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Tether has not publicly presented audits showing that the amount of USDT outstanding are backed one-to-one by reserve assets."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "If Tether were a country, it is generally understood to be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "If Tether were a country, it would be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 44,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 44,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that the majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 44,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether the majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "However, Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, if Tether were a country, it would be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "If Tether were a country, it would reportedly be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, if Tether were a country, it would be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "tether",
+   "paragraph": 45,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "If Tether were a country, it is said to be the 18th largest holder of U.S. debt among nations."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "However, Polymarket has probably operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "However, Polymarket has reportedly operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "However, it is uncertain whether Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 51,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "However, it is disputed whether Polymarket has operated in all of Canada besides Ontario, from which it was banned in 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Augur is reportedly a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Augur is probably a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is unclear whether Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 61,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Polymarket is a decentralized prediction market built on the Polygon Chain that, according to Polymarket as checked on 2026-11-05, uses pUSD, backed by USDC, as the collateral for all trading."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 59,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Augur is a now-defunct decentralized prediction market platform built on the Ethereum blockchain."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 60,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Kalshi is a U.S. CFTC-regulated betting market, and according to Kalshi as checked on 2026-11-05, users can trade from many countries, with 140+ countries announced in October 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 60,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether Kalshi is a U.S. CFTC-regulated betting market and, according to Kalshi as checked on 2026-11-05, users can trade from many countries, with 140+ countries announced in October 2025."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 60,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Kalshi is a U.S. CFTC-regulated betting market and that, according to Kalshi as checked on 2026-11-05, users can trade from many countries, with 140+ countries announced in October 2025."
+   ]
+  },
+  {
+   "page": "bitcoin",
+   "paragraph": 29,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is estimated that around 20% of all bitcoins are lost."
+   ]
+  },
+  {
+   "page": "bitcoin",
+   "paragraph": 29,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether around 20% of all bitcoins are lost."
+   ]
+  },
+  {
+   "page": "bitcoin",
+   "paragraph": 29,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that around 20% of all bitcoins are lost."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 61,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that Polymarket is a decentralized prediction market built on the Polygon Chain that, according to Polymarket as checked on 2026-11-05, uses pUSD, backed by USDC, as the collateral for all trading."
+   ]
+  },
+  {
+   "page": "prediction-market",
+   "paragraph": 61,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Polymarket is a decentralized prediction market built on the Polygon Chain that, according to Polymarket as checked on 2026-11-05, uses pUSD, backed by USDC, as the collateral for all trading, though this is disputed."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is unclear whether DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "DAI is thought to be maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "DAI is said to be maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of mid-2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of mid-2025, weekly trading volume on decentralized exchanges (DEXs) probably averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "dai",
+   "paragraph": 0,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that DAI is maintained and regulated by MakerDAO, a decentralized autonomous organization composed of the owners of its governance token, MKR, who may propose and vote on changes to certain parameters in its smart contracts."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of mid-2025, weekly trading volume on decentralized exchanges (DEXs) is reported to have averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, as of mid-2025, weekly trading volume on decentralized exchanges (DEXs) averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "ethereum",
+   "paragraph": 50,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of January 2016, Etherscan's daily counts put Ethereum at about 0.15 transactions per second, rising to about 23 to 25 per second as of 5 November 2026; this did not change after the move to proof-of-stake."
+   ]
+  },
+  {
+   "page": "ethereum",
+   "paragraph": 50,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of January 2016, Etherscan's daily counts put Ethereum at about 0.15 transactions per second, rising to about 23 to 25 per second as of 5 November 2026, though whether this changed after the move to proof-of-stake is disputed."
+   ]
+  },
+  {
+   "page": "ethereum",
+   "paragraph": 50,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, as of January 2016, Etherscan's daily counts put Ethereum at about 0.15 transactions per second, rising to about 23 to 25 per second as of 5 November 2026, and that this did not change after the move to proof-of-stake."
+   ]
+  },
+  {
+   "page": "defi",
+   "paragraph": 18,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of mid‑2025, weekly trading volume on decentralized exchanges (DEXs) is said to have averaged around $18.6 billion, with more than 9.7 million unique wallets interacting with DeFi protocols."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is uncertain whether it was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It was reportedly founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether it was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is generally understood to have been founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "near",
+   "paragraph": 0,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that it was founded in 2018 by Illia Polosukhin and Alexander Skidanov, with mainnet launching in 2020."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.62,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "According to reports, 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.76,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Probably 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "polymarket",
+   "paragraph": 25,
+   "band": "hedge",
+   "price": 0.42,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Reportedly, 0.1% of accounts net 67% of the profits on Polymarket, while more than 70% of users are losing money."
+   ]
+  },
+  {
+   "page": "stablecoin",
+   "paragraph": 26,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, as of November 2026, Tether has completed an audit by an accounting firm: according to Tether, on 13 August 2026 it announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion, though the audit report is not public."
+   ]
+  },
+  {
+   "page": "stablecoin",
+   "paragraph": 26,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "As of November 2026, Tether has completed an audit by an accounting firm: according to Tether, on 13 August 2026 it announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion, though the audit report is not public."
+   ]
+  },
+  {
+   "page": "stablecoin",
+   "paragraph": 26,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, as of November 2026, Tether has completed an audit by an accounting firm: according to Tether, on 13 August 2026 it announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion, though the audit report is not public."
+   ]
+  },
+  {
+   "page": "uniswap",
+   "paragraph": 10,
+   "band": "assert",
+   "price": 0.95,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Per the token's own contract code, checked on 2026-11-05, there is no hard cap: the contract allows a mint of up to 2% a year, with live supply at 1,000,000,000 and a minter address set, supporting ongoing development and ecosystem growth."
+   ]
+  },
+  {
+   "page": "uniswap",
+   "paragraph": 10,
+   "band": "disputed",
+   "price": 0.5,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "It is disputed whether, per the token's own contract code, checked on 2026-11-05, there is no hard cap: the contract allows a mint of up to 2% a year, with live supply at 1,000,000,000 and a minter address set, supporting ongoing development and ecosystem growth."
+   ]
+  },
+  {
+   "page": "uniswap",
+   "paragraph": 10,
+   "band": "negate",
+   "price": 0.2,
+   "sentences": 1,
+   "ok": true,
+   "why": null,
+   "texts": [
+    "Traders doubt that, per the token's own contract code, checked on 2026-11-05, there is no hard cap: that the contract allows a mint of up to 2% a year, with live supply at 1,000,000,000 and a minter address set, supporting ongoing development and ecosystem growth."
+   ]
+  }
+ ]
+}

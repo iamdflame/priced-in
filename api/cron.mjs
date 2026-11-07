@@ -162,7 +162,7 @@ export default async function handler(req, res) {
     }
     const last = newestOutcome(p);
     const newest = Math.max(last.trade, last.rewrite, last.answer);
-    if (layer.writer && Date.now() - newest > 20 * 3600_000 && deadline - Date.now() > 60_000 && p.spend.status().open) {
+    if (layer.writer && !layer.writer.official && Date.now() - newest > 20 * 3600_000 && deadline - Date.now() > 60_000 && p.spend.status().open) { // the page sweep does this job when it is on
       const claims = (await app.claims.all()).filter((c) => c.status === "Open");
       let stalest = null;
       for (const page of [...new Set(claims.map((c) => c.page))].filter((pg) => !isNewsPage(pg))) {

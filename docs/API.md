@@ -667,7 +667,7 @@ Decided lines are stated from the chain, so they change at once and wait for no 
  "stopped":"the sweep stops at 60% of the daily model cap so the jury and the Sentinel keep the rest: $0.60 of $1.00 is spent"}
 ```
 
-A rewrite is one model call of about 1,100 tokens in and 60 out, about $0.00013 at the live price, plus one `anchor_rewrite` of 2.76 Tgas, about 0.00025 NEAR (`deployments/pages-test.json`). The anchor stores a counter and a log line, so the market's storage doesn't grow.
+A rewrite is one model call of about 1,100 tokens in and 60 out, about $0.00012 at the live price, plus one `anchor_rewrite` of 2.76 Tgas, about 0.00025 NEAR (`deployments/pages-test.json`). The anchor stores a counter and a log line, so the market's storage doesn't grow.
 
 #### `GET /api/pages/<slug>`
 
