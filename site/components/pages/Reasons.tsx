@@ -8,6 +8,13 @@ import { Icon } from "../Icon";
 import { explorerTx, money } from "@/lib/format";
 import { isBetSide, type ReasonItem } from "@/lib/reasons";
 
+/** A source's name for the screen: its title, or its host when the title is only the address (a long raw URL overflowed a phone). */
+function sourceName(title: string | null | undefined, url: string): string {
+  const s = (title ?? "").trim();
+  if (s && !/^https?:\/\//i.test(s)) return s;
+  try { return new URL(url).hostname.replace(/^www\./, ""); } catch { return "Its source"; }
+}
+
 function sideWords(r: ReasonItem) {
   if (r.side === "yes") return <span className="chip yes">Bet {money(r.sizeUsd)} on true</span>;
   if (r.side === "no") return <span className="chip no">Bet {money(r.sizeUsd)} on false</span>;
@@ -46,7 +53,7 @@ export function Reasons({ items, limit = 30 }: { items: ReasonItem[]; limit?: nu
               {(r.why || r.tx || r.source) && (
                 <p className="why">
                   {r.why && !isBetSide(r.side) ? <>Why it held off: {r.why}. </> : null}
-                  {r.source ? <a className="link" href={r.source} target="_blank" rel="noopener">{r.sourceTitle ?? "Its source"}</a> : null}
+                  {r.source ? <a className="link" href={r.source} target="_blank" rel="noopener">{sourceName(r.sourceTitle, r.source)}</a> : null}
                   {r.tx ? <> · <a className="link" href={explorerTx(r.tx)} target="_blank" rel="noopener">the bet on NEAR</a></> : null}
                 </p>
               )}

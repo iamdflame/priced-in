@@ -126,6 +126,7 @@
 .rsn .h a.fq:hover { color: var(--brand-text); }
 .rsn .t { font-size: 14.5px; line-height: 1.5; color: var(--ink); margin-top: 6px; text-wrap: pretty; }
 .rsn .why { font-size: 13px; color: var(--ink3); margin-top: 4px; }
+.rsn .why a.link { overflow-wrap: anywhere; }
 .rsn .when { font-size: 12.5px; color: var(--ink3); }
 
 /* Steps (bring your own agent, how it opens) */
