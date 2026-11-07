@@ -185,6 +185,25 @@ export function parseCredence(content, sources) {
 const rid = () => Math.random().toString(36).slice(2, 10);
 const pct = (p) => `${Math.round(p * 100)}%`;
 
+/**
+ * The answers kept in memory for /rationales: the last RATIONALES_PER_CLAIM of every claim, newest last, and no more than
+ * RATIONALES_CAP in all. A global last-500 dropped a settled market's whole discussion within a day (the Tether line,
+ * claim 18, read "Discussion 0" on 7 Nov 2026), because the agents answer every open line every few minutes.
+ */
+export const RATIONALES_PER_CLAIM = 25, RATIONALES_CAP = 5000;
+export function keepRationales(list, { perClaim = RATIONALES_PER_CLAIM, cap = RATIONALES_CAP } = {}) {
+  const seen = new Map();
+  const out = [];
+  for (let i = list.length - 1; i >= 0 && out.length < cap; i--) {
+    const k = list[i]?.claim_id ?? null;
+    const n = seen.get(k) || 0;
+    if (n >= perClaim) continue;
+    seen.set(k, n + 1);
+    out.push(list[i]);
+  }
+  return out.reverse();
+}
+
 export class Crowd {
   /**
    * @param {{ client: object, attestor: object, claims: { one(id: number): Promise<object>, all(): Promise<object[]> }, hub: object,
@@ -216,7 +235,7 @@ export class Crowd {
     this.unheld = 0;
     this.last = new Map(); // `${account}|${claim}` -> ms
     this.busy = new Set();
-    this.rationales = (this.journal?.read() || []).slice(-500);
+    this.rationales = keepRationales(this.journal?.read() || []);
     this.stats = { triggers: 0, evaluations: 0, buys: 0, sells: 0, agrees: 0, noBets: 0, noEdge: 0, errors: 0, cycles: 0, lastRationaleAt: this.rationales.at(-1)?.at || 0, lastCycleAt: 0, lastCycleError: null };
     this.unsub = null;
     this.timers = [];
@@ -475,7 +494,7 @@ export class Crowd {
     const rec = { uid: `rationale:${e.agent.accountId}:${claim.id}:${++this.seq}:${this.now()}`, event: "agent_rationale", source: "ai", data };
     this.hub.publish(rec);
     this.rationales.push(data);
-    if (this.rationales.length > 500) this.rationales.shift();
+    if (this.rationales.length > RATIONALES_CAP + 500) this.rationales = keepRationales(this.rationales);
     this.journal?.append(data);
     this.ledger.recordAction(e.agent.accountId, { kind: act.side, claim_id: claim.id, text: act.text, tx_hash: data.tx_hash, credence: data.credence });
     this.stats.lastRationaleAt = this.now();
