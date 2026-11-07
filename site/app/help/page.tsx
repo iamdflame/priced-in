@@ -8,6 +8,7 @@ import { PageHero, SHead } from "@/components/pages/Kit";
 import { LIMITS } from "@/lib/money/rules";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
 import { getNews } from "@/lib/server/news";
+import { getOfficial } from "@/lib/server/pages";
 
 export const revalidate = 60;
 
@@ -67,6 +68,12 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
   },
 ];
 
+/** Added to "AI and Priced In" while the official pages are on (OFFICIAL_PAGES=1 on the API). */
+const OFFICIAL: QA[] = [
+  { q: "Who writes the encyclopedia pages?", a: <>AI, from the market. Each page starts as Wikipedia’s. A sentence the market is sure of is stated plainly, one it leans on is hedged, and one it doubts says traders doubt it. A line ruled false is corrected from its source, or says it was ruled false. Sentences with no market, and lines nobody has bet on yet, keep Wikipedia’s words. Each rewrite is signed in a TEE by the model that wrote it and put on NEAR, and one tap on the page shows Wikipedia’s words.</> },
+  { q: "Can I reuse the pages?", a: <>Yes. Wikipedia’s text is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>, and the pages rewritten from it are shared under the same licence. Credit Wikipedia’s contributors and link to the revision each page names.</> },
+];
+
 /** Shown while the API has today's news on: picks, the leaderboard and catching a mistake. */
 const PICKS: { id: string; title: string; sub: string; items: QA[] } = {
   id: "picks", title: "Today’s claims and free picks", sub: "Claims from the news, a free call on each, and the leaderboard.",
@@ -82,8 +89,9 @@ const PICKS: { id: string; title: string; sub: string; items: QA[] } = {
 };
 
 export default async function HelpPage() {
-  const news = await getNews();
-  const sections = news.on ? [SECTIONS[0], PICKS, ...SECTIONS.slice(1)] : SECTIONS;
+  const [news, official] = await Promise.all([getNews(), getOfficial()]);
+  const all = official.on ? SECTIONS.map((s) => (s.id === "ai" ? { ...s, sub: "Asking an AI, the AI traders, your own agent, and who writes the pages.", items: [...s.items, ...OFFICIAL] } : s)) : SECTIONS;
+  const sections = news.on ? [all[0], PICKS, ...all.slice(1)] : all;
   return (
     <main id="main" className="wrap pg">
       <PageHero

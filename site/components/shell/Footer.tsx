@@ -10,6 +10,7 @@ import { ThemeToggle } from "./ThemeToggle";
 import { plural } from "@/lib/format";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
 import { getNews } from "@/lib/server/news";
+import { getOfficial } from "@/lib/server/pages";
 import { getSite } from "@/lib/server/site";
 
 const NPM_URL = "https://www.npmjs.com/package/pricedin-mcp";
@@ -77,6 +78,19 @@ function Groups({ news }: { news: boolean }) {
       ))}
     </>
   );
+}
+
+const CC = <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>;
+
+/** Wikipedia's licence, and with the official pages on, the same licence for the AI's text written from it. */
+function Licence({ official }: { official: boolean }) {
+  return official
+    ? <p className="ft-fine">Facts quote Wikipedia, and the encyclopedia’s pages are rewritten from it by AI. Both are available under {CC}.</p>
+    : <p className="ft-fine">Facts quote Wikipedia, whose text is available under {CC}.</p>;
+}
+
+async function LicenceNow() {
+  return <Licence official={(await getOfficial()).on} />;
 }
 
 async function GroupsNow() {
@@ -169,7 +183,7 @@ export function Footer() {
         <p className="ft-fine">
           <b>Runs on NEAR. Paid in USDC.</b> Priced In is a micro-stakes research preview on NEAR mainnet. Bets are in USDC and settle in the public contract <a href={CONTRACT_URL} target="_blank" rel="noopener">{MARKET_ID}</a>. Real-money trading isn’t available in the US or other <Link href="/terms#regions" prefetch={false}>restricted regions</Link>. The free $1 is free play: its winnings are score and can’t be cashed out.<Suspense fallback={null}><PicksFine /></Suspense> Rulings are made by AI models and can be wrong, and any ruling can be disputed with a bond inside its window. Trading involves risk of loss. See our <Link href="/terms" prefetch={false}>Terms</Link> and <Link href="/privacy" prefetch={false}>Privacy</Link>.
         </p>
-        <p className="ft-fine">Facts quote Wikipedia, whose text is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>.</p>
+        <Suspense fallback={<Licence official={false} />}><LicenceNow /></Suspense>
       </div>
     </footer>
   );

@@ -14,6 +14,7 @@ import { arrange, shortDate, type TodayLine } from "@/lib/news";
 import { payoutWords, quoteClaim } from "@/lib/quote";
 import { preBetClaim, REPLAY } from "@/lib/replay/record";
 import { getNews } from "@/lib/server/news";
+import { getOfficial } from "@/lib/server/pages";
 
 export const revalidate = 60;
 
@@ -74,7 +75,8 @@ function DailyLoop({ example }: { example: TodayLine | null }) {
 }
 
 export default async function HowPage() {
-  const news = await getNews();
+  const [news, official] = await Promise.all([getNews(), getOfficial()]);
+  const who = 5 + (news.on ? 1 : 0) + (official.on ? 1 : 0);
   const example = news.on ? (arrange(news.today.lines, Date.now()).lead ?? news.today.lines[0] ?? null) : null;
   const r = (rehearsal.steps as { kind: string; record?: unknown }[]).find((s) => s.kind === "ruling")!.record as Ruling;
   const before = preBetClaim();
@@ -179,7 +181,7 @@ export default async function HowPage() {
           <span className="n" aria-hidden="true">5</span>
           <div className="how-copy">
             <h3>Right answers win, and the fact gets fixed.</h3>
-            <p>It settled {span(r.settled_at - r.opened_at)} after the challenge. The people who bet No were paid, and the corrected sentence opened as a new fact anyone can bet on.</p>
+            <p>It settled {span(r.settled_at - r.opened_at)} after the challenge. The people who bet No were paid, and the corrected sentence opened as a new fact anyone can bet on.{official.on && <> On the encyclopedia page, it took the old line’s place.</>}</p>
           </div>
           <div className="how-art how-paid">
             <p className="how-big"><b>{money(r.payout_usd)}</b><span>paid to the people who bet No</span></p>
@@ -219,12 +221,13 @@ export default async function HowPage() {
       </div>
 
       <SHead id="who" title="Who does what" />
-      <dl className={`how-who${news.on ? " six" : ""}`}>
+      <dl className={`how-who${who === 6 ? " six" : who === 7 ? " seven" : ""}`}>
         <div><dt>You</dt><dd>Pick true or false, and collect when you’re right.</dd></div>
         <div><dt><Link href="/agents">The AI traders</Link></dt><dd>Three AI models with their own money. They bet small amounts, so no fact sits empty.</dd></div>
         <div><dt>The Checker</dt><dd>Challenges a fact when a newer source disagrees, with its own bond.</dd></div>
         <div><dt><Link href="/rulings">The AI judges</Link></dt><dd>Three models from different makers. They rule, and they sign what they ruled.</dd></div>
         <div><dt><Link href="/accuracy#sentinel">The Sentinel</Link></dt><dd>Checks each receipt where it lives, and disputes a ruling that rests on a fake.</dd></div>
+        {official.on && <div><dt><Link href="/p">The writer</Link></dt><dd>Rewrites each encyclopedia page from the odds, and signs every paragraph it writes.</dd></div>}
         {news.on && <div><dt>The scout</dt><dd>Reads the day’s news and opens claims nobody has confirmed yet, each with its date and whose word settles it.</dd></div>}
       </dl>
 

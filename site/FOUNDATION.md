@@ -76,6 +76,17 @@ The API answers `/api/today`, `/api/picks`, `/api/profile`, `/api/leaderboard`, 
 - **Catch a mistake** (`components/today/Report.tsx`, `components/money/Challenge.tsx`): a free report on a page our Checker will bond on (the line's own sources, an official site, an established outlet; signed, `/api/reports`, its status in plain words) or a challenge with the wallet's own bond (`challenge` on the market, from `/api/challenge`).
 - **Testing it.** `tests/mock/api.mjs` stands in for the API with news on (never shipped): build with `API_ORIGIN=http://127.0.0.1:3299 NEWS_PROBE_MS=0`, start it, and run Playwright with `E2E_NEWS=on`; `POST /__mock {"news":"on"|"off","scenario":"first"|"returning"|"overdue"|"refused"|"bounty"}` switches state. Without `E2E_NEWS`, the same specs test the off state against the live API.
 
+## The official pages
+
+The API writes each encyclopedia page from what the market believes only while it runs with `OFFICIAL_PAGES=1` (docs/API.md, "The official pages"). Until then `/api/pages` is a 404, and `/p`, `/p/[slug]`, the footer, `/how` and `/help` render exactly as they did.
+
+- **The switch.** `getOfficial()` (`lib/server/pages.ts`) reads `/api/pages` once per request: 404 is off. `getOfficialPage(slug)` reads one page, or null.
+- **`/p/[slug]` on** renders `OfficialArticle`: the line that says what the page is and when it last changed, the switch between the market's page and Wikipedia's words (`MarketArticle`), the article, and the side. `slimPage` (`lib/pages.ts`) keeps only what the article shows, so a page isn't shipped three times.
+- **Faces.** The market's page is set in Geist, the reading face; Wikipedia's words keep Amstelvar, the face for quoting Wikipedia. Switching views switches the face, so it's always clear whose words you're reading.
+- **Marks.** `markOf` decides what the mark beside a priced sentence says: its %, "No bets" (a line nobody has bet on keeps its words and shows no view), "Ruled true", "Ruled false" or "Corrected". Each changed paragraph's "What changed" opens its word diff, its rulings and its proof (model, odds, signature, anchor).
+- **`/record`** lists the decided news claims, and exists only while the pages and today's news are both on.
+- **Testing it.** `tests/mock/api.mjs` serves the page routes through the API's own `api/_lib/pages.mjs` with `MOCK_PAGES=on` (or `POST /__mock {"pages":"on"}`). Build and start with `API_ORIGIN=http://127.0.0.1:3299 NEWS_PROBE_MS=0 PAGES_PROBE_MS=0`, and run Playwright with `E2E_PAGES=on` (and `E2E_NEWS=on` for the record). `tests/e2e/official.spec.ts` covers both states.
+
 ## Film mode
 
 `?film=1` is for recording the demo film. The replay bar is hidden, countdowns freeze at their first value, the live strip holds its first items, and no free-bet key is ever asked for (`liveEngine()` answers the lane itself). It changes no data and appears in no nav, sitemap or share card. The flag is kept for the tab in sessionStorage, so it carries across internal links (`?recorded=1&film=1` films the replay); `?film=0` ends it. The rule lives in `lib/client/film.ts`, and the head script in `app/layout.tsx` applies it before paint. To keep a new moving part still on film, check `filming()` or the `still` class.
