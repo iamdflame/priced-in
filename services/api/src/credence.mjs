@@ -150,6 +150,8 @@ export function createCredence(o) {
     const moves = [up ? `${money(up)} to push it 10 points up` : null, down ? `${money(down)} to push it 10 points down` : null].filter(Boolean).join(", ");
     return {
       claim_id: c.id, text: c.text, page: c.page, kind: c.kind,
+      // a news line (hosted, NEWS_ENABLED=1): its question, topic, the headline it came from, and who settles it by when
+      ...(c.news ? { news: c.news } : {}),
       ...(match ? { match: { kind: match.kind, score: match.score, matched_terms: match.matched, missing_terms: match.missing } } : {}),
       credence: p,
       summary: resolution.state === "settled"

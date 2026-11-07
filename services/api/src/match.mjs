@@ -92,8 +92,10 @@ export class ClaimIndex {
   constructor(claims) {
     this.claims = claims;
     this.docs = claims.map((c) => {
-      const toks = tokens(c.text);
-      return { claim: c, norm: normalize(c.text), toks, set: new Set(toks) };
+      // a news line is also found by its question ("Is Tesla ending Cybertruck production?")
+      const q = typeof c.news?.question === "string" ? c.news.question : null;
+      const toks = tokens(q ? `${c.text} ${q}` : c.text);
+      return { claim: c, norm: normalize(c.text), qnorm: q ? normalize(q).replace(/[?!]+$/, "").trim() : null, toks, set: new Set(toks) };
     });
     this.df = new Map();
     for (const d of this.docs) for (const t of d.set) this.df.set(t, (this.df.get(t) || 0) + 1);
@@ -127,7 +129,7 @@ export class ClaimIndex {
     const docs = page ? this.docs.filter((d) => d.claim.page === page) : this.docs;
     const out = [];
     for (const d of docs) {
-      if (qn && d.norm.replace(/[?!]+$/, "") === qn) { out.push({ claim: d.claim, score: 1, kind: "exact", matched: qt, missing: [] }); continue; }
+      if (qn && (d.norm.replace(/[?!]+$/, "") === qn || d.qnorm === qn)) { out.push({ claim: d.claim, score: 1, kind: "exact", matched: qt, missing: [] }); continue; }
       if (!qt.length) continue;
       // query coverage: how much of what the question asks this claim speaks to, idf-weighted
       let qw = 0, hit = 0;

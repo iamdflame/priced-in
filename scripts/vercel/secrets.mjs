@@ -80,7 +80,15 @@ if (MAIN) Object.assign(plain, {
   CHECKER_MIN_BETS: "1",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
+  // news lines, when they are on (NEWS_ENABLED below): at most 4 a day, each with $1.45 of liquidity,
+  // as the Wikipedia lines have; each reserves about $1.01 to $2.34 of the treasury, by its opening price
+  NEWS_PER_DAY: "4",
+  NEWS_B_MICRO: "1450000",
 }, x402.plain);
+// Today's claims (api/news.mjs, /api/today, picks, reports, the leaderboard) stay off unless this is
+// "1". Unset by default: the script leaves it alone. To turn it on, put NEWS_ENABLED=1 in .env and run
+// this script; NEWS_ENABLED=0 there removes it again.
+if (local.NEWS_ENABLED !== undefined) plain.NEWS_ENABLED = local.NEWS_ENABLED === "1" ? "1" : "";
 const secret = {
   NEARAI_API_KEY: local.NEARAI_API_KEY2,
   LANE_PRIVATE_KEY: lane.privateKey,

@@ -27,6 +27,7 @@ import { installSpendMeter } from "./spend.mjs";
 import { ClaimsSnapshot } from "./snapshot.mjs";
 import { storeMeter } from "./meter.mjs";
 import { ledgerChecks } from "./sentinel.mjs";
+import { cachedLines, mergeNews, newsConfig } from "./news.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 export const REPO = path.resolve(HERE, "../..");
@@ -109,7 +110,9 @@ function build({ agents = true } = {}) {
   // every claims read in this app comes from the snapshot (one get_claims, raced across the RPCs)
   if (app.claims) {
     const one = app.claims.one.bind(app.claims);
-    app.claims.all = async () => (await p.claims.decorated()).claims;
+    // with NEWS_ENABLED=1 a news line carries its question, source and date, so the truth API answers about it too
+    const news = newsConfig(p.env).enabled;
+    app.claims.all = async () => { const claims = (await p.claims.decorated()).claims; return news ? mergeNews(claims, await cachedLines(p.state).catch(() => null)) : claims; };
     app.claims.one = async (id) => (await app.claims.all()).find((c) => c.id === id) ?? one(id);
   }
   // the jury's receipt checks live in the store's Sentinel ledger, shared by every instance

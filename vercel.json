@@ -30,12 +30,18 @@
       "maxDuration": 60,
       "memory": 1024,
       "includeFiles": "{services/ai/src/**,api/_data/**,node_modules/unpdf/dist/**}"
+    },
+    "api/news.mjs": {
+      "maxDuration": 300,
+      "memory": 1024,
+      "includeFiles": "{services/ai/attestations/**,services/ai/src/**,tools/judge/evidence/rewrite.json,api/_data/**,node_modules/unpdf/dist/**}"
     }
   },
   "crons": [
     { "path": "/api/cron", "schedule": "*/10 * * * *" },
     { "path": "/api/health", "schedule": "* * * * *" },
-    { "path": "/api/sentinel", "schedule": "* * * * *" }
+    { "path": "/api/sentinel", "schedule": "* * * * *" },
+    { "path": "/api/news", "schedule": "5 * * * *" }
   ],
   "rewrites": [
     { "source": "/api/:path*", "destination": "/api/index?__p=/:path*" },

@@ -110,6 +110,13 @@ export function checkerEvidence(ev) {
   return s;
 }
 
+/**
+ * A ruling the daily sitting counts. A news line's settlement (page news-YYYY-MM-DD) and a challenge
+ * the Checker posts for a reader's report run under their own caps (NEWS_ENABLED), so they never take
+ * the day's sitting or hold it up.
+ */
+export const ofSitting = (r) => !/^news-\d{4}-\d{2}-\d{2}$/.test(String(r?.page ?? "")) && !/^A reader's report/.test(String(r?.evidence ?? ""));
+
 /** Bets on a line. Bets sold back out don't count: with no position left, a ruling pays nobody. */
 export function betsOn(c) {
   const held = c.q_yes_micro === undefined && c.q_no_micro === undefined ? null : Number(c.q_yes_micro || 0) + Number(c.q_no_micro || 0);
@@ -139,7 +146,7 @@ export function checkerCandidates({ claims, history = [], nowMs, evidenceOf = co
 
 /** What the Checker has before it now: the queue, the lines with enough bets, and today's count. */
 export function checkerQueue({ claims, rulings, account, nowMs, sitting = SITTING, evidenceOf = corpusEvidence }) {
-  const mine = account ? rulings.filter((r) => r.challenger === account) : [];
+  const mine = account ? rulings.filter((r) => r.challenger === account && ofSitting(r)) : [];
   const history = mine.map((r) => ({ claim_id: r.claim_id, status: r.status, at: r.settled_at || r.expired_at || r.opened_at }));
   const candidates = checkerCandidates({ claims, history, nowMs, evidenceOf });
   const ready = candidates.filter((x) => x.bets >= sitting.minBets);
@@ -345,7 +352,7 @@ export async function keeperRound(d) {
   const rulings = await d.rulings(claims);
   const account = checkerKey?.ok ? checkerKey.accountId : null;
   const q = checkerQueue({ claims, rulings, account, nowMs: now(), sitting });
-  const liveRuling = rulings.find((r) => LIVE.includes(r.status) && !juryRefused(r)) || null;
+  const liveRuling = rulings.find((r) => LIVE.includes(r.status) && !juryRefused(r) && ofSitting(r)) || null;
   const chk = {
     enabled: Boolean(account) && d.checkerOn !== false, account, candidates: q.candidates.length,
     lines: q.candidates.slice(0, 12).map((x) => ({ claim_id: x.claim.id, corpus_id: x.evidence.corpus_id, bets: x.bets })),

@@ -12,6 +12,8 @@ import { PAYMENTS } from "./_lib/meter.mjs";
 import { clientIp, visitorIp } from "../services/api/src/ratelimit.mjs";
 import { parseSigningKey } from "../services/api/src/planner.mjs";
 import { Rpc } from "../services/api/src/rpc.mjs";
+import { newsConfig } from "./_lib/news.mjs";
+import { claimsWithNews, isNewsRoute, newsRoutes } from "./_lib/today-routes.mjs";
 
 /** CDN caching per route: many browsers polling share one function call. */
 const CACHE = [
@@ -48,6 +50,13 @@ export default async function handler(req, res) {
   // the site decides at load whether the API is live from /health (3.5 s): it never waits on the store
   if (req.method === "GET" && route === "/health") {
     return health(res, withTimeout(readContext().catch(() => null), 1200, null));
+  }
+  // today's claims, picks, profiles, reports and the board: only with NEWS_ENABLED=1 (off, these paths fall through to a 404 as before)
+  const news = newsConfig();
+  if (news.enabled && isNewsRoute(route)) {
+    let pn;
+    try { pn = prepare(); } catch (e) { return sendJson(res, 503, { error: { code: "unavailable", message: e.message } }); }
+    return newsRoutes(req, res, route, url, pn, news);
   }
   let ctx;
   try { ctx = await readContext(); } catch (e) {
@@ -158,6 +167,8 @@ async function claimsRoute(res, route, url) {
   try { snap = await p.claims.decorated(); } catch (e) {
     return sendJson(res, 502, { error: { code: "upstream_error", message: "The NEAR RPC did not answer. Try again in a moment." } });
   }
+  // a news line carries its question, source and settle-by date (only with NEWS_ENABLED=1)
+  if (newsConfig().enabled) snap = { ...snap, claims: await claimsWithNews(p, snap.claims) };
   const headers = { "cache-control": CACHE[0][1], "server-timing": `total;dur=${Date.now() - t0}`, "x-snapshot-age-ms": String(Date.now() - snap.at) };
   const m = route.match(/^\/claims\/([^/]+)$/);
   if (m) {
