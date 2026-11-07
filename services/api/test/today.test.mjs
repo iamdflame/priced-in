@@ -246,7 +246,7 @@ test("nicknames: 3 to 20 plain characters, no slurs, nothing that looks like us,
 test("a name can't pass for ours or for someone else's: look-alike letters, mixed scripts, and a visitor's default name", () => {
   const cyr = { a: "\u0430", e: "\u0435", o: "\u043E", c: "\u0441", i: "\u0456", p: "\u0440" };
   for (const fake of [`Qu${cyr.a}nt`, `Ch${cyr.e}cker`, `S${cyr.e}ntinel`, `Pr${cyr.i}cedIn`, `${cyr.a}dmin`, `Sk\u0435ptic`, "\u0391dmin", "Visitor 6237Qd", "visitor abc123"]) assert.throws(() => cleanNickname(fake), (e) => e instanceof Refusal && /nickname_/.test(e.code), fake);
-  for (const ok of ["Иван Петров", "Νίκος", "田中", "José García", "Müller"]) assert.equal(cleanNickname(ok), ok, "a name in one script is a name");
+  for (const ok of ["Иван Петров", "Νίκος", "田中太郎", "José García", "Müller"]) assert.equal(cleanNickname(ok), ok, "a name in one script is a name");
   const b = browser(), c = browser();
   const recs = [{ t: "profile", key: b.key, nickname: "Diego", at: 1 }];
   assert.equal(nicknameTaken(recs, `Di${cyr.e}go`, c.key), true, "the same name in look-alike letters is the same name");

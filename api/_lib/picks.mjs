@@ -119,11 +119,15 @@ export function firstPicks(records) {
 // ---------- nicknames ----------
 
 const LEET = { 0: "o", 1: "i", 3: "e", 4: "a", 5: "s", 7: "t", 8: "b", "@": "a", $: "s", "!": "i" };
-const squash = (s) => String(s).toLowerCase().replace(/[013457@$!8]/g, (c) => LEET[c] || c).replace(/[^a-z\p{L}]/gu, "");
+// letters of other scripts that read as Latin ones (Unicode's confusables, the common ones): nicknames
+// allow every alphabet, so without this "Qu\u0430nt" in Cyrillic is a free pass past the words below
+const LOOKALIKE = { "\u0430": "a", "\u0435": "e", "\u0451": "e", "\u043E": "o", "\u0440": "p", "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u0456": "i", "\u0457": "i", "\u0458": "j", "\u0455": "s", "\u0501": "d", "\u051B": "q", "\u04BB": "h", "\u043A": "k", "\u043C": "m", "\u043D": "h", "\u0442": "t", "\u0432": "b", "\u0433": "r", "\u043F": "n", "\u0438": "u", "\u04CF": "l", "\u03B1": "a", "\u03B5": "e", "\u03BF": "o", "\u03C1": "p", "\u03C5": "u", "\u03BD": "v", "\u03BA": "k", "\u03C4": "t", "\u03B9": "i", "\u03C7": "x", "\u03B7": "n", "\u03C3": "o" };
+const unconfuse = (s) => [...s.normalize("NFD").replace(/\p{M}+/gu, "")].map((c) => LOOKALIKE[c] || c).join("");
+const squash = (s) => unconfuse(String(s).toLowerCase()).replace(/[013457@$!8]/g, (c) => LEET[c] || c).replace(/[^a-z\p{L}]/gu, "");
 // whole-word in the name, or anywhere in its letters for the unambiguous ones
 const ANYWHERE = ["fuck", "cunt", "nigg", "faggot", "retard", "whore", "kike", "rapist", "pedo", "nazi", "hitler", "shit", "bitch", "pussy", "cock", "porn"];
 const WORDS = ["fag", "rape", "sex", "dick", "spic", "chink", "slut", "twat", "wank", "kill", "die", "ass", "anal", "cum", "hoe", "jew", "isis"];
-const RESERVED = ["pricedin", "isitpriced", "admin", "administrator", "moderator", "mod", "official", "support", "staff", "team", "checker", "sentinel", "keeper", "jury", "judge", "archivist", "skeptic", "quant", "near", "nearai", "system", "anthropic", "claude", "owner", "treasury"];
+const RESERVED = ["visitor", "pricedin", "isitpriced", "admin", "administrator", "moderator", "mod", "official", "support", "staff", "team", "checker", "sentinel", "keeper", "jury", "judge", "archivist", "skeptic", "quant", "near", "nearai", "system", "anthropic", "claude", "owner", "treasury"];
 
 /** A nickname, cleaned and checked: 3 to 20 characters of letters, digits, spaces, dots, dashes and underscores, with at least one letter, and no word we refuse. */
 export function cleanNickname(raw) {
@@ -131,6 +135,9 @@ export function cleanNickname(raw) {
   if (s.length < 3 || s.length > 20) throw new Refusal(400, "invalid_nickname", "A nickname is 3 to 20 characters.");
   if (!/^[\p{L}\p{N} ._-]+$/u.test(s)) throw new Refusal(400, "invalid_nickname", "A nickname uses letters, digits, spaces, dots, dashes and underscores only.");
   if (!/\p{L}/u.test(s)) throw new Refusal(400, "invalid_nickname", "A nickname needs at least one letter.");
+  // one alphabet per name: Latin with a Cyrillic letter in it only ever means to pass for something
+  const scripts = ["Latin", "Cyrillic", "Greek"].filter((x) => new RegExp(`\\p{Script=${x}}`, "u").test(s));
+  if (scripts.length > 1) throw new Refusal(400, "nickname_reserved", "A nickname keeps to one alphabet. Pick another.");
   const flat = squash(s);
   const words = s.toLowerCase().split(/[^\p{L}\p{N}]+/u).map(squash).filter(Boolean);
   if (ANYWHERE.some((w) => flat.includes(w)) || WORDS.some((w) => words.includes(w))) throw new Refusal(400, "nickname_refused", "That nickname isn't allowed. Pick another.");
