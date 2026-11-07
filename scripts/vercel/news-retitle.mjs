@@ -12,7 +12,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ROOT, dotEnv, projectId, vercelApi } from "./env.mjs";
-import { BlobState } from "../../api/_lib/store.mjs";
+import { BlobState, PgState } from "../../api/_lib/store.mjs";
 import { linesStore } from "../../api/_lib/news.mjs";
 
 const APPLY = process.argv.includes("--apply");
@@ -37,8 +37,12 @@ async function blobToken() {
   if (!e) throw new Error("BLOB_READ_WRITE_TOKEN is on neither .env nor the API project");
   return (await v.call("GET", `/v1/projects/${pid}/env/${e.id}`)).value;
 }
-const token = await blobToken().catch((e) => { console.error(e.message); process.exit(1); });
-const store = linesStore(new BlobState({ prefix: `state/${dep.network}/${dep.accounts.market}`, token }));
+// the store the hosted API runs on: Postgres once STATE_STORE=postgres, else Blob
+const prefix = `state/${dep.network}/${dep.accounts.market}`;
+const onPg = String(env.STATE_STORE || "").toLowerCase() === "postgres";
+const state = onPg ? new PgState({ prefix, url: env.SUPABASE_DB_URL }) : new BlobState({ prefix, token: await blobToken().catch((e) => { console.error(e.message); process.exit(1); }) });
+const store = linesStore(state);
+console.log(`store: ${onPg ? "Postgres (Supabase)" : "Blob"}`);
 
 const doc = await store.read();
 for (const f of fixes) {
@@ -46,7 +50,7 @@ for (const f of fixes) {
   if (!l) { console.error(`#${f.id} is not a news line`); process.exit(1); }
   console.log(`#${f.id} claim: ${l.claim}\n    now: ${l.question}\n    new: ${f.question}${l.question_was ? `\n    (first: ${l.question_was})` : ""}`);
 }
-if (!APPLY) { console.log("plan only: nothing was changed. Add --apply to do it."); process.exit(0); }
+if (!APPLY) { console.log("plan only: nothing was changed. Add --apply to do it."); if (onPg) await state.close(); process.exit(0); }
 
 const at = new Date().toISOString();
 const r = await store.update((cur) => {
@@ -61,3 +65,4 @@ const r = await store.update((cur) => {
 const after = (await store.read()).lines;
 for (const f of fixes) console.log(`${after[f.id]?.question === f.question ? "ok " : "NOT"} #${f.id}: ${after[f.id]?.question}`);
 console.log(r.changed ? "saved. The site shows it within 5 minutes." : "nothing to change.");
+if (onPg) await state.close();

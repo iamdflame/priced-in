@@ -53,14 +53,14 @@ test("the Postgres store: compare-and-swap, chunks, limits, locks and journals b
   const dir = tmp();
   const j = new JournalDir(s, path.join(dir, "data"));
   j.append("events.jsonl", { uid: "a" });
-  j.append("ledger.jsonl", { usd: 0.01 });
+  j.append("ledger.jsonl", { usd: 0.01, note: "USD₮ — “quoted” 🙂" });
   await j.flush();
   j.append("events.jsonl", { uid: "b" });
   await j.flush();
   const j2 = new JournalDir(new PgState({ prefix: "state/testnet/m", query }), path.join(dir, "data2"));
   await j2.hydrate();
   assert.deepEqual(j2.read("events.jsonl"), [{ uid: "a" }, { uid: "b" }]);
-  assert.deepEqual(j2.read("ledger.jsonl"), [{ usd: 0.01 }]);
+  assert.deepEqual(j2.read("ledger.jsonl"), [{ usd: 0.01, note: "USD₮ — “quoted” 🙂" }], "any UTF-8 comes back as written");
   assert.equal(await j2.hydrate(), false, "an unchanged index is not read again");
   j2.append("events.jsonl", { uid: "c" });
   await j2.flush();
@@ -165,5 +165,31 @@ test("the migration: a first copy is byte for byte, and a catch-up after the swi
   const twice = new JournalDir(new PgState({ prefix, query }), path.join(dir, "d"));
   await twice.hydrate();
   assert.deepEqual(twice.read("events.jsonl").map((r) => r.uid), [1, 2, 3]);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("the migration: a chunk the old store writes after its listing, and names in its index, is copied too", async () => {
+  const { query } = await database();
+  const { FsState } = await import("../../../api/_lib/store.mjs");
+  const { syncStores } = await import("../../../api/_lib/store-sync.mjs");
+  const dir = tmp();
+  const prefix = "state/mainnet/m";
+  const live = new FsState({ prefix, dir });
+  const j = new JournalDir(live, path.join(dir, "a"));
+  j.append("ledger.jsonl", { n: 1 }); await j.flush();
+  // the old store stays live: its listing is taken, then a flush lands before the index is read
+  const src = Object.create(live);
+  src.listKeys = async () => {
+    const keys = await FsState.prototype.listKeys.call(live);
+    j.append("ledger.jsonl", { n: 2 }); await j.flush();
+    return keys;
+  };
+  const pg = new PgState({ prefix, query });
+  const r = await syncStores({ src, dst: pg });
+  assert.equal(r.chunks.late, 1);
+  assert.deepEqual(r.chunks.dangling, []);
+  const fresh = new JournalDir(new PgState({ prefix, query }), path.join(dir, "b"));
+  await fresh.hydrate();
+  assert.deepEqual(fresh.read("ledger.jsonl").map((x) => x.n), [1, 2]);
   fs.rmSync(dir, { recursive: true, force: true });
 });

@@ -270,7 +270,9 @@ export const PG_SCHEMA = "pricedin";
 export const PG_DDL = [
   "create schema if not exists pricedin",
   "create table if not exists pricedin.docs (key text primary key, body text not null, etag text not null, updated_at timestamptz not null default now())",
-  "create table if not exists pricedin.chunks (key text primary key, body bytea not null, bytes integer not null, created_at timestamptz not null default now())",
+  // chunks are JSON lines, so text: a bytea column travels as hex, twice the bytes
+  "create table if not exists pricedin.chunks (key text primary key, body text not null, bytes integer not null, created_at timestamptz not null default now())",
+  "do $$ begin if (select data_type from information_schema.columns where table_schema = 'pricedin' and table_name = 'chunks' and column_name = 'body') = 'bytea' then alter table pricedin.chunks alter column body type text using convert_from(body, 'UTF8'); end if; end $$",
   "alter table pricedin.docs enable row level security",
   "alter table pricedin.chunks enable row level security",
   "create or replace view pricedin.docs_json with (security_invoker = true) as select key, body::jsonb as value, etag, updated_at from pricedin.docs",
@@ -336,7 +338,7 @@ export class PgState extends BlobState {
   async putChunk(name, buf) {
     this.ops.puts++;
     const b = Buffer.from(buf);
-    await this.q("insert into pricedin.chunks (key, body, bytes) values ($1, $2::bytea, $3) on conflict (key) do nothing", [this.key(name), b, b.length], { retry: true });
+    await this.q("insert into pricedin.chunks (key, body, bytes) values ($1, $2, $3) on conflict (key) do nothing", [this.key(name), b.toString("utf8"), b.length], { retry: true });
     this.chunkCache.set(name, b);
   }
 
@@ -346,7 +348,7 @@ export class PgState extends BlobState {
     this.ops.gets++;
     const rows = await this.q("select body from pricedin.chunks where key = $1", [this.key(name)], { retry: true });
     if (!rows.length) throw new StoreError("chunk " + name + " is missing");
-    const buf = Buffer.from(rows[0].body);
+    const buf = Buffer.from(rows[0].body, "utf8");
     this.chunkCache.set(name, buf);
     return buf;
   }
@@ -358,7 +360,7 @@ export class PgState extends BlobState {
       const part = want.slice(i, i + 200);
       this.ops.gets++;
       const rows = await this.q("select key, body from pricedin.chunks where key in (" + pgPlaces(part.length) + ")", part.map((n) => this.key(n)), { retry: true });
-      for (const r of rows) this.chunkCache.set(r.key.slice(this.prefix.length), Buffer.from(r.body));
+      for (const r of rows) this.chunkCache.set(r.key.slice(this.prefix.length), Buffer.from(r.body, "utf8"));
     }
   }
 

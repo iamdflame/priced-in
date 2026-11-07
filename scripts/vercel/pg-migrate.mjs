@@ -65,8 +65,9 @@ const c = r.counts;
 console.log(`chunks: ${r.chunks.copied} copied; documents: ${c.copied} copied, ${c.same} already the same, ${c.caught_up} caught up, ${c.merged} merged, ${c.kept} kept as Postgres has them`);
 for (const n of r.notes) console.log(`  note: ${n}`);
 console.log(`check: ${r.chunks.total - r.chunks.missing.length - r.chunks.differ} of ${r.chunks.total} chunks identical, ${r.docs.total - r.docs.missing.length} of ${r.docs.total} documents present`);
-if (r.chunks.missing.length || r.chunks.differ || r.docs.missing.length) {
-  console.error(`NOT ready: ${r.chunks.missing.length} chunks missing, ${r.chunks.differ} differ, ${r.docs.missing.length} documents missing (${r.docs.missing.slice(0, 5).join(", ")})`);
+if (r.chunks.late) console.log(`  ${r.chunks.late} chunks written to Blob during the copy were copied too`);
+if (r.chunks.missing.length || r.chunks.differ || r.docs.missing.length || r.chunks.dangling.length) {
+  console.error(`NOT ready: ${r.chunks.missing.length} chunks missing, ${r.chunks.differ} differ, ${r.chunks.dangling.length} named by the index but absent, ${r.docs.missing.length} documents missing (${r.docs.missing.slice(0, 5).join(", ")})`);
   await done(1);
 }
 const live = String(env.STATE_STORE || "").toLowerCase() === "postgres";

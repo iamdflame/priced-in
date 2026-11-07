@@ -80,7 +80,14 @@ export async function syncStores({ src, dst, force = false }) {
     counts.kept++;
   }
 
-  // the check: every chunk byte for byte, every document present
+  // every chunk the index names must be here too: the old store, still live, may have written one after the
+  // listing above and named it in the index we just copied (seen on the first live copy, 7 Nov 2026)
+  const named = async () => [...new Set(Object.values((await dst.getDoc(INDEX))?.value?.files || {}).flat())];
+  const present = new Set((await dst.listKeys()).chunks.map((c) => c.name));
+  const late = (await named()).filter((n) => !present.has(n));
+  for (const n of late) await dst.putChunk(n, await src.getChunk(n));
+
+  // the check: every chunk byte for byte, every document present, every chunk the index names present
   const after = await dst.listKeys();
   const now = new Set(after.chunks.map((c) => c.name));
   const lost = sk.chunks.filter((c) => !now.has(c.name)).map((c) => c.name);
@@ -93,5 +100,6 @@ export async function syncStores({ src, dst, force = false }) {
   const docNames = new Set(after.docs.map((x) => x.name));
   const skipped = new Set(notes.filter((n) => n.includes(": not a JSON document")).map((n) => n.split(": ")[0]));
   const missingDocs = sk.docs.filter((d) => !docNames.has(d.name) && !skipped.has(d.name)).map((d) => d.name);
-  return { counts, notes, chunks: { copied: missing.length, total: sk.chunks.length, missing: lost, differ }, docs: { total: sk.docs.length, missing: missingDocs } };
+  const dangling = (await named()).filter((n) => !now.has(n));
+  return { counts, notes, chunks: { copied: missing.length + late.length, late: late.length, total: sk.chunks.length, missing: lost, differ, dangling }, docs: { total: sk.docs.length, missing: missingDocs } };
 }
