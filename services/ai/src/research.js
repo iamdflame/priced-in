@@ -5,6 +5,7 @@
 // works. Fetched text is untrusted: it is passed to the model as data, with a warning.
 
 import { corpusEvidence } from "./evidence.js";
+import { fetchSource, htmlText } from "./receipts.js";
 
 const UA = "PricedInHouseAgent/0.1 (NEAR hackathon research agent; https://github.com/pricedin)";
 const STOP = new Set("a an the of in on at to for from by with and or but is are was were be been being has have had do does did it its this that these those as than then there their more most less least over under about into per not no yes will would can could should may might must".split(" "));
@@ -21,7 +22,8 @@ export function keywords(text, max = 7) {
   return out.join(" ");
 }
 
-const strip = (html) => String(html).replace(/<script[\s\S]*?<\/script>|<style[\s\S]*?<\/style>/gi, " ").replace(/<[^>]+>/g, " ").replace(/&nbsp;/g, " ").replace(/&amp;/g, "&").replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/\s+/g, " ").trim();
+const MAX_SOURCE_BYTES = 3 * 1048576;
+const strip = (html) => htmlText(html).replace(/\s+/g, " ").trim();
 
 /** The sentences of a text that share the most words with the claim. */
 export function excerpt(text, claim, max = 600) {
@@ -36,11 +38,12 @@ export function excerpt(text, claim, max = 600) {
 
 export class Research {
   /**
-   * @param {{ client?: import('./nearai.js').NearAI|null, fetchImpl?: typeof fetch, useWebSearch?: boolean, searchModel?: string, ledger?: object, log?: (m: string) => void, timeoutMs?: number }} [o]
+   * @param {{ client?: import('./nearai.js').NearAI|null, fetchImpl?: typeof fetch|null, source?: typeof fetchSource, useWebSearch?: boolean, searchModel?: string, ledger?: object, log?: (m: string) => void, timeoutMs?: number }} [o]
    */
-  constructor({ client = null, fetchImpl = globalThis.fetch, useWebSearch = true, searchModel = "z-ai/glm-5.3-flash", ledger = null, log = () => {}, timeoutMs = 8000 } = {}) {
+  constructor({ client = null, fetchImpl = null, source = fetchSource, useWebSearch = true, searchModel = "z-ai/glm-5.3-flash", ledger = null, log = () => {}, timeoutMs = 8000 } = {}) {
     this.client = client;
-    this.fetch = fetchImpl;
+    this.fetch = fetchImpl; // a test's stand-in for the web; otherwise every page goes through `source`
+    this.source = source;
     this.useWebSearch = useWebSearch;
     this.searchModel = searchModel;
     this.ledger = ledger;
@@ -51,6 +54,17 @@ export class Research {
 
   async get(url, { json = false } = {}) {
     if (!/^https:\/\//.test(url)) throw new Error(`only https sources: ${url}`);
+    // search results and a news line's coverage are anyone's to write: read them as the receipt check
+    // reads a challenge's sources (public addresses, every redirect checked, a size cap after decompression)
+    if (!this.fetch) {
+      const f = await this.source(url, { timeoutMs: this.timeoutMs, maxBytes: MAX_SOURCE_BYTES, userAgent: UA });
+      if (f.status === null || f.status === undefined) throw new Error(f.error || "no answer");
+      const text = f.body ? f.body.toString("utf8") : "";
+      if (!json) return { status: f.status, url: f.final_url || url, body: text };
+      let body = null;
+      try { body = JSON.parse(text); } catch { /* not JSON */ }
+      return { status: f.status, url: f.final_url || url, body };
+    }
     const res = await this.fetch(url, { headers: { "user-agent": UA, accept: json ? "application/json" : "text/html,application/xhtml+xml" }, redirect: "follow", signal: AbortSignal.timeout(this.timeoutMs) });
     const body = json ? await res.json().catch(() => null) : await res.text().catch(() => "");
     return { status: res.status, url: res.url || url, body };
