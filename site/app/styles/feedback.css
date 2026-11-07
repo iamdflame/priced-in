@@ -15,7 +15,7 @@
 .state h2 { font: 700 24px/1.15 var(--disp); letter-spacing: -.015em; }
 .state p { max-width: 52ch; color: var(--ink2); font-size: 15px; }
 .state .acts { justify-content: center; margin-top: 4px; }
-.offline { position: fixed; z-index: 75; left: 50%; top: 12px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: var(--surface3); color: var(--ink); font-size: 13.5px; box-shadow: var(--lift); }
+.offline { pointer-events: none; position: fixed; z-index: 75; left: 50%; top: 12px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; padding: 8px 14px; border-radius: 999px; background: var(--surface3); color: var(--ink); font-size: 13.5px; box-shadow: var(--lift); }
 
 
 
