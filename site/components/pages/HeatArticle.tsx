@@ -10,7 +10,7 @@ import { Icon } from "../Icon";
 import type { Fact } from "@/lib/model";
 import type { ArticleLine, ArticleSection } from "@/lib/server/encyclopedia";
 
-function Sheet({ f, onClose }: { f: Fact; onClose: () => void }) {
+export function Sheet({ f, onClose }: { f: Fact; onClose: () => void }) {
   const close = useRef<HTMLButtonElement>(null);
   useEffect(() => {
     close.current?.focus();

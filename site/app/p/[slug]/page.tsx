@@ -1,5 +1,7 @@
 // An encyclopedia page with odds heat: the Wikipedia article, every sentence with a market tinted by
-// what the money says. No loading.tsx here or above: this route calls notFound().
+// what the money says. With the official pages on (OFFICIAL_PAGES=1 on the API), it opens on the market's
+// page instead: written by AI from the odds, one tap from Wikipedia's words (OfficialArticle).
+// No loading.tsx here or above: this route calls notFound().
 import "../../styles/pages.css";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -7,9 +9,11 @@ import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { ErrorState } from "@/components/States";
 import { HeatArticle } from "@/components/pages/HeatArticle";
+import { OfficialArticle } from "@/components/pages/OfficialArticle";
 import { plural } from "@/lib/format";
 import { api } from "@/lib/server/api";
 import { ARTICLES, articleOf } from "@/lib/server/encyclopedia";
+import { getOfficialPage } from "@/lib/server/pages";
 import { getSite } from "@/lib/server/site";
 
 export const revalidate = 30;
@@ -19,14 +23,16 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const a = ARTICLES.find((x) => x.slug === slug);
+  if (a && (await getOfficialPage(slug))) return { title: `${a.title}, written from the odds`, description: `The ${a.title} article, written by AI from what the market believes right now, one tap from Wikipedia’s words.` };
   return a ? { title: `${a.title}, priced`, description: `The ${a.title} article with every checkable sentence tinted by what the market thinks.` } : {};
 }
 
 export default async function ArticlePage({ params }: Params) {
   const { slug } = await params;
   if (!ARTICLES.some((a) => a.slug === slug)) notFound();
-  const site = await getSite();
+  const [site, official] = await Promise.all([getSite(), getOfficialPage(slug)]);
   if (!site.ok) return <main id="main" className="wrap pg"><ErrorState message={site.error ?? "The prices didn’t load."} /></main>;
+  if (official) return <main id="main" className="wrap pg"><OfficialArticle page={official} facts={site.facts.filter((f) => f.page === slug)} /></main>;
   const article = await articleOf(slug, site.facts, site.rulings?.rulings ?? []);
   if (!article) notFound();
   const facts = site.facts.filter((f) => f.page === slug);

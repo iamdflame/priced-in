@@ -27,6 +27,7 @@ const PATHS = {
   sparkle: '<path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/>',
   gift: '<rect x="3.5" y="8" width="17" height="4.5" rx="1"/><path d="M5 12.5V20h14v-7.5M12 8v12M12 8c-1.5-3.5-6-3.5-5 0M12 8c1.5-3.5 6-3.5 5 0"/>',
   arrow: '<path d="M4 12h15M14 7l5 5-5 5"/>',
+  chevron: '<path d="M6.5 9.5l5.5 5.5 5.5-5.5"/>',
   bolt: '<path d="M13 3L5 14h6l-1 7 8-11h-6z"/>',
   shield: '<path d="M12 3l7 3v6c0 4.2-3 7.6-7 9-4-1.4-7-4.8-7-9V6z"/><path d="M9 12l2 2 4-4"/>',
   users: '<circle cx="9" cy="9" r="3.5"/><path d="M2.5 19a6.5 6.5 0 0113 0M16 5.5a3.5 3.5 0 010 7M21.5 19a6.5 6.5 0 00-4-6"/>',

@@ -686,4 +686,79 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .rcpt-src .mono, .rcpt-rec .mono { font-size: 12px; overflow-wrap: anywhere; }
 p.rcpt.rcpt-none { display: flex; gap: 6px; align-items: center; color: var(--ink3); }
 p.rcpt .ic { width: 14px; height: 14px; }
+
+/* The official pages (OFFICIAL_PAGES=1): the market's page, one tap from Wikipedia's words. Every rule here
+   is on a class only those pages use, so with the pages off nothing on /p or /p/[slug] changes. The market's
+   words are set in Geist, the reading face; Wikipedia's keep Amstelvar, so the face says whose words they are. */
+.enc-head.short { padding-bottom: 8px; }
+.viewbar { padding: 0 30px 20px; border-bottom: 1px solid var(--line); }
+.viewbar .said { font-size: 16.5px; line-height: 1.5; color: var(--ink2); max-width: 64ch; text-wrap: pretty; }
+.viewbar .said b { color: var(--ink); font-weight: 600; }
+.vrow { display: flex; align-items: center; justify-content: space-between; gap: 12px 20px; flex-wrap: wrap; margin-top: 16px; }
+.vrow .tabs { flex-wrap: nowrap; gap: 2px; padding: 4px; border-radius: 999px; background: var(--surface2); }
+.vrow .tab { white-space: nowrap; }
+.vrow .heatkey { margin-top: 0; }
+.both { display: grid; }
+.both > span { grid-area: 1 / 1; }
+.both > .off { visibility: hidden; }
+.vnote { margin-top: 12px; font-size: 13.5px; line-height: 1.5; color: var(--ink3); max-width: 76ch; text-wrap: pretty; }
+.article.mktv, .article.wikiv { padding-top: 14px; }
+.article.mktv > section > p { font-family: var(--text); font-variation-settings: normal; font-size: 17px; line-height: 1.75; }
+.article.mktv > section > p, .article.wikiv > section > p { max-width: 39rem; }
+.article h3 { font: 600 16.5px/1.3 var(--disp); letter-spacing: -.01em; color: var(--ink2); margin: 20px 0 8px; }
+.article h2 + h3 { margin-top: 4px; }
+.hs.unbet { background: transparent; text-decoration-style: dashed; text-decoration-color: var(--ink3); text-decoration-thickness: 1px; }
+.hs.unbet:hover, .hs.unbet[aria-expanded='true'] { background: var(--surface2); }
+.hs.unbet sup { color: var(--ink3); font-weight: 600; }
+.mktv .hs sup, .wikiv .hs sup { white-space: nowrap; }
+.hs.decided { text-decoration-style: solid; text-decoration-thickness: 2px; }
+.hs.decided sup, .hs.new sup, .hs.gone sup { font-weight: 700; }
+.hs.gone sup { text-decoration: none; color: var(--no); }
+.chg { margin: 2px 0 14px; max-width: 39rem; }
+.chg-open { display: inline-flex; align-items: center; gap: 4px; min-height: 40px; padding: 0 4px; margin-left: -4px; border-radius: 8px; font: 500 13.5px var(--text); color: var(--brand-text); }
+.chg-open:hover { text-decoration: underline; text-underline-offset: 3px; }
+.chg-open .ic { width: 16px; height: 16px; stroke-width: 2; transition: transform var(--ui) var(--ease-out); }
+.chg-open[aria-expanded='true'] .ic { transform: rotate(180deg); }
+.chg-body { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; padding: 14px 16px; border-radius: 16px; background: var(--surface2); }
+.chg-body[hidden] { display: none; }
+.article .chg-body p { margin: 0; max-width: none; font-family: var(--text); font-variation-settings: normal; }
+.article .chg-key { font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
+.article .chg-diff { font-size: 15px; line-height: 1.65; color: var(--ink3); overflow-wrap: anywhere; }
+.chg-diff del { color: var(--ink2); text-decoration: line-through; text-decoration-color: var(--no); text-decoration-thickness: 1.5px; }
+.chg-diff ins { color: var(--ink); text-decoration: none; background: var(--yes-bg); border-radius: 4px; padding: 0 2px; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.article .chg-ruled { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; font-size: 14px; line-height: 1.45; color: var(--ink2); }
+.prf { display: grid; gap: 6px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; }
+.prf > div { display: grid; grid-template-columns: 136px minmax(0, 1fr); gap: 12px; }
+.prf dt { color: var(--ink3); }
+.prf dd { margin: 0; min-width: 0; color: var(--ink2); }
+.prf dd.signed { display: flex; align-items: flex-start; gap: 5px; color: var(--yes); }
+.prf dd.signed .ic { flex: none; width: 15px; height: 15px; margin-top: 2px; stroke-width: 2.2; }
+.prf .hash { font-family: var(--mono); font-size: 12.5px; }
+.chg-body .src { margin-top: 0; align-self: flex-start; }
+.wrote-n { display: flex; align-items: baseline; gap: 8px; margin: 2px 0 6px; }
+.wrote-n b { font: 700 36px/1 var(--disp); letter-spacing: -.035em; font-feature-settings: 'tnum'; }
+.wrote-n span { font-size: 14px; color: var(--ink2); }
+.wrote .fine { line-height: 1.5; }
+.pagec .aiw { color: var(--ink2); font-weight: 500; }
+/* the record: decided claims from the news, in the market's words */
+.reccount { margin: 18px 0 10px; }
+.reclist { display: flex; flex-direction: column; gap: 12px; }
+.recl { display: flex; flex-direction: column; gap: 8px; padding: 18px 20px; }
+.recl-top { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.recl h2 { font: 600 20px/1.3 var(--disp); letter-spacing: -.012em; text-wrap: balance; }
+.recl-text { font-size: 15.5px; line-height: 1.55; color: var(--ink2); text-wrap: pretty; }
+.recl-src { display: flex; flex-direction: column; gap: 4px; font-size: 13.5px; color: var(--ink2); overflow-wrap: anywhere; }
+.recl-src span { color: var(--ink3); }
+.recl-go { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 14px; }
+.recnone { margin-top: 16px; padding: 18px 20px; }
+@media (pointer: coarse) { .chg-open { min-height: 44px; } }
+@media (max-width: 760px) {
+  .viewbar { padding: 0 16px 16px; }
+  .viewbar .said { font-size: 15.5px; }
+  .vrow .tabs { width: 100%; }
+  .vrow .tab { flex: 1 1 0; justify-content: center; height: 44px; padding: 0 8px; }
+  .article.mktv > section > p { font-size: 16px; line-height: 1.7; }
+  .prf > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .recl { padding: 16px; }
+}
 }
