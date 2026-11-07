@@ -1,24 +1,24 @@
 {
  "skeptic": {
-  "src": "site/c18-d__full.png",
-  "x": 60,
-  "y": 3440,
-  "w": 1960,
-  "h": 330
+  "src": "site/receipt-d.png",
+  "x": 1344,
+  "y": 790,
+  "w": 1184,
+  "h": 433
  },
  "challenge": {
   "src": "site/c18-d__full.png",
-  "x": 90,
-  "y": 1425,
-  "w": 1890,
-  "h": 150
+  "x": 120,
+  "y": 1416,
+  "w": 1848,
+  "h": 158
  },
  "noWon": {
   "src": "site/c18-d__full.png",
-  "x": 2055,
-  "y": 255,
-  "w": 760,
-  "h": 620
+  "x": 2056,
+  "y": 260,
+  "w": 744,
+  "h": 631
  },
  "para": {
   "src": "site/ptether-d__full.png",

@@ -49,7 +49,9 @@ async function open(view, url) {
   return {ctx, page};
 }
 
+const ONLY = process.env.ONLY ? process.env.ONLY.split(',') : null;
 async function still(view, name, url, opts = {}) {
+  if (ONLY && !ONLY.includes(name)) return;
   const {ctx, page} = await open(view, url);
   if (opts.before) await opts.before(page);
   await page.screenshot({path: path.join(OUT, `${name}.png`)});
@@ -63,7 +65,6 @@ await still(desktop, 'home-d', '/?film=1', {full: true, after: async (p) => (box
 await still(desktop, 'c18-d', '/c/18?film=1', {
   full: true,
   after: async (p) => {
-    await boxOf(p, /^The Skeptic/, 'skeptic', 'site/c18-d__full.png', 900, 120);
     await boxOf(p, /The Checker challenged it/, 'challenge', 'site/c18-d__full.png', 900, 50);
     await boxOf(p, /^No won\.?$/, 'noWon', 'site/c18-d__full.png', 300, 300);
   },
@@ -118,27 +119,35 @@ async function flow(view, name) {
   await page.getByTestId('confirm').click().catch(() => console.log('no confirm', name));
   await page.getByTestId('sig-ok').waitFor({timeout: 40000}).catch(() => console.log('no sig-ok', name));
   marks.sig = Date.now() / 1000;
-  await page.waitForTimeout(2500);
+  await page.getByText(/an AI trader, replied/).waitFor({timeout: 30000}).catch(() => console.log('no reply', name));
+  marks.reply = Date.now() / 1000;
+  await page.waitForTimeout(1200);
   await cdp.send('Page.stopScreencast');
   await page.waitForTimeout(300);
   await page.screenshot({path: path.join(OUT, `receipt-${name}.png`)});
+  // The AI trader's reasons, as the recorded run replied on the receipt (the Skeptic, on the T-Bills fact)
+  if (name === 'd') await boxOf(page, /undated encyclopedia line/, 'skeptic', 'site/receipt-d.png', 500, 100);
   fs.writeFileSync(path.join(dir, 'frames.json'), JSON.stringify({marks, frames}, null, 0));
   console.log('flow', name, frames.length, 'frames', JSON.stringify(marks));
   await ctx.close();
 }
-await flow(phone, 'p');
-await flow(desktop, 'd');
+if (!ONLY || ONLY.includes('flow')) {
+  await flow(phone, 'p');
+  await flow(desktop, 'd');
+}
 await browser.close();
 
 // The film's measured boxes and its compact flow timing.
 const film = path.resolve(here, '../src/film');
 const old = fs.existsSync(path.join(film, 'boxes.json')) ? JSON.parse(fs.readFileSync(path.join(film, 'boxes.json'), 'utf8')) : {};
 fs.writeFileSync(path.join(film, 'boxes.json'), JSON.stringify({...old, ...boxes}, null, 1));
+if (!ONLY || ONLY.includes('flow')) {
 const fp = JSON.parse(fs.readFileSync(path.join(OUT, 'flow-p', 'frames.json'), 'utf8'));
 const fd = JSON.parse(fs.readFileSync(path.join(OUT, 'flow-d', 'frames.json'), 'utf8'));
 const t0 = fp.frames[0].t;
 const t1 = fd.frames[0].t;
 fs.writeFileSync(path.join(film, 'flow.json'), JSON.stringify({p: fp.frames.map((f) => +(f.t - t0).toFixed(3)), d: fd.frames.map((f) => +(f.t - t1).toFixed(3)), tap: +(fp.marks.tapNo - t0).toFixed(3)}));
+}
 // The live count of settled rulings, read at capture time.
 const r = await (await fetch('https://isitpriced.com/api/rulings')).json();
 const settled = r.rulings.filter((x) => x.status === 'settled').length;

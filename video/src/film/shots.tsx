@@ -297,15 +297,17 @@ const Traders: React.FC<P> = ({shot, t, T}) => {
   const cut = useCut();
   const k = ease(t, 0, shot.dur, EASE.inOut);
   const lift = ease(t, 0.5, 0.8, EASE.out);
+  const b = boxes.skeptic;
+  // the recorded run's receipt: the Skeptic's reply sits on the right of the page, so the words go on the left
   return (
     <Ground glow="62% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: 'translate(-300px, 50px)'}}>
-          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(boxes.skeptic.y - 330, boxes.skeptic.y - 280, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: -1.5}} lifts={[{...boxes.skeptic, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
+        <div style={{transform: 'translate(300px, 40px)'}}>
+          <Browser3D src={b.src} url="isitpriced.com/c/18" width={1400} height={880} top={Math.max(0, mix(b.y - 420, b.y - 380, k))} pose={{rx: mix(12, 7, k), ry: mix(-22, -16, k), rz: 1.5}} lifts={[{...b, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'flex-end', padding: '0 110px 40px 0'}}>
+      <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
+      <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 40px 130px'}}>
         <div style={{width: 640}}>
           <Spoken t={T} words={wordsIn(cut, shot.at - 0.1, shot.at + shot.dur)} size={92} paint={false} />
         </div>
@@ -583,7 +585,7 @@ const Proof: React.FC<P> = ({t}) => (
       <div style={{width: 960, perspective: 1600}}>
         <div style={{transform: `rotateY(${mix(-24, -16, clamp01(t / 3.75))}deg) rotateX(6deg)`, display: 'flex', flexDirection: 'column', gap: 10}}>
           {PROOF.map(([label, hash], i) => {
-            const k = ease(t, 0.3 + i * 0.32, 0.42, EASE.spring);
+            const k = ease(t, 0.2 + i * 0.16, 0.4, EASE.spring);
             return (
               <div key={hash} style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '18px 28px', borderRadius: 16, background: SHADOW.panel, boxShadow: `${SHADOW.card}, 0 0 0 1px ${C.line}`, opacity: clamp01(k), transform: `translateY(${(1 - k) * 28}px)`}}>
                 <span style={{font: `500 28px ${FONT.text}`, color: C.ink2}}>{label}</span>
@@ -592,7 +594,7 @@ const Proof: React.FC<P> = ({t}) => (
             );
           })}
         </div>
-        <div style={{font: `500 24px ${FONT.text}`, color: C.ink3, marginTop: 24, opacity: ease(t, 2.6, 0.4)}}>On nearblocks.io · market.isitpriced.near</div>
+        <div style={{font: `500 24px ${FONT.text}`, color: C.ink3, marginTop: 24, opacity: ease(t, 1.5, 0.4)}}>On nearblocks.io · market.isitpriced.near</div>
       </div>
     </AbsoluteFill>
   </Ground>
@@ -604,8 +606,8 @@ const End: React.FC<P> = ({shot, t, T}) => {
   const a = fast ? 0.15 : 0.9;
   const lock = ease(t, a, 0.5);
   const q = ease(t, a + 0.2, 0.5);
-  const free = ease(t, fast ? 0.6 : 3.4, 0.45);
-  const url = ease(t, fast ? 1.0 : 4.6, 0.5, EASE.spring);
+  const free = ease(t, fast ? 0.6 : 3.0, 0.45);
+  const url = ease(t, fast ? 1.0 : 3.9, 0.5, EASE.spring);
   void T;
   return (
     <AbsoluteFill style={{background: C.bg}}>

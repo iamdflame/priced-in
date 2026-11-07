@@ -3,6 +3,10 @@ import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remoti
 import {C} from '../brand/tokens';
 import {CUTS, Captions, CutContext, FPS, Grade} from './lib';
 import {SHOTS} from './shots';
+import pending from './pending.json';
+
+// Shots whose site footage waits for the site's final polish: marked on screen until it is recaptured.
+const PENDING = new Set<string>(pending as string[]);
 
 /** One cut of the film: shots hard-cut on the music's beat, the mixed audio, captions and the grade. */
 export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = true}) => {
@@ -20,6 +24,12 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
             <Sequence key={`${s.id}${s.at}`} from={from} durationInFrames={len} name={s.id} layout="none">
               <AbsoluteFill>
                 <Comp shot={s} t={T - s.at} T={T} />
+                {PENDING.has(s.id) ? (
+                  <AbsoluteFill style={{alignItems: 'flex-start', justifyContent: 'flex-start', padding: 28, pointerEvents: 'none'}}>
+                    <div style={{border: '4px dashed #C9222B', position: 'absolute', inset: 14, borderRadius: 18}} />
+                    <span style={{background: '#C9222B', color: '#fff', font: "700 26px 'General Sans', sans-serif", padding: '8px 16px', borderRadius: 10}}>PLACEHOLDER · awaiting site final ({s.id})</span>
+                  </AbsoluteFill>
+                ) : null}
               </AbsoluteFill>
             </Sequence>
           );

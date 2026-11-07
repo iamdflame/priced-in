@@ -9,7 +9,7 @@ done <<'LIST'
 wide stamps 1-168
 wide wake 1-92
 wide swing 1-72
-wide steps 15-136
+wide steps 15-156
 wide end 1-240
 tall stamps 1-168
 tall swing 1-96
