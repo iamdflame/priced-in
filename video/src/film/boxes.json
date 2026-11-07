@@ -40,5 +40,12 @@
   "y": 0,
   "w": 2880,
   "h": 1800
+ },
+ "pageHead": {
+  "src": "site/ptether-d__full.png",
+  "x": 0,
+  "y": 0,
+  "w": 2880,
+  "h": 700
  }
 }

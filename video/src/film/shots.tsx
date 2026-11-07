@@ -632,37 +632,55 @@ const End: React.FC<P> = ({shot, t, T}) => {
 // ----- S09b: the page fixed itself, on the real page --------------------------------------------------------------
 // isitpriced.com/p/tether ("Written by AI from what the market believes right now"): the T-Bills paragraph in its
 // corrected wording, with "What changed" open (ruled false by three AI judges, the TEE signature, the anchor on NEAR).
-const PageReal: React.FC<P> = ({shot, t}) => {
-  const k = ease(t, 0, shot.dur, EASE.inOut);
+const PageReal: React.FC<P> = ({shot, t, T}) => {
+  const cut = useCut();
+  const written = shot.written ?? shot.at + shot.dur / 2;
   const land = ease(t, 0, 1.3, EASE.out);
-  const lift = ease(t, 1.0, 0.9, EASE.out);
+  const lift = ease(t, 0.9, 0.9, EASE.out) * (1 - ease(T, written - 0.1, 0.6, EASE.inOut));
+  // two moves in one shot: land on the corrected paragraph and its "What changed" panel, then crane up to the
+  // page's own header ("Written by AI from what the market believes right now") as the voice says it
+  const up = ease(T, written - 0.25, 1.4, EASE.inOut);
   const p = boxes.para;
   const c = boxes.changed;
-  const top = Math.max(0, p.y - 260);
+  const h = boxes.pageHead;
+  const topPara = Math.max(0, p.y - 260);
+  const topHead = Math.max(0, h.y - 120);
+  const words = wordsIn(cut, written - 0.1, shot.at + shot.dur);
   return (
     <Ground glow="55% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: `translate(${mix(0, 40, k)}px, ${mix(60, 30, k)}px)`}}>
+        <div style={{transform: `translate(${mix(20, 220, up)}px, ${mix(60, 80, up)}px)`}}>
           <Browser3D
             src={p.src}
             url="isitpriced.com/p/tether"
             width={1560}
             height={940}
-            top={mix(top + 140, top, land)}
-            pose={{rx: mix(26, 9, land), ry: mix(-16, -9, k), rz: mix(3, 1, k), z: mix(-380, -40, land)}}
+            top={mix(mix(topPara + 140, topPara, land), topHead, up)}
+            pose={{rx: mix(mix(26, 9, land), 14, up), ry: mix(-12, -20, up), rz: mix(2, 3, up), z: mix(mix(-380, -40, land), -160, up)}}
             lifts={[{...c, z: lift * 220, ring: true}]}
             dim={0.12 * lift}
             dof={3}
           />
         </div>
       </AbsoluteFill>
+      <AbsoluteFill style={{background: `linear-gradient(90deg, rgba(248,249,251,${0.97 * up}) 0%, rgba(248,249,251,${0.86 * up}) 34%, transparent 56%)`}} />
+      <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 40px 130px'}}>
+        <div style={{width: 820}}>
+          <Spoken t={T} words={words} size={96} paint={false} />
+        </div>
+      </AbsoluteFill>
     </Ground>
   );
 };
 
-const FixShot: React.FC<P & {short?: boolean}> = ({short}) => (
-  <AbsoluteFill style={{transform: 'scale(1.12)', transformOrigin: '20% 50%'}}>{short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix tempo={1.25} delay={0.2} />}</AbsoluteFill>
-);
+const FixShot: React.FC<P & {short?: boolean}> = ({shot, short}) => {
+  const cut = useCut();
+  // the new number rolls in on the voice's "One hundred twenty-two…"
+  const one = wordStart(cut, 'L09', 'One', shot.at + 2.2);
+  return (
+    <AbsoluteFill style={{transform: 'scale(1.12)', transformOrigin: '20% 50%'}}>{short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix delay={Math.max(0, one - shot.at - 1.05)} />}</AbsoluteFill>
+  );
+};
 
 export const SHOTS: Record<string, React.FC<P>> = {
   hook: Hook,

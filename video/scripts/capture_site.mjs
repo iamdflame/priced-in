@@ -84,6 +84,7 @@ await still(desktop, 'ptether-d', '/p/tether?film=1', {
   after: async (p) => {
     await boxOf(p, /122\.84 billion/, 'para', 'site/ptether-d__full.png', 700, 60);
     await boxOf(p, /Ruled false by three AI judges/i, 'changed', 'site/ptether-d__full.png', 700, 120);
+    await boxOf(p, /Written by AI from what the market believes/i, 'pageHead', 'site/ptether-d__full.png', 600, 40);
   },
 });
 await still(desktop, 'replay-d', '/c/18?recorded=1&film=1');

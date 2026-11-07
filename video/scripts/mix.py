@@ -27,7 +27,7 @@ os.makedirs(STRETCH_DIR, exist_ok=True)
 
 # post-generation time-stretch per line (eleven_v4 ignores the API's speed)
 SPEED = {'L01': 1.15, 'L02': 1.04, 'L03': 1.14, 'L04': 1.12, 'L05': 1.1, 'L06': 1.14, 'L07a': 1.1, 'L07b': 1.0, 'L07c': 1.0,
-         'L07d': 1.0, 'L07e': 1.12, 'L08': 1.1, 'L09': 1.13, 'L10': 1.11, 'L11': 1.1, 'L12': 1.12, 'L14': 1.0, 'C2': 1.08,
+         'L07d': 1.0, 'L07e': 1.12, 'L08': 1.1, 'L09': 1.12, 'L10': 1.11, 'L11': 1.1, 'L12': 1.12, 'L14': 1.0, 'C2': 1.08,
          'C3': 1.15, 'C4': 1.14, 'C5': 1.1, 'C6': 1.12, 'V2c': 1.08, 'V2b': 1.1, 'V3b': 1.08, 'V4': 1.08, 'V5': 1.2}
 
 
@@ -75,11 +75,14 @@ def word_at(i, at, prefix):
 # ----- the cuts ----------------------------------------------------------------------------------------
 def main_cut():
     # Everything on the 0.75 s beat of the music, which starts at the track's bar 24 (72.0 s).
+    # 84.0 s: the line that carries Illia's sentence (L09) takes its time from the proof stack, never the verdict.
     v = [('L01', 0.05), ('L02', 3.85), ('L03', 6.75), ('L04', 13.5), ('L05', 20.25), ('L06', 23.4), ('L07a', 29.25),
-         ('L07b', 35.05), ('L07c', 36.05), ('L07d', 38.15), ('L07e', 39.6), ('L08', 44.25), ('L09', 48.0), ('L10', 54.75),
-         ('L11', 60.75), ('L12', 63.75), ('L14', 74.25)]
+         ('L07b', 35.05), ('L07c', 36.05), ('L07d', 38.15), ('L07e', 39.6), ('L08', 44.25), ('L09', 48.0), ('L10', 59.25),
+         ('L11', 65.25), ('L12', 68.25), ('L14', 77.25)]
     tap = word_at('L03', 6.75, 'No')
     near = word_at('L03', 6.75, 'NEAR')
+    page = round(word_at('L09', 48.0, 'with') - 0.15, 3)
+    written = round(word_at('L09', 48.0, 'Now') - 0.2, 3)
     shots = [
         dict(id='hook', at=0.0, dur=3.75),
         dict(id='wake', at=3.75, dur=3.0),
@@ -95,14 +98,15 @@ def main_cut():
         dict(id='stamps', at=34.5, dur=5.25),
         dict(id='signed', at=39.75, dur=4.5),
         dict(id='window', at=44.25, dur=3.75),
-        dict(id='fix', at=48.0, dur=3.0),
-        dict(id='pageFix', at=51.0, dur=3.75),
-        dict(id='payout', at=54.75, dur=6.0),
-        dict(id='reopen', at=60.75, dur=3.0),
-        dict(id='pullback', at=63.75, dur=6.0),
-        dict(id='proof', at=69.75, dur=3.75),
-        dict(id='end', at=73.5, dur=9.0),
+        dict(id='fix', at=48.0, dur=page - 48.0),
+        dict(id='pageFix', at=page, dur=59.25 - page, written=written),
+        dict(id='payout', at=59.25, dur=6.0),
+        dict(id='reopen', at=65.25, dur=3.0),
+        dict(id='pullback', at=68.25, dur=6.0),
+        dict(id='proof', at=74.25, dur=2.25),
+        dict(id='end', at=76.5, dur=7.5),
     ]
+    four = word_at('L10', 59.25, 'Four')
     sx = [('whoosh_long', 3.45, 0.5), ('bloom', 4.85, 0.7), ('tick_soft', 4.85, 0.5),
           ('whoosh', 6.5, 0.4), ('tap', tap, 0.9),
           ('whoosh_short', near - 0.15, 0.5), ('bloom', near + 0.7, 0.9), ('receipt', near + 0.75, 0.8),
@@ -111,19 +115,20 @@ def main_cut():
           ('stamp1', 35.1, 1.9), ('stamp2', 36.1, 1.9), ('stamp3', 38.2, 2.2),
           ('ping', word_at('L07e', 39.6, 'checked'), 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.3, 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.6, 0.8),
           ('clock', 44.5, 0.5), ('whoosh_short', 47.8, 0.35),
-          ('strike', 48.75, 0.8), ('morph', 49.35, 0.75), ('whoosh_long', 50.75, 0.45), ('tap', 52.6, 0.45), ('ping', 53.4, 0.6),
-          ('whoosh', 54.5, 0.35), ('count', word_at('L10', 54.75, 'Four'), 0.6), ('settle', word_at('L10', 54.75, 'Four') + 1.45, 0.9),
-          ('whoosh', 60.5, 0.35), ('whoosh_long', 63.4, 0.5), ('whoosh_short', 69.55, 0.35), ('whoosh_long', 73.1, 0.45),
-          ('bloom', 74.0, 0.9), ('sting', 74.0, 0.8)]
+          ('strike', word_at('L09', 48.0, 'One') - 0.7, 0.8), ('morph', word_at('L09', 48.0, 'One') - 0.02, 0.75),
+          ('whoosh_long', page - 0.25, 0.45), ('tap', page + 1.6, 0.45), ('ping', page + 2.3, 0.6), ('whoosh', written - 0.2, 0.35),
+          ('whoosh', 59.0, 0.35), ('count', four, 0.6), ('settle', four + 1.45, 0.9),
+          ('whoosh', 65.0, 0.35), ('whoosh_long', 67.9, 0.5), ('whoosh_short', 74.05, 0.35), ('whoosh_long', 76.1, 0.45),
+          ('bloom', 77.0, 0.9), ('sting', 77.0, 0.8)]
     for i, t in enumerate([0.15, 0.75, 1.35, 1.95, 2.55, 3.15, 3.75]):
         sx.append((f'tick{i + 1}', 15.75 + t + 0.25, 0.75))
     for i in range(7):
-        sx.append(('tick_soft', 70.1 + i * 0.32, 0.7))
+        sx.append(('tick_soft', 74.35 + i * 0.22, 0.7))
     # music: gain in dB over film time. The track rises by itself; the opening is lifted to meet it, it drops out
     # before the verdict, returns under "NEAR checked every signature", and fades on the end card.
-    music = dict(track=72.0, gain=[(0, -4), (1.0, 2.5), (20, 1), (27.0, 0), (29.25, -9), (31.0, -60), (41.6, -60), (43.0, -3), (54.75, -1),
-                                   (60, -2), (73.5, -1), (78, -3), (82.5, -30)])
-    return dict(id='main', dur=82.5, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+    music = dict(track=72.0, gain=[(0, -4), (1.0, 2.5), (20, 1), (27.0, 0), (29.25, -9), (31.0, -60), (41.6, -60), (43.0, -3), (59.25, -1),
+                                   (64, -2), (76.5, -1), (81, -3), (84.0, -30)])
+    return dict(id='main', dur=84.0, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
 
 
 def short_cut():

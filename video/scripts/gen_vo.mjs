@@ -30,7 +30,7 @@ export const LINES = [
   {id: 'L07d', text: 'False.', speed: 0.96, prev: 'Three AI judges read the evidence. False. False.', next: 'All three in under seventeen seconds.'},
   {id: 'L07e', text: 'All three in under seventeen seconds. And NEAR checked every signature.', speed: 1.12},
   {id: 'L08', text: 'Then anyone had ten minutes to object. Nobody did.', speed: 1.1},
-  {id: 'L09', text: 'So the page fixed itself. One hundred twenty-two point eight four billion, with the source beside it.', speed: 1.13},
+  {id: 'L09', text: 'So the page fixed itself. One hundred twenty-two point eight four billion, with the source beside it. Now every page here is written by AI, from what the market believes.', speed: 1.1},
   {id: 'L10', text: 'Wrong bets lose. Four dollars and ninety-three cents went to everyone who bet No.', speed: 1.11},
   {id: 'L11', text: 'The corrected sentence opened as a new market.', speed: 1.1},
   {id: 'L12', text: 'A prediction market for every checkable fact. Seven have already been ruled on NEAR.', speed: 1.12},

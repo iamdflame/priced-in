@@ -6,7 +6,7 @@ import flowJson from './flow.json';
 
 export type Word = {w: string; s: number; e: number};
 export type Cue = {id: string; at: number; text: string; words: Word[]};
-export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean};
+export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean; written?: number};
 export type Cut = {id: string; dur: number; w: number; h: number; shots: Shot[]; cues: Cue[]};
 
 export const CUTS = cutsJson as unknown as Record<string, Cut>;
