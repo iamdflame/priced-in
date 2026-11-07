@@ -447,7 +447,7 @@ test("the absence question: only a FALSE on a line with the rule in its own text
 
 test("the policy in code reads what a reader reads: wide letters, invisible ones and look-alikes don't get a word past it", () => {
   const withClaim = (w) => cand({ claim: `By 13 November 2026, the club confirms his ${w}.`, statement: `the club confirms his ${w}.` });
-  for (const w of ["ｉｎｊｕｒｙ", "inj​ury", "in­jury", "injуry", "𝐢𝐧𝐣𝐮𝐫𝐲"]) {
+  for (const w of ["ｉｎｊｕｒｙ", "inj​ury", "in­jury", "іnjury", "𝐢𝐧𝐣𝐮𝐫𝐲"]) {
     const r = policyCheck(withClaim(w));
     assert.equal(r.ok, false, JSON.stringify(w));
     assert.equal(r.category, "health");
