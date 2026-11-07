@@ -50,6 +50,12 @@ export function parseFeeds(s) {
   return { feeds: out, errors };
 }
 
+// letters of other scripts that read as Latin ones (Unicode's confusables, the common ones), for code that
+// matches words: without this, "Qu\u0430nt" in Cyrillic is a free pass past any word list
+const LOOKALIKE = { "\u0430": "a", "\u0435": "e", "\u0451": "e", "\u043E": "o", "\u0440": "p", "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u0456": "i", "\u0457": "i", "\u0458": "j", "\u0455": "s", "\u0501": "d", "\u051B": "q", "\u04BB": "h", "\u043A": "k", "\u043C": "m", "\u043D": "h", "\u0442": "t", "\u0432": "b", "\u0433": "r", "\u043F": "n", "\u0438": "u", "\u04CF": "l", "\u03B1": "a", "\u03B5": "e", "\u03BF": "o", "\u03C1": "p", "\u03C5": "u", "\u03BD": "v", "\u03BA": "k", "\u03C4": "t", "\u03B9": "i", "\u03C7": "x", "\u03B7": "n", "\u03C3": "o" };
+/** Text with its accents off and its look-alikes folded to Latin. Lower-case it first. */
+export const unconfuse = (s) => [...s.normalize("NFD").replace(/\p{M}+/gu, "")].map((c) => LOOKALIKE[c] || c).join("");
+
 // ---------- dates ----------
 
 /** YYYY-MM-DD of a time, in UTC. */

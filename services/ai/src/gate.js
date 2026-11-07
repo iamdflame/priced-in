@@ -18,7 +18,7 @@
 //
 // The order is cheapest first: code, then one batched model call, then one web search per survivor.
 
-import { MAX_SETTLE_DAYS, NO_THINKING, TOPICS, daysFrom, isoDay, dateWords, jsonIn } from "./scout.js";
+import { MAX_SETTLE_DAYS, NO_THINKING, TOPICS, daysFrom, isoDay, dateWords, jsonIn, unconfuse } from "./scout.js";
 import { tokens } from "../../api/src/match.mjs";
 
 export const REVIEW_MODEL = "Qwen/Qwen3.8-27B";
@@ -58,7 +58,8 @@ const PRICE_LINE = /\b(?:price|prices|shares|stocks?|index|bitcoin|btc|ether|eth
  * @returns {{ ok: boolean, category: string|null, matched: string|null }}
  */
 export function policyCheck(c) {
-  const text = [c.claim, c.statement, c.question, c.why, c.source?.headline, c.settles?.event].filter(Boolean).join(" ‖ ").toLowerCase();
+  // as a reader reads it: wide and styled letters, invisible ones and look-alikes don't hide a word
+  const text = unconfuse([c.claim, c.statement, c.question, c.why, c.source?.headline, c.settles?.event].filter(Boolean).join(" ‖ ").normalize("NFKC").replace(/\p{Cf}/gu, "").toLowerCase());
   const scrubbed = text.replace(NOT_A_WAR, " ");
   for (const [category, patterns] of BLOCKLIST) {
     for (const re of patterns) {
@@ -100,6 +101,9 @@ export function aboutLater(c, nowMs) {
   return null;
 }
 
+const UNSEEN = /[\p{Cc}\p{Cf}\p{Co}\p{Cn}]/u; // format and control characters: they hide letters, or turn text around on the page
+const twoAlphabets = (s) => String(s).split(/\s+/).some((w) => /\p{Script=Latin}/u.test(w) && /[\p{Script=Cyrillic}\p{Script=Greek}]/u.test(w));
+
 /** Is the candidate complete and in range? Problems in plain words; empty when it is. */
 export function shapeProblems(c, nowMs) {
   const out = [...(c.problems || [])];
@@ -107,6 +111,10 @@ export function shapeProblems(c, nowMs) {
   if (c.claim && c.claim.length > 480) out.push("its claim is too long to read on a phone (over 480 characters)");
   if (c.question && c.question.split(/\s+/).length > 14) out.push("its question is over 14 words");
   if (c.topic && !TOPICS.includes(c.topic)) out.push("its topic is not one of ours");
+  // what goes on-chain and on the page is what a reader sees, and nothing else
+  const shown = [c.claim, c.question, c.why, c.settles?.source, c.settles?.event].filter(Boolean);
+  if (shown.some((x) => UNSEEN.test(x))) out.push("it holds characters a reader can't see");
+  if (shown.some(twoAlphabets)) out.push("it has a word written in two alphabets");
   if (c.settles?.by && dateWords(c.settles.by)) {
     const d = daysFrom(nowMs, c.settles.by);
     if (!(d >= 1 && d <= MAX_SETTLE_DAYS)) out.push(`it settles ${d < 1 ? "today or earlier" : `in ${d} days`}, not within 1 to ${MAX_SETTLE_DAYS} days`);

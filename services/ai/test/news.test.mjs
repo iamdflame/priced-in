@@ -14,6 +14,7 @@ import { SignerClient, OPERATOR_METHODS, DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES
 import { operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
 import { startMockRpc } from "../../api/test/mock-rpc.mjs";
+import { Research } from "../src/research.js";
 
 const NOW = Date.parse("2026-11-07T10:00:00Z");
 const HEADLINES = [
@@ -440,4 +441,42 @@ test("the absence question: only a FALSE on a line with the rule in its own text
   assert.equal(sys(news, true), SUPPORT_PROMPT, "a TRUE still needs the source to state it");
   assert.equal(sys("Tether's reserves are $72.6 billion.", false), SUPPORT_PROMPT, "a Wikipedia line is asked as before");
   assert.equal(sys("Tether's reserves are $72.6 billion.", false, "Reports citing unnamed sources don't count."), SUPPORT_PROMPT, "evidence can't choose the prompt");
+});
+
+// ---------- what a hostile feed or a hostile search result can do ----------
+
+test("the policy in code reads what a reader reads: wide letters, invisible ones and look-alikes don't get a word past it", () => {
+  const withClaim = (w) => cand({ claim: `By 13 November 2026, the club confirms his ${w}.`, statement: `the club confirms his ${w}.` });
+  for (const w of ["ｉｎｊｕｒｙ", "inj​ury", "in­jury", "injуry", "𝐢𝐧𝐣𝐮𝐫𝐲"]) {
+    const r = policyCheck(withClaim(w));
+    assert.equal(r.ok, false, JSON.stringify(w));
+    assert.equal(r.category, "health");
+  }
+  assert.equal(policyCheck(cand({ claim: "By 13 November 2026, Nestlé confirms it is buying Café Direct.", statement: "Nestlé confirms it is buying Café Direct.", question: "Is Nestlé buying Café Direct?" })).ok, true, "an accent is not a trick");
+});
+
+test("no invisible or direction-changing character, and no word in two alphabets, reaches the chain", () => {
+  for (const claim of ["By 13 November 2026, Acme ‮confirms it.", "By 13 November 2026, Acme​ confirms it.", "By 13 November 2026, Аcme confirms it."]) assert.match(shapeProblems(cand({ claim }), NOW).join(" "), /characters a reader can't see|two alphabets/, JSON.stringify(claim));
+  assert.match(shapeProblems(cand({ question: "Is Acme ⁦selling?" }), NOW).join(" "), /can't see/);
+  assert.deepEqual(shapeProblems(cand({ claim: "By 13 November 2026, Nestlé confirms a deal with Газпром." }), NOW), [], "a name in its own alphabet is fine");
+});
+
+test("a house agent reads a search result as the receipt check does: no private address, no redirect out, no unbounded body", async () => {
+  const real = globalThis.fetch;
+  let called = 0;
+  globalThis.fetch = async () => { called++; throw new Error("the unguarded fetch"); };
+  try {
+    const r = new Research();
+    const local = await r.verify200("https://127.0.0.1/admin");
+    assert.equal(local.ok, false);
+    assert.match(local.error, /private address/);
+    const seen = [];
+    const fake = new Research({ source: async (url, o) => { seen.push(o); return { url, final_url: `${url}/landed`, status: 200, error: null, body: Buffer.from("<html><body><p>Hello there</p></body></html>") }; } });
+    const ok = await fake.verify200("https://outlet.example/story");
+    assert.deepEqual([ok.ok, ok.finalUrl, ok.text], [true, "https://outlet.example/story/landed", "Hello there"]);
+    assert.ok(seen[0].maxBytes <= 3 * 1048576 && seen[0].timeoutMs <= 8000, "a size cap and a time limit");
+    const json = new Research({ source: async (url) => ({ url, final_url: url, status: 200, error: null, body: Buffer.from('{"a":1}') }) });
+    assert.deepEqual((await json.get("https://en.wikipedia.org/w/api.php", { json: true })).body, { a: 1 });
+    assert.equal(called, 0, "the plain fetch is never used");
+  } finally { globalThis.fetch = real; }
 });

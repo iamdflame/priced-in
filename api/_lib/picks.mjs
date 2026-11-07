@@ -17,7 +17,7 @@
 import nacl from "tweetnacl";
 import { createHash } from "node:crypto";
 import { baseDecode } from "near-api-js";
-import { endOfDay } from "../../services/ai/src/scout.js";
+import { endOfDay, unconfuse } from "../../services/ai/src/scout.js";
 import { chronological, timeOf } from "./views.mjs";
 
 export const PICKS = "picks.jsonl";
@@ -119,10 +119,6 @@ export function firstPicks(records) {
 // ---------- nicknames ----------
 
 const LEET = { 0: "o", 1: "i", 3: "e", 4: "a", 5: "s", 7: "t", 8: "b", "@": "a", $: "s", "!": "i" };
-// letters of other scripts that read as Latin ones (Unicode's confusables, the common ones): nicknames
-// allow every alphabet, so without this "Qu\u0430nt" in Cyrillic is a free pass past the words below
-const LOOKALIKE = { "\u0430": "a", "\u0435": "e", "\u0451": "e", "\u043E": "o", "\u0440": "p", "\u0441": "c", "\u0443": "y", "\u0445": "x", "\u0456": "i", "\u0457": "i", "\u0458": "j", "\u0455": "s", "\u0501": "d", "\u051B": "q", "\u04BB": "h", "\u043A": "k", "\u043C": "m", "\u043D": "h", "\u0442": "t", "\u0432": "b", "\u0433": "r", "\u043F": "n", "\u0438": "u", "\u04CF": "l", "\u03B1": "a", "\u03B5": "e", "\u03BF": "o", "\u03C1": "p", "\u03C5": "u", "\u03BD": "v", "\u03BA": "k", "\u03C4": "t", "\u03B9": "i", "\u03C7": "x", "\u03B7": "n", "\u03C3": "o" };
-const unconfuse = (s) => [...s.normalize("NFD").replace(/\p{M}+/gu, "")].map((c) => LOOKALIKE[c] || c).join("");
 const squash = (s) => unconfuse(String(s).toLowerCase()).replace(/[013457@$!8]/g, (c) => LEET[c] || c).replace(/[^a-z\p{L}]/gu, "");
 // whole-word in the name, or anywhere in its letters for the unambiguous ones
 const ANYWHERE = ["fuck", "cunt", "nigg", "faggot", "retard", "whore", "kike", "rapist", "pedo", "nazi", "hitler", "shit", "bitch", "pussy", "cock", "porn"];
