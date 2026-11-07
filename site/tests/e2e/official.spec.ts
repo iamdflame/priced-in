@@ -57,8 +57,16 @@ test.describe("with the official pages off", () => {
   });
 });
 
+/** Pages regenerate in the background: after the switch moves, ask until the slowest of them shows it. */
+async function pagesOn(request: APIRequestContext) {
+  await scenario(request, null, { pages: "on" }, { path: "/p/tether", has: "Written by AI from what the market believes" });
+  await expect.poll(async () => (await request.get("/how")).text(), { timeout: 60_000, intervals: [2_000] }).toContain("The writer");
+  if (NEWS) await expect.poll(async () => (await request.get("/record")).status(), { timeout: 60_000, intervals: [2_000] }).toBe(200);
+}
+
 test.describe("with the official pages on", () => {
   test.skip(!PAGES, "the on state: E2E_PAGES=on with the stand-in API and MOCK_PAGES=on");
+  test.beforeAll(async ({ request }) => { await pagesOn(request); });
 
   test("/p/tether opens on the market's page: written from the odds, with when it changed, and the source's licence", async ({ page, request }) => {
     const g = await guard(page);
@@ -228,7 +236,7 @@ test.describe("switching the official pages off again", () => {
       await expect.poll(async () => (await request.get("/c/18")).text(), { timeout: 60_000, intervals: [2_000] }).toContain("whose text is available under");
       await expect.poll(async () => (await request.get("/record")).status(), { timeout: 60_000, intervals: [2_000] }).toBe(404);
     } finally {
-      await scenario(request, page, { pages: "on" }, { path: "/p/tether", has: "Written by AI from what the market believes" });
+      await pagesOn(request);
     }
   });
 });
@@ -236,6 +244,7 @@ test.describe("switching the official pages off again", () => {
 test.describe("the record, with the official pages and today's news on", () => {
   test.skip(!PAGES || !NEWS, "E2E_PAGES=on and E2E_NEWS=on with the stand-in API");
   test.describe.configure({ mode: "serial" });
+  test.beforeAll(async ({ request }) => { await pagesOn(request); });
 
   test("/p links the record, and the record lists each decided claim with its sources and ruling", async ({ page, request }) => {
     const g = await guard(page);
