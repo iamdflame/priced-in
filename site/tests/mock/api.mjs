@@ -347,6 +347,11 @@ const handle = async (req, res) => {
     }
     return json(res, 200, { news: state.news, pages: state.pages, scenario: state.scenario, picks: state.picks.length, reports: state.reports.length, visitor: { key: VISITOR_KEY, secret: VISITOR_SECRET } });
   }
+  // the truth API's terms list the page routes while the pages are on, as services/api/src/app.mjs does: the site reads its switch there
+  if (url.pathname === "/api/v1" && req.method === "GET") {
+    const v1 = await upstream("/api/v1").catch(() => null);
+    if (v1) { const { pages: _p, record: _r, ...rest } = v1; return json(res, 200, state.pages === "on" ? { ...rest, pages: "/v1/pages/<slug>", record: "/v1/record" } : rest); }
+  }
   if (PAGES.test(url.pathname)) {
     if (state.pages !== "on" || req.method !== "GET") return json(res, 404, { error: { code: "not_found", message: `No route ${req.method} ${url.pathname.replace(/^\/api/, "")}.` } });
     return pages(req, res, url);

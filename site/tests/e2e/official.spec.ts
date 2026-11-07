@@ -212,6 +212,27 @@ test.describe("with the official pages on", () => {
   }
 });
 
+test.describe("switching the official pages off again", () => {
+  test.skip(!PAGES, "the on state: E2E_PAGES=on with the stand-in API and MOCK_PAGES=on");
+  test.describe.configure({ mode: "serial" });
+
+  // a rollback must reach every page, the ones rendered per request too: the site reads the switch from /v1, which
+  // answers 200 either way, so its cache never keeps the last "on" after the API says off
+  test("an article rendered per request, and a dynamic page's footer, go back to how they were", async ({ page, request }) => {
+    const HEAT = "on this page";
+    try {
+      await scenario(request, page, { pages: "off" }, { path: "/p/tether", has: HEAT, lacks: "Written by AI from what the market believes" });
+      await page.goto("/p/tether");
+      await expect(page.locator(".enc-head .lede")).toContainText(HEAT);
+      await expect(page.getByRole("button", { name: MARKET })).toHaveCount(0);
+      await expect.poll(async () => (await request.get("/c/18")).text(), { timeout: 60_000, intervals: [2_000] }).toContain("whose text is available under");
+      await expect.poll(async () => (await request.get("/record")).status(), { timeout: 60_000, intervals: [2_000] }).toBe(404);
+    } finally {
+      await scenario(request, page, { pages: "on" }, { path: "/p/tether", has: "Written by AI from what the market believes" });
+    }
+  });
+});
+
 test.describe("the record, with the official pages and today's news on", () => {
   test.skip(!PAGES || !NEWS, "E2E_PAGES=on and E2E_NEWS=on with the stand-in API");
   test.describe.configure({ mode: "serial" });
