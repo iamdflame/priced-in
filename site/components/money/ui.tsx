@@ -15,6 +15,8 @@ import type { SendState } from "./useSend";
 export function Sheet({ title, sub, onClose, children, wide = false, label }: { title: string; sub?: ReactNode; onClose: () => void; children: ReactNode; wide?: boolean; label?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const id = useId();
+  // once the body scrolls under the title, the title gets its edge (a hairline), so nothing reads as cut off
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => {
     const prev = document.activeElement as HTMLElement | null;
     const el = ref.current;
@@ -35,8 +37,8 @@ export function Sheet({ title, sub, onClose, children, wide = false, label }: { 
   }, [onClose]);
   return (
     <div className="m-sheet" onMouseDown={(e) => { if (e.target === e.currentTarget) onClose(); }}>
-      <div className={`m-panel ${wide ? "wide" : ""}`} role="dialog" aria-modal="true" aria-labelledby={id} aria-label={label} ref={ref} tabIndex={-1}>
-        <div className="m-head">
+      <div className={`m-panel ${wide ? "wide" : ""}`} role="dialog" aria-modal="true" aria-labelledby={id} aria-label={label} ref={ref} tabIndex={-1} onScroll={(e) => setScrolled(e.currentTarget.scrollTop > 0)}>
+        <div className={`m-head${scrolled ? " edge" : ""}`}>
           <div><h2 id={id}>{title}</h2>{sub ? <p>{sub}</p> : null}</div>
           <button type="button" className="iconbtn" onClick={onClose} aria-label="Close" data-close><Icon name="x" /></button>
         </div>

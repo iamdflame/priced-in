@@ -28,7 +28,8 @@
 .m-sheet { position: fixed; inset: 0; z-index: 75; display: grid; place-items: center; padding: 24px; background: var(--scrim); backdrop-filter: blur(6px); animation: fade .2s var(--ease-out); overflow-y: auto; }
 .m-panel { position: relative; width: min(480px, 100%); max-height: calc(100dvh - 48px); overflow-y: auto; overscroll-behavior: contain; border-radius: var(--r-xl); background: var(--panel); box-shadow: var(--lift), inset 0 0 0 1px var(--line-strong); animation: rise .35s var(--ease-out); }
 .m-panel.wide { width: min(560px, 100%); }
-.m-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 14px 10px 22px; background: inherit; }
+.m-head { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 14px 12px 22px; background: inherit; box-shadow: 0 1px 0 transparent; transition: box-shadow var(--color) var(--ease-out); }
+.m-head.edge { box-shadow: 0 1px 0 var(--line); }
 .m-head h2 { font: 650 21px/1.15 var(--disp); letter-spacing: -.015em; }
 .m-head p { font-size: 13.5px; color: var(--ink3); margin-top: 3px; }
 .m-body { padding: 4px 22px 22px; display: flex; flex-direction: column; gap: 14px; }
