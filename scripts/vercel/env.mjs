@@ -46,7 +46,18 @@ export function vercelApi(env) {
       if (!teamId) throw new Error(`team ${TEAM_SLUG} is not visible to this token`);
     }
     const url = `https://api.vercel.com${p}${teamId ? `${p.includes("?") ? "&" : "?"}teamId=${teamId}` : ""}`;
-    const r = await fetch(url, { method, headers: { authorization: `Bearer ${env.VERCEL_TOKEN}`, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+    const send = () => fetch(url, { method, headers: { authorization: `Bearer ${env.VERCEL_TOKEN}`, "content-type": "application/json" }, body: body === undefined ? undefined : JSON.stringify(body) });
+    // a connection that never opened is safe to try again, whatever the method: the request was never sent
+    // (a founder's run on 7 Nov stopped on one 10-second connect timeout to api.vercel.com)
+    const neverSent = (e) => /UND_ERR_CONNECT_TIMEOUT|ECONNREFUSED|ENOTFOUND|EAI_AGAIN|ENETUNREACH/.test(`${e?.cause?.code || ""} ${e?.code || ""}`);
+    let r;
+    for (let i = 0; ; i++) {
+      try { r = await send(); break; } catch (e) {
+        if (!neverSent(e) || i >= 4) throw e;
+        console.log(`(Vercel didn't answer: ${e?.cause?.code || e?.code}; trying again in ${2 * (i + 1)} s)`);
+        await new Promise((res) => setTimeout(res, 2000 * (i + 1)));
+      }
+    }
     const text = await r.text();
     let j; try { j = JSON.parse(text); } catch { j = { raw: text }; }
     if (!r.ok) { const e = new Error(`${method} ${p}: HTTP ${r.status} ${JSON.stringify(j.error || j).slice(0, 300)}`); e.status = r.status; e.body = j; throw e; }
