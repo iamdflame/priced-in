@@ -1,0 +1,44 @@
+{
+ "skeptic": {
+  "src": "site/c18-d__full.png",
+  "x": 60,
+  "y": 3440,
+  "w": 1960,
+  "h": 330
+ },
+ "challenge": {
+  "src": "site/c18-d__full.png",
+  "x": 90,
+  "y": 1425,
+  "w": 1890,
+  "h": 150
+ },
+ "noWon": {
+  "src": "site/c18-d__full.png",
+  "x": 2055,
+  "y": 255,
+  "w": 760,
+  "h": 620
+ },
+ "para": {
+  "src": "site/ptether-d__full.png",
+  "x": 200,
+  "y": 1400,
+  "w": 1800,
+  "h": 400
+ },
+ "changed": {
+  "src": "site/ptether-d__full.png",
+  "x": 200,
+  "y": 1800,
+  "w": 1800,
+  "h": 600
+ },
+ "homeTop": {
+  "src": "site/home-d__full.png",
+  "x": 0,
+  "y": 0,
+  "w": 2880,
+  "h": 1800
+ }
+}

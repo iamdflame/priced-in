@@ -33,7 +33,7 @@ export const LINES = [
   {id: 'L09', text: 'So the page fixed itself. One hundred twenty-two point eight four billion, with the source beside it.', speed: 1.13},
   {id: 'L10', text: 'Wrong bets lose. Four dollars and ninety-three cents went to everyone who bet No.', speed: 1.11},
   {id: 'L11', text: 'The corrected sentence opened as a new market.', speed: 1.1},
-  {id: 'L12', text: 'A prediction market for every checkable fact. Six have already been ruled on NEAR.', speed: 1.12},
+  {id: 'L12', text: 'A prediction market for every checkable fact. Seven have already been ruled on NEAR.', speed: 1.12},
   {id: 'L14', text: 'Is it true? Bet on it. Your first dollar is free, at is it priced dot com.', speed: 0.98},
   // the 15 s cut
   {id: 'C2', text: 'Bet a free dollar that it’s wrong.', speed: 1.12},

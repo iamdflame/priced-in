@@ -79,7 +79,12 @@
 {
 "id": "fix",
 "at": 48.0,
-"dur": 6.75
+"dur": 3.0
+},
+{
+"id": "pageFix",
+"at": 51.0,
+"dur": 3.75
 },
 {
 "id": "payout",
@@ -986,7 +991,7 @@
 {
 "id": "L12",
 "at": 63.75,
-"text": "A prediction market for every checkable fact. Six have already been ruled on NEAR.",
+"text": "A prediction market for every checkable fact. Seven have already been ruled on NEAR.",
 "words": [
 {
 "w": "A",
@@ -1024,39 +1029,39 @@
 "e": 66.464
 },
 {
-"w": "Six",
-"s": 66.75,
-"e": 67.036
+"w": "Seven",
+"s": 66.637,
+"e": 67.064
 },
 {
 "w": "have",
-"s": 67.143,
-"e": 67.25
+"s": 67.225,
+"e": 67.332
 },
 {
 "w": "already",
-"s": 67.321,
-"e": 67.607
+"s": 67.404,
+"e": 67.689
 },
 {
 "w": "been",
-"s": 67.679,
-"e": 67.75
+"s": 67.761,
+"e": 67.832
 },
 {
 "w": "ruled",
-"s": 67.821,
-"e": 68.107
+"s": 67.904,
+"e": 68.189
 },
 {
 "w": "on",
-"s": 68.179,
-"e": 68.25
+"s": 68.261,
+"e": 68.332
 },
 {
 "w": "NEAR.",
-"s": 68.321,
-"e": 68.964
+"s": 68.404,
+"e": 69.046
 }
 ]
 },

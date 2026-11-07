@@ -95,7 +95,8 @@ def main_cut():
         dict(id='stamps', at=34.5, dur=5.25),
         dict(id='signed', at=39.75, dur=4.5),
         dict(id='window', at=44.25, dur=3.75),
-        dict(id='fix', at=48.0, dur=6.75),
+        dict(id='fix', at=48.0, dur=3.0),
+        dict(id='pageFix', at=51.0, dur=3.75),
         dict(id='payout', at=54.75, dur=6.0),
         dict(id='reopen', at=60.75, dur=3.0),
         dict(id='pullback', at=63.75, dur=6.0),
@@ -110,7 +111,7 @@ def main_cut():
           ('stamp1', 35.1, 1.9), ('stamp2', 36.1, 1.9), ('stamp3', 38.2, 2.2),
           ('ping', word_at('L07e', 39.6, 'checked'), 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.3, 0.8), ('ping', word_at('L07e', 39.6, 'checked') + 0.6, 0.8),
           ('clock', 44.5, 0.5), ('whoosh_short', 47.8, 0.35),
-          ('strike', 49.0, 0.8), ('morph', 49.8, 0.75),
+          ('strike', 48.75, 0.8), ('morph', 49.35, 0.75), ('whoosh_long', 50.75, 0.45), ('tap', 52.6, 0.45), ('ping', 53.4, 0.6),
           ('whoosh', 54.5, 0.35), ('count', word_at('L10', 54.75, 'Four'), 0.6), ('settle', word_at('L10', 54.75, 'Four') + 1.45, 0.9),
           ('whoosh', 60.5, 0.35), ('whoosh_long', 63.4, 0.5), ('whoosh_short', 69.55, 0.35), ('whoosh_long', 73.1, 0.45),
           ('bloom', 74.0, 0.9), ('sting', 74.0, 0.8)]

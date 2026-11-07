@@ -3,6 +3,8 @@ import {AbsoluteFill, Img, staticFile} from 'remotion';
 import {C, EASE, FONT, SHADOW} from '../brand/tokens';
 import {Chip, Lockup, PrimaryButton} from '../components/core';
 import {PageFix} from '../pieces/PageFix';
+import live from './live.json';
+import boxes from './boxes.json';
 import {
   Browser3D,
   FLOW_TAP,
@@ -303,7 +305,7 @@ const Traders: React.FC<P> = ({shot, t, T}) => {
     <Ground glow="62% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{transform: 'translate(-300px, 50px)'}}>
-          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(3120, 3170, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: -1.5}} lifts={[{x: 60, y: 3440, w: 1960, h: 330, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
+          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(boxes.skeptic.y - 330, boxes.skeptic.y - 280, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: -1.5}} lifts={[{...boxes.skeptic, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
@@ -338,7 +340,7 @@ const Challenge: React.FC<P> = ({shot, t, T}) => {
     <Ground glow="62% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{transform: 'translate(-300px, 50px)'}}>
-          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(1140, 1200, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: 1.5}} lifts={[{x: 90, y: 1425, w: 1890, h: 150, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
+          <Browser3D src="site/c18-d__full.png" url="isitpriced.com/c/18" width={1400} height={880} top={mix(boxes.challenge.y - 285, boxes.challenge.y - 225, k)} pose={{rx: mix(12, 7, k), ry: mix(22, 16, k), rz: 1.5}} lifts={[{...boxes.challenge, z: lift * 260, ring: true}]} dim={0.16 * lift} dof={3} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(270deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.8) 28%, transparent 46%)'}} />
@@ -399,9 +401,9 @@ const Stamps: React.FC<P> = ({shot, t, T}) => {
           const y = (tall ? [617, 958, 1330] : [242, 541, 845])[i];
           const hit = local >= HIT[i];
           return (
-            <div key={j.name} style={{position: 'absolute', left: tall ? 76 : 150, top: y - (tall ? 62 : 80)}}>
-              <div style={{...big(tall ? 64 : 92), letterSpacing: '-0.03em', whiteSpace: 'nowrap'}}>{j.name}</div>
-              <div style={{font: `500 ${tall ? 42 : 48}px ${FONT.text}`, color: C.ink3, marginTop: 10, opacity: hit ? 1 : 0, fontFeatureSettings: "'tnum'"}}>{j.at}</div>
+            <div key={j.name} style={{position: 'absolute', left: tall ? 60 : 150, top: y - (tall ? 52 : 80)}}>
+              <div style={{...big(tall ? 50 : 92), letterSpacing: '-0.03em', whiteSpace: 'nowrap'}}>{j.name}</div>
+              <div style={{font: `500 ${tall ? 36 : 48}px ${FONT.text}`, color: C.ink3, marginTop: 10, opacity: hit ? 1 : 0, fontFeatureSettings: "'tnum'"}}>{j.at}</div>
             </div>
           );
         })}
@@ -520,8 +522,8 @@ const Payout: React.FC<P> = ({shot, t, T}) => {
       </AbsoluteFill>
       {!tall ? (
         <AbsoluteFill style={{alignItems: 'flex-end', justifyContent: 'center', padding: '0 110px 60px 0', perspective: 1800}}>
-          <div style={{width: 620, height: 500, borderRadius: 26, overflow: 'hidden', position: 'relative', transform: `rotateY(${mix(-32, -20, lift)}deg) rotateX(${mix(9, 5, lift)}deg)`, boxShadow: `0 70px 120px -44px rgba(40,52,66,0.42), 0 0 0 1px ${C.line}`}}>
-            <Img src={staticFile('site/c18-d__full.png')} style={{position: 'absolute', width: 2880 * (620 / 760), left: -2055 * (620 / 760), top: -255 * (620 / 760)}} />
+          <div style={{width: 620, height: Math.round((620 * boxes.noWon.h) / boxes.noWon.w), borderRadius: 26, overflow: 'hidden', position: 'relative', transform: `rotateY(${mix(-32, -20, lift)}deg) rotateX(${mix(9, 5, lift)}deg)`, boxShadow: `0 70px 120px -44px rgba(40,52,66,0.42), 0 0 0 1px ${C.line}`}}>
+            <Img src={staticFile(boxes.noWon.src)} style={{position: 'absolute', width: 2880 * (620 / boxes.noWon.w), left: -boxes.noWon.x * (620 / boxes.noWon.w), top: -boxes.noWon.y * (620 / boxes.noWon.w)}} />
           </div>
         </AbsoluteFill>
       ) : null}
@@ -556,21 +558,21 @@ const Pullback: React.FC<P> = ({shot, t, T}) => {
   const cut = useCut();
   const k = ease(t, 0, shot.dur, EASE.inOut);
   const words = wordsIn(cut, shot.at - 0.1, shot.at + shot.dur);
-  const split = words.findIndex((w) => /^Six/i.test(w.w));
+  const split = words.findIndex((w) => /^(Six|Seven)/i.test(w.w));
   const six = split >= 0 ? words[split].s : shot.at + 3;
   const b = ease(T, six - 0.05, 0.35, EASE.spring);
   return (
     <Ground glow="50% 60%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: `translate(${mix(0, 60, k)}px, ${mix(240, 200, k)}px)`}}>
-          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1560} height={940} top={mix(760, 2150, k)} pose={{rx: mix(30, 40, k), ry: mix(-6, -16, k), rz: mix(2, 8, k), z: mix(40, -620, k)}} dof={7} />
+        <div style={{transform: `translate(${mix(0, 60, k)}px, ${mix(150, 200, k)}px)`}}>
+          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1560} height={940} top={mix(0, 1500, ease(t, 0.6, shot.dur - 0.6, EASE.inOut))} pose={{rx: mix(14, 38, k), ry: mix(-4, -16, k), rz: mix(1, 8, k), z: mix(120, -620, k)}} dof={7} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(248,249,251,0.97) 12%, rgba(248,249,251,0.7) 40%, transparent 62%)'}} />
       <AbsoluteFill style={{padding: '84px 130px'}}>
         <Spoken t={T} words={split >= 0 ? words.slice(0, split) : words} size={92} paint={false} maxWidth={1400} />
         <div style={{marginTop: 28, display: 'flex', alignItems: 'baseline', gap: 24, opacity: T >= six - 0.05 ? 1 : 0, transformOrigin: '0 100%', transform: `scale(${mix(1.05, 1, b)})`}}>
-          <span style={{...big(84, C.ink2)}}>6 rulings settled on NEAR</span>
+          <span style={{...big(84, C.ink2)}}>{live.rulings} rulings settled on NEAR</span>
         </div>
         <div style={{font: `500 30px ${FONT.text}`, color: C.ink3, marginTop: 14, opacity: ease(T, six + 0.5, 0.4)}}>Every step a public transaction</div>
       </AbsoluteFill>
@@ -630,8 +632,40 @@ const End: React.FC<P> = ({shot, t, T}) => {
   );
 };
 
+
+// ----- S09b: the page fixed itself, on the real page --------------------------------------------------------------
+// isitpriced.com/p/tether ("Written by AI from what the market believes right now"): the T-Bills paragraph in its
+// corrected wording, with "What changed" open (ruled false by three AI judges, the TEE signature, the anchor on NEAR).
+const PageReal: React.FC<P> = ({shot, t}) => {
+  const k = ease(t, 0, shot.dur, EASE.inOut);
+  const land = ease(t, 0, 1.3, EASE.out);
+  const lift = ease(t, 1.0, 0.9, EASE.out);
+  const p = boxes.para;
+  const c = boxes.changed;
+  const top = Math.max(0, p.y - 260);
+  return (
+    <Ground glow="55% 45%">
+      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
+        <div style={{transform: `translate(${mix(0, 40, k)}px, ${mix(60, 30, k)}px)`}}>
+          <Browser3D
+            src={p.src}
+            url="isitpriced.com/p/tether"
+            width={1560}
+            height={940}
+            top={mix(top + 140, top, land)}
+            pose={{rx: mix(26, 9, land), ry: mix(-16, -9, k), rz: mix(3, 1, k), z: mix(-380, -40, land)}}
+            lifts={[{...c, z: lift * 220, ring: true}]}
+            dim={0.12 * lift}
+            dof={3}
+          />
+        </div>
+      </AbsoluteFill>
+    </Ground>
+  );
+};
+
 const FixShot: React.FC<P & {short?: boolean}> = ({short}) => (
-  <AbsoluteFill style={{transform: 'scale(1.12)', transformOrigin: '20% 50%'}}>{short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix delay={0.65} />}</AbsoluteFill>
+  <AbsoluteFill style={{transform: 'scale(1.12)', transformOrigin: '20% 50%'}}>{short ? <PageFix tempo={1.5} delay={0.25} /> : <PageFix tempo={1.25} delay={0.2} />}</AbsoluteFill>
 );
 
 export const SHOTS: Record<string, React.FC<P>> = {
@@ -651,6 +685,7 @@ export const SHOTS: Record<string, React.FC<P>> = {
   window: Window,
   fix: (p) => <FixShot {...p} />,
   fixShort: (p) => <FixShot {...p} short />,
+  pageFix: PageReal,
   payout: Payout,
   reopen: Reopen,
   pullback: Pullback,
