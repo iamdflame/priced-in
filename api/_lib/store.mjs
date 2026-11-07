@@ -146,7 +146,12 @@ export class BlobState {
   async release(scope, key) {
     const day = new Date().toISOString().slice(0, 10);
     const h = crypto.createHash("sha256").update(`${scope}:${key}`).digest("hex").slice(0, 20);
-    await this.updateDoc(`limits/${scope}/${day}.json`, (cur) => (cur?.[h] > 0 ? { ...cur, [h]: cur[h] - 1 } : undefined)).catch(() => {});
+    // back to nothing leaves no entry: a refused request must not grow the day's document
+    await this.updateDoc(`limits/${scope}/${day}.json`, (cur) => {
+      if (!(cur?.[h] > 0)) return undefined;
+      const { [h]: n, ...rest } = cur;
+      return n > 1 ? { ...rest, [h]: n - 1 } : rest;
+    }).catch(() => {});
   }
 
   /** How much of `scope` is left for `key` today, without taking any. { used, remaining, retryAfterS }. */

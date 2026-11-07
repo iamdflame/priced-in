@@ -91,16 +91,27 @@ export async function newsRoutes(req, res, route, url, p, cfg) {
     } else if (req.method === "POST" && route === "/picks") {
       const b = await readBody(req, 4096);
       const pick = parsePick(b, { network, nowMs });
+      const answerKnown = (mine) => {
+        if (mine?.side === pick.side) return ok({ ok: true, duplicate: true, pick: { claim_id: mine.claim_id, side: mine.side, at: mine.at, price_yes_ppm: mine.price_yes_ppm } });
+        if (mine) throw new Refusal(409, "already_picked", `You picked ${mine.side === "yes" ? "Yes" : "No"} on this line. Your first pick is the one that counts.`, { pick: { claim_id: mine.claim_id, side: mine.side, at: mine.at } });
+        return null;
+      };
+      // what the cached read can answer costs no store write: signed picks are public, so anyone can replay one
+      const seen = await facts(p);
+      const cached = seen.claims.find((x) => x.id === pick.claim_id);
+      pickableOrWhy(cached, cached?.news ?? null, nowMs);
+      const known = answerKnown(seen.picks.find((x) => x.key === pick.key && x.claim_id === pick.claim_id));
+      if (known) return sendJson(res, known.status, known.body);
       const ip = clientIp(req, true);
-      const release = await takeLimits(p.state, [["picks-key", pick.key, lim.picksPerKey, `This key has made its ${lim.picksPerKey} picks for today.`], ["picks-ip", ip, lim.picksPerIp, "This network has made too many picks today."]]);
+      const release = await takeLimits(p.state, [["picks-ip", ip, lim.picksPerIp, "This network has made too many picks today."], ["picks-key", pick.key, lim.picksPerKey, `This key has made its ${lim.picksPerKey} picks for today.`]]);
       try {
         const f = await facts(p);
         await p.journals.hydrate().catch(() => {});
         const c = f.claims.find((x) => x.id === pick.claim_id);
         pickableOrWhy(c, c?.news ?? null, nowMs);
         const mine = firstPicks(p.journals.read(PICKS)).find((x) => x.key === pick.key && x.claim_id === pick.claim_id);
-        if (mine && mine.side === pick.side) { await release(); r = ok({ ok: true, duplicate: true, pick: { claim_id: mine.claim_id, side: mine.side, at: mine.at, price_yes_ppm: mine.price_yes_ppm } }); }
-        else if (mine) throw new Refusal(409, "already_picked", `You picked ${mine.side === "yes" ? "Yes" : "No"} on this line. Your first pick is the one that counts.`, { pick: { claim_id: mine.claim_id, side: mine.side, at: mine.at } });
+        const again = answerKnown(mine);
+        if (again) { await release(); r = again; }
         else {
           const rec = { t: "pick", key: pick.key, claim_id: pick.claim_id, side: pick.side, issued_at: pick.issued_at, at: nowMs, price_yes_ppm: c.price_yes_ppm, page: c.page, message: pick.message, signature: pick.signature };
           await append(p, PICKS, rec);
@@ -118,7 +129,7 @@ export async function newsRoutes(req, res, route, url, p, cfg) {
       const b = await readBody(req, 4096);
       const prof = parseProfile(b, { network, nowMs });
       const ip = clientIp(req, true);
-      const release = await takeLimits(p.state, [["profile-key", prof.key, lim.profilesPerKey, `This key has changed its nickname ${lim.profilesPerKey} times today.`], ["profile-ip", ip, lim.profilesPerIp, "This network has changed too many nicknames today."]]);
+      const release = await takeLimits(p.state, [["profile-ip", ip, lim.profilesPerIp, "This network has changed too many nicknames today."], ["profile-key", prof.key, lim.profilesPerKey, `This key has changed its nickname ${lim.profilesPerKey} times today.`]]);
       try {
         await readContext();
         await p.journals.hydrate().catch(() => {});
@@ -134,7 +145,7 @@ export async function newsRoutes(req, res, route, url, p, cfg) {
       const source = trustedSource(rep.url, { news: line.news ?? null, extra: lim.trustedHosts });
       if (!source.ok) throw untrustedSource(rep.claim_id, source.hosts);
       const ip = clientIp(req, true);
-      const release = await takeLimits(p.state, [["reports-key", rep.key, lim.reportsPerKey, `This key has sent its ${lim.reportsPerKey} reports for today.`], ["reports-ip", ip, lim.reportsPerIp, "This network has sent too many reports today."]]);
+      const release = await takeLimits(p.state, [["reports-ip", ip, lim.reportsPerIp, "This network has sent too many reports today."], ["reports-key", rep.key, lim.reportsPerKey, `This key has sent its ${lim.reportsPerKey} reports for today.`]]);
       try {
         const f = await facts(p);
         await p.journals.hydrate().catch(() => {});
@@ -169,7 +180,7 @@ export async function newsRoutes(req, res, route, url, p, cfg) {
     }
     return sendJson(res, r.status, r.body, r.headers || {});
   } catch (e) {
-    if (e instanceof Refusal) return sendJson(res, e.status, refusalBody(e), e.status === 429 && e.extra.retryAfterS ? { "retry-after": String(e.extra.retryAfterS) } : {});
+    if (e instanceof Refusal) return sendJson(res, e.status, refusalBody(e), e.extra.retryAfterS ? { "retry-after": String(e.extra.retryAfterS) } : {});
     if (e?.status === 400 || e?.status === 413) return sendJson(res, e.status, { error: { code: "bad_request", message: e.message } });
     log(`${route}: ${e.message}`);
     return sendJson(res, 502, { error: { code: "upstream_error", message: "That didn't work just now. Try again in a moment." } });

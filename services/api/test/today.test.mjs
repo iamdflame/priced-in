@@ -243,6 +243,15 @@ test("nicknames: 3 to 20 plain characters, no slurs, nothing that looks like us,
   assert.deepEqual([n.get(b.key), n.get(c.key)], ["Diego R", undefined], "a name another key took first is not shown");
 });
 
+test("a name can't pass for ours or for someone else's: look-alike letters, mixed scripts, and a visitor's default name", () => {
+  const cyr = { a: "\u0430", e: "\u0435", o: "\u043E", c: "\u0441", i: "\u0456", p: "\u0440" };
+  for (const fake of [`Qu${cyr.a}nt`, `Ch${cyr.e}cker`, `S${cyr.e}ntinel`, `Pr${cyr.i}cedIn`, `${cyr.a}dmin`, `Sk\u0435ptic`, "\u0391dmin", "Visitor 6237Qd", "visitor abc123"]) assert.throws(() => cleanNickname(fake), (e) => e instanceof Refusal && /nickname_/.test(e.code), fake);
+  for (const ok of ["Иван Петров", "Νίκος", "田中", "José García", "Müller"]) assert.equal(cleanNickname(ok), ok, "a name in one script is a name");
+  const b = browser(), c = browser();
+  const recs = [{ t: "profile", key: b.key, nickname: "Diego", at: 1 }];
+  assert.equal(nicknameTaken(recs, `Di${cyr.e}go`, c.key), true, "the same name in look-alike letters is the same name");
+});
+
 // ---------- reports ----------
 
 test("a report: signed, its words checked by the receipt check alone, and its notes can't smuggle in other receipts", () => {
@@ -437,6 +446,35 @@ test("limits: per key and per network, and a refusal gives back what it took", a
   await release();
   assert.equal((await state.peek("picks-key", "k", 1)).used, 0);
   fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("limits fail closed: a store that can't count refuses, and gives back what it took", async () => {
+  const dir = tmp();
+  const state = new FsState({ prefix: "state/testnet/m", dir });
+  const take = state.take.bind(state);
+  let calls = 0;
+  state.take = async (...a) => { if (++calls === 2) throw new Error("could not update"); return take(...a); };
+  await assert.rejects(takeLimits(state, [["reports-ip", "1.2.3.4", 5, "ip"], ["reports-key", "k", 5, "key"]]), (e) => e instanceof Refusal && e.status === 503 && e.code === "busy");
+  assert.equal((await state.peek("reports-ip", "1.2.3.4", 5)).used, 0);
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("a refusal leaves nothing in the day's limits document, so refused requests can't grow it", async () => {
+  const dir = tmp();
+  const state = new FsState({ prefix: "state/testnet/m", dir });
+  await state.take("picks-key", "fresh-key", 5);
+  await state.release("picks-key", "fresh-key");
+  const day = new Date().toISOString().slice(0, 10);
+  const doc = await state.getDoc(`limits/picks-key/${day}.json`);
+  assert.deepEqual(doc?.value ?? {}, {});
+  fs.rmSync(dir, { recursive: true, force: true });
+});
+
+test("the routes ask the network's limit first: a request over it never touches the key's document, and a replay spends nothing", () => {
+  const src = fs.readFileSync(new URL("../../../api/_lib/today-routes.mjs", import.meta.url), "utf8");
+  for (const [a, b] of [["picks-ip", "picks-key"], ["profile-ip", "profile-key"], ["reports-ip", "reports-key"]]) assert.ok(src.indexOf(`["${a}"`) < src.indexOf(`["${b}"`), `${a} before ${b}`);
+  const pick = src.slice(src.indexOf('route === "/picks") {\n      const b ='));
+  assert.ok(pick.indexOf("const known = answerKnown(") < pick.indexOf("takeLimits"), "a duplicate or a closed line answers before any limit is taken");
 });
 
 test("the sitting stays as it was: a news line's ruling or a reader's report never takes the day's sitting", () => {

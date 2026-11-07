@@ -498,11 +498,21 @@ export function challengeCall(claim, { marketId, network, bondMicro, news = null
 
 // ---------- rate limits ----------
 
-/** Per key and per network (address), per UTC day, through the store. Releases what it took on refusal. */
+/**
+ * Per key and per network (address), per UTC day, through the store. Releases what it took on refusal.
+ * Fails closed: a store that can't count (a burst of requests racing on one document exhausts its
+ * retries) must not be the way past a limit. Ask for the network's limit first, so that a request
+ * over it never touches the document that grows with every new key.
+ */
 export async function takeLimits(state, limits) {
   const taken = [];
   for (const [scope, key, limit, message] of limits) {
-    const a = await state.take(scope, key, limit).catch(() => ({ ok: true }));
+    let a;
+    try { a = await state.take(scope, key, limit); }
+    catch {
+      for (const [s, k] of taken) await state.release(s, k).catch(() => {});
+      throw new Refusal(503, "busy", "That didn't go through just now. Try again in a moment.", { retryAfterS: 5 });
+    }
     if (!a.ok) {
       for (const [s, k] of taken) await state.release(s, k).catch(() => {});
       throw new Refusal(429, "rate_limited", message, { retryAfterS: a.retryAfterS });
