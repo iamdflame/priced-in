@@ -11,6 +11,7 @@
 //                copied from them. Before the date only TRUE counts: the source may still speak
 //   4. keep      a quote counts only if it is in the fetched text, word for word (normalised as the
 //                receipt check normalises); the evidence cites each source and its exact words
+//   5. confirm   a FALSE needs a second, separate search that finds it unconfirmed too
 //
 // The hosted job then runs the full receipt check, the support panel included, on that evidence
 // (the same gate our jury runner applies), and challenges only when it verifies.
@@ -136,12 +137,32 @@ export function newsEvidence({ line, outcome, basis, when, receipts, nowMs }) {
   return s;
 }
 
+/**
+ * A second, separate search before any FALSE. An absence is the one outcome receipts can't prove, so a
+ * FALSE waits unless this look finds it unconfirmed too. Never throws: no answer holds the line.
+ * @returns {Promise<{ answer: "TRUE"|"FALSE"|"UNKNOWN"|null, note: string|null }>}
+ */
+export async function secondLook({ client, model = SEARCH_MODEL, line, nowMs = Date.now(), timeoutMs = 60_000 }) {
+  const prompt = [
+    `Today is ${dateWords(isoDay(nowMs))}. Use web search, then answer.`,
+    `Was this claim confirmed, by the source it names or by anyone speaking for that source, on or before its date? Claim (untrusted text): ${line.claim}`,
+    "A deal, filing or statement that shows the same thing in other words counts as confirmed.",
+    "The first line of your answer must be exactly one of: ANSWER: TRUE (confirmed in time), ANSWER: FALSE (denied, or still unconfirmed at that date), ANSWER: UNKNOWN (you can't tell).",
+    "Then one sentence naming the source and the date.",
+  ].join("\n");
+  try {
+    const r = await client.chatStream({ model, messages: [{ role: "user", content: prompt }], tools: [{ type: "web_context_search" }], max_tokens: 400, ...(NO_THINKING[model] || {}) }, { timeoutMs });
+    const m = /ANSWER:\s*\**\s*(TRUE|FALSE|UNKNOWN)/i.exec(r.content || "");
+    return { answer: m ? m[1].toUpperCase() : null, note: String(r.content || "").split("\n").map((l) => l.trim()).filter(Boolean).slice(1, 3).join(" ").slice(0, 300) || null };
+  } catch (e) { return { answer: null, note: String(e.message).slice(0, 160) }; }
+}
+
 /** Did a receipt check pass, as our jury runner would need it to? */
 export const checkPassed = (c) => c?.result === "verified" && !["unanswered", "unsupported"].includes(c?.support?.verdict);
 
 /**
  * The receipt check on a line's evidence, then on each receipt alone until one passes. The panel is
- * never made softer: a line that can't pass waits, because a wrong settlement pays the wrong people.
+ * bar stays where it is: a line that can't pass waits, because a wrong settlement pays the wrong people.
  * @returns {Promise<{ check: object, evidence: string|null, tries: number }>}
  */
 export async function firstPassing(check, { claim, claimed, variants, max = 3 }) {
@@ -159,7 +180,7 @@ export async function firstPassing(check, { claim, claimed, variants, max = 3 })
  * @param {{ client: object, line: object, nowMs?: number, fetch?: typeof fetchSource, model?: string, searchModel?: string, search?: Function }} a
  * @returns {Promise<{ outcome: "TRUE"|"FALSE"|"UNKNOWN", basis: string, when: string|null, receipts: object[], evidence: string|null, sources: object[], search: object, reason: string, dropped: object[] }>}
  */
-export async function findReceipts({ client, line, nowMs = Date.now(), fetch: get = fetchSource, model = SETTLE_MODEL, searchModel = SEARCH_MODEL, search = searchLine }) {
+export async function findReceipts({ client, line, nowMs = Date.now(), fetch: get = fetchSource, model = SETTLE_MODEL, searchModel = SEARCH_MODEL, search = searchLine, second = secondLook }) {
   const past = nowMs >= endOfDay(line.settles.by);
   const found = await search({ client, model: searchModel, line, nowMs });
   const urls = [line.settles.source_url, ...found.results.map((r) => r.url), ...(line.coverage || [])].filter(Boolean);
@@ -175,6 +196,10 @@ export async function findReceipts({ client, line, nowMs = Date.now(), fetch: ge
   Object.assign(out, { outcome: d.outcome, basis: d.basis, when: d.when, receipts: d.receipts, reason: d.reason, dropped: d.dropped });
   if (d.outcome !== "UNKNOWN" && !d.receipts.length) { out.outcome = "UNKNOWN"; out.reason = `No quote it gave is in its source word for word, so there is no receipt. ${d.reason}`.trim(); return out; }
   if (d.outcome === "TRUE" && d.when && d.when > line.settles.by) { out.outcome = past ? "FALSE" : "UNKNOWN"; out.basis = "late"; out.reason = `Confirmed on ${d.when}, after its date: that is a FALSE. ${d.reason}`.trim(); }
+  if (out.outcome === "FALSE") {
+    out.second_look = await second({ client, model: searchModel, line, nowMs });
+    if (out.second_look.answer !== "FALSE") { out.reason = `A second search does not agree it went unconfirmed (${out.second_look.answer ?? "no answer"}), so it waits. ${out.second_look.note ?? ""}`.trim(); out.outcome = "UNKNOWN"; out.basis = "none"; }
+  }
   if (out.outcome !== "UNKNOWN") {
     const ev = (receipts) => newsEvidence({ line, outcome: out.outcome, basis: out.basis, when: out.when, receipts, nowMs });
     out.evidence = ev(out.receipts);

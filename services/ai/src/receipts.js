@@ -38,6 +38,7 @@ import zlib from "node:zlib";
 import errors from "../../../corpus/ERRORS.json" with { type: "json" };
 import committedReceipts from "./corpus-receipts.json" with { type: "json" };
 import { normText } from "./evidence.js";
+import { SOURCE_RULE, dateWords, endOfDay } from "./scout.js";
 
 export const RESULTS = Object.freeze(["verified", "quote_not_found", "unfetchable", "record_mismatch", "no_receipt", "unsupported"]);
 /** Results that mean the receipts failed: our jury runner stops, and the Sentinel disputes a ruling for the challenger. */
@@ -442,6 +443,18 @@ async function mapLimit(items, limit, fn) {
 const sourceView = (f, via) => ({ url: f.url, final_url: f.final_url ?? null, via, status: f.status ?? null, content_type: f.content_type ?? null, bytes: f.bytes ?? null, sha256: f.sha256 ?? null, fetched_at: f.fetched_at ?? null, error: f.error ?? null });
 const at = (f) => `${f.status ? `HTTP ${f.status}, fetched` : "tried"} ${f.fetched_at ? f.fetched_at.replace(/\.\d+Z$/, "Z") : "just now"}`;
 
+const MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+/** When a news line's date ends, in ms, from the claim's own text; null for any other claim. */
+export function newsDeadline(claim) {
+  const s = String(claim ?? "");
+  const m = /^By (\d{1,2}) ([A-Z][a-z]+) (\d{4}), /.exec(s);
+  const month = m ? MONTH_NAMES.indexOf(m[2]) : -1;
+  if (month < 0 || !s.endsWith(SOURCE_RULE)) return null;
+  const day = `${m[3]}-${String(month + 1).padStart(2, "0")}-${m[1].padStart(2, "0")}`;
+  return dateWords(day) ? endOfDay(day) : null;
+}
+
 /**
  * Check a challenge's receipts.
  * @param {{ claim: string, evidence: string, claimed?: boolean|null, fetchSource?: typeof fetchSource|null, support?: Function|null,
@@ -455,6 +468,15 @@ export async function checkReceipts({ claim, evidence, claimed = null, fetchSour
   const parsed = parseEvidence(evidence, { minChars: L.minQuoteChars, minWords: L.minQuoteWords });
   const out = { result: null, reason: null, checked_at: iso(now()), via: null, record: null, quotes: parsed.quotes.map((text) => ({ text, found: false, url: null, via: null })), sources: [], support: null };
   const finish = (result, reason, via) => Object.assign(out, { result, reason, via });
+
+  // a news line can't be shown FALSE before its date: anyone can post a challenge, a real "declined to
+  // comment" proves nothing yet, and no model knows today's date. Refused in code, and it counts as
+  // unanimous, so the Sentinel disputes a ruling that took it anyway
+  const due = claimed === false ? newsDeadline(claim) : null;
+  if (due !== null && now() < due) {
+    out.support = { verdict: "unsupported", unanimous: true, asked_at: iso(now()), url: null, answers: [] };
+    return finish("unsupported", `This line runs until ${iso(due)}: until then nobody can show that it did not happen.`, null);
+  }
 
   if (!parsed.urls.length && !parsed.quotes.length && !parsed.record) return finish("no_receipt", "The evidence gives no source, no quoted words and no corpus record: a bare accusation.", null);
 

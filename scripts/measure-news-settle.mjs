@@ -63,7 +63,9 @@ const scouted = [];
 // --reuse <file>: settle the claims an earlier run scouted, with today's claim text and settler (a before and after on the same claims)
 const REUSE = arg("--reuse", null);
 if (REUSE) {
-  const prev = JSON.parse(fs.readFileSync(path.join(ROOT, REUSE), "utf8"));
+  // several files may be given; --held keeps only the lines the last look left waiting (a second look, as the settler makes 12 hours later)
+  const prevs = REUSE.split(",").map((f) => JSON.parse(fs.readFileSync(path.join(ROOT, f.trim()), "utf8")));
+  const prev = { summary: { scouted: prevs.flatMap((x) => x.summary.scouted || []) }, results: prevs.flatMap((x) => x.results).filter((r) => !process.argv.includes("--held") || !r.jury_would_be_called) };
   scouted.push(...(prev.summary.scouted || []).map((s) => ({ ...s, reused_from: REUSE })));
   for (const r of prev.results) {
     const statement = r.claim.replace(/^By [^,]+,\s*/, "").replace(/\s*Reports citing unnamed sources don't count\.?$/, "");
@@ -95,7 +97,7 @@ for (const r of lines) {
   const out = { as_of: r.as_of, question: c.question, claim: c.claim, topic: c.topic, headline: c.source?.headline ?? null, settles: c.settles, estimate: c.estimate, definite: r.review?.definite ?? null };
   try {
     const f = await findReceipts({ client: wrap("settle"), line, nowMs: now });
-    out.pipeline = { outcome: f.outcome, basis: f.basis, when: f.when, receipts: f.receipts, reason: f.reason, sources_read: f.sources.filter((s) => !s.error).length, sources_tried: f.sources.length, dropped_quotes: f.dropped.length, search: f.search };
+    out.pipeline = { outcome: f.outcome, basis: f.basis, when: f.when, receipts: f.receipts, reason: f.reason, sources_read: f.sources.filter((s) => !s.error).length, sources_tried: f.sources.length, dropped_quotes: f.dropped.length, search: f.search, second_look: f.second_look ?? null };
     out.evidence = f.evidence;
     if (f.evidence) {
       const passed = await firstPassing((a) => checkReceipts({ ...a, fetchSource, support }), { claim: c.claim, claimed: f.outcome === "TRUE", variants: f.variants });

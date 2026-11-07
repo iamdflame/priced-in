@@ -8,7 +8,8 @@ import path from "node:path";
 import { parseRss, parseFeeds, readFeeds, claimText, dateWords, daysFrom, endOfDay, parseCandidates, scoutRequest, jsonIn, SCOUT_PROMPT, TOPICS, DEFAULT_FEEDS } from "../src/scout.js";
 import { aboutLater, spareNearOf, policyCheck, shapeProblems, parseReviews, parseStatus, parseSearchOutput, searchResults, duplicateOf, similarity, reserveMicro, p0Of, headroomMicro, reserveFromState, runGate, reviewRequest, REVIEW_MODEL, CHECKS } from "../src/gate.js";
 import { settleTiming, parseDecision, newsEvidence, findReceipts, decideRequest, firstPassing, checkPassed } from "../src/settle.js";
-import { parseEvidence, normForMatch } from "../src/receipts.js";
+import { parseEvidence, normForMatch, checkReceipts, newsDeadline } from "../src/receipts.js";
+import { supportRequest, ABSENCE_PROMPT, SUPPORT_PROMPT } from "../src/support.js";
 import { SignerClient, OPERATOR_METHODS, DAILY_NEWS_OPENS, DAILY_NEWS_CHALLENGES, DAILY_REPORT_CHALLENGES, DAILY_OPENS, NEWS_PAGE } from "../src/signer.js";
 import { operatorKey } from "../src/keystore.js";
 import { loadAiConfig } from "../src/config.js";
@@ -281,7 +282,7 @@ test("finding receipts: one search, sources the receipt check can read, one deci
   assert.deepEqual(r.sources.map((s) => [s.url, s.error]), [["https://ir.tesla.com/press", null], ["https://www.cnn.com/a", null], ["https://blocked.example/b", "HTTP 403"]]);
   assert.ok(!asked.messages[1].content.includes("blocked.example"), "a page the check can't read is never cited");
   assert.match(r.evidence, /Receipt excerpt: "Elon Musk said Friday/);
-  const late = await findReceipts({ client: { chat: async () => ({ content: JSON.stringify({ outcome: "TRUE", basis: "confirmed", when: "2026-11-15", receipts: [{ s: 2, quote: "Elon Musk said Friday that Tesla will wind down production of the vehicle" }] }) }) }, line: LINE, nowMs: Date.parse("2026-11-16T00:00:00Z"), fetch, search });
+  const late = await findReceipts({ client: { chat: async () => ({ content: JSON.stringify({ outcome: "TRUE", basis: "confirmed", when: "2026-11-15", receipts: [{ s: 2, quote: "Elon Musk said Friday that Tesla will wind down production of the vehicle" }] }) }) }, line: LINE, nowMs: Date.parse("2026-11-16T00:00:00Z"), fetch, search, second: async () => ({ answer: "FALSE", note: null }) });
   assert.deepEqual([late.outcome, late.basis], ["FALSE", "late"]);
   assert.match(late.evidence, /the confirmation came on 15 November 2026, after that date/);
   const none = await findReceipts({ client, line: LINE, nowMs: NOW, fetch: async (url) => ({ url, status: 500, error: "HTTP 500", body: null }), search });
@@ -406,4 +407,41 @@ test("storage comes first: every line grows the market's state, and past its NEA
   assert.match(low.decisions[0].reason, /0\.14 NEAR spare for storage and keeps at least 0\.3/);
   assert.match((await runGate({ ...base, capacity: { ...money, spareNear: null } })).decisions[0].reason, /could not be read/);
   assert.equal((await runGate({ ...base, capacity: { ...money, spareNear: 1.2 } })).pass.length, 1);
+});
+
+test("a FALSE needs a second search that agrees; any other answer holds the line", async () => {
+  const page = { url: "https://x.example/a", final_url: "https://x.example/a", status: 200, content_type: "text/html", body: Buffer.from("<p>Tesla declined to comment on the report about the Cybertruck.</p>"), error: null };
+  const client = { chat: async () => ({ content: JSON.stringify({ outcome: "FALSE", basis: "not_confirmed", receipts: [{ s: 1, quote: "Tesla declined to comment on the report" }] }) }) };
+  const go = (answer) => findReceipts({ client, line: { ...LINE, settles: { ...LINE.settles, source_url: null } }, nowMs: Date.parse("2026-11-16T00:00:00Z"), fetch: async () => page, search: async () => ({ results: [{ url: page.url }], error: null }), second: async () => ({ answer, note: "n" }) });
+  assert.equal((await go("FALSE")).outcome, "FALSE");
+  for (const a of ["TRUE", "UNKNOWN", null]) {
+    const r = await go(a);
+    assert.deepEqual([r.outcome, r.evidence], ["UNKNOWN", null], String(a));
+    assert.match(r.reason, /second search does not agree/);
+  }
+});
+
+test("nobody can show a news line FALSE before its date: refused in code, and the Sentinel would dispute it", async () => {
+  const claim = "By 13 November 2026, Tesla confirms it. Reports citing unnamed sources don't count.";
+  assert.equal(newsDeadline(claim), Date.parse("2026-11-14T00:00:00Z"));
+  assert.equal(newsDeadline("By 13 November 2026, Tesla confirms it."), null, "only a line with the rule in its text");
+  assert.equal(newsDeadline("Tether's reserves are $72.6 billion. Reports citing unnamed sources don't count."), null);
+  const fetchSource = async () => { throw new Error("no source is read for this"); };
+  const evidence = 'Source: https://x.example/a\nReceipt excerpt: "Tesla declined to comment on the report"';
+  const early = await checkReceipts({ claim, evidence, claimed: false, fetchSource, now: () => NOW });
+  assert.deepEqual([early.result, early.support.verdict, early.support.unanimous], ["unsupported", "unsupported", true]);
+  assert.match(early.reason, /until then nobody can show that it did not happen/);
+  const after = await checkReceipts({ claim, evidence, claimed: false, now: () => Date.parse("2026-11-14T00:00:01Z"), fetchSource: async (url) => ({ url, final_url: url, status: 200, content_type: "text/html", body: Buffer.from("<p>Tesla declined to comment on the report.</p>"), error: null }) });
+  assert.equal(after.result, "verified", "once its date has passed the receipts decide");
+  const yes = await checkReceipts({ claim, evidence, claimed: true, now: () => NOW, fetchSource: async (url) => ({ url, final_url: url, status: 200, content_type: "text/html", body: Buffer.from("<p>Tesla declined to comment on the report.</p>"), error: null }) });
+  assert.equal(yes.result, "verified", "a TRUE can come at any time: confirmed is confirmed");
+});
+
+test("the absence question: only a FALSE on a line with the rule in its own text, whatever the evidence says", () => {
+  const news = "By 13 November 2026, Tesla confirms it. Reports citing unnamed sources don't count.";
+  const sys = (claim, claimed, evidence = "e") => supportRequest("m", {}, { claim, claimed, evidence, url: "u", source: "s" }).messages[0].content;
+  assert.equal(sys(news, false), ABSENCE_PROMPT);
+  assert.equal(sys(news, true), SUPPORT_PROMPT, "a TRUE still needs the source to state it");
+  assert.equal(sys("Tether's reserves are $72.6 billion.", false), SUPPORT_PROMPT, "a Wikipedia line is asked as before");
+  assert.equal(sys("Tether's reserves are $72.6 billion.", false, "Reports citing unnamed sources don't count."), SUPPORT_PROMPT, "evidence can't choose the prompt");
 });
