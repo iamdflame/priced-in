@@ -345,6 +345,7 @@ These answer on the hosted API only, from the store's journals, the claims snaps
 | `GET /api/rulings` | Live and past challenges, and the ruling clock. |
 | `GET /api/attestations[?model=<id>]` | Each model's published proof; `?model=` adds the collateral. |
 | `GET /api/lane/status[?publicKey=]` | Whether this visitor can still get a free bet. |
+| `GET /api/pages`, `GET /api/pages/<slug>`, `GET /api/record` | The official pages, with `OFFICIAL_PAGES=1`: see [The official pages](#the-official-pages-official_pages1). |
 
 ### `GET /api/rulings`
 
@@ -630,6 +631,105 @@ A news line's answer also carries its `settles`. Nothing here funds a bounty: `b
 #### `GET /api/news` (the cron)
 
 Hourly (`vercel.json`, `5 * * * *`), and `POST /api/news?job=reports` from this API when a report arrives. Only Vercel's cron and this API can call it: `Authorization: Bearer <CRON_SECRET>`, else 401. With `NEWS_ENABLED` unset it answers `{"ok":true,"off":true,…}` and does nothing. On, one round: readers' reports waiting for their check; at `NEWS_SCOUT_HOURS_UTC`, the scout; then news lines that came due (or an early look for a confirmation). Model work stops at `NEWS_SPEND_SHARE` of the day's cap. It answers `{ok, at, job, reports, settle, scout, ms, spend}`; `scout` is `{slot, headlines, candidates, passed, opened: [{claim_id, tx, question}], refused: {<check>: n}, headroom_usd, feeds_failed, errors}`. `?job=scout&force=1` runs the scout outside its hours (once per hour slot). Model calls count against `NEARAI_DAILY_CAP_USD`. The writer never rewrites a news page: a day's news lines are not a paragraph.
+
+### The official pages (`OFFICIAL_PAGES=1`)
+
+An encyclopedia page written by AI from what the market believes right now (`api/_lib/pages.mjs`). Off by default: with the flag unset these routes answer 404, the cron sweeps nothing, and the writer's requests are byte for byte what they were. To turn it on, put `OFFICIAL_PAGES=1` in `.env`, run `node scripts/vercel/secrets.mjs --network mainnet`, and deploy the API. The site reads these routes and follows.
+
+| Setting | Default | Means |
+|---|---|---|
+| `OFFICIAL_PAGES` | unset | `1` turns all of this on. |
+| `WRITER_SWEEP_PER_RUN` | `3` | The most paragraphs one cron run rewrites (0 to 20). |
+| `WRITER_SWEEP_SHARE` | `60` | The sweep stops when today's model spend reaches this percent of `NEARAI_DAILY_CAP_USD`, so the jury and the Sentinel's panel keep the rest. |
+
+**What a paragraph is.** The pinned revision's sections, four sentences at a time, as the site cuts them. `api/_data/articles/` holds the text (`node scripts/vercel/articles.mjs` writes it from `corpus/pages/`, `--check` compares). A sentence joins its market by its exact text. A paragraph's `index` is stable: it counts from the top of the pinned article, and lines the revision doesn't hold go in one last paragraph.
+
+**What each sentence says, in order:**
+
+| `written_by` | When | The words |
+|---|---|---|
+| `wikipedia` | No market (`claim: null`). | Wikipedia's. A rewrite never touches them and the page claims no view. |
+| `wikipedia` | A market nobody has bet on (`claim.trades` 0), or one in the hedge band whose sentence already says who says so ("Tether claims ..."). | Wikipedia's. An opening price is an estimate, so "disputed" or "traders doubt" would be false about a market nobody traded. |
+| `ruling` | Ruled true. | The claim, plainly. |
+| `correction` | Ruled false, and its correction opened as a market. | The correction's, in the same place: the page never says both. |
+| `ai` | Ruled false, no correction yet, and a source gives the wording: our corpus's record, or a ruling's receipts the check found at the source. | The model's, band `correct`. |
+| `ruling` | Ruled false, and no source gives the wording. | "Three AI judges ruled this false: <the line>", or "The council ...". |
+| `ai` | Anything else with a market. | The newest words a model wrote for it, in the band of its price when written. `written.current` is false when the price has since left that band. |
+| `market` | A line the revision doesn't hold. | The line as opened. |
+
+Decided lines are stated from the chain, so they change at once and wait for no sweep. A template is never the market's words, and neither is a signature that failed its check.
+
+**The sweep** runs inside the cron's writer job. It takes the paragraphs with a sentence that has no rewrite yet (`why: "new"`), that left the band it was written in (`band`), that was ruled false with a source and has no correction (`decided`), or whose signature never landed (`unsigned`). Stalest first; among those never written, the page with the most facts first. A try that came to nothing waits an hour. Only rewrites by the page writer count (`page_writer` on the record): older ones were written from another prompt, for other paragraphs. The cron's record and `GET /api/pages` say what it did and why it stopped:
+
+```
+"sweep":{"at":"2026-11-07T16:20:02.510Z","due":16,"per_run":3,
+ "rewritten":[{"id":"tether:0:v1","why":"new","status":"signed"}, …],
+ "stopped":"the sweep stops at 60% of the daily model cap so the jury and the Sentinel keep the rest: $0.60 of $1.00 is spent"}
+```
+
+A rewrite is one model call of about 1,100 tokens in and 60 out, about $0.00013 at the live price, plus one `anchor_rewrite` of 2.76 Tgas, about 0.00025 NEAR (`deployments/pages-test.json`). The anchor stores a counter and a log line, so the market's storage doesn't grow.
+
+#### `GET /api/pages/<slug>`
+
+Also `GET /v1/pages/<slug>`, free. Cached 10 s by the CDN. 404 `no_such_page` for a slug that isn't an article. These shapes are the ones `services/api/test/pages.test.mjs` checks; long values are cut.
+
+```
+{"slug":"tether","title":"Tether (cryptocurrency)",
+ "source":{"url":"https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=…","attribution":"…licensed CC BY-SA 4.0…","licence":"CC BY-SA 4.0","revised_at":"2026-10-30T17:27:49Z"},
+ "totals":{"paragraphs":52,"written_by_ai":11,"sentences":190,"facts_priced":20,"facts_decided":0,"facts_no_bets":7,"rewrites":11,"signed":9,"anchored":9,"last_changed":1794064311697,"models":["z-ai/glm-5.3-flash"]},
+ "paragraphs":[
+  {"index":0,"section":"","written_by":"ai","changed":true,
+   "wikipedia":"Tether is a stablecoin… It is represented by its currency codes USD₮ and USDT. …",
+   "market":"Tether is a stablecoin… It is probably represented by its currency codes USD₮ and USDT. …",
+   "diff":[{"op":"eq","text":"Tether is a stablecoin… It is "},{"op":"ins","text":"probably "},{"op":"eq","text":"represented by…"}],
+   "sentences":[
+    {"text":"Tether is a stablecoin…","written_by":"wikipedia","claim":null},
+    {"text":"It is probably represented by its currency codes USD₮ and USDT.","wikipedia":"It is represented by its currency codes USD₮ and USDT.","written_by":"ai","ruled":[],
+     "claim":{"id":0,"text":"It is represented by…","price_yes":0.812063,"band":"hedge","trades":2,"status":"open","outcome":null,"url":"/c/0"},
+     "written":{"rewrite_id":"tether:0:v1","band":"hedge","price_yes":0.812063,"current":true}}],
+   "rewrites":[{"id":"tether:0:v1","version":1,"written_at":1794064311697,"updated_at":1794064318000,"trigger":"sweep","page_writer":"page-1",
+     "prices":[{"claim_id":0,"price_yes":0.812063,"band":"hedge"},{"claim_id":1,"price_yes":0.794,"band":"hedge"}],
+     "prices_canonical":"{\"page\":\"tether\",\"paragraph\":0,\"version\":1,\"prices\":[[0,812063],[1,794000]]}","prices_hash":"…",
+     "signature":{"status":"signed","verified":true,"model":"z-ai/glm-5.3-flash","signing_address":"…","request_hash":"…","response_hash":"…","reason":null},
+     "anchor":{"status":"anchored","tx":"…","explorer":"https://nearblocks.io/txns/…"}}]}],
+ "asOf":1794064400000}
+```
+
+| Field | Meaning |
+|---|---|
+| `totals.written_by_ai` | Paragraphs with at least one sentence a model wrote, a correction included. |
+| `totals.facts_priced` | Sentences with a market. `facts_decided` of them are settled and `facts_no_bets` have no bets. |
+| `totals.last_changed` | The newest rewrite in use or ruling on the page, in ms. |
+| `paragraphs[].written_by` | `ai`, `market` (only a ruling or an added line changed it) or `wikipedia`. |
+| `paragraphs[].wikipedia`, `market`, `diff` | The two texts, and the word diff from one to the other. `wikipedia` is null on the last paragraph of added lines, and `diff` is null when nothing changed. |
+| `sentences[].ruled` | The lines ruled false before this one in the same place: `claim_id`, `text`, `outcome`, `by`, `challenge_id`, `decided_at`, `tx`, `explorer`, `url`. |
+| `sentences[].decided` | The same fields, for a settled claim. |
+| `claim.band` | The band of its price now, null once decided. |
+| `rewrites[].prices_canonical` | The exact string `prices_hash` is the sha256 of, and the hash `anchor_rewrite` put on-chain. |
+| `rewrites[]` | The proof. The exact request and response bytes stay on `GET /rewrites?page=<slug>&history=1`, where the check that "the words on the page are the words the model signed" runs. |
+
+#### `GET /api/pages`
+
+Also `GET /v1/pages`, free. Every live page, the same `totals` flat on each, the page with the most facts first.
+
+```
+{"pages":[{"slug":"tether","title":"Tether (cryptocurrency)","paragraphs":52,"written_by_ai":11,"sentences":190,"facts_priced":20,…,"url":"/p/tether"}, …],
+ "count":10,"encyclopedia":20,"record":{"count":0},"sweep":{…},"asOf":1794064400000}
+```
+
+#### `GET /api/record`
+
+Also `GET /v1/record`, free. Each decided news line, newest first. With `NEWS_ENABLED` off it is `{"lines":[],"count":0,"asOf":…}`.
+
+```
+{"lines":[{"claim_id":41,"question":"…?","topic":"Tech","claim":"By 13 November 2026, …","outcome":"false",
+   "text":"Three AI judges ruled this false: By 13 November 2026, …","decided_at":1794400000000,"by":"three AI judges",
+   "sources":[{"kind":"settled_by","label":"X's newsroom","url":"https://…"},{"kind":"headline","label":"…","url":"https://…"},{"kind":"receipt","label":null,"url":"https://…"}],
+   "ruling":{"challenge_id":8,"url":"/c/41#ruling","tx":"…","explorer":"https://nearblocks.io/txns/…"},"market_url":"/c/41"}],
+ "count":1,"asOf":1794400100000}
+```
+
+`sources[].kind` is `settled_by` (the source the line named), `headline` (what it came from), `receipt` (what the jury's evidence cited) or `coverage`.
 
 ## services/ai (mounted on services/api by `services/ai/src/mount.js`)
 

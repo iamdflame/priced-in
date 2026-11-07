@@ -90,6 +90,9 @@ if (MAIN) Object.assign(plain, {
 // "1". Unset by default: the script leaves it alone. To turn it on, put NEWS_ENABLED=1 in .env and run
 // this script; NEWS_ENABLED=0 there removes it again.
 if (local.NEWS_ENABLED !== undefined) plain.NEWS_ENABLED = local.NEWS_ENABLED === "1" ? "1" : "";
+// The official pages (api/_lib/pages.mjs) work the same way: OFFICIAL_PAGES=1 in .env and this script
+// turn them on, OFFICIAL_PAGES=0 there removes them. The site reads the API, so it follows on its own.
+if (local.OFFICIAL_PAGES !== undefined) plain.OFFICIAL_PAGES = local.OFFICIAL_PAGES === "1" ? "1" : "";
 const secret = {
   NEARAI_API_KEY: local.NEARAI_API_KEY2,
   LANE_PRIVATE_KEY: lane.privateKey,
