@@ -221,3 +221,29 @@ test("the migration: when the old store compacts a journal during the switch, th
   assert.equal(again.counts.merged, 0, "a second catch-up changes nothing");
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test("the migration's check reads journals by content: Postgres compacting after the switch is fine, a lost line is not", async () => {
+  const { query } = await database();
+  const { FsState } = await import("../../../api/_lib/store.mjs");
+  const { syncStores } = await import("../../../api/_lib/store-sync.mjs");
+  const dir = tmp();
+  const prefix = "state/mainnet/m";
+  const blob = new FsState({ prefix, dir });
+  const pg = new PgState({ prefix, query });
+  const jb = new JournalDir(blob, path.join(dir, "a"));
+  for (let i = 1; i <= 3; i++) { jb.append("ledger.jsonl", { i }); await jb.flush(); }
+  await syncStores({ src: blob, dst: pg });
+  // after the switch the live store compacts its own journal: the copied chunk names are gone from Postgres
+  const jp = new JournalDir(new PgState({ prefix, query }), path.join(dir, "b"));
+  await jp.hydrate();
+  jp.append("ledger.jsonl", { i: "live" }); await jp.flush();
+  assert.equal(await jp.compact({ over: 2 }), 1);
+  const ok = await syncStores({ src: blob, dst: pg });
+  assert.deepEqual([ok.journals.missing_lines, ok.journals.repeated_lines], [0, 0], "by content, nothing is missing or repeated");
+  // a line Postgres really lacks is caught
+  const idx = await pg.getDoc("journals/index.json");
+  await pg.putDoc("journals/index.json", { ...idx.value, files: { ...idx.value.files, "ledger.jsonl": [] } }, { etag: idx.etag });
+  const bad = await syncStores({ src: blob, dst: pg });
+  assert.equal(bad.journals.missing_lines, 3);
+  fs.rmSync(dir, { recursive: true, force: true });
+});

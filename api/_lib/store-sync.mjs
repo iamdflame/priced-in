@@ -118,5 +118,29 @@ export async function syncStores({ src, dst, force = false }) {
   const skipped = new Set(notes.filter((n) => n.includes(": not a JSON document")).map((n) => n.split(": ")[0]));
   const missingDocs = sk.docs.filter((d) => !docNames.has(d.name) && !skipped.has(d.name)).map((d) => d.name);
   const dangling = (await named()).filter((n) => !now.has(n));
-  return { counts, notes, chunks: { copied: missing.length + late.length, late: late.length, total: sk.chunks.length, missing: lost, differ, dangling }, docs: { total: sk.docs.length, missing: missingDocs } };
+
+  // the journals, by content: after the switch the destination compacts its own files, so a source chunk can
+  // be gone by name while its lines live on inside a merged one. What counts is that every line the source
+  // holds is in the destination, and that the destination repeats none.
+  const journal = async (store) => {
+    const files = (await store.getDoc(INDEX))?.value?.files || {};
+    const out = {};
+    for (const [f, names] of Object.entries(files)) {
+      const text = Buffer.concat(await Promise.all(names.map((n) => store.getChunk(n)))).toString("utf8");
+      out[f] = text.split("\n").filter((l) => l.trim()).reduce((m, l) => m.set(l, (m.get(l) || 0) + 1), new Map());
+    }
+    return out;
+  };
+  const [sj, dj] = await Promise.all([journal(src), journal(dst)]);
+  const journals = { files: Object.keys(sj).length, missing_lines: 0, repeated_lines: 0, by_file: {} };
+  for (const [f, lines] of Object.entries(sj)) {
+    const d = dj[f] || new Map();
+    let miss = 0, rep = 0;
+    for (const [l, n] of lines) if ((d.get(l) || 0) < n) miss += n - (d.get(l) || 0);
+    for (const [l, n] of d) if (n > Math.max(lines.get(l) || 0, 1)) rep += n - Math.max(lines.get(l) || 0, 1);
+    journals.missing_lines += miss;
+    journals.repeated_lines += rep;
+    if (miss || rep) journals.by_file[f] = { missing: miss, repeated: rep };
+  }
+  return { counts, notes, chunks: { copied: missing.length + late.length, late: late.length, total: sk.chunks.length, missing: lost, differ, dangling }, docs: { total: sk.docs.length, missing: missingDocs }, journals };
 }

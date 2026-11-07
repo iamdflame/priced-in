@@ -64,10 +64,12 @@ const r = await syncStores({ src: blob, dst: pg, force: FORCE });
 const c = r.counts;
 console.log(`chunks: ${r.chunks.copied} copied; documents: ${c.copied} copied, ${c.same} already the same, ${c.caught_up} caught up, ${c.merged} merged, ${c.kept} kept as Postgres has them`);
 for (const n of r.notes) console.log(`  note: ${n}`);
-console.log(`check: ${r.chunks.total - r.chunks.missing.length - r.chunks.differ} of ${r.chunks.total} chunks identical, ${r.docs.total - r.docs.missing.length} of ${r.docs.total} documents present`);
+const j = r.journals;
+console.log(`check: ${j.files - Object.keys(j.by_file).length} of ${j.files} journals hold every line Blob has, with none repeated; ${r.chunks.total - r.chunks.missing.length - r.chunks.differ} of ${r.chunks.total} Blob chunks are in Postgres under their own names, byte for byte; ${r.docs.total - r.docs.missing.length} of ${r.docs.total} documents present`);
+if (r.chunks.missing.length) console.log(`  the other ${r.chunks.missing.length} chunks' lines live inside chunks Postgres has merged since the switch (that's the journals check above)`);
 if (r.chunks.late) console.log(`  ${r.chunks.late} chunks written to Blob during the copy were copied too`);
-if (r.chunks.missing.length || r.chunks.differ || r.docs.missing.length || r.chunks.dangling.length) {
-  console.error(`NOT ready: ${r.chunks.missing.length} chunks missing, ${r.chunks.differ} differ, ${r.chunks.dangling.length} named by the index but absent, ${r.docs.missing.length} documents missing (${r.docs.missing.slice(0, 5).join(", ")})`);
+if (j.missing_lines || j.repeated_lines || r.chunks.differ || r.docs.missing.length || r.chunks.dangling.length) {
+  console.error(`NOT ready: ${j.missing_lines} journal lines missing and ${j.repeated_lines} repeated (${JSON.stringify(j.by_file)}), ${r.chunks.differ} chunks differ, ${r.chunks.dangling.length} named by the index but absent, ${r.docs.missing.length} documents missing (${r.docs.missing.slice(0, 5).join(", ")})`);
   await done(1);
 }
 const live = String(env.STATE_STORE || "").toLowerCase() === "postgres";
