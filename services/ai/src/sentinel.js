@@ -91,7 +91,9 @@ function sourceLine(s) {
  */
 export function disputeEvidence({ id, round, check, claimed }) {
   const lines = [`Priced In's Sentinel disputes challenge ${id} (round ${round}): the challenger's receipts do not check out, so the ${OUTCOME(claimed) ?? "claimed"} outcome has no support.`];
-  if (check.result === "unsupported") {
+  if (check.result === "unsupported" && !check.support?.answers?.length) {
+    lines.push(check.reason); // refused in code: no model read anything, and the record must not say one did
+  } else if (check.result === "unsupported") {
     for (const s of (check.sources || []).filter((x) => x.via === "source").slice(0, 3)) lines.push(sourceLine(s));
     lines.push(`The quoted words are there, but they do not state what the challenge relies on. Attested models read that source and said so: ${(check.support?.answers || []).filter((a) => a.verified && a.answer === "NO").map((a) => `${a.model} (response sha256 ${a.response_hash})`).join("; ")}.`);
   } else if (check.result === "record_mismatch") {

@@ -332,3 +332,11 @@ test("the founder's script refuses without CONFIRM_MAINNET=yes, before any netwo
   assert.equal(none.status, 1);
   assert.match(none.stderr, /usage: node scripts\/mainnet\/sentinel\.mjs plan/);
 });
+
+test("a refusal made in code says so on the chain: it never claims that models read a source", () => {
+  const reason = "This line runs until 2026-11-14T00:00:00.000Z: until then nobody can show that it did not happen.";
+  const e = disputeEvidence({ id: 9, round: 1, claimed: false, check: { result: "unsupported", reason, checked_at: "2026-11-07T10:00:00.000Z", sources: [], quotes: [], support: { verdict: "unsupported", unanimous: true, answers: [] } } });
+  assert.ok(e.includes(reason));
+  assert.doesNotMatch(e, /Attested models read/);
+  assert.doesNotMatch(e, /quoted words are there/);
+});

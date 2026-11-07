@@ -374,6 +374,11 @@ test("addresses: public ones pass; loopback, private, link-local, reserved and t
   for (const ip of ["127.0.0.1", "10.1.2.3", "172.16.0.1", "192.168.1.1", "169.254.169.254", "100.64.0.1", "0.0.0.0", "224.0.0.1", "240.0.0.1", "198.18.0.1", "::1", "::", "fe80::1", "fc00::1", "fd12::1", "ff02::1", "::ffff:127.0.0.1", "::ffff:10.0.0.1", "64:ff9b::a00:1", "2002:a00:1::", "2001:0:a00:1::", "not an ip", ""]) assert.equal(isPublicAddress(ip), false, ip);
 });
 
+test("IPv6: only global unicast is public, so no older form of an IPv4 address gets through", () => {
+  for (const ip of ["::7f00:1", "::a9fe:a9fe", "::a00:1", "::127.0.0.1", "::8.8.8.8", "4000::1", "e000::1", "::ffff:0:7f00:1"]) assert.equal(isPublicAddress(ip), false, ip);
+  for (const ip of ["2606:4700:4700::1111", "2a00:1450:4001:81a::200e"]) assert.equal(isPublicAddress(ip), true, ip);
+});
+
 test("a name that resolves to any private address is refused, whichever address the socket would have used", async () => {
   const lookup = (answers) => guardedLookup((_h, _o, cb) => cb(null, answers));
   const ask = (l, o) => new Promise((resolve) => l("x.example", o, (err, a, f) => resolve({ err, a, f })));
