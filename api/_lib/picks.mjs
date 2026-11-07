@@ -173,7 +173,44 @@ export const displayName = (key, nicks) => nicks.get(key) || `Visitor ${String(k
 
 // ---------- reports ----------
 
-const URL_OK = /^https:\/\/[^\s"'<>]{4,490}$/;
+// everything the receipt check's URL parser stops at is refused too: "https://a.example/x|https://b.example/y"
+// reads as one page here and as two there, and the second would be fetched and could hold the words
+const URL_OK = /^https:\/\/[^\s"'<>`{}|\\^[\]\u201C\u201D\u2018\u2019\u00AB\u00BB]{4,490}$/;
+
+// Our Checker's bond is ours, and a report is free: a page the reporter wrote passes the word check and
+// the support panel by construction, and the Sentinel never disputes a verified receipt. So the Checker
+// bonds only on a page it already relies on for this line, or on an official site or an established
+// outlet. Anyone with another source can still challenge with their own bond (GET /api/challenge).
+const OFFICIAL = /(?:^|\.)(?:gov|mil|int|gov\.uk|gov\.au|gov\.ie|gov\.in|gov\.sg|govt\.nz|gc\.ca|canada\.ca|europa\.eu|gouv\.fr|bund\.de|go\.jp|gob\.es|gob\.mx|gov\.br)$/;
+const OUTLETS = ["reuters.com", "apnews.com", "afp.com", "bloomberg.com", "bbc.com", "bbc.co.uk", "ft.com", "wsj.com", "nytimes.com", "washingtonpost.com", "theguardian.com", "economist.com", "cnbc.com", "cnn.com", "nbcnews.com", "cbsnews.com", "abcnews.go.com", "npr.org", "axios.com", "politico.com", "theverge.com", "techcrunch.com", "arstechnica.com", "wired.com", "espn.com", "skysports.com", "variety.com", "hollywoodreporter.com", "deadline.com", "coindesk.com", "theblock.co", "un.org", "imf.org", "worldbank.org"];
+// hosts anyone can post to: on these only the very page the line cites counts, never its neighbours
+const OPEN_HOSTS = ["x.com", "twitter.com", "facebook.com", "instagram.com", "threads.net", "tiktok.com", "youtube.com", "linkedin.com", "reddit.com", "medium.com", "substack.com", "github.com", "githubusercontent.com", "gitlab.com", "bitbucket.org", "google.com", "googleapis.com", "amazonaws.com", "dropbox.com", "notion.so", "notion.site", "pastebin.com", "telegra.ph", "t.me", "discord.com", "wikipedia.org", "wordpress.com", "blogspot.com", "tumblr.com"];
+
+const hostOf = (u) => { try { return new URL(u).hostname.toLowerCase().replace(/\.$/, "").replace(/^www\./, ""); } catch { return null; } };
+const under = (host, domain) => host === domain || host.endsWith(`.${domain}`);
+const pageOf = (u) => { const x = new URL(u); return `${hostOf(u)}${x.pathname.replace(/\/+$/, "")}`; };
+
+/**
+ * Would our Checker bond on this page, for this line?
+ * @param {string} url
+ * @param {{ news?: object|null, extra?: string[] }} [o] the line's news field; REPORT_TRUSTED_HOSTS
+ * @returns {{ ok: boolean, hosts: string[] }} hosts: the line's own, to show a reader
+ */
+export function trustedSource(url, { news = null, extra = [] } = {}) {
+  const own = [news?.settles?.source_url, ...(news?.coverage || [])].filter((u) => hostOf(u));
+  const hosts = [...new Set(own.map(hostOf))];
+  const host = hostOf(url);
+  if (!host) return { ok: false, hosts };
+  if (OFFICIAL.test(host) || [...OUTLETS, ...extra].some((d) => under(host, d))) return { ok: true, hosts };
+  const open = OPEN_HOSTS.some((d) => under(host, d));
+  return { ok: own.some((u) => (open ? pageOf(u) === pageOf(url) : hostOf(u) === host)), hosts };
+}
+
+/** The reader's refusal when their page isn't one the Checker relies on. */
+export function untrustedSource(claimId, hosts) {
+  const line = hosts.length ? `this line's own sources (${hosts.slice(0, 5).join(", ")}), ` : "";
+  return new Refusal(400, "untrusted_source", `Our Checker puts up its own money only on ${line}official sites and established news outlets. With another page, challenge it yourself with your own bond: GET /api/challenge?claim=${claimId}.`, { hosts });
+}
 
 /** A report request, checked. The evidence the Checker would post is built here, from the reader's words. */
 export function parseReport(b, { network, nowMs = Date.now() }) {
@@ -185,6 +222,8 @@ export function parseReport(b, { network, nowMs = Date.now() }) {
   if (!URL_OK.test(url)) throw new Refusal(400, "invalid_url", "url must be a public https:// link to the page with the words.");
   const quote = String(b?.quote ?? "").replace(/\s+/g, " ").trim();
   if (quote.length < 16 || quote.length > 600 || quote.split(" ").length < 3) throw new Refusal(400, "invalid_quote", "quote must be the exact words from that page: 3 or more words, 16 to 600 characters.");
+  // a URL in the words would be a second source for the check to fetch
+  if (/https?:\/\//i.test(quote)) throw new Refusal(400, "invalid_quote", "quote must be words from the page, without a link in them.");
   const note = String(b?.note ?? "").replace(/\s+/g, " ").trim();
   if (note.length > 600) throw new Refusal(400, "invalid_note", "note is at most 600 characters.");
   if (badWords(note) || badWords(quote)) throw new Refusal(400, "report_refused", "That report has words we don't publish. Take them out and send it again.");
@@ -226,14 +265,35 @@ export function refusalWords(check) {
   if (check.result === "no_receipt") return "There was nothing to check: give a link and the exact words.";
   if (check.result === "unsupported") return "The words are on that page, but our three AI checkers found the page doesn't show the line is wrong.";
   if (check.result === "record_mismatch") return "That record doesn't match this line.";
+  if (check.support?.verdict === "unanswered") return "Our AI checkers didn't answer in time. Send it again later.";
   return check.reason || "The check did not pass.";
 }
+
+/**
+ * May the Checker bond on this report? Stricter than our jury's gate, which spends only a stranger's
+ * bond: the page must be read, every attested model that answered must agree, and wherever the page
+ * redirected to must be a page we rely on too.
+ * @returns {{ pass: boolean, retry: boolean, reason: string|null }}
+ */
+export function reportVerdict(check, { trusted = () => true } = {}) {
+  const v = check?.support?.verdict;
+  const retry = check?.result === "unfetchable" || v === "unanswered";
+  if (check?.result !== "verified" || v === "unanswered") return { pass: false, retry, reason: refusalWords(check) };
+  const moved = (check.sources || []).find((s) => s.via === "source" && s.final_url && !trusted(s.final_url));
+  if (moved) return { pass: false, retry: false, reason: `That page sends readers on to ${hostOf(moved.final_url) ?? moved.final_url}, which our Checker doesn't rely on.` };
+  if (v !== "supported" || !check.support.unanimous) return { pass: false, retry: false, reason: "The words are on that page, but our three AI checkers did not all find that it shows this." };
+  return { pass: true, retry: false, reason: null };
+}
+
+/** A report no round could finish in this long stops holding its line. */
+export const REPORT_TTL_MS = 2 * DAY;
+export const REPORT_WAITING = Object.freeze(["received", "retry", "verified"]);
 
 /**
  * Every report with where it stands now: the journal's latest status, then the chain's word on a
  * challenge it led to (upheld, rejected, expired).
  */
-export function reportsOf(records, { claims = [], events = [] } = {}) {
+export function reportsOf(records, { claims = [], events = [], nowMs = Date.now() } = {}) {
   const byId = new Map();
   for (const r of [...records].sort((a, b) => a.at - b.at)) {
     if (r?.t === "report") byId.set(r.id, { ...r, status: "received", reason: PLAIN.received, history: [] });
@@ -247,6 +307,7 @@ export function reportsOf(records, { claims = [], events = [] } = {}) {
   const expired = new Set(events.filter((e) => e.event === "challenge_expired" || e.event === "void").map((e) => e.data?.challenge_id));
   const settledAt = new Map(events.filter((e) => e.event === "settle").map((e) => [e.data?.challenge_id, timeOf(e)]));
   for (const x of byId.values()) {
+    if (REPORT_WAITING.includes(x.status) && nowMs - x.at >= REPORT_TTL_MS) { Object.assign(x, { status: "closed", reason: "We couldn't finish this within two days. Send it again." }); continue; }
     if (x.status !== "challenged" || !Number.isInteger(x.challenge_id)) continue;
     const c = claimById.get(x.claim_id);
     if (expired.has(x.challenge_id)) Object.assign(x, { status: "expired", reason: PLAIN.expired });
@@ -457,6 +518,8 @@ export const limitsConfig = (env = process.env) => {
     picksPerKey: n("PICKS_PER_KEY_PER_DAY", 60), picksPerIp: n("PICKS_PER_IP_PER_DAY", 400),
     profilesPerKey: n("PROFILES_PER_KEY_PER_DAY", 5), profilesPerIp: n("PROFILES_PER_IP_PER_DAY", 60),
     reportsPerKey: n("REPORTS_PER_KEY_PER_DAY", 3), reportsPerIp: n("REPORTS_PER_IP_PER_DAY", 10),
+    reportChecksPerDay: n("REPORT_CHECKS_PER_DAY", 30), reportKeepBonds: Number.isInteger(Number(env.REPORT_KEEP_BONDS)) && Number(env.REPORT_KEEP_BONDS) >= 0 && env.REPORT_KEEP_BONDS !== "" && env.REPORT_KEEP_BONDS !== undefined ? Number(env.REPORT_KEEP_BONDS) : 1,
+    trustedHosts: String(env.REPORT_TRUSTED_HOSTS || "").split(",").map((h) => h.trim().toLowerCase().replace(/^www\./, "")).filter(Boolean),
     minSettled: n("LEADERBOARD_MIN_SETTLED", 5),
   };
 };

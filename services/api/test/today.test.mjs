@@ -9,8 +9,8 @@ import path from "node:path";
 import nacl from "tweetnacl";
 import { baseEncode } from "near-api-js";
 import { FsState } from "../../../api/_lib/store.mjs";
-import { newsConfig, scoutSlot, nextScoutAt, linesStore, scoutRound, settleRound, openPassed, postNewsChallenges, mergeNews, newsField, todayOf, v1TodayOf, isNewsPage } from "../../../api/_lib/news.mjs";
-import { pickMessage, profileMessage, reportMessage, parsePick, pickableOrWhy, firstPicks, cleanNickname, parseProfile, nicknames, nicknameTaken, parseReport, reportEvidence, reportsOf, reportView, refusalWords, aiTraders, aiPicks, pointsFor, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, takeLimits, Refusal, MAX_SKEW_MS } from "../../../api/_lib/picks.mjs";
+import { newsConfig, scoutSlot, nextScoutAt, linesStore, scoutRound, settleRound, openPassed, postNewsChallenges, reportsRound, mergeNews, newsField, todayOf, v1TodayOf, isNewsPage } from "../../../api/_lib/news.mjs";
+import { pickMessage, profileMessage, reportMessage, parsePick, pickableOrWhy, firstPicks, cleanNickname, parseProfile, nicknames, nicknameTaken, parseReport, reportEvidence, reportsOf, reportView, refusalWords, aiTraders, aiPicks, pointsFor, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, takeLimits, Refusal, MAX_SKEW_MS, trustedSource, reportVerdict, REPORT_TTL_MS } from "../../../api/_lib/picks.mjs";
 import { isNewsRoute } from "../../../api/_lib/today-routes.mjs";
 import { checkerQueue, ofSitting } from "../../../api/_lib/keeper.mjs";
 import { parseEvidence } from "../../ai/src/receipts.js";
@@ -278,6 +278,98 @@ test("where a report stands: the journal's status, then the chain's word on the 
   assert.deepEqual([...m.values()].map((x) => [x.id, x.status]), [["r1", "upheld"], ["r2", "rejected"], ["r3", "expired"], ["r4", "refused"], ["r5", "ruling"]]);
   assert.equal(m.get("r1").decided_at, 500);
   assert.match(reportView(m.get("r4")).reason, /exact words/);
+});
+
+// ---------- a report can't spend the Checker's bond on the reporter's own page ----------
+
+const lineNews = (o = {}) => ({ settles: { by: "2026-11-13", source_url: "https://ir.acme.example/press", ...o.settles }, coverage: ["https://www.localpaper.example/story", "https://x.com/acme/status/1", ...(o.coverage || [])] });
+
+test("whose page our Checker bonds on: the line's own sources, official sites and established outlets, never the reporter's", () => {
+  const news = lineNews();
+  for (const ok of ["https://ir.acme.example/press/2026", "https://localpaper.example/other", "https://www.sec.gov/Archives/x", "https://www.gov.uk/a", "https://www.reuters.com/world/a", "https://apnews.com/article/a", "https://sport.bbc.co.uk/a", "https://x.com/acme/status/1/"]) assert.equal(trustedSource(ok, { news }).ok, true, ok);
+  for (const bad of ["https://evil.example/acme-confirms", "https://reuters.com.evil.example/a", "https://evilreuters.com/a", "https://reuters.com@evil.example/a", "https://x.com/attacker/status/2", "https://acme.github.io/a", "https://example.gov.evil.example/", "https://xn--reuters-3ve.com/a", "not a url"]) assert.equal(trustedSource(bad, { news }).ok, false, bad);
+  assert.equal(trustedSource("https://docs.google.com/document/d/mine", { news: lineNews({ coverage: ["https://docs.google.com/document/d/theirs"] }) }).ok, false, "on a host anyone can post to, only the very page counts");
+  assert.equal(trustedSource("https://acme-news.example/a", {}).ok, false, "a line with no sources of its own has only the shared list");
+  assert.equal(trustedSource("https://acme-news.example/a", { extra: ["acme-news.example"] }).ok, true, "REPORT_TRUSTED_HOSTS adds to it");
+});
+
+test("a report's evidence names one page: no second URL inside the URL or the words", () => {
+  const b = browser();
+  const body = { public_key: b.key, claim_id: 7, quote: "Tether's reserves include $122.84 billion in U.S. Treasury bills", issued_at: NOW, signature: "00" };
+  for (const url of ["https://www.reuters.com/a|https://evil.example/b", "https://www.reuters.com/a{https://evil.example/b", "https://www.reuters.com\\@evil.example/b", "https://www.reuters.com/a“https://evil.example/b", "https://www.reuters.com/a[https://evil.example/b"]) assert.throws(() => parseReport({ ...body, url }, { network: "mainnet", nowMs: NOW }), (e) => e.code === "invalid_url", url);
+  assert.throws(() => parseReport({ ...body, url: "https://www.reuters.com/a", quote: "the exact words are also at https://evil.example/b for you" }, { network: "mainnet", nowMs: NOW }), (e) => e.code === "invalid_quote");
+});
+
+test("a report passes only when every attested model that answered agrees, and the page it landed on is one we rely on", () => {
+  const trusted = (u) => u.includes("reuters");
+  const ok = { result: "verified", sources: [{ via: "source", final_url: "https://www.reuters.com/a" }], support: { verdict: "supported", unanimous: true } };
+  assert.deepEqual(reportVerdict(ok, { trusted }), { pass: true, retry: false, reason: null });
+  assert.equal(reportVerdict({ ...ok, support: { verdict: "supported", unanimous: false } }, { trusted }).pass, false, "two yes and one no: not on our bond");
+  assert.equal(reportVerdict({ ...ok, support: { verdict: "unclear", unanimous: false } }, { trusted }).pass, false, "unclear is a pass for a stranger's bond, not ours");
+  assert.equal(reportVerdict({ ...ok, support: null }, { trusted }).pass, false, "nobody read the page");
+  const moved = reportVerdict({ ...ok, sources: [{ via: "source", final_url: "https://evil.example/landing" }] }, { trusted });
+  assert.equal(moved.pass, false);
+  assert.match(moved.reason, /evil\.example/, "an open redirect on a trusted site lands somewhere we can see");
+  assert.deepEqual([reportVerdict({ result: "unfetchable" }, { trusted }).retry, reportVerdict({ ...ok, support: { verdict: "unanswered" } }, { trusted }).retry, reportVerdict({ result: "quote_not_found" }, { trusted }).retry], [true, true, false]);
+});
+
+test("the sitting's bond is never a report's: a report leaves the Checker one bond, a news line needn't", async () => {
+  const sent = [];
+  const s = (balance) => ({ signer: { operator: { checker: { ok: true, accountId: "c" } }, challengeNews: async (i) => { sent.push(i); return { ok: true, value: 1, txHash: "t" }; }, challengeReport: async (i) => { sent.push(i); return { ok: true, value: 2, txHash: "t" }; } }, view: async (m) => (m === "get_balance" ? balance : { challenge_bond_micro: "1000000" }), record: async () => {} });
+  const plan = { claim_id: 40, claimed_outcome: false, evidence: "e", intent: "report:r1", report_id: "r1" };
+  const held = await postNewsChallenges([plan], s("1500000"), { kind: "report" });
+  assert.deepEqual(held.posted, []);
+  assert.match(held.errors[0], /keeps \$1\.00 for its daily sitting/);
+  assert.equal((await postNewsChallenges([plan], s("2000000"), { kind: "report" })).posted.length, 1);
+  assert.equal((await postNewsChallenges([{ ...plan, intent: "n" }], s("1000000"))).posted.length, 1);
+});
+
+const reportRec = (id, claim_id, o = {}) => ({ t: "report", id, key: `k${id}`, claim_id, says: "false", url: "https://www.reuters.com/a", quote: "the exact words", evidence: "e", at: NOW - H, ...o });
+const verifiedCheck = { result: "verified", reason: "ok", sources: [{ via: "source", final_url: "https://www.reuters.com/a" }], support: { verdict: "supported", unanimous: true } };
+const roundOf = (records, o = {}) => {
+  const journal = [...records], asked = [], planned = [];
+  return {
+    journal, asked, planned,
+    d: { now: () => NOW, records: () => journal, claims: async () => [claim(7), claim(8)], lines: async () => ({ lines: {} }), events: () => [], append: (r) => journal.push(r), check: async (a) => { asked.push(a); return verifiedCheck; }, challenge: async (plans) => { planned.push(...plans); return { posted: plans.map((x) => ({ ...x, challenge_id: 5, tx: "t" })), errors: [] }; }, ...o },
+  };
+};
+
+test("a report that waited two days lapses, so it can't hold the line against the next one", () => {
+  const recs = [reportRec("old", 7, { at: NOW - REPORT_TTL_MS - 1 }), reportRec("new", 8)];
+  const m = reportsOf(recs, { claims: [claim(7), claim(8)], events: [], nowMs: NOW });
+  assert.equal(m.get("old").status, "closed");
+  assert.match(m.get("old").reason, /two days/);
+  assert.equal(m.get("new").status, "received");
+  const verified = reportsOf([reportRec("v", 7, { at: NOW - REPORT_TTL_MS - 1 }), { t: "report_status", id: "v", status: "verified", at: NOW - 2 * H }], { claims: [claim(7)], events: [], nowMs: NOW });
+  assert.equal(verified.get("v").status, "closed", "held by the cap or the balance, it lapses too");
+});
+
+test("the reports' round: checks what waits, bonds what passes, and refuses what doesn't", async () => {
+  const r = roundOf([reportRec("a", 7), reportRec("b", 8, { url: "https://evil.example/mine" })], { check: async (a) => (a.claimed === false && a.evidence === "bad" ? { result: "quote_not_found" } : verifiedCheck) });
+  r.journal[1].evidence = "bad";
+  const out = await reportsRound(r.d);
+  assert.deepEqual(r.planned.map((p) => [p.claim_id, p.intent]), [[7, "report:a"]]);
+  assert.deepEqual(r.journal.filter((x) => x.t === "report_status").map((x) => [x.id, x.status]), [["a", "verified"], ["b", "refused"], ["a", "challenged"]]);
+  assert.deepEqual(out.challenged.map((x) => x.report_id), ["a"]);
+});
+
+test("the reports' round: one at a time, so a burst of reports can't ask the models the same thing many times", async () => {
+  const held = roundOf([reportRec("a", 7)], { lock: async () => null });
+  assert.deepEqual(await reportsRound(held.d), { busy: true, note: "Another round is checking the reports." });
+  assert.equal(held.asked.length, 0);
+  let released = 0;
+  const free = roundOf([reportRec("a", 7)], { lock: async () => ({ release: async () => { released++; } }) });
+  await reportsRound(free.d);
+  assert.deepEqual([free.asked.length, released], [1, 1]);
+});
+
+test("the reports' round: a day's checks are capped, so reports can't spend the scout's and the settler's model budget", async () => {
+  let taken = 0;
+  const r = roundOf([reportRec("a", 7), reportRec("b", 8)], { takeCheck: async () => ++taken <= 1 });
+  const out = await reportsRound(r.d);
+  assert.equal(r.asked.length, 1);
+  assert.equal(out.capped, true);
+  assert.deepEqual(r.journal.filter((x) => x.id === "b" && x.t === "report_status"), [], "the other one waits for tomorrow");
 });
 
 // ---------- the board ----------

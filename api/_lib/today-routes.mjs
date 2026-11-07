@@ -18,7 +18,7 @@
 import { waitUntil } from "@vercel/functions";
 import { readContext, readBody, sendJson, log } from "./runtime.mjs";
 import { cachedLines, mergeNews, newsField, todayOf, v1TodayOf } from "./news.mjs";
-import { PICKS, PROFILES, REPORTS, Refusal, refusalBody, parsePick, pickableOrWhy, firstPicks, parseProfile, nicknames, nicknameTaken, parseReport, reportEvidence, reportsOf, reportView, aiTraders, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, takeLimits, limitsConfig, RULES } from "./picks.mjs";
+import { PICKS, PROFILES, REPORTS, Refusal, refusalBody, parsePick, pickableOrWhy, firstPicks, parseProfile, nicknames, nicknameTaken, parseReport, reportEvidence, reportsOf, reportView, aiTraders, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, takeLimits, limitsConfig, trustedSource, untrustedSource, RULES } from "./picks.mjs";
 import { namesOf } from "./rulings.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
@@ -129,6 +129,10 @@ export async function newsRoutes(req, res, route, url, p, cfg) {
     } else if (req.method === "POST" && route === "/reports") {
       const b = await readBody(req, 8192);
       const rep = parseReport(b, { network, nowMs });
+      const line = (await facts(p)).claims.find((x) => x.id === rep.claim_id);
+      if (!line) throw new Refusal(404, "no_such_claim", "There is no line with that id.");
+      const source = trustedSource(rep.url, { news: line.news ?? null, extra: lim.trustedHosts });
+      if (!source.ok) throw untrustedSource(rep.claim_id, source.hosts);
       const ip = clientIp(req, true);
       const release = await takeLimits(p.state, [["reports-key", rep.key, lim.reportsPerKey, `This key has sent its ${lim.reportsPerKey} reports for today.`], ["reports-ip", ip, lim.reportsPerIp, "This network has sent too many reports today."]]);
       try {

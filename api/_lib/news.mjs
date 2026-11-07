@@ -22,6 +22,7 @@ import { createHash } from "node:crypto";
 import { isoDay, dateWords, endOfDay, DEFAULT_FEEDS, parseFeeds } from "../../services/ai/src/scout.js";
 import { runGate, reserveFromState, spareNearOf } from "../../services/ai/src/gate.js";
 import { settleTiming, checkPassed } from "../../services/ai/src/settle.js";
+import { REPORT_WAITING, reportVerdict, reportsOf, trustedSource } from "./picks.mjs";
 
 export const LINES = "news/lines.json";
 export const SCOUT_JOURNAL = "scout.jsonl";
@@ -328,15 +329,18 @@ export async function settleRound(d) {
  * the news cap in the signer, then the jury at once.
  * @param {{ signer: object, view: Function, record: Function, trigger: Function|null }} s
  */
-export async function postNewsChallenges(plans, s, { kind = "news" } = {}) {
+export async function postNewsChallenges(plans, s, { kind = "news", keepBonds = 1 } = {}) {
   const posted = [], errors = [];
   const checker = s.signer?.operator?.checker;
   if (!checker?.ok) return { posted, errors: [`no Checker key (${checker?.error || "none in the keystore"})`] };
   const [balance, res] = await Promise.all([s.view("get_balance", { trader: checker.accountId }).catch(() => null), s.view("get_resolution", {}).catch(() => null)]);
   let free = balance === null ? null : BigInt(String(balance));
   const bond = res?.challenge_bond_micro ? BigInt(String(res.challenge_bond_micro)) : null;
+  // a report never spends the bond the daily sitting needs
+  const keep = kind === "report" && bond !== null ? bond * BigInt(keepBonds) : 0n;
   for (const p of plans) {
     if (free === null || bond === null) { errors.push(`challenge ${p.claim_id}: could not read the Checker's balance or the bond`); break; }
+    if (keep && free < bond + keep) { errors.push(`challenge ${p.claim_id}: the Checker holds $${(Number(free) / 1e6).toFixed(2)} and keeps $${(Number(keep) / 1e6).toFixed(2)} for its daily sitting: this report waits for funding`); break; }
     if (free < bond) { errors.push(`challenge ${p.claim_id}: the Checker holds $${(Number(free) / 1e6).toFixed(2)} and the bond is $${(Number(bond) / 1e6).toFixed(2)}: it waits for funding`); break; }
     const r = await (kind === "report" ? s.signer.challengeReport(p.intent, p) : s.signer.challengeNews(p.intent, p));
     if (!r.ok) { errors.push(`challenge ${p.claim_id}: ${String(r.error).slice(0, 160)}`); if (/already posted today/.test(String(r.error))) break; continue; }
@@ -347,6 +351,56 @@ export async function postNewsChallenges(plans, s, { kind = "news" } = {}) {
     if (s.trigger) await s.trigger({ txHash: r.txHash, signerId: checker.accountId, challenge_id: challengeId }).catch(() => {});
   }
   return { posted, errors };
+}
+
+// ---------- readers' reports ----------
+
+/**
+ * One round of readers' reports: the check on those waiting, then the Checker's challenge on those
+ * that pass. One round at a time, or a burst of reports (each one starts a round) would ask the
+ * models the same question once per round, each round blind to what the others have spent.
+ * @param {{ now?: () => number, lock?: () => Promise<{ release: () => Promise<void> }|null>, records: () => object[], events: () => object[],
+ *   claims: () => Promise<object[]>, lines: () => Promise<object>, append: (rec: object) => void, flush?: () => Promise<void>,
+ *   check: (a: object) => Promise<object>, challenge: (plans: object[]) => Promise<{ posted: object[], errors: string[] }>,
+ *   takeCheck?: () => Promise<boolean>, left?: () => number, budget?: () => boolean, trustedHosts?: string[] }} d
+ */
+export async function reportsRound(d) {
+  const now = d.now || Date.now;
+  const left = d.left || (() => Infinity);
+  const lock = d.lock ? await d.lock() : { release: async () => {} };
+  if (!lock) return { busy: true, note: "Another round is checking the reports." };
+  try {
+    const nowMs = now();
+    const claims = mergeNews(await d.claims(), await d.lines());
+    const waiting = [...reportsOf(d.records(), { claims, events: d.events(), nowMs }).values()].filter((r) => REPORT_WAITING.includes(r.status)).sort((a, b) => a.at - b.at).slice(0, 3);
+    const out = { waiting: waiting.length, checked: [], challenged: [], errors: [] };
+    const status = (r, s, extra = {}) => d.append({ t: "report_status", id: r.id, status: s, at: now(), ...extra });
+    const plans = [];
+    for (const r of waiting) {
+      if (left() < 100_000 || (d.budget && !d.budget())) break;
+      const c = claims.find((x) => x.id === r.claim_id);
+      if (!c || c.status !== "Open") { status(r, "closed", { reason: "The line stopped taking challenges before we could act on it." }); continue; }
+      if (r.status !== "verified") {
+        if (d.takeCheck && !(await d.takeCheck())) { out.capped = true; break; }
+        const check = await d.check({ claim: c.text, evidence: r.evidence, claimed: r.says === "true" });
+        const summary = { result: check.result, reason: check.reason, support: check.support?.verdict ?? null };
+        out.checked.push({ id: r.id, ...summary });
+        const v = reportVerdict(check, { trusted: (u) => trustedSource(u, { news: c.news ?? null, extra: d.trustedHosts }).ok });
+        if (v.pass) status(r, "verified", { check: summary });
+        else if (v.retry && (r.attempts || 0) < 2) { status(r, "retry", { check: summary, attempts: (r.attempts || 0) + 1 }); continue; }
+        else { status(r, "refused", { check: summary, reason: v.reason }); continue; }
+      }
+      plans.push({ claim_id: c.id, claimed_outcome: r.says === "true", evidence: r.evidence, intent: `report:${r.id}`, report_id: r.id, outcome: r.says === "true" ? "TRUE" : "FALSE" });
+    }
+    await d.flush?.();
+    if (plans.length) {
+      const posted = await d.challenge(plans);
+      for (const x of posted.posted) { status({ id: x.report_id }, "challenged", { challenge_id: x.challenge_id, tx: x.tx }); out.challenged.push(x); }
+      out.errors.push(...(posted.errors || []));
+      await d.flush?.();
+    }
+    return out;
+  } finally { await lock.release(); }
 }
 
 // ---------- read models ----------

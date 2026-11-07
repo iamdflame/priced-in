@@ -15,8 +15,8 @@
 // stops at NEWS_SPEND_SHARE of it (50%), so it can never starve the jury, the writer or the agents.
 
 import { prepare, sendJson, runJob, log, recordEvents, txEvents } from "./_lib/runtime.mjs";
-import { newsConfig, linesStore, scoutRound, settleRound, openPassed, postNewsChallenges, readCapacity, SCOUT_JOURNAL } from "./_lib/news.mjs";
-import { REPORTS, reportsOf, refusalWords } from "./_lib/picks.mjs";
+import { newsConfig, linesStore, scoutRound, settleRound, openPassed, postNewsChallenges, reportsRound, readCapacity, SCOUT_JOURNAL } from "./_lib/news.mjs";
+import { REPORTS, limitsConfig } from "./_lib/picks.mjs";
 import { readFeeds, proposeClaims } from "../services/ai/src/scout.js";
 import { reviewRequest, parseReviews, verifyOnWeb } from "../services/ai/src/gate.js";
 import { findReceipts } from "../services/ai/src/settle.js";
@@ -53,40 +53,25 @@ const withSigner = (name, fn) => runJob(name, async ({ app, layer, started }) =>
   return fn({ signer: layer.signer, view: (m, a = {}) => app.rpc.viewFunction(prepare().api.marketId, m, a), record });
 }, { lock: "keeper", agents: false, waitMs: 60_000, budgetMs: 90_000 });
 
-async function reportsRound(p, t, { left, budget }) {
-  const nowMs = Date.now();
+/** The reports' round on the hosted runtime: its lock, its daily cap, the journal and the signer. */
+async function reportsNow(p, t, { left, budget, store }) {
+  const lim = limitsConfig();
   await p.journals.hydrate();
-  const claims = (await p.claims.decorated()).claims;
-  const events = p.journals.read("events.jsonl");
-  const all = [...reportsOf(p.journals.read(REPORTS), { claims, events }).values()];
-  const waiting = all.filter((r) => ["received", "retry", "verified"].includes(r.status) && nowMs - r.at < 2 * 86_400_000).sort((a, b) => a.at - b.at).slice(0, 3);
-  const out = { waiting: waiting.length, checked: [], challenged: [], errors: [] };
-  const status = (r, s, extra = {}) => p.journals.append(REPORTS, { t: "report_status", id: r.id, status: s, at: Date.now(), ...extra });
-  const plans = [];
-  for (const r of waiting) {
-    if (left() < 100_000 || !budget()) break;
-    const c = claims.find((x) => x.id === r.claim_id);
-    if (!c || c.status !== "Open") { status(r, "closed", { reason: "The line stopped taking challenges before we could act on it." }); continue; }
-    if (r.status !== "verified") {
-      const check = await t.check({ claim: c.text, evidence: r.evidence, claimed: r.says === "true" });
-      const summary = { result: check.result, reason: check.reason, support: check.support?.verdict ?? null };
-      out.checked.push({ id: r.id, ...summary });
-      const retry = check.result === "unfetchable" || check.support?.verdict === "unanswered";
-      if (check.result === "verified" && !["unanswered", "unsupported"].includes(check.support?.verdict)) status(r, "verified", { check: summary });
-      else if (retry && (r.attempts || 0) < 2) { status(r, "retry", { check: summary, attempts: (r.attempts || 0) + 1 }); continue; }
-      else { status(r, "refused", { check: summary, reason: refusalWords(check) }); continue; }
-    }
-    plans.push({ claim_id: c.id, claimed_outcome: r.says === "true", evidence: r.evidence, intent: `report:${r.id}`, report_id: r.id, outcome: r.says === "true" ? "TRUE" : "FALSE" });
-  }
-  await p.journals.flush({ only: [REPORTS] }).catch(() => {});
-  if (plans.length) {
-    const job = await withSigner("news-reports", (s) => postNewsChallenges(plans, { ...s, trigger: triggerJury }, { kind: "report" }));
-    const posted = job.ok ? job : { posted: [], errors: [job.error || "the keeper's lock stayed busy"] };
-    for (const x of posted.posted) { status({ id: x.report_id }, "challenged", { challenge_id: x.challenge_id, tx: x.tx }); out.challenged.push(x); }
-    out.errors.push(...(posted.errors || []));
-    await p.journals.flush({ only: [REPORTS] }).catch(() => {});
-  }
-  return out;
+  return reportsRound({
+    left, budget, check: t.check, trustedHosts: lim.trustedHosts,
+    lock: () => p.state.acquire("news-reports", { ttlMs: 240_000, waitMs: 0 }).catch(() => null),
+    takeCheck: async () => (await p.state.take("report-checks", "all", lim.reportChecksPerDay).catch(() => ({ ok: false }))).ok,
+    records: () => p.journals.read(REPORTS),
+    events: () => p.journals.read("events.jsonl"),
+    claims: async () => (await p.claims.decorated()).claims,
+    lines: () => store.read(),
+    append: (rec) => p.journals.append(REPORTS, rec),
+    flush: () => p.journals.flush({ only: [REPORTS] }).catch(() => {}),
+    challenge: async (plans) => {
+      const job = await withSigner("news-reports", (s) => postNewsChallenges(plans, { ...s, trigger: triggerJury }, { kind: "report", keepBonds: lim.reportKeepBonds }));
+      return job.ok ? job : { posted: [], errors: [job.error || "the keeper's lock stayed busy"] };
+    },
+  });
 }
 
 export default async function handler(req, res) {
@@ -110,7 +95,7 @@ export default async function handler(req, res) {
   const budget = () => { const s = p.spend.status(); return s.spent_usd < s.cap_usd * cfg.spendShare; };
 
   if (job === "all" || job === "reports") {
-    try { out.reports = await reportsRound(p, t, { left, budget }); } catch (e) { out.reports = { error: e.message }; }
+    try { out.reports = await reportsNow(p, t, { left, budget, store }); } catch (e) { out.reports = { error: e.message }; }
   }
   // the scout first: its slot comes twice a day, and the settler comes back every hour
   if ((job === "all" || job === "scout") && left() > 120_000) {
