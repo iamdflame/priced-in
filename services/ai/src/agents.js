@@ -425,7 +425,8 @@ export class Crowd {
   /** Research, credence, holdings and limits: everything up to the decision. Holds no key. */
   async evaluate(agent, claim) {
     this.stats.evaluations++;
-    const pageSources = this.pagesDoc?.pages?.[claim.page]?.sources || [];
+    // a news line has no curated page: its sources are the coverage the gate read (no web search needed)
+    const pageSources = [...(this.pagesDoc?.pages?.[claim.page]?.sources || []), ...(claim.news?.coverage || [])];
     const research = await this.research.forClaim(claim.text, { agent: agent.accountId, pageSources });
     if (!research.sources.length) throw new Error(`no source answered 200 (${research.errors.slice(0, 3).join("; ") || "nothing found"})`);
     const r = await attestedCompletion({ client: this.client, attestor: this.attestor, body: credenceRequest(agent.model, claim, research.sources, agent.persona), signatureDeadlineMs: this.signatureDeadlineMs, timeoutMs: 30000 });

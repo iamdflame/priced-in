@@ -93,7 +93,7 @@ export const policyWords = (category) => PLAIN[category] || "a topic we never pr
 export function shapeProblems(c, nowMs) {
   const out = [...(c.problems || [])];
   if (c.claim && Buffer.byteLength(c.claim, "utf8") > 600) out.push("its claim is over the market's 600 bytes");
-  if (c.claim && c.claim.length > 420) out.push("its claim is too long to read on a phone (over 420 characters)");
+  if (c.claim && c.claim.length > 480) out.push("its claim is too long to read on a phone (over 480 characters)");
   if (c.question && c.question.split(/\s+/).length > 14) out.push("its question is over 14 words");
   if (c.topic && !TOPICS.includes(c.topic)) out.push("its topic is not one of ours");
   if (c.settles?.by && dateWords(c.settles.by)) {
@@ -357,16 +357,18 @@ export async function runGate(a) {
 
   // 3b. unconfirmed, again, on the web: as many as could open (and a spare or two), or all of them for a measurement
   const want = a.verifyAll ? Infinity : slots + (a.spare ?? 2);
-  let verified = 0;
-  for (const d of live()) {
-    if (!a.verify) { d.checks.unconfirmed.by.push("no web check"); continue; }
-    if (verified >= want) break;
-    verified++;
-    const v = await a.verify(d.candidate);
-    d.web = v;
-    if (v.status === "unconfirmed") { d.checks.unconfirmed.by.push("web"); d.checks.unconfirmed.sources = v.sources; continue; }
-    if (v.status === "confirmed" || v.status === "denied") { refuse(d, "unconfirmed", `Already ${v.status} today, by a web search.${v.note ? ` ${v.note}` : ""}`, { by: "web", status: v.status, sources: v.sources }); continue; }
-    refuse(d, "unconfirmed", `The web check could not say it is still unconfirmed${v.error ? ` (${v.error})` : ""}, so it does not open.`, { by: "web", status: null });
+  if (!a.verify) for (const d of live()) d.checks.unconfirmed.by.push("no web check");
+  const toVerify = a.verify ? live().slice(0, want) : [];
+  for (let i = 0; i < toVerify.length; i += 3) { // a search takes about 25 s: three at a time
+    const part = toVerify.slice(i, i + 3);
+    const got = await Promise.all(part.map((d) => a.verify(d.candidate)));
+    part.forEach((d, k) => {
+      const v = got[k];
+      d.web = v;
+      if (v.status === "unconfirmed") { d.checks.unconfirmed.by.push("web"); d.checks.unconfirmed.sources = v.sources; return; }
+      if (v.status === "confirmed" || v.status === "denied") { refuse(d, "unconfirmed", `Already ${v.status} today, by a web search.${v.note ? ` ${v.note}` : ""}`, { by: "web", status: v.status, sources: v.sources }); return; }
+      refuse(d, "unconfirmed", `The web check could not say it is still unconfirmed${v.error ? ` (${v.error})` : ""}, so it does not open.`, { by: "web", status: null });
+    });
   }
 
   // 6. capacity

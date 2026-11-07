@@ -66,9 +66,9 @@ test("dates: the words in the claim, whole days away, and the end of a settle-by
 });
 
 test("the claim text: the deadline first, so the rule is inside what the jury reads", () => {
-  assert.equal(claimText("Tesla or a Tesla filing confirms that it is ending Cybertruck production", "2026-11-13"), "By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production.");
-  assert.equal(claimText("By 12 Nov 2026, The club confirms it.", "2026-11-13"), "By 13 November 2026, the club confirms it.", "a date the model wrote is replaced by the settle-by date");
-  assert.equal(claimText("By November 12, 2026, Netflix announces it.", "2026-11-13"), "By 13 November 2026, Netflix announces it.");
+  assert.equal(claimText("Tesla or a Tesla filing confirms that it is ending Cybertruck production", "2026-11-13"), "By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production. Reports citing unnamed sources don't count.");
+  assert.equal(claimText("By 12 Nov 2026, The club confirms it.", "2026-11-13"), "By 13 November 2026, the club confirms it. Reports citing unnamed sources don't count.", "a date the model wrote is replaced by the settle-by date");
+  assert.equal(claimText("By November 12, 2026, Netflix announces it. Reports citing unnamed sources don't count.", "2026-11-13"), "By 13 November 2026, Netflix announces it. Reports citing unnamed sources don't count.", "the rule is said once");
   assert.equal(claimText("", "2026-11-13"), null);
   assert.equal(claimText("Something.", "soon"), null);
 });
@@ -79,7 +79,7 @@ test("the scout's answer: each candidate keeps its headline and link, and what i
     { h: 99, statement: "", question: "", topic: "Gossip", source: "", settle_by: "whenever", chance: "x" },
   ] }) + "\n```";
   const [a, b] = parseCandidates(content, HEADLINES, { nowMs: NOW, model: "m" });
-  assert.equal(a.claim, "By 13 November 2026, Microsoft confirms that it is winding down its Oracle deal.");
+  assert.equal(a.claim, "By 13 November 2026, Microsoft confirms that it is winding down its Oracle deal. Reports citing unnamed sources don't count.");
   assert.deepEqual([a.question, a.topic, a.estimate, a.source.url, a.source.outlet], ["Is Microsoft ending its Oracle AI cloud deal?", "Tech", 0.6, HEADLINES[1].link, "Bloomberg.com"]);
   assert.equal(a.why.split(" ").length, 12, "why is cut to 12 words");
   assert.deepEqual(a.problems, []);
@@ -227,13 +227,16 @@ test("the gate: every candidate gets one result, refusals say which check and wh
 
 const LINE = { claim: "By 13 November 2026, Tesla or a Tesla filing confirms that it is ending Cybertruck production.", question: "Is Tesla ending Cybertruck production?", settles: { by: "2026-11-13", by_words: "13 November 2026", source: "Tesla's newsroom or an SEC filing", source_url: "https://ir.tesla.com/press" } };
 
-test("when to look: after the settle-by day and its grace, hourly; before it, an early look every few hours", () => {
+test("when to look: after the settle-by day and its grace at once, then every 12 hours; before it, an early look once a day", () => {
   const end = Date.parse("2026-11-14T00:00:00Z");
   assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 7 * 3600_000, lastLookAt: 0 })), [true, true]);
-  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 7 * 3600_000, lastLookAt: end + 6.5 * 3600_000 })), [false, true], "at most hourly once due");
+  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 7 * 3600_000, lastLookAt: end + 6.5 * 3600_000 })), [false, true], "a line that can't settle yet costs little");
+  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 19 * 3600_000, lastLookAt: end + 6.5 * 3600_000 })), [true, true], "every 12 hours once due");
+  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 7 * 3600_000, lastLookAt: end + 5 * 3600_000 })), [true, true], "the first look after the grace is at once");
   assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: end + 3600_000, lastLookAt: 0 })), [true, false], "inside the grace it is still an early look");
   assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: NOW, lastLookAt: NOW - 3600_000 })), [false, false]);
-  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: NOW, lastLookAt: NOW - 13 * 3600_000 })), [true, false]);
+  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: NOW, lastLookAt: NOW - 13 * 3600_000 })), [false, false]);
+  assert.deepEqual(pick(settleTiming({ by: "2026-11-13", nowMs: NOW, lastLookAt: NOW - 25 * 3600_000 })), [true, false], "an early look once a day");
 });
 const pick = (t) => [t.look, t.due];
 
@@ -362,4 +365,12 @@ test("the news caps: env settings reach the signer, the defaults leave the corre
   assert.ok(!NEWS_PAGE.test("news") && !NEWS_PAGE.test("tether"));
   assert.ok(TOPICS.includes("Officials") && TOPICS.includes("Crypto"));
   assert.equal(normForMatch("A  B"), "ab");
+});
+
+test("the writer leaves news pages alone: a day of news lines is not a paragraph", async () => {
+  const { Writer } = await import("../src/writer.js");
+  const { RewriteStore } = await import("../../api/src/rewrites.mjs");
+  const claims = { one: async () => ({ id: 5, page: "news-2026-11-07", text: "x" }), byPage: async () => { throw new Error("it must not read the page"); } };
+  const w = new Writer({ client: { hasKey: false }, model: null, store: new RewriteStore(), hub: { publish() {} }, claims, journal: { read: () => [], append() {}, rewrite() {} } });
+  assert.equal(await w.onTrade({ data: { claim_id: 5 } }), null);
 });

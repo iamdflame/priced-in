@@ -6,12 +6,13 @@
 //   reports  readers' reports still waiting: the receipt check (every quote at its page, then the
 //            three attested models asked whether the page supports it); a report that passes is
 //            challenged by our Checker with its own bond, under the reports' own daily cap
+//   scout    at NEWS_SCOUT_HOURS_UTC (06:00 and 18:00 by default): the feeds, the scout, the gate, and
+//            each line that passed opens with the keeper's open_claim key, under the news lines' own cap
 //   settle   news lines whose date has passed (or due an early look): receipts found and checked the
 //            same way; a line whose receipts pass is challenged for the outcome they show, under the
 //            news lines' own cap, and the jury is called at once (the keeper finalizes it later)
-//   scout    at NEWS_SCOUT_HOURS_UTC (06:00 and 18:00 by default): the feeds, the scout, the gate, and
-//            each line that passed opens with the keeper's open_claim key, under the news lines' own cap
-// Model calls count against the daily NEAR AI cap (NEARAI_DAILY_CAP_USD), like every other.
+// Model calls count against the daily NEAR AI cap (NEARAI_DAILY_CAP_USD), like every other, and news
+// stops at NEWS_SPEND_SHARE of it (50%), so it can never starve the jury, the writer or the agents.
 
 import { prepare, sendJson, runJob, log, recordEvents, txEvents } from "./_lib/runtime.mjs";
 import { newsConfig, linesStore, scoutRound, settleRound, openPassed, postNewsChallenges, readCapacity, SCOUT_JOURNAL } from "./_lib/news.mjs";
@@ -52,7 +53,7 @@ const withSigner = (name, fn) => runJob(name, async ({ app, layer, started }) =>
   return fn({ signer: layer.signer, view: (m, a = {}) => app.rpc.viewFunction(prepare().api.marketId, m, a), record });
 }, { lock: "keeper", agents: false, waitMs: 60_000, budgetMs: 90_000 });
 
-async function reportsRound(p, t, { left }) {
+async function reportsRound(p, t, { left, budget }) {
   const nowMs = Date.now();
   await p.journals.hydrate();
   const claims = (await p.claims.decorated()).claims;
@@ -63,7 +64,7 @@ async function reportsRound(p, t, { left }) {
   const status = (r, s, extra = {}) => p.journals.append(REPORTS, { t: "report_status", id: r.id, status: s, at: Date.now(), ...extra });
   const plans = [];
   for (const r of waiting) {
-    if (left() < 100_000) break;
+    if (left() < 100_000 || !budget()) break;
     const c = claims.find((x) => x.id === r.claim_id);
     if (!c || c.status !== "Open") { status(r, "closed", { reason: "The line stopped taking challenges before we could act on it." }); continue; }
     if (r.status !== "verified") {
@@ -105,26 +106,16 @@ export default async function handler(req, res) {
   const out = { at: new Date(t0).toISOString(), job };
   if (!t.client.hasKey) return sendJson(res, 200, { ...out, ok: false, note: "NEARAI_API_KEY is not set: the scout and the settler need a model." });
   await p.journals.hydrate().catch(() => {});
+  // news keeps to its share of the day's model cap: the jury, the writer and the agents always have the rest
+  const budget = () => { const s = p.spend.status(); return s.spent_usd < s.cap_usd * cfg.spendShare; };
 
   if (job === "all" || job === "reports") {
-    try { out.reports = await reportsRound(p, t, { left }); } catch (e) { out.reports = { error: e.message }; }
+    try { out.reports = await reportsRound(p, t, { left, budget }); } catch (e) { out.reports = { error: e.message }; }
   }
-  if ((job === "all" || job === "settle") && left() > 120_000) {
+  // the scout first: its slot comes twice a day, and the settler comes back every hour
+  if ((job === "all" || job === "scout") && left() > 120_000) {
     try {
-      out.settle = await settleRound({
-        cfg, store, claims, left,
-        find: (meta, nowMs) => findReceipts({ client: t.client, line: { claim: meta.claim, question: meta.question, settles: meta.settles }, nowMs }),
-        check: t.check,
-        challenge: async (plans) => {
-          const r = await withSigner("news-settle", (s) => postNewsChallenges(plans, { ...s, trigger: triggerJury }));
-          return r.ok ? r : { posted: [], errors: [r.error || "the keeper's lock stayed busy"] };
-        },
-      });
-    } catch (e) { out.settle = { error: e.message }; }
-  }
-  if ((job === "all" || job === "scout") && left() > 150_000) {
-    try {
-      out.scout = await scoutRound({
+      out.scout = !budget() ? { skipped: true, why: "the news share of today's model budget is spent" } : await scoutRound({
         cfg, store, claims, force: url.searchParams.get("force") === "1",
         journal: (rec) => p.journals.append(SCOUT_JOURNAL, rec),
         readFeeds: () => readFeeds({ feeds: cfg.feeds }),
@@ -138,6 +129,19 @@ export default async function handler(req, res) {
         },
       });
     } catch (e) { out.scout = { error: e.message }; }
+  }
+  if ((job === "all" || job === "settle") && left() > 100_000) {
+    try {
+      out.settle = await settleRound({
+        cfg, store, claims, left, budget,
+        find: (meta, nowMs) => findReceipts({ client: t.client, line: { claim: meta.claim, question: meta.question, settles: meta.settles, coverage: meta.coverage }, nowMs }),
+        check: t.check,
+        challenge: async (plans) => {
+          const r = await withSigner("news-settle", (s) => postNewsChallenges(plans, { ...s, trigger: triggerJury }));
+          return r.ok ? r : { posted: [], errors: [r.error || "the keeper's lock stayed busy"] };
+        },
+      });
+    } catch (e) { out.settle = { error: e.message }; }
   }
   await p.spend.settle();
   await p.journals.flush({ only: ["spend.jsonl", SCOUT_JOURNAL, REPORTS] }).catch((e) => log(`news: flush: ${e.message}`));

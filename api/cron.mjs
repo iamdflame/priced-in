@@ -24,6 +24,7 @@
 import { prepare, sendJson, runJob, log, recordEvents, txEvents } from "./_lib/runtime.mjs";
 import { Indexer, sourcesFor } from "./_lib/indexer.mjs";
 import { keeperRound, sittingConfig } from "./_lib/keeper.mjs";
+import { isNewsPage } from "./_lib/news.mjs";
 import { readRulings } from "./_lib/rulings.mjs";
 import { putCheck, readLedger } from "./_lib/sentinel.mjs";
 import { checkReceipts, FAILED, unsettled } from "../services/ai/src/receipts.js";
@@ -163,7 +164,7 @@ export default async function handler(req, res) {
     if (layer.writer && Date.now() - newest > 20 * 3600_000 && deadline - Date.now() > 60_000 && p.spend.status().open) {
       const claims = (await app.claims.all()).filter((c) => c.status === "Open");
       let stalest = null;
-      for (const page of [...new Set(claims.map((c) => c.page))]) {
+      for (const page of [...new Set(claims.map((c) => c.page))].filter((pg) => !isNewsPage(pg))) {
         paragraphsOf(page, claims.filter((c) => c.page === page), layer.writer.pagesDoc).forEach((para, i) => {
           const at = app.rewrites.byPage(page).find((x) => x.paragraph === i)?.createdAt || 0;
           if (para.length && (!stalest || at < stalest.at)) stalest = { page, i, para, at };

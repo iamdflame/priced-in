@@ -52,8 +52,11 @@ export function newsConfig(env = process.env) {
     webVerify: env.NEWS_WEB_VERIFY !== "0",
     requireDefinite: env.NEWS_REQUIRE_DEFINITE === "1",
     graceH: whole(env.NEWS_SETTLE_GRACE_H, 0, 72, 6),
-    earlyEveryH: whole(env.NEWS_EARLY_LOOK_H, 1, 168, 12),
+    earlyEveryH: whole(env.NEWS_EARLY_LOOK_H, 1, 168, 24),
+    dueEveryH: whole(env.NEWS_DUE_LOOK_H, 1, 168, 12),
     settlePerRun: whole(env.NEWS_SETTLE_PER_RUN, 1, 10, 3),
+    // news stops here, as a share of the daily model cap, so the jury, the writer and the agents always have the rest
+    spendShare: whole(env.NEWS_SPEND_SHARE, 1, 100, 50) / 100,
     feeds: [...DEFAULT_FEEDS, ...extra.feeds],
     errors: extra.errors,
     scoutModel: env.NEWS_SCOUT_MODEL || "deepseek-ai/DeepSeek-V4.1-Flash-1017",
@@ -137,6 +140,7 @@ export function lineMeta(d, { claimId, tx, nowMs, page, chainKind, models }) {
     source: c.source, settles: c.settles,
     first_estimate: c.estimate, p0_ppm: d.open.p0_ppm, b_micro: d.open.b_micro, reserve_micro: d.open.reserve_micro,
     opened_at: nowMs, open_tx: tx, candidate_id: c.id, models,
+    coverage: (d.checks.unconfirmed?.sources || []).map((s) => s.url).filter(Boolean).slice(0, 4),
     checks: Object.fromEntries(Object.entries(d.checks).map(([k, v]) => [k, { ok: v.ok, by: v.by ?? null }])),
     settle: null,
   };
@@ -259,7 +263,7 @@ const NOTE = {
  * those whose receipts pass the check are challenged for the outcome they show.
  * @param {{ cfg: object, now?: () => number, store: ReturnType<typeof linesStore>, claims: () => Promise<object[]>,
  *   find: (meta: object, nowMs: number) => Promise<object>, check: (a: object) => Promise<object>,
- *   challenge: (plans: object[]) => Promise<{ posted: object[], errors: string[] }>, left?: () => number }} d
+ *   challenge: (plans: object[]) => Promise<{ posted: object[], errors: string[] }>, left?: () => number, budget?: () => boolean }} d
  */
 export async function settleRound(d) {
   const cfg = d.cfg;
@@ -273,7 +277,7 @@ export async function settleRound(d) {
   for (const meta of Object.values(doc.lines || {})) {
     const c = byId.get(meta.claim_id);
     if (!c || c.status !== "Open") continue; // a live challenge or a settled line: the jury and the keeper have it
-    const t = settleTiming({ by: meta.settles.by, nowMs, lastLookAt: meta.settle?.last_look_at || 0, graceH: cfg.graceH, earlyEveryH: cfg.earlyEveryH });
+    const t = settleTiming({ by: meta.settles.by, nowMs, lastLookAt: meta.settle?.last_look_at || 0, graceH: cfg.graceH, earlyEveryH: cfg.earlyEveryH, dueEveryH: cfg.dueEveryH });
     if (t.look) due.push({ meta, claim: c, timing: t });
   }
   due.sort((a, b) => Number(b.timing.due) - Number(a.timing.due) || a.timing.due_at - b.timing.due_at);
@@ -281,6 +285,7 @@ export async function settleRound(d) {
   const notes = {};
   for (const x of due.slice(0, cfg.settlePerRun)) {
     if (left() < 90_000) { out.errors.push("out of time before every due line was looked at"); break; }
+    if (d.budget && !d.budget()) { out.note = "the news share of today's model budget is spent: the rest wait for the next run"; break; }
     const f = await d.find(x.meta, nowMs);
     const look = { claim_id: x.meta.claim_id, due: x.timing.due, outcome: f.outcome, basis: f.basis, receipts: f.receipts?.length ?? 0, reason: f.reason };
     let note;
@@ -289,7 +294,7 @@ export async function settleRound(d) {
       const check = await d.check({ claim: x.claim.text, evidence: f.evidence, claimed: f.outcome === "TRUE" });
       look.receipt_check = { result: check.result, support: check.support?.verdict ?? null };
       const ok = check.result === "verified" && !["unanswered", "unsupported"].includes(check.support?.verdict);
-      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence: f.evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${isoDay(nowMs)}` });
+      if (ok) plans.push({ claim_id: x.meta.claim_id, claimed_outcome: f.outcome === "TRUE", evidence: f.evidence, outcome: f.outcome, intent: `news-settle:${x.meta.claim_id}:${f.outcome}:${x.meta.settle?.looks || 0}` });
       note = ok ? null : NOTE.refused(check);
     }
     notes[x.meta.claim_id] = { last_look_at: nowMs, outcome: f.outcome, basis: f.basis, note, evidence_sha256: f.evidence ? sha(f.evidence) : null };
@@ -351,7 +356,7 @@ export function newsField(meta) {
     kind: "news", question: meta.question, topic: meta.topic, why: meta.why,
     source: meta.source ? { headline: meta.source.headline, url: meta.source.url, outlet: meta.source.outlet ?? null, published_at: meta.source.published_at ?? null } : null,
     settles: { by: meta.settles.by, by_words: meta.settles.by_words ?? dateWords(meta.settles.by), due_at: endOfDay(meta.settles.by), source: meta.settles.source, source_url: meta.settles.source_url ?? null, event: meta.settles.event ?? null, rule: meta.claim },
-    first_estimate: meta.first_estimate, opened_at: meta.opened_at, open_tx: meta.open_tx ?? null,
+    first_estimate: meta.first_estimate, opened_at: meta.opened_at, open_tx: meta.open_tx ?? null, coverage: meta.coverage || [],
   };
 }
 

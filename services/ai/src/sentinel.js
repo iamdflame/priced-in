@@ -61,7 +61,7 @@ export function sentinelDecision({ id, ch, claim, check, windowEndMs = null, now
   if (check.result === "verified" && check.support?.verdict === "unanswered") return none("watching", "The quote is at its source. Whether that source supports the challenge is still unanswered, so it is asked again.");
   if (check.result === "verified") {
     const ours = accounts.checker && ch.challenger === accounts.checker;
-    return none("no_dispute", ours ? "Our Checker's receipt verified against the committed corpus record: the Sentinel never disputes it." : "The receipts verified at their source: the Sentinel never disputes a verified receipt.");
+    return none("no_dispute", ours && check.via !== "source" ? "Our Checker's receipt verified against the committed corpus record: the Sentinel never disputes it." : "The receipts verified at their source: the Sentinel never disputes a verified receipt.");
   }
   if (check.result === "no_receipt") return none("no_dispute", "A bare accusation, with no source, no quote and no record: the jury refuses those (0 FALSE in 10 measured), so the Sentinel records it and does not dispute.");
   if (!FAILED.includes(check.result)) return none("watching", `The receipt check said ${check.result}.`);

@@ -192,15 +192,22 @@ const words = (s) => String(s).split(/\s+/).filter(Boolean);
 const capital = (s) => (s ? s[0].toUpperCase() + s.slice(1) : s);
 export const candidateId = (claim) => createHash("sha256").update(String(claim)).digest("hex").slice(0, 16);
 
-/** The claim text the market and the jury read: the deadline first, then the statement. */
+/**
+ * The rule every news line carries in its own text. Measured on last week's news
+ * (deployments/news-settle-test.json): without it, a report that cited anonymous sources was read as
+ * the company confirming, by the settler, the support panel and the jury alike.
+ */
+export const SOURCE_RULE = "Reports citing unnamed sources don't count.";
+
+/** The claim text the market and the jury read: the deadline first, then the statement, then the rule. */
 export function claimText(statement, settleBy) {
   const when = dateWords(settleBy);
-  let s = clean(statement, 520).replace(/^by\s+(\d{1,2}\s+[a-z]+\s+\d{4}|[a-z]+\s+\d{1,2},?\s+\d{4}|\d{4}-\d{2}-\d{2})\s*,\s*/i, "");
+  let s = clean(statement, 460).replace(/^by\s+(\d{1,2}\s+[a-z]+\s+\d{4}|[a-z]+\s+\d{1,2},?\s+\d{4}|\d{4}-\d{2}-\d{2})\s*,\s*/i, "").replace(/\s*Reports citing unnamed sources don't count\.?$/i, "");
   if (!s || !when) return null;
   if (!/[.!?]$/.test(s)) s += ".";
   // a capital stays only on a name: "Tesla confirms" keeps it, "The club confirms" becomes "the club confirms"
   if (/^(The|A|An|Its|Their|This|That)\b/.test(s)) s = s[0].toLowerCase() + s.slice(1);
-  return `By ${when}, ${s}`;
+  return `By ${when}, ${s} ${SOURCE_RULE}`;
 }
 
 /**

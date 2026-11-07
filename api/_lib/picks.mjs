@@ -144,6 +144,9 @@ export function parseProfile(b, { network, nowMs = Date.now() }) {
   return { nickname, ...s };
 }
 
+/** Does a free text hold a slur or a profanity? Word by word, so "assess" and "pen is" stay clean. */
+export const badWords = (text) => String(text).toLowerCase().split(/[^\p{L}\p{N}@$!]+/u).map(squash).some((w) => ANYWHERE.some((x) => w.includes(x)));
+
 const nameKey = (n) => squash(n) || n.toLowerCase();
 
 /** Each key's nickname: its latest, unless another key took that name first (then it has none). */
@@ -184,20 +187,22 @@ export function parseReport(b, { network, nowMs = Date.now() }) {
   if (quote.length < 16 || quote.length > 600 || quote.split(" ").length < 3) throw new Refusal(400, "invalid_quote", "quote must be the exact words from that page: 3 or more words, 16 to 600 characters.");
   const note = String(b?.note ?? "").replace(/\s+/g, " ").trim();
   if (note.length > 600) throw new Refusal(400, "invalid_note", "note is at most 600 characters.");
+  if (badWords(note) || badWords(quote)) throw new Refusal(400, "report_refused", "That report has words we don't publish. Take them out and send it again.");
   const s = signed(b, { nowMs, message: (issued_at) => reportMessage({ network, claim_id, says, url, quote, note, issued_at }) });
   return { claim_id, says, url, quote, note, ...s, id: sha256hex(`${s.key}|${claim_id}|${s.issued_at}`).slice(0, 16) };
 }
 
-/** The evidence a verified report goes on-chain with: the reader's note (links and quote marks taken out, so only their receipt is checked), the page and its words. */
+/**
+ * The evidence a verified report goes on-chain with: the page and its exact words, and nothing else
+ * of the reader's. Their note stays in our store: free text never goes on-chain under our Checker's
+ * key, and it can't add a source or a quote to what the receipt check reads.
+ */
 export function reportEvidence(r) {
-  const note = r.note.replace(/https?:\/\/\S+/g, "[link removed]").replace(/["“”„«»]/g, "'").replace(/^\s*>/gm, "");
-  const lines = [
+  return [
     `A reader's report, checked by Priced In's Checker before this challenge: the line is ${r.says === "true" ? "TRUE" : "FALSE"}.`,
-    note ? `The reader's note: ${note}` : null,
     `Source: ${r.url}`,
     `Receipt excerpt: "${r.quote.replace(/"/g, "'")}"`,
-  ].filter(Boolean);
-  return lines.join("\n").slice(0, 3900);
+  ].join("\n");
 }
 
 const PLAIN = {

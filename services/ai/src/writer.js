@@ -343,6 +343,7 @@ export class Writer {
     this.stats.triggers++;
     const claim = await this.claims.one(claimId);
     if (!claim) return null;
+    if (/^news-\d{4}-\d{2}-\d{2}$/.test(claim.page)) return null; // a day's news lines are not a paragraph: there is no page to rewrite
     const pageClaims = await this.claims.byPage(claim.page);
     // the event's price is fresher than any cached view
     const prices = new Map(pageClaims.map((c) => [c.id, c.price_yes_ppm]));

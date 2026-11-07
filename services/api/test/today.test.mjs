@@ -130,7 +130,7 @@ test("settling: due lines get receipts; receipts that pass the check are challen
     challenge: async (p) => { plans.push(...p); return { posted: p.map((x) => ({ claim_id: x.claim_id, challenge_id: 9, tx: "tx9", outcome: x.outcome })), errors: [] }; },
   });
   assert.deepEqual(r.looked.map((x) => x.claim_id).sort(), [40, 41, 42], "a line not due, and a line already challenged, are left alone");
-  assert.deepEqual(plans.map((p) => [p.claim_id, p.claimed_outcome, p.intent]), [[40, true, "news-settle:40:TRUE:2026-11-14"]]);
+  assert.deepEqual(plans.map((p) => [p.claim_id, p.claimed_outcome, p.intent]), [[40, true, "news-settle:40:TRUE:0"]], "one intent per look: a crash before the record replays it, never sends it twice");
   const doc = await store.read();
   assert.match(doc.lines[40].settle.note, /challenged it as TRUE \(challenge 9\)/);
   assert.match(doc.lines[41].settle.note, /did not pass the check \(verified, support unsupported\)/);
@@ -244,6 +244,7 @@ test("nicknames: 3 to 20 plain characters, no slurs, nothing that looks like us,
 test("a report: signed, its words checked by the receipt check alone, and its notes can't smuggle in other receipts", () => {
   const b = browser();
   const body = { public_key: b.key, claim_id: 7, url: "https://tether.io/news/x", quote: "Tether's reserves include $122.84 billion in U.S. Treasury bills", note: 'See https://evil.example/fake and "a quote nobody can find anywhere"\n> another', issued_at: NOW };
+  assert.throws(() => parseReport({ ...body, note: "this is fucking wrong", signature: "00" }, { network: "mainnet", nowMs: NOW }), (e) => e.code === "report_refused", "free text we would publish goes through the word filter");
   const msg = reportMessage({ network: "mainnet", claim_id: 7, says: "false", url: body.url, quote: body.quote, note: body.note.replace(/\s+/g, " ").trim(), issued_at: NOW });
   const r = parseReport({ ...body, signature: b.sign(msg) }, { network: "mainnet", nowMs: NOW });
   assert.deepEqual([r.says, r.claim_id, r.url, r.id.length], ["false", 7, body.url, 16]);
@@ -252,6 +253,7 @@ test("a report: signed, its words checked by the receipt check alone, and its no
   assert.deepEqual(parsed.urls, ["https://tether.io/news/x"], "only the reader's page is fetched");
   assert.deepEqual(parsed.quotes, ["Tether's reserves include $122.84 billion in U.S. Treasury bills"], "only the reader's words are looked for");
   assert.match(evidence, /^A reader's report, checked by Priced In's Checker before this challenge: the line is FALSE\./);
+  assert.ok(!evidence.includes("evil.example") && !evidence.includes("nobody"), "the reader's free text never goes on-chain");
   assert.throws(() => parseReport({ ...body, url: "http://x.example/a", signature: "00" }, { network: "mainnet", nowMs: NOW }), /https/);
   assert.throws(() => parseReport({ ...body, quote: "too short", signature: "00" }, { network: "mainnet", nowMs: NOW }), /exact words/);
   assert.match(refusalWords({ result: "quote_not_found" }), /couldn't find those exact words/);
@@ -351,4 +353,17 @@ test("the sitting stays as it was: a news line's ruling or a reader's report nev
   assert.deepEqual(rulings.map(ofSitting), [false, false]);
   assert.equal(ofSitting({ page: "tether", evidence: "Priced In's Checker. Corpus record tether-0035" }), true);
   assert.equal(checkerQueue({ claims: [], rulings, account: acct, nowMs: day }).rulingsToday, 0);
+});
+
+test("news keeps to its share of the model budget: with it spent, the settler looks at nothing", async () => {
+  const dir = tmp();
+  const store = linesStore(new FsState({ prefix: "state/testnet/m", dir }));
+  await store.update((cur) => ({ ...cur, lines: { 40: meta(40) } }));
+  let looked = 0;
+  const r = await settleRound({ cfg: newsConfig({ NEWS_ENABLED: "1" }), now: () => Date.parse("2026-11-14T08:00:00Z"), store, claims: async () => [claim(40)], budget: () => false, find: async () => { looked++; return {}; }, check: async () => ({}), challenge: async () => ({ posted: [], errors: [] }) });
+  assert.equal(looked, 0);
+  assert.match(r.note, /share of today/);
+  assert.equal(newsConfig({ NEWS_ENABLED: "1" }).spendShare, 0.5);
+  assert.equal(newsConfig({ NEWS_SPEND_SHARE: "20" }).spendShare, 0.2);
+  fs.rmSync(dir, { recursive: true, force: true });
 });
