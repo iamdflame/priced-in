@@ -5,7 +5,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { guard, type Guard } from "./guard";
 import { settle } from "./visit";
 
-const ROUTES = ["/", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
+const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
 
 const quiet = (g: Guard) => { expect(g.errors, "console errors").toEqual([]); expect(g.laneKeys, "asked for a free-bet key").toBe(0); expect(g.sends, "sent a transaction").toBe(0); };
 

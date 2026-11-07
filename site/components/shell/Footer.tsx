@@ -26,7 +26,7 @@ const GROUPS: { title: string; links: FootLink[] }[] = [
     { href: "/p", label: "Encyclopedia" },
   ] },
   { title: "Help & proof", links: [
-    { href: "/#how", label: "How it works" },
+    { href: "/how", label: "How it works" },
     { href: "/help", label: "Help center" },
     { href: "/status", label: "Status" },
     { href: "/trust", label: "Trust" },

@@ -58,7 +58,7 @@ const SIZES = [
   { name: "phone", width: 390, height: 844, main: (p: Page, name: string) => p.locator(".pnav").getByRole("link", { name, exact: true }).click() },
 ];
 
-const ROUTES = ["/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
+const ROUTES = ["/how", "/c/31", "/c/18", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
 
 // the founder's trigger: the logo, from any page, must land on the same home a fresh load gives
 for (const size of SIZES) {

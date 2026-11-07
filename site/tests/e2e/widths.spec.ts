@@ -6,7 +6,7 @@ import { audit, brokenImages } from "./audit";
 import { guard } from "./guard";
 import { settle } from "./visit";
 
-const ROUTES = ["/", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
+const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio"];
 const WIDTHS = [320, 360, 375, 390, 414, 430, 768, 820, 1024, 1280, 1366, 1440, 1508, 1536, 1600, 1707, 1920, 2048, 2560];
 const KEY_WIDTHS = [390, 768, 1280, 1508, 1920];
 const SCALES = [1, 1.25, 1.5, 2];

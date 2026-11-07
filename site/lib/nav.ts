@@ -9,7 +9,7 @@ export const NAV: NavItem[] = [
   { href: "/rulings", label: "Results", icon: "gavel", phone: true },
   { href: "/agents", label: "AI traders", icon: "bot", phone: true },
   { href: "/portfolio", label: "Portfolio", icon: "wallet", phone: true },
-  { href: "/#how", label: "How it works", icon: "info" },
+  { href: "/how", label: "How it works", icon: "info" },
 ];
 
 /** The replay of the complete mainnet run: every "watch a replay" link goes here. */
