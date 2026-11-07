@@ -64,9 +64,26 @@ export async function syncStores({ src, dst, force = false }) {
       continue;
     }
     if (rec && d.name === INDEX) {
-      const copied = new Set(Object.values(JSON.parse(rec.body).files || {}).flat());
-      const fresh = Object.fromEntries(Object.entries(b.value.files || {}).map(([f, names]) => [f, names.filter((n) => !copied.has(n))]).filter(([, names]) => names.length));
-      for (const n of Object.values(fresh).flat()) if (!have.has(n) && !missing.some((c) => c.name === n)) await dst.putChunk(n, await src.getChunk(n));
+      // what each journal gained in the source since the copy, by content: the source may have compacted a
+      // file (its first chunk is then a merged one holding lines the destination already has), so a file
+      // whose list no longer starts with the copied names gains only the bytes after the copied ones
+      const before = JSON.parse(rec.body).files || {};
+      const fresh = {}, wrote = new Set();
+      const read = async (n) => { try { return await dst.getChunk(n); } catch { return src.getChunk(n); } };
+      for (const [f, names] of Object.entries(b.value.files || {})) {
+        const old = before[f] || [];
+        if (old.every((n, i) => names[i] === n)) { if (names.length > old.length) fresh[f] = names.slice(old.length); continue; }
+        let copiedBytes, srcBytes;
+        try { copiedBytes = Buffer.concat(await Promise.all(old.map(read))); srcBytes = Buffer.concat(await Promise.all(names.map((n) => src.getChunk(n)))); } catch (e) { notes.push(`${f}: compacted in both stores, so what it gained can't be told apart (${String(e.message).slice(0, 60)}); the destination keeps its own`); continue; }
+        if (!srcBytes.subarray(0, copiedBytes.length).equals(copiedBytes)) { notes.push(`${f}: the source's journal no longer starts with what was copied; the destination keeps its own`); continue; }
+        const tail = srcBytes.subarray(copiedBytes.length);
+        if (!tail.length) continue;
+        const name = `journals/${f}/${Date.now().toString().padStart(14, "0")}-m${crypto.randomBytes(4).toString("hex")}.jsonl`;
+        await dst.putChunk(name, tail);
+        wrote.add(name);
+        fresh[f] = [name];
+      }
+      for (const n of Object.values(fresh).flat()) if (!have.has(n) && !missing.some((c) => c.name === n) && !wrote.has(n)) await dst.putChunk(n, await src.getChunk(n));
       const { value } = await dst.updateDoc(INDEX, (x = { files: {} }) => {
         const files = { ...x.files };
         for (const [f, names] of Object.entries(fresh)) files[f] = [...(files[f] || []), ...names.filter((n) => !(files[f] || []).includes(n))];

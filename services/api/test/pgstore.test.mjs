@@ -193,3 +193,31 @@ test("the migration: a chunk the old store writes after its listing, and names i
   assert.deepEqual(fresh.read("ledger.jsonl").map((x) => x.n), [1, 2]);
   fs.rmSync(dir, { recursive: true, force: true });
 });
+
+test("the migration: when the old store compacts a journal during the switch, the catch-up adds only the new lines", async () => {
+  const { query } = await database();
+  const { FsState } = await import("../../../api/_lib/store.mjs");
+  const { syncStores } = await import("../../../api/_lib/store-sync.mjs");
+  const dir = tmp();
+  const prefix = "state/mainnet/m";
+  const blob = new FsState({ prefix, dir });
+  const pg = new PgState({ prefix, query });
+  const jb = new JournalDir(blob, path.join(dir, "a"));
+  for (let i = 1; i <= 4; i++) { jb.append("spend.jsonl", { i }); await jb.flush(); }
+  await syncStores({ src: blob, dst: pg });
+  // the switch: Postgres takes a live line; meanwhile the old store takes two more and compacts the file
+  const jp = new JournalDir(new PgState({ prefix, query }), path.join(dir, "b"));
+  await jp.hydrate();
+  jp.append("spend.jsonl", { i: "live" }); await jp.flush();
+  for (const i of [5, 6]) { jb.append("spend.jsonl", { i }); await jb.flush(); }
+  assert.equal(await new JournalDir(blob, path.join(dir, "c")).compact({ over: 2 }), 1, "the old store merged its chunks into one");
+  const r = await syncStores({ src: blob, dst: pg });
+  assert.equal(r.counts.merged, 1);
+  assert.deepEqual(r.chunks.dangling, []);
+  const fresh = new JournalDir(new PgState({ prefix, query }), path.join(dir, "d"));
+  await fresh.hydrate();
+  assert.deepEqual(fresh.read("spend.jsonl").map((x) => x.i), [1, 2, 3, 4, "live", 5, 6], "every line once: the compacted chunk's old lines are not added again");
+  const again = await syncStores({ src: blob, dst: pg });
+  assert.equal(again.counts.merged, 0, "a second catch-up changes nothing");
+  fs.rmSync(dir, { recursive: true, force: true });
+});
