@@ -3,10 +3,10 @@
 // holds across pages; the footer is real and close; and nothing jumps or complains in the console.
 import { expect, test, type Page } from "@playwright/test";
 import { guard, type Guard } from "./guard";
-import { FACT_CARDS, NEWS } from "./news";
+import { FACT_CARDS, NEWS, PAGES } from "./news";
 import { settle } from "./visit";
 
-const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio", ...(NEWS ? ["/leaderboard", "/c/9001"] : [])];
+const ROUTES = ["/", "/how", "/c/31", "/c/18", "/c/32", "/rulings", "/agents", "/stats", "/trust", "/developers", "/p", "/p/tether", "/new", "/jack/status/20", "/terms", "/privacy", "/help", "/status", "/accuracy", "/portfolio", ...(NEWS ? ["/leaderboard", "/c/9001"] : []), ...(NEWS && PAGES ? ["/record"] : [])];
 
 const quiet = (g: Guard) => { expect(g.errors, "console errors").toEqual([]); expect(g.laneKeys, "asked for a free-bet key").toBe(0); expect(g.sends, "sent a transaction").toBe(0); };
 

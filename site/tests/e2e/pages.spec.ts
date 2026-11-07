@@ -4,6 +4,7 @@
 // spend a planner call or a visitor's limit. The signature check is real, because that's the claim.
 import { expect, test, type Page } from "@playwright/test";
 import { guard, type Guard } from "./guard";
+import { PAGES } from "./news";
 
 const ROUTES: [string, RegExp][] = [
   ["/rulings", /Three AI judges decide/],
@@ -11,7 +12,7 @@ const ROUTES: [string, RegExp][] = [
   ["/stats", /in public/],
   ["/trust", /Nobody can change the rules quietly/],
   ["/developers", /Ask the market/],
-  ["/p", /Read Wikipedia with the odds on/],
+  ["/p", PAGES ? /The encyclopedia the market writes/ : /Read Wikipedia with the odds on/],
   ["/p/tether", /Tether/],
   ["/new", /Paste it and find out/],
   ["/jack/status/20", /Fact-check this post/],

@@ -23,6 +23,8 @@ export default defineConfig({
     { name: "click", use: { ...devices["Desktop Chrome"] }, testMatch: /click.spec/ },
     // today's claims, picks, the board and reports (off by default; E2E_NEWS=on with tests/mock/api.mjs),
     // and the free $1's score, in either state
+    // the official pages (off by default; E2E_PAGES=on with tests/mock/api.mjs and MOCK_PAGES=on), in either state
+    { name: "official", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, testMatch: /official.spec/ },
     { name: "today", use: { ...devices["Desktop Chrome"], viewport: { width: 1440, height: 900 } }, testMatch: /(today|score)\.spec/ },
     // judges use Safari: the main flows again in every engine
     { name: "firefox", use: { ...devices["Desktop Firefox"], viewport: { width: 1440, height: 900 } }, testMatch: /(flow|browsers).spec/ },

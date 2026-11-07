@@ -9,8 +9,13 @@
 // outcomes it reached). Picks, nicknames and reports are parsed, signature-checked and counted by the
 // API's own code (api/_lib/picks.mjs, api/_lib/news.mjs), so the shapes are the API's by construction.
 //
-//   node tests/mock/api.mjs            MOCK_PORT=3299 MOCK_UPSTREAM=https://isitpriced.com MOCK_NEWS=on|off
-//   POST /__mock {"news":"on"|"off","scenario":"first"|"returning"|"overdue"|"refused"|"bounty"|"closed"}   switch state
+// The official pages (OFFICIAL_PAGES=1 on the real API) are off here unless MOCK_PAGES=on or {"pages":"on"}. On,
+// /api/pages, /api/pages/<slug> and /api/record answer through the API's own api/_lib/pages.mjs, over the live
+// claims, rulings and rewrites, and the real signed records of a page sweep (deployments/pages-sweep.json,
+// written by scripts/measure-pages.mjs --records: the real model, signed in its TEE, not anchored).
+//
+//   node tests/mock/api.mjs            MOCK_PORT=3299 MOCK_UPSTREAM=https://isitpriced.com MOCK_NEWS=on|off MOCK_PAGES=on|off
+//   POST /__mock {"news":"on"|"off","pages":"on"|"off","scenario":"first"|"returning"|"overdue"|"refused"|"bounty"|"closed"}   switch state
 import http from "node:http";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -22,6 +27,7 @@ import {
   PICKS, parsePick, parseProfile, parseReport, firstPicks, pickableOrWhy, nicknames, nicknameTaken, reportsOf, reportView, reportEvidence,
   aiTraders, leaderboard, picksOf, picksOnLine, pickCounts, challengeCall, trustedSource, untrustedSource, Refusal, refusalBody, refusalWords, RULES,
 } from "../../../api/_lib/picks.mjs";
+import { articleIndex, latestRecords, livePages, pageState, pageSummary, readArticle, recordOf } from "../../../api/_lib/pages.mjs";
 
 const PORT = Number(process.env.MOCK_PORT || 3299);
 const UP = (process.env.MOCK_UPSTREAM || "https://isitpriced.com").replace(/\/+$/, "");
@@ -112,7 +118,7 @@ function lines(scenario, now) {
 
 // ---------- state ----------
 
-const state = { news: process.env.MOCK_NEWS || "on", scenario: process.env.MOCK_SCENARIO || "first", picks: [], profiles: [], reports: [], lines: [] };
+const state = { news: process.env.MOCK_NEWS || "on", pages: process.env.MOCK_PAGES === "on" ? "on" : "off", scenario: process.env.MOCK_SCENARIO || "first", picks: [], profiles: [], reports: [], lines: [] };
 
 function reset(scenario, now = Date.now()) {
   state.scenario = scenario;
@@ -258,6 +264,39 @@ async function news(req, res, url) {
   }
 }
 
+// ---------- the official pages, through the API's own code ----------
+
+const PAGES = /^\/api\/(?:v1\/)?(?:pages(?:\/([^/]+))?|record)$/;
+const SWEEP = read("pages-sweep.json").records;
+
+async function pagesFacts() {
+  const [f, r, w] = await Promise.all([facts(), upstream("/api/rulings"), upstream("/api/rewrites?since=1")]);
+  const live = r.rulings || [];
+  // the stand-in's decided news lines, ruled as the backtest reached them (no transaction: none was sent)
+  const mine = state.news === "on" ? state.lines.filter((l) => l.settledAt).map((l) => ({ challenge_id: l.v.challenge_id, claim_id: l.m.claim_id, status: "settled", outcome: l.v.outcome ? "TRUE" : "FALSE", escalated: false, settled_at: l.settledAt, settle_tx: null, receipt_check: null, evidence: null })) : [];
+  const links = live.filter((x) => x.correction).map((x) => ({ old_claim_id: x.claim_id, new_claim_id: x.correction.claim_id, rewrite_id: x.correction.rewrite_id ?? null }));
+  return { claims: f.claims, rulings: [...live, ...mine], links, records: latestRecords([...(w.rewrites || []), ...SWEEP]), doc: f.doc, asOf: f.asOf };
+}
+
+async function pages(req, res, url) {
+  try {
+    const f = await pagesFacts();
+    const state1 = (article) => pageState({ article, claims: f.claims, records: f.records, links: f.links, rulings: f.rulings, network: "mainnet" });
+    const slug = PAGES.exec(url.pathname)[1];
+    if (slug) {
+      const article = readArticle(slug);
+      if (!article) return json(res, 404, { error: { code: "no_such_page", message: `No page ${slug.slice(0, 64)}.` } });
+      return json(res, 200, { ...state1(article), asOf: f.asOf });
+    }
+    const record = state.news === "on" ? recordOf({ doc: f.doc, claims: f.claims, rulings: f.rulings, network: "mainnet" }) : { lines: [], count: 0 };
+    if (/record$/.test(url.pathname)) return json(res, 200, { ...record, asOf: f.asOf });
+    const list = livePages(f.claims, f.links).map(({ slug: s }) => pageSummary(state1(readArticle(s))));
+    return json(res, 200, { pages: list, count: list.length, encyclopedia: articleIndex().length, record: { count: record.count }, sweep: null, asOf: f.asOf });
+  } catch (e) {
+    return json(res, 502, { error: { code: "upstream_error", message: String(e.message).slice(0, 200) } });
+  }
+}
+
 // ---------- the mock's own lines through /api/claims, /api/claims/<id> and the reads around them ----------
 
 async function claimsRoutes(req, res, url) {
@@ -303,9 +342,14 @@ const handle = async (req, res) => {
     if (req.method === "POST") {
       const b = await bodyOf(req);
       if (b.news) state.news = b.news === "off" ? "off" : "on";
+      if (b.pages) state.pages = b.pages === "on" ? "on" : "off";
       if (b.scenario) reset(b.scenario);
     }
-    return json(res, 200, { news: state.news, scenario: state.scenario, picks: state.picks.length, reports: state.reports.length, visitor: { key: VISITOR_KEY, secret: VISITOR_SECRET } });
+    return json(res, 200, { news: state.news, pages: state.pages, scenario: state.scenario, picks: state.picks.length, reports: state.reports.length, visitor: { key: VISITOR_KEY, secret: VISITOR_SECRET } });
+  }
+  if (PAGES.test(url.pathname)) {
+    if (state.pages !== "on" || req.method !== "GET") return json(res, 404, { error: { code: "not_found", message: `No route ${req.method} ${url.pathname.replace(/^\/api/, "")}.` } });
+    return pages(req, res, url);
   }
   if (NEWS.has(url.pathname)) {
     if (state.news !== "on") return json(res, 404, { error: { code: "not_found", message: `No route ${req.method} ${url.pathname.replace(/^\/api/, "")}.` } });
