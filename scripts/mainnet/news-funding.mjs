@@ -8,6 +8,9 @@
 //                                                               (only when asked: the contract can't send NEAR back out)
 //   --lane-budget 13 (or max)                                   set the free-bet budget to $13 (13 free $1 bets) out of money the
 //                                                               treasury already holds: no deposit, and news lines wait for it
+//   --deposit-all                                               put every USDC the owner holds into the treasury first; with
+//                                                               --lane-budget max, the free bets get what is left after the floor
+//                                                               and the news lines asked for (--lines, --avg-reserve)
 //   CONFIRM_MAINNET=yes node scripts/mainnet/news-funding.mjs --lines 0 --lane-budget 13 --apply
 //                                                               only that: one set_limits call, nothing sent
 //
@@ -33,6 +36,7 @@ const AVG = BigInt(Math.round(Number(arg("--avg-reserve", "1.40")) * 1e6));
 const FLOOR = BigInt(process.env.NEWS_TREASURY_FLOOR_MICRO || 1_500_000);
 const APPLY = process.argv.includes("--apply");
 const LANE_TO = arg("--lane-budget", null);
+const DEPOSIT_ALL = process.argv.includes("--deposit-all");
 const M = dep.accounts.market, U = dep.accounts.usdc;
 const RPCS = ["https://free.rpc.fastnear.com", "https://near.drpc.org", "https://rpc.mainnet.near.org"];
 const landed = (r, what) => { if (r.status && typeof r.status === "object" && "Failure" in r.status) throw new Error(`${what} failed: ${JSON.stringify(r.status.Failure).slice(0, 200)}`); return r.transaction_outcome?.id || r.transaction?.hash; };
@@ -64,20 +68,24 @@ const treasury = BigInt(stats.treasury_micro), reserved = BigInt(stats.reserved_
 const credit = BigInt(stats.lane_credit_micro);
 // --lane-budget: the free bets' share of the treasury, an absolute amount (each free bet takes one credit off it)
 if (LANE_TO !== null && LANE_TO !== "max" && !(Number(LANE_TO) >= 0)) { console.error("--lane-budget takes dollars, e.g. --lane-budget 13, or max"); process.exit(1); }
-// max: as many whole free bets as the treasury covers with the floor kept whole
-const laneMax = credit > 0n && treasury > FLOOR ? ((treasury - FLOOR) / credit) * credit : 0n;
+const need = BigInt(LINES) * AVG;
+// --deposit-all: every USDC the owner holds goes into the treasury before anything else
+const owned = BigInt(ownerUsdc);
+const pre = DEPOSIT_ALL ? owned : 0n;
+const pot = treasury + pre; // the treasury once that deposit lands
+// max: as many whole free bets as the treasury covers, after the floor and the news lines asked for
+const laneMax = credit > 0n && pot > FLOOR + need ? ((pot - FLOOR - need) / credit) * credit : 0n;
 const laneNew = LANE_TO === null ? lane : LANE_TO === "max" ? (laneMax > lane ? laneMax : lane) : BigInt(Math.round(Number(LANE_TO) * 1e6));
-// every credit must stay covered by money the treasury holds, with the floor kept whole
-if (LANE_TO !== null && laneNew + FLOOR > treasury) { console.error(`the treasury holds ${usd(treasury)}: a free-bet budget of at most ${usd(treasury - FLOOR)} keeps the ${usd(FLOOR)} floor whole`); process.exit(1); }
-const free = treasury - laneNew - FLOOR;
+// every credit must stay covered by money the treasury holds (or the owner deposits), with the floor kept whole
+if (LANE_TO !== null && laneNew + FLOOR > treasury + owned) { console.error(`the treasury holds ${usd(treasury)} and the owner ${usd(owned)}: a free-bet budget of at most ${usd(treasury + owned - FLOOR)} keeps the ${usd(FLOOR)} floor whole`); process.exit(1); }
+const free = pot - laneNew - FLOOR;
 const bets = (m) => (credit > 0n ? Number(m / credit) : 0);
 const room = cap - reserved;
 const now = free < room ? free : room;
-const need = BigInt(LINES) * AVG;
-const deposit = need > free ? need - free : 0n;
+const deposit = pre + (need > free ? need - free : 0n);
 const newCap = reserved + need > cap ? reserved + need : cap;
 
-console.log(`treasury ${usd(treasury)}: ${usd(laneNew)} is the free bets' (${bets(laneNew)} free ${usd(credit)} bets${laneNew !== lane ? `, up from ${bets(lane)}` : ""}), ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
+console.log(`treasury ${usd(pot)}${pre > 0n ? ` (after depositing the owner's ${usd(pre)})` : ""}: ${usd(laneNew)} is the free bets' (${bets(laneNew)} free ${usd(credit)} bets${laneNew !== lane ? `, up from ${bets(lane)}` : ""}), ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
 console.log(`reserved ${usd(reserved)} of a ${usd(cap)} cap: ${usd(room)} of room`);
 console.log(`today that carries ${usd(now > 0n ? now : 0n)}: ${now >= 1_006_100n ? `about ${Number(now / AVG)} news line(s)` : "no news line, at any price"}`);
 if (LINES > 0) console.log(`${LINES} lines at a time, about ${usd(AVG)} each, need ${usd(need)}: deposit ${usd(deposit)} into the treasury, and raise the cap to ${usd(newCap)}`);
