@@ -50,12 +50,13 @@ const shot = async (name, locator = null) => {
 };
 
 try {
-  // 1. the home page says what it is, and leads with a fact and its odds
+  // 1. the home page says what it is, and leads with a fact and its odds (Today's claims, when news is
+  //    on, sit above it in their own .feature.tlead; the encyclopedia's lead is the other .feature)
   let t0 = Date.now();
   await page.goto(`${site}/`, { waitUntil: "domcontentloaded" });
   const h1 = page.getByRole("heading", { level: 1, name: "Bet on whether facts are true." });
   await h1.waitFor({ timeout: 30000 });
-  const lead = page.locator(".feature");
+  const lead = page.locator("section.feature:not(.tlead)").first();
   const question = squash(await lead.locator("#lead-q").textContent());
   const odds = (await lead.getByRole("img", { name: /% chance it’s true$/ }).first().getAttribute("aria-label")) || "";
   const no = lead.locator("a.bet.no").first();
@@ -66,7 +67,13 @@ try {
   // 2. the fact's page: No is picked, and it says what the free $1 gets back
   t0 = Date.now();
   await no.click();
-  await page.waitForURL(/\/c\/\d+\?side=no$/, { timeout: 30000 });
+  // with Today's claims on, a tap is a free pick first, and its tray leads to the same ticket with the
+  // side picked (site/tests/e2e/flow.spec.ts); with news off, the tap is the ticket's own link
+  const toTicket = page.waitForURL(/\/c\/\d+\?side=no$/, { timeout: 30000 });
+  const back = page.getByRole("complementary", { name: "Your pick" }).getByRole("link", { name: "Back it with your free $1" });
+  const tray = back.waitFor({ state: "visible", timeout: 30000 }).then(() => "tray", () => null);
+  if ((await Promise.race([toTicket.then(() => "ticket"), tray])) === "tray") await back.click();
+  await toTicket;
   const claimId = Number(/\/c\/(\d+)/.exec(page.url())[1]);
   const pickNo = page.getByRole("button", { name: /No, it’s false/ }).first();
   await page.waitForFunction(() => document.querySelector(".ticket .seg .n")?.getAttribute("aria-pressed") === "true", null, { timeout: 20000 }).catch(() => {});
