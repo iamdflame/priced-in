@@ -6,6 +6,8 @@
 import { expect, test, type Page } from "@playwright/test";
 import { guard, noMoneySpent } from "./guard";
 
+// A throwaway test key, made for this spec: it is an access key on no account, mainnet or testnet
+// (checked with view_access_key on 2026-11-08), and the API it talks to here is mocked. Not a secret.
 const KEY = "ed25519:3gLuUsyNyCDwquvwZaxjHD5Zye6khkKQncSPz8b5qRvQzBpw8AYM6UGdnjZvsMzXPxWvzvvsrB1j5K5nmq8MhXnX";
 
 /** A browser that spent its free $1 on the T-Bills fact and has `balance` of score; won bets still to add as given. */
