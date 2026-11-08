@@ -53,7 +53,9 @@ const Hook: React.FC<P> = ({shot, t}) => {
       <AbsoluteFill style={{alignItems: 'center', padding: tall ? '200px 60px 0' : '96px 0 0'}}>
         <div style={{width: W}}>
           <div style={{...big(tall ? 96 : 84), marginBottom: tall ? 44 : 34}}>
-            This Wikipedia line is <span style={{color: C.no}}>$50&nbsp;billion</span> out of date.
+            This Wikipedia line is
+            <br />
+            <span style={{color: C.no}}>$50&nbsp;billion</span> out&nbsp;of&nbsp;date.
           </div>
           <div style={{display: 'flex', alignItems: 'center', gap: 14, font: `600 ${tall ? 32 : 30}px ${FONT.text}`, color: C.ink3, marginBottom: 14}}>
             <span style={{font: `400 ${tall ? 38 : 36}px ${FONT.quote}`, color: C.ink}}>W</span>Wikipedia · Tether (cryptocurrency)
@@ -475,8 +477,8 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
   const s1 = m.step1.t;
   const s5 = m.step5.t;
   const map: [number, number][] = fast
-    ? [[shot.at, s1 - 0.1], [tap - 0.35, s5 + 0.6], [tap, m.tapNo.t]]
-    : [[shot.at, 0.2], [shot.at + 0.35, s1 - 0.05], [tap - 0.6, s5 + 0.75], [tap, m.tapNo.t], [tap + 0.55, m.confirm.t], [tap + 0.62, m.receipt.t - 0.25], [tap + 1.1, m.receipt.t + 0.3]];
+    ? [[shot.at, s1 - 0.1], [tap - 0.35, s5 + 0.6], [tap - 0.05, m.tapNo.t + 0.05], [tap + 0.05, m.tapNo.t + 0.32]]
+    : [[shot.at, 0.2], [shot.at + 0.35, s1 - 0.05], [tap - 0.6, s5 + 0.75], [tap - 0.05, m.tapNo.t + 0.05], [tap + 0.05, m.tapNo.t + 0.32], [tap + 0.55, m.confirm.t], [tap + 0.62, m.receipt.t - 0.25], [tap + 1.1, m.receipt.t + 0.3]];
   const rec = lerpMap(map, T);
   const fr = 1 + Math.floor(rec * 30);
   // which real price the page shows now (the steps were set at the marks)
@@ -485,7 +487,7 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
   const pct = Math.round(PB.steps[step] * 100);
   const tapped = rec >= m.tapNo.t;
   const receipt = rec >= m.receipt.t;
-  const push = mix(1, 1.05, clamp01(t / Math.max(1, shot.dur)));
+  const push = mix(1, 1.04, clamp01(t / Math.max(1, shot.dur)));
   if (tall) {
     return (
       <Ground glow="50% 40%">
@@ -502,10 +504,10 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
   );
   return (
     <Ground glow="40% 45%">
-      <div style={{position: 'absolute', left: 300, top: 70, transform: `scale(${push})`, transformOrigin: '50% 40%'}}>
-        <PhoneBody h={940} src={pbFrame(fr)} />
+      <div style={{position: 'absolute', left: 330, top: 60, transform: `scale(${push})`, transformOrigin: '50% 0%'}}>
+        <PhoneBody h={820} src={pbFrame(fr)} />
       </div>
-      <div style={{position: 'absolute', left: 900, top: 270, width: 900, height: 520}}>
+      <div style={{position: 'absolute', left: 860, top: 250, width: 940, height: 520}}>
         {side(!tapped, (
           <>
             <div style={{font: `600 36px ${FONT.text}`, color: C.ink3}}>The market before your bet</div>

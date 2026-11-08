@@ -475,6 +475,34 @@ if (task === 'phonebet') {
   // the replay's progress steps ("Replaying the real transaction") are replay chrome too
   await page.addStyleTag({content: '.ticket ol:not(.howto), .ticket [class*=progress], .ticket [class*=steps] { display: none !important; }'});
   const STEPS = [0.5, 0.250874, 0.279936, 0.177651, 0.140457, 0.231763];
+  // v8.2 fixes: the pressed No stays solid red with a white label through the confirm and the send; no spinners;
+  // the receipt shows only its own card (the rewrite and traders rows below it are still loading in the replay)
+  await page.addStyleTag({content: `
+    .ticket .seg button.n[aria-pressed="true"] { opacity: 1 !important; background: #C9222B !important; color: #fff !important; filter: none !important; }
+    .ticket .seg button.n[aria-pressed="true"] small { color: #fff !important; }
+    .ticket .seg, .ticket .seg button { opacity: 1 !important; }
+    .ticket .spin, dialog.sheet .spin { display: none !important; }
+    .rc .side { display: none !important; }
+  `});
+  // the chart walks with the dial: a cover over the part of the line not reached yet, and "Now" only at the end
+  const CX = [20, 64, 110, 157, 203, 250];
+  const setChart = (i) => page.evaluate(({x, last}) => {
+    const svg = document.querySelector('svg.chart');
+    if (!svg) return;
+    let r = svg.querySelector('#pi-cover');
+    if (!r) {
+      r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      r.id = 'pi-cover';
+      r.setAttribute('y', '0');
+      r.setAttribute('height', '186');
+      const bg = getComputedStyle(svg.closest('.panel') || document.body).backgroundColor;
+      r.setAttribute('fill', bg && bg !== 'rgba(0, 0, 0, 0)' ? bg : '#fff');
+      svg.appendChild(r);
+    }
+    r.setAttribute('x', String(x));
+    r.setAttribute('width', last ? '0' : String(Math.max(0, 292 - x)));
+    for (const t of svg.querySelectorAll('text')) if (/^Now:/.test(t.textContent.trim())) t.style.visibility = last ? 'visible' : 'hidden';
+  }, {x: CX[i], last: i >= 5});
   const setP = (p) => page.evaluate((p) => {
     const d = document.querySelector('.dial');
     d.style.setProperty('--p', String(p));
@@ -487,6 +515,7 @@ if (task === 'phonebet') {
     }
   }, p);
   await setP(STEPS[0]);
+  await setChart(0);
   await page.waitForTimeout(1400);
   const no = page.getByRole('button', {name: /No, it.s false/}).first();
   const box = async (l) => {
@@ -498,6 +527,7 @@ if (task === 'phonebet') {
     for (let i = 1; i < STEPS.length; i++) {
       mark('step' + i);
       await setP(STEPS[i]);
+      await setChart(i);
       await page.waitForTimeout(650);
     }
     await page.waitForTimeout(700);
