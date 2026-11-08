@@ -10,7 +10,7 @@ import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceH
 import { namesOf, readRulings } from "./rulings.mjs";
 import { checkerFacts, checkerQueue, rulingClock, sittingConfig } from "./keeper.mjs";
 import { readLedger } from "./sentinel.mjs";
-import { parsePublicKey } from "../../services/api/src/lane.mjs";
+import { laneHold, laneHoldMessage, parsePublicKey } from "../../services/api/src/lane.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
 export const READ_CACHE = {
@@ -167,6 +167,9 @@ export async function laneStatusRoute(url, req, ctx, p) {
     }
   }
   if (budget.free <= 0) return say("lane_used_up", credits);
+  // the last few wait for the judges until the date set: said before the tap, in the same words as /lane/key
+  const hold = laneHold(cfg, Date.now());
+  if (hold && budget.free <= hold) return say("lane_used_up", { ...credits, held_for_judges: hold, held_until: new Date(cfg.reserveUntilMs).toISOString(), message: laneHoldMessage(cfg) });
   const [byIp, today] = await Promise.all([
     p.state.peek("lane", ip, cfg.perIpPerDay).catch(() => ({ remaining: cfg.perIpPerDay, retryAfterS: 0 })),
     p.state.peek("lane-global", "all", cfg.perDay).catch(() => ({ remaining: cfg.perDay, retryAfterS: 0 })),

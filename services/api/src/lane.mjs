@@ -19,6 +19,19 @@ export class ApiError extends Error {
   }
 }
 
+/** How many free bets the API keeps back for the judges right now: until cfg.reserveUntilMs, a new free
+ *  key is refused once only cfg.reserve credits are left. Zero when either is unset or the date has passed. */
+export function laneHold(cfg, nowMs = Date.now()) {
+  const n = Math.max(0, Math.floor(Number(cfg?.reserve) || 0));
+  return n > 0 && nowMs < (Number(cfg?.reserveUntilMs) || 0) ? n : 0;
+}
+
+/** What a visitor reads when the last free bets are held: the date, and what they can still do. */
+export function laneHoldMessage(cfg) {
+  const day = new Date(Number(cfg?.reserveUntilMs) || 0).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+  return `The last free bets are kept for the judges until ${day}. You can still pick Yes or No for free on Today's claims, and every price updates live.`;
+}
+
 /** Validate and normalise "ed25519:<base58 32 bytes>". */
 export function parsePublicKey(s) {
   if (typeof s !== "string" || s.length > 100) throw new ApiError(400, "invalid_public_key", "publicKey must be a string like ed25519:<base58>");

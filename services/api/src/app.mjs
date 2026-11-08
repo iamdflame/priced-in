@@ -7,7 +7,7 @@ import http from "node:http";
 import { Rpc } from "./rpc.mjs";
 import { EventHub, Scanner } from "./events.mjs";
 import { Claims, TtlCache } from "./claims.mjs";
-import { LaneIssuer, ApiError, parsePublicKey } from "./lane.mjs";
+import { LaneIssuer, ApiError, parsePublicKey, laneHold, laneHoldMessage } from "./lane.mjs";
 import { DailyLimiter, clientIp } from "./ratelimit.mjs";
 import { splitSentences } from "./sentences.mjs";
 import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
@@ -292,6 +292,9 @@ export function createApp(config, deps = {}) {
       try { b = await lane.budget(); } catch (e) { throw new ApiError(502, "lane_upstream_error", "Could not read the lane budget from the market. Try again."); }
       if (b.paused) throw new ApiError(503, "market_paused", "The market is paused.");
       if (b.free <= 0) throw new ApiError(503, "lane_used_up", "The judges' lane is used up for now: no free credit is left on the market.");
+      // the last few wait for the judges until the date set (LANE_RESERVE, LANE_RESERVE_UNTIL)
+      const hold = laneHold(config.lane, now());
+      if (hold && b.free <= hold) throw new ApiError(503, "lane_used_up", laneHoldMessage(config.lane), { heldForJudges: hold });
       const r = await lane.issue(pk);
       if (r.reused) { laneIp.release(ip); laneGlobal.release("global"); }
       return r;

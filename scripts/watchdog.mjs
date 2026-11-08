@@ -44,7 +44,9 @@ for (const [path, what] of [["/c/18", "the Tether market"], ["/p/tether", "the T
 await check("free $1", async () => {
   const r = await get(`${SITE}/lane/status`, { json: true });
   const left = Number(r.body.credits_left ?? 0);
-  say(!r.body.available || left < 1 ? "FAIL" : left < 4 ? "WARN" : "PASS", "the free $1 is available", `${left} free bets left${left < 4 ? ": move treasury money in with scripts/mainnet/news-funding.mjs --lane-budget" : ""}`);
+  // the judges' reserve: the last few are held on purpose until the date set, which is not an outage
+  if (!r.body.available && r.body.held_for_judges) return say("WARN", "the free $1 is held for the judges", `${left} left, held until ${r.body.held_until}: add more with scripts/mainnet/news-funding.mjs --lane-budget max`);
+  say(!r.body.available || left < 1 ? "FAIL" : left < 4 ? "WARN" : "PASS", "the free $1 is available", `${left} free bets left${left < 4 ? ": move treasury money in with scripts/mainnet/news-funding.mjs --lane-budget max" : ""}`);
 });
 await check("API", async () => {
   const r = await get(`${API}/health`, { json: true });

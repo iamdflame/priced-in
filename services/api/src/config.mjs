@@ -66,6 +66,10 @@ export function loadConfig(env = process.env) {
       // total below are the abuse checks, sized so a venue's shared network can still play
       perIpPerDay: num("LANE_KEYS_PER_IP_PER_DAY", 10),
       perDay: num("LANE_KEYS_PER_DAY", 1000),
+      // the last free bets wait for the judges: until LANE_RESERVE_UNTIL, a new free key is refused once
+      // only LANE_RESERVE credits are left (off unless both are set; the contract's budget stays the hard limit)
+      reserve: num("LANE_RESERVE", 0),
+      reserveUntilMs: Date.parse((env.LANE_RESERVE_UNTIL || "").trim()) || 0,
       batchMax: num("LANE_BATCH_MAX", 10),
       issueDeadlineMs: num("LANE_ISSUE_DEADLINE_MS", 12000),
       // the budget check may use market stats this old (the contract is the hard limit)

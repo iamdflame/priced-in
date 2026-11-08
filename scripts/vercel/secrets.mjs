@@ -80,6 +80,10 @@ if (MAIN) Object.assign(plain, {
   CHECKER_MIN_BETS: "1",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
+  // the last 4 free bets wait for the judges: the AI screen and judging start once submissions close on
+  // 14 November, so from 15 November 00:00 UTC every credit is open to anyone again
+  LANE_RESERVE: "4",
+  LANE_RESERVE_UNTIL: "2026-11-15T00:00:00Z",
   // news lines, when they are on (NEWS_ENABLED below): at most 4 a day, each with $0.50 of liquidity, so the
   // money already in the treasury carries them: each reserves about $0.35 to $0.80, by its opening price.
   // Most of their traffic is free picks, which move no price; raise this once the treasury can carry more

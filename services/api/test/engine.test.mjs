@@ -12,6 +12,7 @@ import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, check
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
 import { LEDGER, ledgerChecks, putCheck, putSentinel, readLedger, runSentinel } from "../../../api/_lib/sentinel.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
+import { laneHold, laneHoldMessage } from "../src/lane.mjs";
 import { corpusEvidence } from "../../ai/src/evidence.js";
 import errors from "../../../corpus/ERRORS.json" with { type: "json" };
 import { Rpc } from "../src/rpc.mjs";
@@ -1153,6 +1154,28 @@ test("GET /lane/status says before the tap whether this visitor can still get a 
     assert.deepEqual([spent.body.available, spent.body.reason], [false, "credit_spent"]);
     const unused = await laneStatusRoute(url(`?publicKey=${encodeURIComponent(pk)}`), req, ctx(), p());
     assert.deepEqual([unused.body.available, unused.body.reason], [true, "key_ready"]);
+  } finally { await mock.close(); }
+});
+
+test("GET /lane/status keeps the last free bets for the judges until the date set, and opens them after it", async () => {
+  assert.equal(laneHold({ reserve: 4, reserveUntilMs: 2000 }, 1000), 4);
+  assert.equal(laneHold({ reserve: 4, reserveUntilMs: 2000 }, 2000), 0, "from the date on, nothing is held");
+  assert.equal(laneHold({ reserve: 0, reserveUntilMs: 2000 }, 1000), 0);
+  assert.equal(laneHold({}, 1000), 0, "off unless both are set");
+  assert.match(laneHoldMessage({ reserveUntilMs: Date.parse("2026-11-15T00:00:00Z") }), /kept for the judges until 15 November/);
+  const mock = await startMockRpc({ blockMs: 100000 });
+  try {
+    const req = { headers: { "x-forwarded-for": "9.9.9.9" }, socket: {} };
+    const ctx = (free) => ({ app: { rpc: new Rpc([mock.url]), lane: { enabled: true, budget: async () => ({ paused: false, credits: free, free }) } } });
+    const url = new URL("http://x/lane/status");
+    const p = routeWorld(mock);
+    p.api.lane = { ...p.api.lane, reserve: 4, reserveUntilMs: Date.now() + 3600_000 };
+    const held = await laneStatusRoute(url, req, ctx(4), p);
+    assert.deepEqual([held.body.available, held.body.reason, held.body.held_for_judges, held.body.credits_left], [false, "lane_used_up", 4, 4]);
+    assert.match(held.body.message, /kept for the judges/);
+    assert.equal((await laneStatusRoute(url, req, ctx(5), p)).body.reason, "ok", "above the reserve, a visitor still gets one");
+    p.api.lane = { ...p.api.lane, reserveUntilMs: Date.now() - 1 };
+    assert.equal((await laneStatusRoute(url, req, ctx(4), p)).body.reason, "ok", "after the date, the last ones are anyone's");
   } finally { await mock.close(); }
 });
 

@@ -166,6 +166,23 @@ test("/lane/key adds a function-call key and returns what the browser needs to s
   assert.ok(Number(over.headers.get("retry-after")) > 0);
 });
 
+test("/lane/key keeps the last free bets for the judges until LANE_RESERVE_UNTIL, in plain words", async (t) => {
+  const mock = await startMockRpc({ blockMs: 100 });
+  t.after(() => mock.close());
+  mock.st.stats.lane_budget_micro = "3000000"; // three $1 credits
+  const admin = KeyPair.fromRandom("ed25519");
+  mock.addAdminKey("lane.testnet", admin.getPublicKey().toString());
+  const until = new Date(Date.now() + 3600_000).toISOString();
+  const api = await startApi({ RPC_URLS: mock.url, MARKET_CONTRACT_ID: "market.testnet", LANE_ACCOUNT_ID: "lane.testnet", LANE_PRIVATE_KEY: admin.toString(), LANE_KEYS_PER_IP_PER_DAY: "10", CLAIMS_TTL_MS: "0", LANE_STATS_MAX_STALE_MS: "0", LANE_RESERVE: "2", LANE_RESERVE_UNTIL: until });
+  t.after(() => api.close());
+  const k = () => KeyPair.fromRandom("ed25519").getPublicKey().toString();
+  assert.equal((await api.req("POST", "/lane/key", { publicKey: k() })).status, 200, "3 free, 2 held: one is a visitor's");
+  const held = await api.req("POST", "/lane/key", { publicKey: k() });
+  assert.equal(held.status, 503);
+  assert.equal(held.json.error.code, "lane_used_up", "the site already words this state and doesn't retry it");
+  assert.match(held.json.error.message, /kept for the judges until/);
+});
+
 test("/lane/key mirrors the contract's lane budget and says plainly when it is used up", async (t) => {
   const mock = await startMockRpc({ blockMs: 100 });
   t.after(() => mock.close());

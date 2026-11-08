@@ -43,7 +43,7 @@ By 8 November, eight rulings had settled on mainnet, all FALSE, each 20 minutes 
 6. **Open https://isitpriced.com/trust.** It shows how to rebuild the contract, what the house can and can't do, every key and what it may call, each AI judge's proof, and what you still have to trust.
 7. **Change `x.com` to `isitpriced.com`** in any post link. Its checkable lines open priced, each with our AI's starting read. Opinions aren't priced.
 
-The free $1 is free play: a right answer adds to your score, and it can't be cashed out. To win real money, connect a NEAR wallet and bet real USDC at `/portfolio`. Real-money trading is closed in the US and other restricted regions (`/terms`). `/c/18?recorded=1` replays the first real mainnet run without spending anything.
+The free $1 is free play: a right answer adds to your score, and it can't be cashed out. Until 15 November, the last 4 free bets are kept for the judges; from then on, any visitor can take them. To win real money, connect a NEAR wallet and bet real USDC at `/portfolio`. Real-money trading is closed in the US and other restricted regions (`/terms`). `/c/18?recorded=1` replays the first real mainnet run without spending anything.
 
 ## Can't I just ask an AI?
 
