@@ -3,6 +3,9 @@ import {AbsoluteFill, Audio, Sequence, staticFile, useCurrentFrame} from 'remoti
 import {C} from '../brand/tokens';
 import {CUTS, Captions, CutContext, FPS, Grade} from './lib';
 import {SHOTS} from './shots';
+import {Bug, SHOTS5} from './v5';
+
+const ALL = {...SHOTS, ...SHOTS5};
 import pending from './pending.json';
 
 // Shots whose site footage waits for the site's final polish: marked on screen until it is recaptured.
@@ -17,7 +20,7 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
     <CutContext.Provider value={c}>
       <AbsoluteFill style={{background: C.bg}}>
         {c.shots.map((s) => {
-          const Comp = SHOTS[s.id];
+          const Comp = ALL[s.id];
           const from = Math.round(s.at * FPS);
           const len = Math.round((s.at + s.dur) * FPS) - from;
           return (
@@ -35,6 +38,7 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
           );
         })}
         <Grade />
+        {c.shots.some((s) => s.id.startsWith('v5')) && !c.shots.some((s) => s.id === 'v5end' && T >= s.at) ? <Bug /> : null}
         <Captions />
         {audio ? <Audio src={staticFile(`audio/mix-${c.id}.wav`)} /> : null}
       </AbsoluteFill>

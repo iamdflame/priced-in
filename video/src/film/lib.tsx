@@ -6,7 +6,7 @@ import flowJson from './flow.json';
 
 export type Word = {w: string; s: number; e: number};
 export type Cue = {id: string; at: number; text: string; words: Word[]};
-export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean; written?: number};
+export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean; written?: number; nocap?: boolean; src?: number; ev?: number; sure?: number; doubt?: number; paid?: number; pick?: number};
 export type Cut = {id: string; dur: number; w: number; h: number; shots: Shot[]; cues: Cue[]};
 
 export const CUTS = cutsJson as unknown as Record<string, Cut>;
@@ -43,6 +43,11 @@ export const wordStart = (cut: Cut, cueId: string, prefix: string, fallback: num
 
 // ----- Blender plates ----------------------------------------------------------------------------------
 const FRAMES: Record<string, number> = {wake: 120, swing: 96, steps: 186, end: 240, stamps: 168};
+// the frames the light plates were rendered over (blender/render_light.sh): [first, last] per aspect
+const RANGE: Record<string, [number, number]> = {
+  'light-wide/stamps': [1, 168], 'light-wide/wake': [1, 92], 'light-wide/swing': [1, 72], 'light-wide/steps': [15, 156], 'light-wide/end': [1, 240],
+  'light-tall/stamps': [1, 168], 'light-tall/swing': [1, 96], 'light-tall/steps': [5, 150], 'light-tall/end': [1, 110],
+};
 
 const plateSrc = (shot: string, aspect: string, f: number) =>
   staticFile(`blender/${aspect}/${shot}/${String(f).padStart(4, '0')}.png`);
@@ -50,8 +55,10 @@ const plateSrc = (shot: string, aspect: string, f: number) =>
 /** A Blender shot played frame for frame: transparent, so the page's own white is the seamless. `local` is seconds into the plate. */
 export const Plate: React.FC<{shot: string; local: number; style?: React.CSSProperties}> = ({shot, local, style}) => {
   const tall = useTall();
-  const f = Math.max(1, Math.min(FRAMES[shot], 1 + Math.floor(local * FPS)));
-  const src = plateSrc(shot, tall ? 'light-tall' : 'light-wide', f);
+  const aspect = tall ? 'light-tall' : 'light-wide';
+  const [lo, hi] = RANGE[`${aspect}/${shot}`] ?? [1, FRAMES[shot]];
+  const f = Math.max(lo, Math.min(hi, 1 + Math.floor(local * FPS)));
+  const src = plateSrc(shot, aspect, f);
   return (
     <AbsoluteFill style={style}>
       <Img src={src} style={{position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover'}} />
@@ -159,8 +166,10 @@ export const Captions: React.FC = () => {
     }
   }
   if (!cur) return null;
-  // the end card already says every word on screen
+  // the end card already says every word on screen; shots marked nocap carry the line as their own kinetic type
   if (cut.shots.some((s) => s.id === 'end' && t >= s.at)) return null;
+  const here = cut.shots.find((s) => t >= s.at && t < s.at + s.dur);
+  if (here?.nocap) return null;
   const k = ease(t, cur.s - 0.05, 0.14);
   return (
     <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: tall ? 400 : 44, pointerEvents: 'none'}}>

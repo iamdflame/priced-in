@@ -64,4 +64,6 @@ for (const k of only.length ? only : Object.keys(cuts)) {
   report[k] = {heard: j.text, match: `${d.same}/${d.total}`, differences: d.out};
   console.log(`${k}: ${d.same}/${d.total} words match; ${d.out.length ? d.out.join(', ') : 'no differences'}`);
 }
-fs.writeFileSync(path.resolve(here, '../../.apex/design/video/voice/mix-transcripts.json'), JSON.stringify(report, null, 1));
+const outFile = path.resolve(here, '../../.apex/design/video/voice/mix-transcripts.json');
+const prior = fs.existsSync(outFile) ? JSON.parse(fs.readFileSync(outFile, 'utf8')) : {};
+fs.writeFileSync(outFile, JSON.stringify({...prior, ...report}, null, 1));
