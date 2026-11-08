@@ -55,9 +55,9 @@ const Hook: React.FC<P> = ({t, T}) => {
   const push = 1 + 0.03 * clamp01(t / 3.75);
   return (
     <Ground glow="35% 40%">
-      <AbsoluteFill style={{transform: `scale(${push})`, transformOrigin: '20% 30%', padding: tall ? '230px 70px 0' : '96px 120px 0'}}>
+      <AbsoluteFill style={{transform: `scale(${push})`, transformOrigin: '20% 30%', padding: tall ? '0 70px 160px' : '96px 120px 0', justifyContent: tall ? 'center' : 'flex-start'}}>
         <div style={{font: `500 ${tall ? 32 : 28}px ${FONT.text}`, color: C.ink3, marginBottom: 18}}>Wikipedia · the Tether article says:</div>
-        <div style={{font: `400 ${tall ? 80 : 96}px/1.1 ${FONT.quote}`, fontVariationSettings: "'opsz' 72", color: C.ink, letterSpacing: '-0.01em'}}>
+        <div style={{font: `400 ${tall ? 92 : 96}px/1.1 ${FONT.quote}`, fontVariationSettings: "'opsz' 72", color: C.ink, letterSpacing: '-0.01em'}}>
           “…are U.S. T-Bills, accounting for{' '}
           <span style={{background: C.warnBg, color: C.warn, borderRadius: 10, padding: '0 8px'}}>$72.6&nbsp;billion</span>.”
         </div>
@@ -65,7 +65,7 @@ const Hook: React.FC<P> = ({t, T}) => {
           <span style={{font: `500 ${tall ? 40 : 40}px ${FONT.text}`, color: C.ink2}}>Tether’s own report:</span>
           <span style={{...big(tall ? 64 : 64), background: C.yesBg, borderRadius: 12, padding: '2px 14px 8px'}}>$122.84&nbsp;billion</span>
         </div>
-        <div style={{...big(tall ? 150 : 176), marginTop: tall ? 90 : 46, transformOrigin: '0 100%', transform: `scale(${mix(1.08, 1, slam)})`, opacity: T >= fifty - 0.05 ? 1 : 0}}>
+        <div style={{...big(tall ? 168 : 176), marginTop: tall ? 110 : 46, transformOrigin: '0 100%', transform: `scale(${mix(1.08, 1, slam)})`, opacity: T >= fifty - 0.05 ? 1 : 0}}>
           $50 billion <span style={{color: C.ink3}}>out of date.</span>
         </div>
       </AbsoluteFill>

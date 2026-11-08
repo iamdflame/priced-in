@@ -132,6 +132,9 @@ const SAY: [RegExp, string][] = [
   [/four and a half seconds/i, '4.5 seconds'],
   [/fifty percent to ten/i, '50% to 10%'],
   [/ten minutes/i, '10 minutes'],
+  [/Near blockchain/, 'NEAR blockchain'],
+  [/seventy-two point six billion/i, '$72.6 billion'],
+  [/one hundred twenty-two point eight four/i, '$122.84 billion'],
   [/a one-dollar/i, 'a $1'],
 ];
 
@@ -140,14 +143,40 @@ type Chunk = {text: string; s: number; e: number};
 const chunksOf = (c: Cue): Chunk[] => {
   const out: Chunk[] = [];
   let cur: Word[] = [];
+  // merge the words a spoken number covers into one token first, so a chunk break never splits "$122.84 billion"
+  let words: Word[] = c.words.map((w) => ({...w}));
+  for (const [a, b] of SAY) {
+    const full = words.map((w) => w.w).join(' ');
+    const m = full.match(a);
+    if (!m || m.index === undefined) continue;
+    let pos = 0;
+    let i0 = -1;
+    let i1 = -1;
+    let at0 = 0;
+    words.forEach((w, k) => {
+      const s0 = pos;
+      const s1 = pos + w.w.length;
+      if (i0 < 0 && s1 > m.index!) {
+        i0 = k;
+        at0 = s0;
+      }
+      if (s0 < m.index! + m[0].length) i1 = k;
+      pos = s1 + 1;
+    });
+    if (i0 < 0 || i1 < i0) continue;
+    const span = words.slice(i0, i1 + 1);
+    const joined = span.map((w) => w.w).join(' ');
+    const off = m.index - at0;
+    const text = joined.slice(0, off) + b + joined.slice(off + m[0].length);
+    words = [...words.slice(0, i0), {...span[0], w: text, e: span[span.length - 1].e}, ...words.slice(i1 + 1)];
+  }
   const flush = () => {
     if (!cur.length) return;
     let text = cur.map((w) => w.w).join(' ');
-    for (const [a, b] of SAY) text = text.replace(a, b);
     out.push({text, s: cur[0].s, e: cur[cur.length - 1].e});
     cur = [];
   };
-  c.words.forEach((w) => {
+  words.forEach((w) => {
     cur.push(w);
     const chars = cur.map((x) => x.w).join(' ').length;
     if (/[.?!]$/.test(w.w) || (/,$/.test(w.w) && chars > 26) || chars > 52) flush();

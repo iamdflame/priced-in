@@ -72,7 +72,7 @@ const Market: React.FC<P> = ({shot, t, T}) => {
     );
   };
   const left = (
-    <div style={{width: tall ? 940 : 900}}>
+    <div style={{width: tall ? 940 : 860}}>
       <div style={{height: tall ? 130 : 112, opacity: clamp01(L * 1.5), transform: `scale(${mix(0.88, 1, L)})`, transformOrigin: tall ? '50% 50%' : '0 50%', display: 'flex', justifyContent: tall ? 'center' : 'flex-start'}}>
         <Lockup height={tall ? 104 : 96} />
       </div>
@@ -112,7 +112,7 @@ const Market: React.FC<P> = ({shot, t, T}) => {
   }
   return (
     <AbsoluteFill style={{background: C.bg}}>
-      <Plate shot="market" local={t} set="v6" />
+      <Plate shot="market" local={t} set="v6" style={{transform: 'scale(0.84)', transformOrigin: '100% 47%', WebkitMaskImage: 'linear-gradient(to bottom, transparent 0px, black 70px), radial-gradient(ellipse 620px 560px at 1380px 520px, black 86%, transparent 100%)', maskImage: 'linear-gradient(to bottom, transparent 0px, black 70px), radial-gradient(ellipse 620px 560px at 1380px 520px, black 86%, transparent 100%)', WebkitMaskComposite: 'source-in', maskComposite: 'intersect'}} />
       <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 20px 120px'}}>{left}</AbsoluteFill>
     </AbsoluteFill>
   );
@@ -123,14 +123,17 @@ const JUDGES = ['DeepSeek V4.1', 'Qwen 3.8', 'GLM 5.3'];
 
 const Evidence: React.FC<P> = ({t}) => {
   const scan = ease(t, 1.0, 2.2, EASE.inOut);
-  const w = 1500;
+  const w = 1600;
   return (
     <Ground glow="50% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', padding: '0 0 40px'}}>
-        <div style={{font: `500 34px ${FONT.text}`, color: C.ink2, marginBottom: 26, width: w, ...enter(t, 0, 16)}}>Tether’s own report, filed as the evidence:</div>
-        <div style={{position: 'relative', width: w, borderRadius: 28, background: C.surface, boxShadow: `0 0 0 1px ${C.line}, 0 50px 90px -50px rgba(40,52,66,0.4)`, padding: '18px 10px', ...enter(t, 0.05, 60, 0.6)}}>
-          <Flat name="sources" width={w - 20} cropLeft={482} cropBottom={10} />
-          <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: `${scan * 100}%`, background: 'rgba(0,236,255,0.06)', borderRight: scan > 0 && scan < 1 ? `4px solid ${C.brand}` : 'none'}} />
+        <div style={{font: `500 34px ${FONT.text}`, color: C.ink2, marginBottom: 26, width: w, ...enter(t, 0, 16)}}>The evidence on file:</div>
+        <div style={{position: 'relative', width: w, borderRadius: 32, overflow: 'hidden', background: '#EAFBFD', boxShadow: `0 0 0 1px ${C.line}, 0 50px 90px -50px rgba(40,52,66,0.4)`, padding: '48px 60px 52px', ...enter(t, 0.05, 60, 0.6)}}>
+          {/* the site's "What a newer source says" panel for market 18, set in the kit at film size (same words) */}
+          <div style={{font: `500 40px ${FONT.text}`, color: C.ink2, display: 'flex', alignItems: 'center', gap: 16}}>⚑ What a newer source says</div>
+          <div style={{...big(82), marginTop: 18, whiteSpace: 'nowrap'}}>$122.84 billion at 30 September 2026</div>
+          <div style={{font: `500 38px ${FONT.text}`, color: '#00727C', marginTop: 22}}>Tether’s attestation report, 30 Sep 2026, checked 2026-11-05 ↗</div>
+          <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: `${scan * 100}%`, background: 'rgba(0,236,255,0.07)', borderRight: scan > 0 && scan < 1 ? `5px solid ${C.brand}` : 'none'}} />
         </div>
         <div style={{display: 'flex', gap: 22, marginTop: 50, width: w, alignItems: 'center'}}>
           {JUDGES.map((j, i) => (
@@ -139,7 +142,6 @@ const Evidence: React.FC<P> = ({t}) => {
               {j}
             </span>
           ))}
-          <span style={{font: `500 32px ${FONT.text}`, color: C.ink3, ...enter(t, 0.9, 12)}}>three independent AI judges</span>
         </div>
       </AbsoluteFill>
     </Ground>
@@ -164,14 +166,15 @@ const Stamps: React.FC<P> = (p) => {
 
 // ----- beat 4c: No won ---------------------------------------------------------------------------------------------
 const Won: React.FC<P> = ({t}) => {
-  const k = ease(t, 0.15, 0.55, EASE.spring);
+  const tall = useTall();
+  const c = ease(t, 0.05, 0.4, EASE.spring);
+  const k = ease(t, 0.3, 0.5, EASE.spring);
+  // the verdict, full frame: the site's "Decided: False" tag and "No won." at headline size (no dollar amount)
   return (
     <Ground glow="50% 45%">
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', padding: '0 0 60px'}}>
-        <div style={{opacity: clamp01(k * 1.5), transform: `scale(${mix(0.9, 1, k)})`, borderRadius: 32, background: C.surface, boxShadow: `0 0 0 1px ${C.line}, 0 60px 110px -60px rgba(40,52,66,0.45)`, padding: '40px 56px'}}>
-          {/* the live "No won." card, cropped above its dollar line */}
-          <Flat name="nowon" width={1300} cropBottom={212} cropLeft={0} />
-        </div>
+      <AbsoluteFill style={{alignItems: tall ? 'center' : 'flex-start', justifyContent: 'center', padding: tall ? '0 70px 200px' : '0 160px 80px'}}>
+        <span style={{opacity: clamp01(c * 1.5), transform: `scale(${mix(0.85, 1, c)})`, transformOrigin: tall ? '50% 50%' : '0 50%', display: 'inline-flex', alignItems: 'center', height: 88, padding: '0 34px', borderRadius: 999, background: C.noBg, color: C.no, font: `700 44px ${FONT.disp}`, letterSpacing: '0.06em'}}>DECIDED: FALSE</span>
+        <div style={{...big(tall ? 230 : 300), marginTop: 30, opacity: clamp01(k * 1.5), transform: `translateY(${(1 - k) * 40}px) scale(${mix(1.06, 1, k)})`, transformOrigin: tall ? '50% 100%' : '0 100%'}}>No won.</div>
       </AbsoluteFill>
     </Ground>
   );
@@ -181,29 +184,35 @@ const Won: React.FC<P> = ({t}) => {
 const Rule: React.FC<P> = ({shot, t, T}) => {
   const tall = useTall();
   const ev = shot.ev ?? shot.at + 1.6;
-  const b = ease(T, ev - 0.05, 0.45, EASE.spring);
-  const dial = (
-    <div style={{position: 'relative', width: tall ? 900 : 820, height: tall ? 620 : 700, overflow: 'hidden'}}>
-      {/* the end plate's dial at the market's last price, 10% */}
-      <Img src={staticFile(`blender/v6-${tall ? 'tall' : 'wide'}/end/0090.png`)} style={tall ? {position: 'absolute', width: 1080, left: -90, top: -150} : {position: 'absolute', width: 1920, left: -260, top: -140}} />
-    </div>
-  );
-  const stamp = (
-    <div style={{position: 'relative', width: tall ? 900 : 820, height: tall ? 520 : 700, overflow: 'hidden'}}>
-      <Img src={staticFile(`blender/light-${tall ? 'tall' : 'wide'}/stamps/0168.png`)} style={tall ? {position: 'absolute', width: 1500, left: -560, top: -1640} : {position: 'absolute', width: 2600, left: -1820, top: -900}} />
-    </div>
+  const a = ease(t, 0.0, 0.6, EASE.spring);
+  const b = ease(T, ev - 0.05, 0.35, EASE.spring);
+  // whole plates, scaled and feathered (no boxes): the market's dial at its last price, 12%, and the judges' three stamps
+  const fade = (cx: number, cy: number, rx: number, ry: number) => {
+    const m = `linear-gradient(to bottom, transparent 0%, black 6.5%), radial-gradient(ellipse ${rx}% ${ry}% at ${cx}% ${cy}%, black 85%, transparent 100%)`;
+    return {WebkitMaskImage: m, maskImage: m, WebkitMaskComposite: 'source-in', maskComposite: 'intersect'} as React.CSSProperties;
+  };
+  const em = 'linear-gradient(to bottom, transparent 0%, black 6.5%), linear-gradient(to left, transparent 0%, black 3.4%), linear-gradient(to top, transparent 0%, black 4%)';
+  const edges = {WebkitMaskImage: em, maskImage: em, WebkitMaskComposite: 'source-in', maskComposite: 'intersect'} as React.CSSProperties;
+  const D = tall ? {k: 0.62, x: 540, y: 610} : {k: 0.714, x: 500, y: 640};
+  const S = tall ? {k: 0.6, x: 540, y: 1405} : {k: 0.84, x: 1420, y: 640};
+  const head = (txt: string, style: React.CSSProperties) => (
+    <div style={{position: 'absolute', ...big(tall ? 88 : 84), whiteSpace: 'nowrap', ...style}}>{txt}</div>
   );
   return (
     <Ground glow="50% 45%">
-      <AbsoluteFill style={tall ? {alignItems: 'center', padding: '170px 0 0'} : {flexDirection: 'row', justifyContent: 'center', alignItems: 'flex-start', gap: 60, padding: '90px 0 0'}}>
-        <div style={{...enter(t, 0, 30), textAlign: tall ? 'center' : 'left'}}>
-          <div style={{...big(tall ? 84 : 84)}}>Money sets the odds.</div>
-          {dial}
-        </div>
-        <div style={{opacity: clamp01(b * 1.5), transform: `translateY(${(1 - b) * 30}px)`, textAlign: tall ? 'center' : 'left'}}>
-          <div style={{...big(tall ? 84 : 84)}}>Evidence decides.</div>
-          {stamp}
-        </div>
+      <AbsoluteFill style={{opacity: clamp01(a * 1.4), transform: `translateY(${(1 - a) * 30}px)`}}>
+        <Img
+          src={staticFile('blender/v6-wide/market/0310.png')}
+          style={{position: 'absolute', width: 1920 * D.k, left: D.x - 1372 * D.k, top: D.y - 564 * D.k, ...edges}}
+        />
+        {head('Money sets the odds.', tall ? {left: 0, right: 0, top: 170, textAlign: 'center'} : {left: 120, top: 110})}
+      </AbsoluteFill>
+      <AbsoluteFill style={{opacity: clamp01(b * 2)}}>
+        <Img
+          src={staticFile('blender/light-wide/stamps/0168.png')}
+          style={{position: 'absolute', width: 1920 * S.k, left: S.x - 1390 * S.k, top: S.y - 550 * S.k, transform: `scale(${mix(1.18, 1, b)})`, transformOrigin: `${S.x - (S.x - 1390 * S.k)}px ${550 * S.k}px`, ...fade(72.4, 51, 25, 50)}}
+        />
+        {head('Evidence decides.', tall ? {left: 0, right: 0, top: 960, textAlign: 'center'} : {left: 1100, top: 110})}
       </AbsoluteFill>
     </Ground>
   );

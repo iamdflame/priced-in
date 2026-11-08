@@ -55,7 +55,7 @@ export const LINES = [
   {id: 'P04a', text: 'Three independent AI judges read Tether’s own report.', speed: 1.04},
   {id: 'P04b', text: 'Everyone who bet No got paid.', speed: 1.0},
   {id: 'P06', text: 'Wikipedia still says seventy-two point six billion. Priced In’s page says one hundred twenty-two point eight four, with the source.', speed: 1.08},
-  {id: 'P07', text: 'Every page here keeps itself current: plain where the money is sure, honest where it isn’t.', speed: 1.06},
+  {id: 'P07', text: 'Every page here keeps itself current: plain, where the money is sure. Honest, where it isn’t.', speed: 1.06},
   // the 15 s cut
   {id: 'C2', text: 'Bet a free dollar that it’s wrong.', speed: 1.12},
   {id: 'C3', text: 'Three AI judges ruled it false.', speed: 1.1},

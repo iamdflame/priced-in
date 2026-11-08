@@ -324,7 +324,8 @@ def main_v6():
           ('whoosh', shots[7]['at'] - 0.2, 0.35), ('tick_soft', shots[7]['honest'], 0.6),
           ('whoosh_long', shots[8]['at'] - 0.4, 0.45), ('bloom', shots[8]['at'] + 0.5, 0.9), ('sting', shots[8]['at'] + 0.5, 0.8)]
     music = dict(track=72.0, gain=[(0, 0), (1.0, 2.5), (shots[2]['at'], 0), (shots[2]['at'] + 2.0, -9), (fb - 0.2, -60),
-                                   (shots[4]['at'] + 0.1, -60), (shots[4]['at'] + 1.2, -2), (shots[8]['at'], -1), (dur - 2.5, -3), (dur, -30)])
+                                   (shots[4]['at'] + 0.1, -60), (shots[4]['at'] + 1.2, -2), (d['P06'] - 0.4, -3), (d['P06'], -7), (d['P07'] - 0.3, -7), (d['P07'], -19),
+                                   (end_of(v, 'P07'), -19), (shots[8]['at'], -1), (dur - 2.5, -3), (dur, -30)])
     return dict(id='main', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
 
 
