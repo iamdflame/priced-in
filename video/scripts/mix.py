@@ -482,8 +482,8 @@ def main_v8():
     shots = [
         dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
         dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
-        dict(id='v8market', at=round(on - 0.2, 3), dur=round(near - 0.35 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'))),
-        dict(id='v8receipt', at=round(near - 0.35, 3), dur=round(d['R04'] - 0.2 - (near - 0.35), 3), k=dict(rec=W('R03', 'records'))),
+        dict(id='v82phone', at=round(on - 0.2, 3), dur=round(d['R04'] - 1.2 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'), near=near)),
+        dict(id='v82ex', at=round(d['R04'] - 1.2, 3), dur=1.0),
         dict(id='v8verdict', at=round(d['R04'] - 0.2, 3), dur=round(d['P04b'] - 0.45 - (d['R04'] - 0.2), 3),
              k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'), read=W('R04', 'read'), marksFalse=1)),
         dict(id='v8paid', at=round(d['P04b'] - 0.45, 3), dur=round(d['N07'] - 0.15 - (d['P04b'] - 0.45), 3), k=dict(no=W('P04b', 'No'), paid=W('P04b', 'paid'))),
@@ -494,7 +494,7 @@ def main_v8():
     dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
     sx = [('tick_soft', 0.0, 0.4), ('bloom', 1.2, 0.5), ('strike', 2.2, 0.5),
           ('whoosh_long', shots[2]['at'] - 0.3, 0.45), ('tap', shots[2]['k']['tap'], 0.9), ('bloom', shots[2]['k']['tap'] + 0.15, 0.8),
-          ('whoosh_short', shots[3]['at'] - 0.1, 0.4), ('receipt', shots[3]['at'] + 0.35, 0.7),
+          ('receipt', shots[2]['k']['tap'] + 1.25, 0.7), ('whoosh_short', shots[3]['at'] - 0.1, 0.35),
           ('whoosh', shots[4]['at'] - 0.15, 0.4),
           ('stamp1', fb + 0.02, 1.4), ('stamp2', fb + 1.02, 1.4), ('stamp3', fb + 3.12, 1.7),
           ('whoosh_short', shots[5]['at'] - 0.1, 0.35), ('bloom', shots[5]['at'] + 0.15, 0.8), ('receipt', shots[5]['k']['paid'], 0.7),
@@ -517,7 +517,7 @@ def short_v8():
     shots = [
         dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
         dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
-        dict(id='v8market', at=round(on - 0.2, 3), dur=round(fb - 0.3 - (on - 0.2), 3), k=dict(tap=word_at('P02', 3.85, 'you'))),
+        dict(id='v82phone', at=round(on - 0.2, 3), dur=round(fb - 0.3 - (on - 0.2), 3), k=dict(tap=word_at('P02', 3.85, 'you'), near=99, fast=1)),
         dict(id='v8verdict', at=round(fb - 0.3, 3), dur=round(end - (fb - 0.3), 3), nocap=True, rate=1.6, k=dict(f1=fb, f2=fb + 0.62, f3=fb + 1.93, cloud=99, read=99)),
         dict(id='v8end', at=end, dur=END8, nocap=True),
     ]
@@ -542,8 +542,8 @@ def vertical_v8():
     shots = [
         dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
         dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
-        dict(id='v8market', at=round(on - 0.2, 3), dur=round(near - 0.35 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'))),
-        dict(id='v8receipt', at=round(near - 0.35, 3), dur=round(fb - 0.6 - (near - 0.35), 3), k=dict(rec=W('R03', 'records'))),
+        dict(id='v82phone', at=round(on - 0.2, 3), dur=round(fb - 1.6 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'), near=near, capBottom=170)),
+        dict(id='v82ex', at=round(fb - 1.6, 3), dur=1.0),
         dict(id='v8verdict', at=round(fb - 0.6, 3), dur=round(d['P04b'] - 0.45 - (fb - 0.6), 3), nocap=True, rate=1.15, k=dict(f1=fb, f2=fb + 0.85, f3=fb + 2.1, cloud=fb - 0.5, read=fb - 0.4)),
         dict(id='v8paid', at=round(d['P04b'] - 0.45, 3), dur=round(d['P06'] - 0.15 - (d['P04b'] - 0.45), 3), k=dict(no=W('P04b', 'No'), paid=W('P04b', 'paid'))),
         dict(id='v8payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['E8b'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
@@ -551,7 +551,7 @@ def vertical_v8():
     ]
     dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
     sx = [('bloom', 1.2, 0.5), ('strike', 2.2, 0.5), ('whoosh_long', shots[2]['at'] - 0.3, 0.45), ('tap', shots[2]['k']['tap'], 0.9),
-          ('whoosh_short', shots[3]['at'] - 0.1, 0.4), ('receipt', shots[3]['at'] + 0.35, 0.7), ('whoosh', shots[4]['at'] - 0.15, 0.4),
+          ('receipt', shots[2]['k']['tap'] + 1.25, 0.7), ('whoosh_short', shots[3]['at'] - 0.1, 0.35), ('whoosh', shots[4]['at'] - 0.15, 0.4),
           ('stamp1', fb + 0.02, 1.4), ('stamp2', fb + 0.87, 1.5), ('stamp3', fb + 2.12, 1.8),
           ('bloom', shots[5]['at'] + 0.15, 0.8), ('receipt', shots[5]['k']['paid'], 0.7),
           ('whoosh', shots[6]['at'] - 0.2, 0.4), ('strike', shots[6]['k']['ours'], 0.5), ('bloom', shots[7]['at'] + 0.2, 0.9), ('sting', shots[7]['at'] + 0.2, 0.75)]

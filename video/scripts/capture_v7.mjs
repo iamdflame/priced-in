@@ -453,6 +453,87 @@ if (task === 'c18') {
   });
 }
 
+if (task === 'phonebet') {
+  // v8.2: the /c/18 bet as a phone shows it. Before the free $1 the dial steps through the market's real earlier
+  // prices (50 → 25.1 → 28.0 → 17.8 → 14.0 → 23.2, the trades of claim 18) by setting the real component's own --p,
+  // then a real tap on No, the confirm, and the real receipt sheet. The replay's own labels ("Replay the free $1",
+  // "Nothing is sent", "Replay · final on NEAR in block …") are hidden or set to the live receipt's wording for the
+  // same transaction ("Settled on NEAR in 4.5 s", the measured time); payout lines stay hidden as in v7.
+  await open(page, `${BASE}/c/18?recorded=1&film=1`);
+  await page.waitForTimeout(3500);
+  await tidy(page);
+  await page.addStyleTag({content: '.rc .fine, .ticket .fine { display: none !important; }'});
+  await page.evaluate(() => {
+    for (const e of document.querySelectorAll('body *')) {
+      const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
+      if (/^Replay the free \$1/.test(t) && t.length < 40) {
+        const tn = [...e.childNodes].find((c) => c.nodeType === 3 && /Replay the free/.test(c.textContent));
+        if (tn) tn.textContent = tn.textContent.replace('Replay the free $1', 'Bet $1 free');
+      }
+    }
+  });
+  // the replay's progress steps ("Replaying the real transaction") are replay chrome too
+  await page.addStyleTag({content: '.ticket ol:not(.howto), .ticket [class*=progress], .ticket [class*=steps] { display: none !important; }'});
+  const STEPS = [0.5, 0.250874, 0.279936, 0.177651, 0.140457, 0.231763];
+  const setP = (p) => page.evaluate((p) => {
+    const d = document.querySelector('.dial');
+    d.style.setProperty('--p', String(p));
+    const pct = Math.round(p * 100);
+    const n = d.querySelector('.read .n');
+    if (n) n.innerHTML = `${pct}<i>%</i>`;
+    for (const e of document.querySelectorAll('body *')) {
+      const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
+      if (e.children.length === 0 && /^\d+% chance it’s true$/.test(t)) e.textContent = `${pct}% chance it’s true`;
+    }
+  }, p);
+  await setP(STEPS[0]);
+  await page.waitForTimeout(1400);
+  const no = page.getByRole('button', {name: /No, it.s false/}).first();
+  const box = async (l) => {
+    const b = await l.boundingBox();
+    return b ? {x: b.x, y: b.y, w: b.width, h: b.height} : null;
+  };
+  meta = await record(page, 'phonebet', async (mark) => {
+    await page.waitForTimeout(700);
+    for (let i = 1; i < STEPS.length; i++) {
+      mark('step' + i);
+      await setP(STEPS[i]);
+      await page.waitForTimeout(650);
+    }
+    await page.waitForTimeout(700);
+    const b1 = await box(no);
+    mark('tapNo', {box: b1});
+    await no.click();
+    await page.waitForTimeout(800);
+    const confirm = page.getByRole('button', {name: /Bet \$1 free: No/});
+    const b2 = await box(confirm);
+    mark('confirm', {box: b2});
+    await confirm.click();
+    // the receipt's status line: the live receipt's words for this same transaction
+    const relabel = () => page.evaluate(() => {
+      for (const e of document.querySelectorAll('dialog.sheet *')) {
+        const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
+        if (/^Replay · final on NEAR/.test(t) && e.children.length <= 1) {
+          const last = [...e.childNodes].filter((c) => c.nodeType === 3).pop();
+          if (last) last.textContent = 'Settled on NEAR in 4.5 s';
+        }
+      }
+    });
+    for (let i = 0; i < 12; i++) {
+      await relabel();
+      await page.waitForTimeout(100);
+    }
+    await page.waitForSelector('dialog.sheet[open]', {timeout: 15000}).catch(() => {});
+    mark('receipt');
+    await relabel();
+    await page.waitForTimeout(400);
+    const hb = await box(page.locator('dialog.sheet .hashv').first());
+    mark('hash', {box: hb});
+    await page.waitForTimeout(3500);
+  });
+  meta.steps = STEPS;
+}
+
 if (task === 'home') {
   await open(page, `${BASE}/?film=1`);
   await page.waitForTimeout(3500);
