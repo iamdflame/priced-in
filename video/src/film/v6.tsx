@@ -244,25 +244,26 @@ const Payoff: React.FC<P> = ({shot, t, T}) => {
   const tall = useTall();
   const ours = shot.ours ?? shot.at + 3.7;
   const r = ease(T, ours - 0.15, 0.55, EASE.out);
-  const W = tall ? 940 : 1680;
+  const W = tall ? 940 : 640;
+  const W2 = tall ? 940 : 1000;
   const sentence = tbillsPlain ?? RULED;
   return (
     <Ground glow="50% 45%">
-      <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: tall ? '120px 0 300px' : '0 0 40px'}}>
+      <AbsoluteFill style={tall ? {justifyContent: 'center', alignItems: 'center', padding: '120px 0 300px'} : {flexDirection: 'row', justifyContent: 'center', alignItems: 'center', gap: 80, padding: '0 100px 70px'}}>
         <div style={{width: W, ...enter(t, 0, 30)}}>
           <div style={{font: `600 ${tall ? 34 : 32}px ${FONT.text}`, color: C.ink3, marginBottom: 12}}>Wikipedia, today</div>
-          <div style={{font: `400 ${tall ? 50 : 52}px/1.22 ${FONT.quote}`, fontVariationSettings: "'opsz' 48", color: C.ink}}>
+          <div style={{font: `400 ${tall ? 56 : 76}px/1.16 ${FONT.quote}`, fontVariationSettings: "'opsz' 48", color: C.ink}}>
             “…are U.S. T-Bills, accounting for <span style={{background: C.warnBg, color: C.warn, borderRadius: 8, padding: '0 6px'}}>$72.6&nbsp;billion</span>.”
           </div>
         </div>
-        <div style={{width: W, marginTop: tall ? 60 : 56, opacity: clamp01(r * 1.4), transform: `translateY(${(1 - r) * 40}px)`}}>
+        <div style={{width: W2, marginTop: tall ? 60 : 0, opacity: clamp01(r * 1.4), transform: tall ? `translateY(${(1 - r) * 40}px)` : `translateX(${(1 - r) * 60}px)`}}>
           <div style={{font: `600 ${tall ? 34 : 32}px ${FONT.text}`, color: C.ink3, marginBottom: 12}}>Priced In’s page{tbillsPlain ? '' : ': the corrected wording, signed'}</div>
-          <div style={{borderRadius: 28, background: C.surface, boxShadow: `0 0 0 1px ${C.line}, 0 50px 90px -50px rgba(40,52,66,0.4)`, padding: tall ? '30px 34px' : '30px 40px'}}>
-            <div style={{font: `600 ${tall ? 34 : 34}px ${FONT.disp}`, color: C.ink, marginBottom: 16}}>{PG.header}</div>
-            <div style={{font: `400 ${tall ? 40 : 42}px/1.4 ${FONT.text}`, color: C.ink}}>{mark(sentence, '$122.84 billion at 30 September 2026', C.yesBg, C.yes)}</div>
+          <div style={{borderRadius: 28, background: C.surface, boxShadow: `0 0 0 1px ${C.line}, 0 50px 90px -50px rgba(40,52,66,0.4)`, padding: tall ? '30px 34px' : '36px 48px'}}>
+            <div style={{font: `600 ${tall ? 34 : 38}px ${FONT.disp}`, color: C.ink, marginBottom: 18}}>{PG.header}</div>
+            <div style={{font: `400 ${tall ? 42 : 44}px/1.38 ${FONT.text}`, color: C.ink}}>{mark(sentence, '$122.84 billion at 30 September 2026', C.yesBg, C.yes)}</div>
             <div style={{display: 'flex', gap: 14, marginTop: 20, flexWrap: 'wrap'}}>
-              <span style={{display: 'inline-flex', alignItems: 'center', height: 54, padding: '0 22px', borderRadius: 999, background: C.surface2, color: C.ink2, font: `500 30px ${FONT.text}`}}>Source: Tether’s attestation report, 30 Sep 2026</span>
-              <span style={{display: 'inline-flex', alignItems: 'center', height: 54, padding: '0 22px', borderRadius: 999, background: C.yesBg, color: C.yes, font: `500 30px ${FONT.text}`}}>✓ Signed · anchored on NEAR</span>
+              <span style={{display: 'inline-flex', alignItems: 'center', height: 54, padding: '0 22px', borderRadius: 999, background: C.surface2, color: C.ink2, font: `500 ${tall ? 30 : 32}px ${FONT.text}`}}>Source: Tether’s attestation report, 30 Sep 2026</span>
+              <span style={{display: 'inline-flex', alignItems: 'center', height: 54, padding: '0 22px', borderRadius: 999, background: C.yesBg, color: C.yes, font: `500 ${tall ? 30 : 32}px ${FONT.text}`}}>✓ Signed · anchored on NEAR</span>
             </div>
           </div>
         </div>
@@ -296,9 +297,9 @@ const Pages: React.FC<P> = ({shot, t, T}) => {
   return (
     <Ground glow="50% 40%">
       <AbsoluteFill style={{justifyContent: 'center', padding: tall ? '0 60px 260px' : '0 120px 40px'}}>
-        <div style={{position: 'relative', height: tall ? 1100 : 600}}>
-          <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', ...enter(t, 0, 40), opacity: (1 - swap) * clamp01(ease(t, 0, 0.55) * 1.4)}}>{row('Plain', C.yes, plain, C.yesBg)}</div>
-          <div style={{position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', opacity: swap, transform: `translateY(${(1 - swap) * 30}px)`}}>{row('Honest', C.warn, disputed, C.warnBg)}</div>
+        <div style={{display: 'flex', flexDirection: 'column', gap: tall ? 90 : 80}}>
+          <div style={{...enter(t, 0, 40), opacity: clamp01(ease(t, 0, 0.55) * 1.4) * mix(1, 0.55, swap)}}>{row('Plain', C.yes, plain, C.yesBg)}</div>
+          <div style={{opacity: swap, transform: `translateY(${(1 - swap) * 30}px)`}}>{row('Honest', C.warn, disputed, C.warnBg)}</div>
         </div>
       </AbsoluteFill>
       {PENDING.has(shot.id) ? <Mark id={shot.id} /> : null}
