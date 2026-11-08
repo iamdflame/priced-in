@@ -18,5 +18,7 @@ export function NextRuling({ at, ahead, none }: { at: number | null; ahead: Reac
   const now = useClock();
   const left = at === null ? 0 : at - (now ?? Date.now());
   if (at === null || left <= 0) return <><span className="k"><Icon name="clock" />Next ruling</span><p className="clockline" suppressHydrationWarning>{none}</p></>;
-  return <><span className="k"><Icon name="clock" />Next ruling in</span><div className="bignum num" suppressHydrationWarning>{mmss(left)}</div><p>{ahead}</p></>;
+  // a wait of a day or more reads as days and hours, not 181:23:45
+  const big = left >= 86_400_000 ? `${Math.floor(left / 86_400_000)}d ${Math.floor((left % 86_400_000) / 3_600_000)}h` : mmss(left);
+  return <><span className="k"><Icon name="clock" />Next ruling in</span><div className="bignum num" suppressHydrationWarning>{big}</div><p>{ahead}</p></>;
 }

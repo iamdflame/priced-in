@@ -8,7 +8,7 @@ import path from "node:path";
 import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
-import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, isCapRefusal, juryRefused, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
+import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, firstSitting, isCapRefusal, juryRefused, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
 import { LEDGER, ledgerChecks, putCheck, putSentinel, readLedger, runSentinel } from "../../../api/_lib/sentinel.mjs";
 import { extractMarketEvents } from "../src/events.mjs";
@@ -414,6 +414,28 @@ test("the sitting's config: defaults, CHECKER_* values, and anything out of rang
   assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "2", CHECKER_SITTING_HOUR_UTC: "0", CHECKER_MIN_BETS: "0" }), { perDay: 2, hourUtc: 0, minBets: 0 });
   assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "0", CHECKER_SITTING_HOUR_UTC: "24", CHECKER_MIN_BETS: "-1" }), SITTING);
   assert.deepEqual(sittingConfig({ CHECKER_PER_DAY: "x", CHECKER_SITTING_HOUR_UTC: "1.5", CHECKER_MIN_BETS: "" }), SITTING);
+});
+
+test("CHECKER_FROM holds every sitting until its day, then the jury sits as before", () => {
+  const s = sittingConfig({ CHECKER_FROM: "2026-11-16T00:00:00Z" });
+  assert.deepEqual(s, { ...SITTING, fromMs: Date.parse("2026-11-16T00:00:00Z") });
+  assert.deepEqual(sittingConfig({ CHECKER_FROM: "nonsense" }), SITTING);
+  assert.deepEqual(sittingConfig({ CHECKER_FROM: "" }), SITTING);
+  const first = Date.UTC(2026, 10, 16, 15);
+  assert.equal(firstSitting(s), first);
+  assert.equal(firstSitting({ ...SITTING, fromMs: Date.UTC(2026, 10, 16, 16) }), Date.UTC(2026, 10, 17, 15), "a date after the hour: the next day's sitting");
+  assert.equal(firstSitting(SITTING), 0);
+  const ok = { nowMs: Date.UTC(2026, 10, 9, 15, 5), sitting: s, queue: 2, ready: 2, rulingsToday: 0, balance: "2950000", bond: "1000000" };
+  assert.deepEqual(checkerDecision(ok), { go: false, note: "the jury's next sitting is 16 November at 15:00 UTC" });
+  assert.equal(checkerDecision({ ...ok, nowMs: first - 1 }).go, false);
+  assert.deepEqual(checkerDecision({ ...ok, nowMs: first }), { go: true, note: null });
+  assert.equal(checkerDecision({ ...ok, nowMs: first + 24 * H }).go, true, "the day after: the second held line");
+  const checker = { enabled: true, queue: 2, waiting_for_bets: 0, rulings_today: 1, funded: true };
+  const held = rulingClock({ rulings: [], nowMs: Date.UTC(2026, 10, 8, 22), sitting: s, checker });
+  assert.equal(held.next_ruling_at, first);
+  assert.equal(held.next_ruling_note, "The jury's next sitting is 16 November at 15:00 UTC");
+  assert.equal(rulingClock({ rulings: [], nowMs: Date.UTC(2026, 10, 8, 22), sitting: s, checker: { ...checker, queue: 0 } }).next_ruling_note, "No doubted fact is waiting for the jury", "an empty queue says so, hold or not");
+  assert.equal(rulingClock({ rulings: [], nowMs: first + 3 * H, sitting: s, checker }).next_ruling_note.startsWith("Today's ruling is done"), true);
 });
 
 test("the Checker's decision: each reason to wait is a quiet note, and it goes only when all of them clear", () => {

@@ -30,6 +30,9 @@ const nsToMs = (ns) => (ns === null || ns === undefined ? null : Number(BigInt(S
 const day = (t) => new Date(t).toISOString().slice(0, 10);
 const sittingAt = (t, hour, days = 0) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate() + days, hour); };
 const hhmm = (hour) => `${String(hour).padStart(2, "0")}:00 UTC`;
+const dayWords = (t) => new Date(t).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" });
+/** The first sitting a CHECKER_FROM date allows: that day's sitting, or the next day's if the date falls after the hour. 0 when unset. */
+export const firstSitting = (s) => { if (!s?.fromMs) return 0; const at = sittingAt(s.fromMs, s.hourUtc); return s.fromMs <= at ? at : sittingAt(s.fromMs, s.hourUtc, 1); };
 
 /**
  * A challenge our jury runner refused: its receipts did not verify, so no model is reading it.
@@ -71,15 +74,20 @@ export function planKeeper({ challenges, nowMs, marginMs = 5000 }) {
 
 export const SITTING = { perDay: 1, hourUtc: 15, minBets: 1 };
 
-/** The sitting's schedule from CHECKER_PER_DAY, CHECKER_SITTING_HOUR_UTC and CHECKER_MIN_BETS; anything out of range keeps the default. */
+/**
+ * The sitting's schedule from CHECKER_PER_DAY, CHECKER_SITTING_HOUR_UTC and CHECKER_MIN_BETS; anything out of range keeps the default.
+ * CHECKER_FROM (an ISO date) holds every sitting until that day: the last caught lines wait for the days that matter.
+ */
 export function sittingConfig(env = process.env) {
   const whole = (v, min, max, d) => (v !== undefined && v !== "" && Number.isInteger(Number(v)) && Number(v) >= min && Number(v) <= max ? Number(v) : d);
   return {
     perDay: whole(env.CHECKER_PER_DAY, 1, 1000, SITTING.perDay),
     hourUtc: whole(env.CHECKER_SITTING_HOUR_UTC, 0, 23, SITTING.hourUtc),
     minBets: whole(env.CHECKER_MIN_BETS, 0, 1_000_000, SITTING.minBets),
+    ...fromOf(env.CHECKER_FROM),
   };
 }
+function fromOf(v) { const t = Date.parse(String(v ?? "").trim()); return Number.isFinite(t) && t > 0 ? { fromMs: t } : {}; }
 
 /** A signer refusal that only means today's cap is reached: the keeper waits, nothing failed. */
 export const isCapRefusal = (error) => /already (opened|posted) today/.test(String(error));
@@ -162,6 +170,8 @@ export function checkerDecision({ nowMs, sitting = SITTING, live = null, queue, 
   if (live) return no(`a ruling is running (challenge ${live.challenge_id}): one at a time`);
   if (!queue) return no("no caught line is open");
   if (!ready) return no(`${queue} caught ${queue === 1 ? "line waits" : "lines wait"} for bets (${sitting.minBets} needed)`);
+  const first = firstSitting(sitting);
+  if (first && nowMs < first) return no(`the jury's next sitting is ${dayWords(first)} at ${hhmm(sitting.hourUtc)}`);
   if (rulingsToday >= sitting.perDay) return no(`today's sitting is done: ${rulingsToday} of ${sitting.perDay}`);
   if (capped) return no("the signer's daily challenge cap is reached: the next sitting is tomorrow");
   if (nowMs < sittingAt(nowMs, sitting.hourUtc)) return no(`the sitting is at ${hhmm(sitting.hourUtc)}`);
@@ -247,6 +257,8 @@ export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null,
   if (waiting >= queue) return say(null, "No doubted fact has a bet yet, so the next sitting waits for one");
   if (c.funded === false) return say(null, "The next sitting waits for the Checker's bond to be funded");
   if (c.refused) return say(null, "Today's sitting is delayed while the keeper tries again");
+  const first = firstSitting(sitting);
+  if (first && nowMs < first) return say(first, `The jury's next sitting is ${dayWords(first)} at ${hhmm(sitting.hourUtc)}`);
   if (today >= sitting.perDay || c.capped) return say(sittingAt(nowMs, sitting.hourUtc, 1), `Today's ${sitting.perDay > 1 ? "rulings are" : "ruling is"} done. The next sitting is tomorrow at ${hhmm(sitting.hourUtc)}`);
   const at = sittingAt(nowMs, sitting.hourUtc);
   if (nowMs < at) return say(at, `The jury sits daily at ${hhmm(sitting.hourUtc)}`);
