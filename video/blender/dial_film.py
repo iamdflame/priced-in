@@ -85,6 +85,8 @@ SHOTS['stamps'] = dict(frames=168, keys=[(0.0, 10.0)])
 # v6: the market, full frame: the dial wakes onto 23%, holds while the voice sets the idea, then the free $1 on No
 # swings it to 11.63% (the tap is 6.11 s into the plate, from scripts/mix.py)
 SHOTS['market'] = dict(frames=310, keys=[(0.0, 0.0), (0.5, 23.1763), (6.26, 11.6287)], wake=(0.15, 1.2), sweep=(0.1, 2.6))
+# v8: the decided dial: the market's last price, 12%, held on "Money sets the odds", then the ruling takes it to 0
+SHOTS['decided'] = dict(frames=130, keys=[(0.0, 11.6287), (2.0, 11.6287), (2.55, 0.0)])
 S = SHOTS[SHOT]
 
 
@@ -480,7 +482,7 @@ def camera_at(sec):
         tgt = (0, -0.06, 0)
         focus, stop = (0, -0.05, 0.05), 0.9
         shift = (0.15, 0) if not TALL else (0, -0.3)
-    elif SHOT == 'market':
+    elif SHOT in ('market', 'decided'):
         cd.lens = 60
         d = lerp(1.32, 1.24, OUTC(k)) * (0.56 if TALL else 1.0)
         cam.location = (lerp(-0.35, -0.15, sm) * d, lerp(-1.9, -1.6, sm) * d, 5.1 * d)

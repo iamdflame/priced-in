@@ -42,7 +42,7 @@ export const wordStart = (cut: Cut, cueId: string, prefix: string, fallback: num
 };
 
 // ----- Blender plates ----------------------------------------------------------------------------------
-const FRAMES: Record<string, number> = {wake: 120, swing: 96, steps: 186, end: 240, stamps: 168, market: 310};
+const FRAMES: Record<string, number> = {wake: 120, swing: 96, steps: 186, end: 240, stamps: 168, market: 310, decided: 130};
 // the frames the light plates were rendered over (blender/render_light.sh): [first, last] per aspect
 const RANGE: Record<string, [number, number]> = {
   'light-wide/stamps': [1, 168], 'light-wide/wake': [1, 92], 'light-wide/swing': [1, 72], 'light-wide/steps': [15, 156], 'light-wide/end': [1, 240],
@@ -198,7 +198,7 @@ export const Captions: React.FC = () => {
   }
   if (!cur) return null;
   // the end card already says every word on screen; shots marked nocap carry the line as their own kinetic type
-  if (cut.shots.some((s) => /^(end|v[567]end)$/.test(s.id) && t >= s.at)) return null;
+  if (cut.shots.some((s) => /^(end|v[5678]end)$/.test(s.id) && t >= s.at)) return null;
   const here = cut.shots.find((s) => t >= s.at && t < s.at + s.dur);
   if (here?.nocap) return null;
   // a beat whose FALSE marks land on screen carries the spoken "False." itself

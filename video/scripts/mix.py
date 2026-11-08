@@ -31,7 +31,7 @@ SPEED = {'L01': 1.15, 'L02': 1.04, 'L03': 1.14, 'L04': 1.12, 'L05': 1.1, 'L06': 
          'C3': 1.15, 'C4': 1.14, 'C5': 1.1, 'C6': 1.12, 'V2c': 1.08, 'V2b': 1.1, 'V3b': 1.08, 'V4': 1.08, 'V5': 1.2,
          'N02': 1.08, 'N03': 1.08, 'N04': 1.08, 'N05': 1.08, 'N06': 1.06, 'N07': 1.0, 'N08': 1.13, 'N09': 1.06, 'N10': 1.08,
          'N11': 1.08, 'N12': 1.06, 'N13': 1.0, 'N08v': 1.08, 'N02s': 1.06, 'P02': 1.04, 'P03': 1.08, 'P04a': 1.04, 'P04b': 1.0, 'P06': 1.08, 'P07': 1.06,
-         'R03': 1.06, 'R04': 1.06, 'R05': 1.04}
+         'R03': 1.06, 'R04': 1.06, 'R05': 1.04, 'E8': 1.04, 'E8b': 1.12}
 
 
 def run(*a):
@@ -464,7 +464,102 @@ def vertical_v7():
     return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
 
 
-CUTS = {'main': main_v7, 'c15': short_v7, 'v30': vertical_v7}
+# ----- v8: one composed element per shot, designed motion, real proof (.apex/prompts/V8-film-composed.md) ----------------
+END8 = 4.0  # the end card's length, at most 4 s
+
+
+def main_v8():
+    v = seq(['L01', 'P02', 'R03'], at={'P02': 3.85}, gap=0.3)
+    v += [('R04', round(end_of(v, 'R03') + 1.5, 3))]
+    fb = round(end_of(v, 'R04') + 0.5, 3)
+    v += [('L07b', fb), ('L07c', fb + 1.0), ('L07d', fb + 3.1)]
+    v += seq(['R05', 'N07', 'P06'], start=fb + 3.1 + 1.2, gap=0.4)
+    v += [('E8b', round(end_of(v, 'P06') + 0.55, 3))]
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    on = W('P02', 'On')
+    near = W('R03', 'Near')
+    shots = [
+        dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
+        dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
+        dict(id='v8market', at=round(on - 0.2, 3), dur=round(near - 0.35 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'))),
+        dict(id='v8receipt', at=round(near - 0.35, 3), dur=round(d['R04'] - 0.2 - (near - 0.35), 3), k=dict(rec=W('R03', 'records'))),
+        dict(id='v8verdict', at=round(d['R04'] - 0.2, 3), dur=round(d['R05'] - 0.15 - (d['R04'] - 0.2), 3),
+             k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'), read=W('R04', 'read'), marksFalse=1)),
+        dict(id='v8asof', at=round(d['R05'] - 0.15, 3), dur=round(d['N07'] - d['R05'], 3), k=dict(fig=W('R05', 'figure'), false=W('R05', 'false'))),
+        dict(id='v8dial', at=round(d['N07'] - 0.15, 3), dur=round(d['P06'] - d['N07'], 3), nocap=True, k=dict(ev=W('N07', 'Evidence'))),
+        dict(id='v8payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['E8b'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v8end', at=round(d['E8b'] - 0.1, 3), dur=END8, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('tick_soft', 0.0, 0.4), ('bloom', 1.2, 0.5), ('strike', 2.2, 0.5),
+          ('whoosh_long', shots[2]['at'] - 0.3, 0.45), ('tap', shots[2]['k']['tap'], 0.9), ('bloom', shots[2]['k']['tap'] + 0.15, 0.8),
+          ('whoosh_short', shots[3]['at'] - 0.1, 0.4), ('receipt', shots[3]['at'] + 0.35, 0.7),
+          ('whoosh', shots[4]['at'] - 0.15, 0.4),
+          ('stamp1', fb + 0.02, 1.4), ('stamp2', fb + 1.02, 1.4), ('stamp3', fb + 3.12, 1.7),
+          ('whoosh_short', shots[5]['at'] - 0.1, 0.35), ('strike', shots[5]['k']['false'] + 0.05, 0.6),
+          ('whoosh', shots[6]['at'] - 0.15, 0.35), ('settle', shots[6]['k']['ev'] + 0.3, 0.7),
+          ('whoosh', shots[7]['at'] - 0.2, 0.4), ('strike', shots[7]['k']['ours'], 0.5), ('morph', shots[7]['k']['ours'] + 0.5, 0.5),
+          ('whoosh_long', shots[8]['at'] - 0.35, 0.45), ('bloom', shots[8]['at'] + 0.2, 0.8), ('sting', shots[8]['at'] + 0.2, 0.7)]
+    music = dict(track=72.0, gain=[(0, 0), (1.0, 2.5), (shots[4]['at'], 0), (shots[4]['at'] + 2.0, -9), (fb - 0.2, -60),
+                                   (shots[5]['at'] + 0.1, -60), (shots[5]['at'] + 1.2, -3), (d['P06'] - 0.4, -3), (d['P06'], -7),
+                                   (end_of(v, 'P06'), -7), (shots[8]['at'], -1), (dur - 1.2, -3), (dur, -30)])
+    return dict(id='main', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def short_v8():
+    v = [('L01', 0.05), ('P02', 3.85)]
+    on = word_at('P02', 3.85, 'On')
+    fb = round(3.85 + words('P02')[-1]['e'] / SPEED['P02'] + 0.35, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.62), ('L07d', fb + 1.93)]
+    end = round(fb + 2.75, 3)
+    v += [('E8b', round(end + 0.1, 3))]
+    shots = [
+        dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
+        dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
+        dict(id='v8market', at=round(on - 0.2, 3), dur=round(fb - 0.3 - (on - 0.2), 3), k=dict(tap=word_at('P02', 3.85, 'you'))),
+        dict(id='v8verdict', at=round(fb - 0.3, 3), dur=round(end - (fb - 0.3), 3), nocap=True, rate=1.6, k=dict(f1=fb, f2=fb + 0.62, f3=fb + 1.93, cloud=99, read=99)),
+        dict(id='v8end', at=end, dur=END8, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('bloom', 1.2, 0.5), ('strike', 2.2, 0.5), ('whoosh_long', on - 0.5, 0.45), ('tap', shots[2]['k']['tap'], 0.9),
+          ('whoosh_short', fb - 0.45, 0.4), ('stamp1', fb + 0.02, 1.4), ('stamp2', fb + 0.64, 1.5), ('stamp3', fb + 1.95, 1.8),
+          ('bloom', end + 0.2, 0.9), ('sting', end + 0.2, 0.75)]
+    music = dict(track=135.0, gain=[(0, -3), (1, -1), (fb - 0.6, -3), (fb - 0.1, -60), (end - 0.1, -60), (end + 0.3, -2), (dur - 0.8, -3), (dur, -24)])
+    return dict(id='c15', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def vertical_v8():
+    v = seq(['L01', 'P02', 'R03'], at={'P02': 3.85}, gap=0.3)
+    fb = round(end_of(v, 'R03') + 1.9, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.85), ('L07d', fb + 2.1)]
+    v += seq(['P06'], start=fb + 2.1 + 1.15, gap=0.35)
+    v += [('E8b', round(end_of(v, 'P06') + 0.5, 3))]
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    on = W('P02', 'On')
+    near = W('R03', 'Near')
+    shots = [
+        dict(id='v8hook', at=0.0, dur=3.8, nocap=True),
+        dict(id='v8hook', at=3.8, dur=round(on - 0.2 - 3.8, 3), k=dict(t0=3.8)),
+        dict(id='v8market', at=round(on - 0.2, 3), dur=round(near - 0.35 - (on - 0.2), 3), k=dict(tap=W('R03', 'wrong'))),
+        dict(id='v8receipt', at=round(near - 0.35, 3), dur=round(fb - 0.6 - (near - 0.35), 3), k=dict(rec=W('R03', 'records'))),
+        dict(id='v8verdict', at=round(fb - 0.6, 3), dur=round(d['P06'] - 0.15 - (fb - 0.6), 3), nocap=True, rate=1.15, k=dict(f1=fb, f2=fb + 0.85, f3=fb + 2.1, cloud=fb - 0.5, read=fb - 0.4)),
+        dict(id='v8payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['E8b'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v8end', at=round(d['E8b'] - 0.1, 3), dur=END8, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('bloom', 1.2, 0.5), ('strike', 2.2, 0.5), ('whoosh_long', shots[2]['at'] - 0.3, 0.45), ('tap', shots[2]['k']['tap'], 0.9),
+          ('whoosh_short', shots[3]['at'] - 0.1, 0.4), ('receipt', shots[3]['at'] + 0.35, 0.7), ('whoosh', shots[4]['at'] - 0.15, 0.4),
+          ('stamp1', fb + 0.02, 1.4), ('stamp2', fb + 0.87, 1.5), ('stamp3', fb + 2.12, 1.8),
+          ('whoosh', shots[5]['at'] - 0.2, 0.4), ('strike', shots[5]['k']['ours'], 0.5), ('bloom', shots[6]['at'] + 0.2, 0.9), ('sting', shots[6]['at'] + 0.2, 0.75)]
+    music = dict(track=117.0, gain=[(0, -2), (1, -1), (fb - 0.8, -3), (fb - 0.1, -60), (shots[5]['at'] + 0.1, -60), (shots[5]['at'] + 1.2, -6),
+                                   (end_of(v, 'P06'), -6), (shots[6]['at'], -2), (dur - 0.8, -3), (dur, -24)])
+    return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
+
+
+CUTS = {'main': main_v8, 'c15': short_v8, 'v30': vertical_v8}
+
 
 
 

@@ -60,6 +60,9 @@ export const LINES = [
   {id: 'R03', text: 'Bet a free dollar that it’s wrong. The Near blockchain records it, in public.', speed: 1.06},
   {id: 'R04', text: 'Three independent AI models on Near AI Cloud, each in sealed hardware, read Tether’s report.', speed: 1.06},
   {id: 'R05', text: 'As of Tether’s latest report, the figure is false.', speed: 1.04},
+  // v8: a 4-second end card
+  {id: 'E8', text: 'Is it true? Bet on it. Priced In, at is it priced dot com.', speed: 1.04},
+  {id: 'E8b', text: 'Is it true? Bet on it, at is it priced dot com.', speed: 1.08},
   // the 15 s cut
   {id: 'C2', text: 'Bet a free dollar that it’s wrong.', speed: 1.12},
   {id: 'C3', text: 'Three AI judges ruled it false.', speed: 1.1},
