@@ -3,6 +3,9 @@
 // never printed). No git push is involved: Vercel builds the uploaded tree.
 //   node scripts/vercel/deploy.mjs           a production deployment
 //   node scripts/vercel/deploy.mjs --preview a preview deployment
+//   node scripts/vercel/deploy.mjs --allow-testnet   production even when the project's settings are not mainnet's
+// A production deploy first checks the project's settings: NEAR_NETWORK must be mainnet and the market a .near
+// account, or it refuses, because the build would serve the live site with the wrong network (8 Nov).
 // Before the first deploy: scripts/vercel/keys.mjs, scripts/vercel/secrets.mjs, scripts/vercel/seed.mjs.
 import fs from "node:fs";
 import os from "node:os";
@@ -14,6 +17,16 @@ const env = dotEnv();
 const v = vercelApi(env);
 const pid = await projectId(v);
 const prod = !process.argv.includes("--preview");
+if (prod && !process.argv.includes("--allow-testnet")) {
+  const envs = (await v.call("GET", `/v10/projects/${pid}/env?decrypt=false`)).envs || [];
+  const val = (k) => envs.find((e) => e.key === k && e.type === "plain" && (e.target || []).includes("production"))?.value || "";
+  const net = val("NEAR_NETWORK"), market = val("MARKET_CONTRACT_ID");
+  if (net !== "mainnet" || !market.endsWith(".near")) {
+    console.error(`refusing: production would run with NEAR_NETWORK=${net || "(unset)"} and MARKET_CONTRACT_ID=${market || "(unset)"}, but the live site is mainnet. Run node scripts/vercel/secrets.mjs --network mainnet first.`);
+    process.exit(1);
+  }
+  console.log(`settings checked: mainnet, market ${market}`);
+}
 
 // the committed tree only: a detached worktree of HEAD (the main checkout and its index are untouched)
 const stage = path.join(os.tmpdir(), `pricedin-deploy-${Date.now()}`);

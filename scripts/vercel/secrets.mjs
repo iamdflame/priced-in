@@ -1,10 +1,14 @@
 // The project's environment on Vercel, from the local files. Secrets go in as encrypted
 // variables and are never printed: this script prints names only.
-//   node scripts/vercel/secrets.mjs              set every variable on the pricedin project (production and preview)
+//   node scripts/vercel/secrets.mjs              set every variable on the pricedin project (production and preview), for
+//                                                mainnet: the project serves the live mainnet site, so mainnet is the default
 //   node scripts/vercel/secrets.mjs --dry        list the names it would set
 //   node scripts/vercel/secrets.mjs --local <f>  write the same variables to a local env file (for a local harness; keep it outside the repo)
-//   node scripts/vercel/secrets.mjs --network mainnet   the same for the mainnet deployment (deployments/mainnet.json,
+//   node scripts/vercel/secrets.mjs --network mainnet   the same, said out loud (deployments/mainnet.json,
 //                                                       keys from .apex-test/mainnet/, written by scripts/mainnet/keys.mjs and fund.mjs)
+//   node scripts/vercel/secrets.mjs --network testnet --switch-network   the testnet values (deployments/testnet.json); a project
+//                                                       that serves mainnet refuses them without --switch-network, because they
+//                                                       take the live site down (8 Nov: a run without --network did exactly that)
 // Sources: .env (NEARAI_API_KEY2, the $20 key for the live site), .apex-test/vercel/ (scripts/vercel/keys.mjs),
 // .apex-test/judge-planner.json (the deployment's test planner key), deployments/testnet.json (public ids).
 // Mainnet is the same code with other values: NEAR_NETWORK=mainnet, mainnet ids, keys and RPCs, no swarm
@@ -17,7 +21,7 @@ import { ROOT, dotEnv, vercelApi, projectId, x402Env } from "./env.mjs";
 
 const local = dotEnv();
 const ni = process.argv.indexOf("--network");
-const NET = ni > 0 ? process.argv[ni + 1] : "testnet";
+const NET = ni > 0 ? process.argv[ni + 1] : "mainnet";
 if (NET !== "testnet" && NET !== "mainnet") throw new Error("--network is testnet or mainnet");
 const MAIN = NET === "mainnet";
 const dep = JSON.parse(fs.readFileSync(path.join(ROOT, `deployments/${NET}.json`), "utf8"));
@@ -127,6 +131,13 @@ const v = vercelApi(local);
 const pid = await projectId(v);
 const existing = (await v.call("GET", `/v10/projects/${pid}/env?decrypt=false`)).envs || [];
 const has = (k) => existing.find((e) => e.key === k);
+// the live site is mainnet: testnet values over it break every route, so moving away from mainnet must be asked for
+const liveNet = existing.find((e) => e.key === "NEAR_NETWORK" && e.type === "plain")?.value;
+if (liveNet === "mainnet" && NET !== "mainnet" && !process.argv.includes("--switch-network")) {
+  console.error(`refusing: the project serves mainnet, and these ${NET} values would take the live site down. Run with --network mainnet, or add --switch-network if you really mean ${NET}.`);
+  process.exit(1);
+}
+console.log(`network: ${NET}`);
 if (!has("CRON_SECRET")) secret.CRON_SECRET = crypto.randomBytes(24).toString("hex");
 else delete secret.CRON_SECRET;
 const dry = process.argv.includes("--dry");
