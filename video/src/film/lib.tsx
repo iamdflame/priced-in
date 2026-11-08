@@ -6,7 +6,7 @@ import flowJson from './flow.json';
 
 export type Word = {w: string; s: number; e: number};
 export type Cue = {id: string; at: number; text: string; words: Word[]};
-export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean; written?: number; nocap?: boolean; src?: number; ev?: number; sure?: number; doubt?: number; paid?: number; pick?: number; lock?: number; ours?: number; honest?: number; judges?: boolean};
+export type Shot = {id: string; at: number; dur: number; tap?: number; chip?: number; rate?: number; fast?: boolean; written?: number; nocap?: boolean; src?: number; ev?: number; sure?: number; doubt?: number; paid?: number; pick?: number; lock?: number; ours?: number; honest?: number; judges?: boolean; k?: Record<string, number>};
 export type Cut = {id: string; dur: number; w: number; h: number; shots: Shot[]; cues: Cue[]};
 
 export const CUTS = cutsJson as unknown as Record<string, Cut>;
@@ -198,12 +198,12 @@ export const Captions: React.FC = () => {
   }
   if (!cur) return null;
   // the end card already says every word on screen; shots marked nocap carry the line as their own kinetic type
-  if (cut.shots.some((s) => /^(end|v[56]end)$/.test(s.id) && t >= s.at)) return null;
+  if (cut.shots.some((s) => /^(end|v[567]end)$/.test(s.id) && t >= s.at)) return null;
   const here = cut.shots.find((s) => t >= s.at && t < s.at + s.dur);
   if (here?.nocap) return null;
   const k = ease(t, cur.s - 0.05, 0.14);
   return (
-    <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: tall ? 400 : 44, pointerEvents: 'none'}}>
+    <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: tall ? here?.k?.capBottom ?? 400 : 44, pointerEvents: 'none'}}>
       <span
         style={{
           font: `500 ${tall ? 42 : 32}px/1.25 ${FONT.text}`,

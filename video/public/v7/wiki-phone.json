@@ -1,0 +1,40 @@
+{
+ "frames": 66,
+ "scale": 3,
+ "viewport": {
+  "width": 390,
+  "height": 844
+ },
+ "sentence": [
+  {
+   "x": 122.21875,
+   "y": 354.546875,
+   "w": 227.03125,
+   "h": 21
+  },
+  {
+   "x": 16,
+   "y": 380.9375,
+   "w": 342.453125,
+   "h": 21
+  },
+  {
+   "x": 16,
+   "y": 407.328125,
+   "w": 196.046875,
+   "h": 21
+  }
+ ],
+ "number": [
+  {
+   "x": 122.890625,
+   "y": 407.328125,
+   "w": 85.6875,
+   "h": 21
+  }
+ ],
+ "text": "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, accounting for $72.6 billion.",
+ "lastmod": "This page was last edited on 30 October 2026, at 17:27 (UTC).",
+ "url": "https://en.wikipedia.org/wiki/Tether_(cryptocurrency)",
+ "read_at": "2026-11-08T05:44:28.908Z"
+}

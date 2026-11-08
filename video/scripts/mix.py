@@ -30,7 +30,8 @@ SPEED = {'L01': 1.15, 'L02': 1.04, 'L03': 1.14, 'L04': 1.12, 'L05': 1.1, 'L06': 
          'L07d': 1.0, 'L07e': 1.12, 'L08': 1.1, 'L09': 1.12, 'L10': 1.11, 'L11': 1.1, 'L12': 1.12, 'L14': 1.0, 'C2': 1.08,
          'C3': 1.15, 'C4': 1.14, 'C5': 1.1, 'C6': 1.12, 'V2c': 1.08, 'V2b': 1.1, 'V3b': 1.08, 'V4': 1.08, 'V5': 1.2,
          'N02': 1.08, 'N03': 1.08, 'N04': 1.08, 'N05': 1.08, 'N06': 1.06, 'N07': 1.0, 'N08': 1.13, 'N09': 1.06, 'N10': 1.08,
-         'N11': 1.08, 'N12': 1.06, 'N13': 1.0, 'N08v': 1.08, 'N02s': 1.06, 'P02': 1.04, 'P03': 1.08, 'P04a': 1.04, 'P04b': 1.0, 'P06': 1.08, 'P07': 1.06}
+         'N11': 1.08, 'N12': 1.06, 'N13': 1.0, 'N08v': 1.08, 'N02s': 1.06, 'P02': 1.04, 'P03': 1.08, 'P04a': 1.04, 'P04b': 1.0, 'P06': 1.08, 'P07': 1.06,
+         'R03': 1.06, 'R04': 1.06, 'R05': 1.04}
 
 
 def run(*a):
@@ -375,7 +376,96 @@ def vertical_v6():
     return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
 
 
-CUTS = {'main': main_v6, 'c15': short_v6, 'v30': vertical_v6}
+# ----- v7: the real product in use, every number holds up (.apex/prompts/V7-film-real.md) -------------------------------
+def main_v7():
+    v = seq(['L01', 'P02', 'R03'], at={'P02': 3.85}, gap=0.3)
+    v += [('R04', round(end_of(v, 'R03') + 1.7, 3))]
+    fb = round(end_of(v, 'R04') + 0.5, 3)
+    v += [('L07b', fb), ('L07c', fb + 1.0), ('L07d', fb + 3.1)]
+    v += seq(['R05', 'N07', 'P06', 'N13'], start=fb + 3.1 + 1.2, gap=0.4)
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    tap = W('R03', 'wrong')
+    pub = W('R03', 'in')
+    on = W('P02', 'On')
+    verdict = round(d['R04'] - 0.2, 3)
+    shots = [
+        dict(id='v7hook', at=0.0, dur=round(on - 0.2, 3), k=dict(catch=W('P02', 'catch'))),
+        dict(id='v7market', at=round(on - 0.2, 3), dur=round(pub - 0.1 - (on - 0.2), 3), k=dict(tap=tap, near=W('R03', 'Near'))),
+        dict(id='v7explorer', at=round(pub - 0.1, 3), dur=round(verdict - (pub - 0.1), 3)),
+        dict(id='v7verdict', at=verdict, dur=round(d['R05'] - 0.15 - verdict, 3), k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'))),
+        dict(id='v7decided', at=round(d['R05'] - 0.15, 3), dur=round(d['P06'] - d['R05'], 3), k=dict(ev=W('N07', 'Evidence'), money=d['N07'])),
+        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['N13'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v7end', at=round(d['N13'] - 0.15, 3), dur=round(end_of(v, 'N13') + 3.0 - d['N13'] + 0.15, 3), nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('tick_soft', 0.0, 0.4), ('whoosh', 0.55, 0.35), ('tick_soft', 1.7, 0.5), ('whoosh_short', 2.7, 0.4), ('tick_soft', 3.0, 0.5),
+          ('whoosh_long', shots[1]['at'] - 0.3, 0.45), ('tap', tap, 0.9), ('tap', tap + 0.72, 0.8), ('receipt', tap + 1.55, 0.6),
+          ('whoosh', shots[2]['at'] - 0.15, 0.4), ('tick_soft', shots[2]['at'] + 0.5, 0.5),
+          ('whoosh', shots[3]['at'] - 0.15, 0.4),
+          ('stamp1', fb + 0.05, 1.6), ('stamp2', fb + 1.05, 1.6), ('stamp3', fb + 3.15, 1.9),
+          ('whoosh_short', shots[4]['at'] - 0.1, 0.35), ('settle', shots[4]['at'] + 0.4, 0.6),
+          ('whoosh', shots[5]['at'] - 0.2, 0.4), ('morph', shots[5]['k']['ours'] + 0.2, 0.5),
+          ('whoosh_long', shots[6]['at'] - 0.4, 0.45), ('bloom', shots[6]['at'] + 0.4, 0.8), ('sting', shots[6]['at'] + 0.4, 0.7)]
+    music = dict(track=72.0, gain=[(0, 0), (1.0, 2.5), (shots[3]['at'], 0), (shots[3]['at'] + 2.0, -9), (fb - 0.2, -60),
+                                   (shots[4]['at'] + 0.1, -60), (shots[4]['at'] + 1.2, -3), (d['P06'] - 0.4, -3), (d['P06'], -7),
+                                   (end_of(v, 'P06'), -7), (shots[6]['at'], -1), (dur - 2.5, -3), (dur, -30)])
+    return dict(id='main', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def short_v7():
+    v = [('L01', 0.05), ('P02', 3.85)]
+    on = word_at('P02', 3.85, 'On')
+    fb = round(3.85 + words('P02')[-1]['e'] / SPEED['P02'] + 0.35, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.62), ('L07d', fb + 1.93), ('C6', fb + 2.75)]
+    verdict = round(fb - 0.3, 3)
+    end = round(fb + 2.7, 3)
+    tap = word_at('P02', 3.85, 'you')
+    shots = [
+        dict(id='v7hook', at=0.0, dur=round(on - 0.2, 3), fast=True, k=dict(catch=word_at('P02', 3.85, 'catch'))),
+        dict(id='v7market', at=round(on - 0.2, 3), dur=round(verdict - (on - 0.2), 3), k=dict(tap=tap, near=99)),
+        dict(id='v7verdict', at=verdict, dur=round(end - verdict, 3), rate=1.6, nocap=True, k=dict(f1=fb, f2=fb + 0.62, f3=fb + 1.93, cloud=99)),
+        dict(id='v7end', at=end, dur=round(fb + 2.75 + words('C6')[-1]['e'] / SPEED['C6'] + 0.5 - end, 3), fast=True, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('whoosh', 0.55, 0.35), ('whoosh_short', 2.4, 0.4), ('whoosh_long', on - 0.5, 0.45), ('tap', tap, 0.9),
+          ('whoosh_short', verdict - 0.15, 0.4), ('stamp1', fb + 0.05, 1.5), ('stamp2', fb + 0.67, 1.6), ('stamp3', fb + 1.98, 1.9),
+          ('bloom', end + 0.2, 0.9), ('sting', end + 0.2, 0.75)]
+    music = dict(track=135.0, gain=[(0, -3), (1, -1), (verdict - 0.3, -3), (fb - 0.1, -60), (end - 0.1, -60), (end + 0.3, -2), (dur - 1, -3), (dur, -24)])
+    return dict(id='c15', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def vertical_v7():
+    v = seq(['L01', 'P02', 'R03'], at={'P02': 3.85}, gap=0.3)
+    fb = round(end_of(v, 'R03') + 1.6, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.85), ('L07d', fb + 2.1)]
+    v += seq(['P06', 'C6'], start=fb + 2.1 + 1.15, gap=0.35)
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    tap = W('R03', 'wrong')
+    pub = W('R03', 'in')
+    on = W('P02', 'On')
+    verdict = round(fb - 0.6, 3)
+    shots = [
+        dict(id='v7hook', at=0.0, dur=round(on - 0.2, 3), k=dict(catch=W('P02', 'catch'), capBottom=560)),
+        dict(id='v7market', at=round(on - 0.2, 3), dur=round(pub - 0.1 - (on - 0.2), 3), k=dict(tap=tap, near=W('R03', 'Near'), capBottom=600)),
+        dict(id='v7explorer', at=round(pub - 0.1, 3), dur=round(verdict - (pub - 0.1), 3)),
+        dict(id='v7verdict', at=verdict, dur=round(d['P06'] - 0.15 - verdict, 3), rate=1.15, nocap=True, k=dict(f1=fb, f2=fb + 0.85, f3=fb + 2.1, cloud=verdict + 0.2)),
+        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['C6'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v7end', at=round(d['C6'] - 0.15, 3), dur=round(end_of(v, 'C6') + 1.3 - d['C6'] + 0.15, 3), fast=True, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('whoosh', 0.55, 0.35), ('whoosh_short', 2.7, 0.4), ('whoosh_long', shots[1]['at'] - 0.3, 0.45), ('tap', tap, 0.9),
+          ('tap', tap + 0.72, 0.8), ('receipt', tap + 1.55, 0.6), ('whoosh', shots[2]['at'] - 0.15, 0.4), ('whoosh', verdict - 0.15, 0.4),
+          ('stamp1', fb + 0.05, 1.6), ('stamp2', fb + 0.9, 1.6), ('stamp3', fb + 2.15, 1.9),
+          ('whoosh', shots[4]['at'] - 0.2, 0.4), ('morph', shots[4]['k']['ours'] + 0.2, 0.5), ('bloom', shots[5]['at'] + 0.2, 0.9), ('sting', shots[5]['at'] + 0.2, 0.75)]
+    music = dict(track=117.0, gain=[(0, -2), (1, -1), (verdict - 0.3, -3), (fb - 0.1, -60), (shots[4]['at'] + 0.1, -60), (shots[4]['at'] + 1.2, -6),
+                                   (end_of(v, 'P06'), -6), (shots[5]['at'], -2), (dur - 1, -3), (dur, -24)])
+    return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
+
+
+CUTS = {'main': main_v7, 'c15': short_v7, 'v30': vertical_v7}
+
 
 
 

@@ -15,3 +15,7 @@ public/site/
 blender/fonts/
 blender/out/
 public/_site-dark/
+# v7 recordings and stills (their boxes, public/v7/*.json, are committed)
+public/v7/*/
+public/v7/*.png
+scripts/__pycache__/

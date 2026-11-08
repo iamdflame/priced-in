@@ -1,0 +1,16 @@
+{
+ "frames": 78,
+ "marks": {},
+ "scale": 2,
+ "viewport": {
+  "width": 1600,
+  "height": 900
+ },
+ "hero": {
+  "x": 120,
+  "y": 87.078125,
+  "w": 489.03125,
+  "h": 37.4375,
+  "text": "Bet on whether facts are true."
+ }
+}
