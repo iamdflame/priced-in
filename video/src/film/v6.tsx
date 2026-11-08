@@ -76,9 +76,9 @@ const Market: React.FC<P> = ({shot, t, T}) => {
       <div style={{height: tall ? 130 : 112, opacity: clamp01(L * 1.5), transform: `scale(${mix(0.88, 1, L)})`, transformOrigin: tall ? '50% 50%' : '0 50%', display: 'flex', justifyContent: tall ? 'center' : 'flex-start'}}>
         <Lockup height={tall ? 104 : 96} />
       </div>
-      <div style={{...qIn, marginTop: tall ? 26 : 30}}>
+      <div style={{...qIn, marginTop: tall ? 20 : 30, textAlign: tall ? 'center' : 'left'}}>
         <span style={{display: 'inline-flex', alignItems: 'center', height: 50, padding: '0 22px', borderRadius: 999, background: C.warnBg, color: C.warn, font: `600 30px ${FONT.text}`}}>⚑ Wikipedia may be wrong</span>
-        <div style={{...big(tall ? 70 : 64), marginTop: 22, textAlign: tall ? 'center' : 'left'}}>Are most of Tether’s cash reserves U.S. T-Bills, accounting for $72.6 billion?</div>
+        <div style={{...big(tall ? 66 : 64), marginTop: tall ? 18 : 22, textAlign: tall ? 'center' : 'left'}}>Are most of Tether’s cash reserves U.S. T-Bills, accounting for $72.6 billion?</div>
       </div>
       {!tall ? (
         <div style={{display: 'flex', gap: 18, marginTop: 40, ...enter(t, 0.35, 30)}}>
@@ -94,19 +94,22 @@ const Market: React.FC<P> = ({shot, t, T}) => {
     </div>
   );
   if (tall) {
+    // phone: the question on top, the buttons under it, the dial below them, all above the caption line; after the tap the
+    // buttons give way to the receipt chip
+    const m = 'radial-gradient(ellipse 540px 600px at 539px 1014px, black 89%, transparent 100%)';
     return (
       <AbsoluteFill style={{background: C.bg}}>
-        <Plate shot="market" local={t} set="v6" style={{transform: 'translateY(170px)'}} />
-        <AbsoluteFill style={{alignItems: 'center', padding: '150px 70px 0'}}>{left}</AbsoluteFill>
-        <AbsoluteFill style={{justifyContent: 'flex-end', padding: '0 70px 360px'}}>
-          <div style={{display: 'flex', gap: 18, ...enter(t, 0.35, 30)}}>
+        <Plate shot="market" local={t} set="v6" style={{transform: 'translate(0px, 80px) scale(0.6)', transformOrigin: '539px 1014px', WebkitMaskImage: m, maskImage: m}} />
+        <AbsoluteFill style={{alignItems: 'center', padding: '110px 70px 0'}}>{left}</AbsoluteFill>
+        <div style={{position: 'absolute', left: 70, right: 70, top: 630, height: 150}}>
+          <div style={{display: 'flex', gap: 18, ...enter(t, 0.35, 30), opacity: Math.min(enter(t, 0.35, 30).opacity, 1 - clamp01(c * 1.6))}}>
             {btn('yes')}
             {btn('no')}
           </div>
-          <div style={{height: 96, marginTop: 24, display: 'flex', justifyContent: 'center', opacity: clamp01(c * 1.5), transform: `scale(${mix(0.9, 1, c)})`}}>
-            <span style={{display: 'inline-flex', alignItems: 'center', height: 88, padding: '0 30px', borderRadius: 999, background: C.yesBg, color: C.yes, font: `600 42px ${FONT.disp}`}}>✓ Recorded on NEAR · 4.5 s</span>
+          <div style={{position: 'absolute', inset: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', opacity: clamp01(c * 1.5), transform: `scale(${mix(0.9, 1, c)})`}}>
+            <span style={{display: 'inline-flex', alignItems: 'center', height: 110, padding: '0 40px', borderRadius: 999, background: C.yesBg, color: C.yes, font: `600 52px ${FONT.disp}`, letterSpacing: '-0.02em'}}>✓ Recorded on NEAR · 4.5 s</span>
           </div>
-        </AbsoluteFill>
+        </div>
       </AbsoluteFill>
     );
   }
