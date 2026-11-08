@@ -41,7 +41,9 @@ describe("facts", () => {
     const f = toFact(byId(18), 500000);
     expect(f.status).toBe("settled");
     expect(f.quotes).toBeNull();
-    expect(priceWords(f).whose).toBe("Decided: false");
+    expect(priceWords(f).whose).toBe("Decided false by three AI judges");
+    expect(f.price).toBe(0);
+    expect(priceWords(f).means).toBe("chance it’s true");
   });
   test("no bets: the AI's starting estimate, or the reopening price for a correction", () => {
     const f = toFact(byId(24), 400000);

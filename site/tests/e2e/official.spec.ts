@@ -73,7 +73,7 @@ test.describe("with the official pages on", () => {
     const api = await pageOf(request, "tether");
     await page.goto("/p/tether");
     await expect(page.locator("h1")).toHaveText(api.title);
-    await expect(page.getByText("Written by AI from what the market believes right now.")).toBeVisible();
+    await expect(page.getByText("Written by AI from what the market believes and what the judges ruled.")).toBeVisible();
     await expect(page.locator(".said")).toContainText("Last changed");
     await expect(page.getByRole("button", { name: MARKET })).toHaveAttribute("aria-pressed", "true");
     const article = page.locator(".article");

@@ -23,7 +23,7 @@ type Params = { params: Promise<{ slug: string }> };
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const { slug } = await params;
   const a = ARTICLES.find((x) => x.slug === slug);
-  if (a && (await getOfficialPage(slug))) return { title: `${a.title}, written from the odds`, description: `The ${a.title} article, written by AI from what the market believes right now, one tap from Wikipedia’s words.` };
+  if (a && (await getOfficialPage(slug))) return { title: `${a.title}, written from the odds`, description: `The ${a.title} article, written by AI from what the market believes and what the judges ruled, one tap from Wikipedia’s words.` };
   return a ? { title: `${a.title}, priced`, description: `The ${a.title} article with every checkable sentence tinted by what the market thinks.` } : {};
 }
 

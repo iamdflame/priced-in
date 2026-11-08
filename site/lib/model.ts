@@ -77,7 +77,8 @@ export function liveNumbers(c: ClaimView): Pick<Fact, "status" | "chainStatus" |
     chainStatus: c.status,
     outcome: c.outcome,
     provisional: c.provisional,
-    price: c.price_yes_ppm / 1e6,
+    // a decided fact's chance is its outcome: "10% chance it's true" beside a FALSE ruling read as a live price
+    price: status === "settled" && typeof c.outcome === "boolean" ? (c.outcome ? 1 : 0) : c.price_yes_ppm / 1e6,
     trades: c.trades,
     volumeUsd: c.volume_usd ?? Number(c.volume_micro) / 1e6,
     // the contract refuses a bet only once a claim is settled: a challenged fact can still be bet on
@@ -109,8 +110,8 @@ export interface PriceWords {
 export function priceWords(f: Pick<Fact, "price" | "trades" | "openPrice" | "status" | "outcome">, reopened = false): PriceWords {
   const means = "chance it’s true";
   if (f.status === "settled") {
-    const decided = `Decided: ${f.outcome ? "true" : "false"}`;
-    return { means: "chance it’s true, when it was decided", whose: decided, brief: decided, firstRead: false };
+    const decided = `Decided ${f.outcome ? "true" : "false"} by three AI judges`;
+    return { means: "chance it’s true", whose: decided, brief: `Decided: ${f.outcome ? "true" : "false"}`, firstRead: false };
   }
   if (f.trades === 0) {
     const open = Math.round((f.openPrice ?? f.price) * 100);

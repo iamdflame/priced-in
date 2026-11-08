@@ -145,7 +145,7 @@ function Both({ market, className, a, b }: { market: boolean; className: string;
 }
 
 const LEAD: Record<PageMood, ReactNode> = {
-  written: <b>Written by AI from what the market believes right now.</b>,
+  written: <b>Written by AI from what the market believes and what the judges ruled.</b>,
   unbet: <><b>The AI rewrites this page from the odds once people bet.</b> Nobody has bet on its priced sentences yet, so it reads as Wikipedia does.</>,
   unpriced: <><b>No sentence on this page has a market yet,</b> so it reads as Wikipedia does.</>,
 };
