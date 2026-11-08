@@ -459,7 +459,17 @@ if (task === 'phonebet') {
   // then a real tap on No, the confirm, and the real receipt sheet. The replay's own labels ("Replay the free $1",
   // "Nothing is sent", "Replay · final on NEAR in block …") are hidden or set to the live receipt's wording for the
   // same transaction ("Settled on NEAR in 4.5 s", the measured time); payout lines stay hidden as in v7.
+  // warm-up run: open the receipt once so every image it uses (the dial's ceramic face at the receipt's size) is in
+  // the browser cache, then reload and record the real run from the top
   await open(page, `${BASE}/c/18?recorded=1&film=1`);
+  await page.waitForTimeout(3000);
+  await page.getByRole('button', {name: /No, it.s false/}).first().click();
+  await page.waitForTimeout(700);
+  await page.getByRole('button', {name: /Bet \$1 free: No/}).click();
+  await page.waitForSelector('dialog.sheet[open]', {timeout: 15000}).catch(() => {});
+  await page.waitForTimeout(2500);
+  await page.evaluate(() => Promise.race([new Promise((r) => setTimeout(r, 4000)), Promise.all([...document.querySelectorAll('dialog.sheet img')].map((im) => (im.complete ? 0 : new Promise((r) => { im.onload = im.onerror = r; }))))]));
+  await page.reload({waitUntil: 'domcontentloaded'});
   await page.waitForTimeout(3500);
   await tidy(page);
   await page.addStyleTag({content: '.rc .fine, .ticket .fine { display: none !important; }'});

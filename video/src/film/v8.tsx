@@ -488,14 +488,19 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
   const tapped = rec >= m.tapNo.t;
   const receipt = rec >= m.receipt.t;
   const push = mix(1, 1.04, clamp01(t / Math.max(1, shot.dur)));
+  // on the receipt the camera moves into the phone, anchored on the receipt card, so the card fills the screen
+  const zr = fast ? 0 : ease(T, tap + 0.6, 0.6, EASE.inOut);
+  const fade = 'linear-gradient(to bottom, black calc(100% - 70px), transparent 100%)';
   if (tall) {
     return (
       <Ground glow="50% 40%">
-        <AbsoluteFill style={{alignItems: 'center', paddingTop: 80}}>
-          <div style={{transform: `scale(${push})`, transformOrigin: '50% 30%'}}>
-            <PhoneBody h={1240} src={pbFrame(fr)} />
-          </div>
-        </AbsoluteFill>
+        <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 1620, overflow: 'hidden', WebkitMaskImage: fade, maskImage: fade}}>
+          <AbsoluteFill style={{alignItems: 'center', paddingTop: 80}}>
+            <div style={{transform: `translateY(${mix(0, 190, zr)}px) scale(${push * mix(1, 1.75, zr)})`, transformOrigin: '50% 0%'}}>
+              <PhoneBody h={1240} src={pbFrame(fr)} />
+            </div>
+          </AbsoluteFill>
+        </div>
       </Ground>
     );
   }
@@ -504,10 +509,12 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
   );
   return (
     <Ground glow="40% 45%">
-      <div style={{position: 'absolute', left: 330, top: 60, transform: `scale(${push})`, transformOrigin: '50% 0%'}}>
-        <PhoneBody h={820} src={pbFrame(fr)} />
+      <div style={{position: 'absolute', left: 0, top: 0, width: 1020, height: 905, overflow: 'hidden', WebkitMaskImage: fade, maskImage: fade}}>
+        <div style={{position: 'absolute', left: 330, top: 50, transform: `translateX(${mix(0, -40, zr)}px) scale(${push * mix(1, 2.1, zr)})`, transformOrigin: '50% 0%'}}>
+          <PhoneBody h={820} src={pbFrame(fr)} />
+        </div>
       </div>
-      <div style={{position: 'absolute', left: 860, top: 250, width: 940, height: 520}}>
+      <div style={{position: 'absolute', left: mix(860, 1040, zr), top: 250, width: 860, height: 520}}>
         {side(!tapped, (
           <>
             <div style={{font: `600 36px ${FONT.text}`, color: C.ink3}}>The market before your bet</div>
