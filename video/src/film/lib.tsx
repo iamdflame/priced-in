@@ -133,6 +133,8 @@ const SAY: [RegExp, string][] = [
   [/fifty percent to ten/i, '50% to 10%'],
   [/ten minutes/i, '10 minutes'],
   [/Near blockchain/, 'NEAR blockchain'],
+  [/Near AI Cloud/, 'NEAR AI Cloud'],
+  [/Near/, 'NEAR'],
   [/seventy-two point six billion/i, '$72.6 billion'],
   [/one hundred twenty-two point eight four/i, '$122.84 billion'],
   [/a one-dollar/i, 'a $1'],

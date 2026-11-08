@@ -46,13 +46,15 @@ const Hook: React.FC<P> = ({shot, t}) => {
   const s = t + (shot.k?.t0 ?? 0);
   const tether = ease(s, 0.95, 0.45, EASE.out);
   const row = ease(s, 1.25, 0.5, EASE.inOut);
-  const fifty = ease(s, 1.45, 0.3, EASE.spring);
   const W = tall ? 960 : 1560;
   return (
     <Ground glow="50% 40%">
-      <AbsoluteFill style={{alignItems: 'center', padding: tall ? '190px 60px 0' : '150px 0 0'}}>
+      <AbsoluteFill style={{alignItems: 'center', padding: tall ? '170px 60px 0' : '120px 0 0'}}>
         <div style={{width: W}}>
-          <div style={{display: 'flex', alignItems: 'center', gap: 14, font: `600 ${tall ? 32 : 30}px ${FONT.text}`, color: C.ink3, marginBottom: 18}}>
+          <div style={{...big(tall ? 92 : 74), marginBottom: tall ? 40 : 30}}>
+            This Wikipedia line is <span style={{color: C.no}}>$50&nbsp;billion</span> out of date.
+          </div>
+          <div style={{display: 'flex', alignItems: 'center', gap: 14, font: `600 ${tall ? 32 : 30}px ${FONT.text}`, color: C.ink3, marginBottom: 14}}>
             <span style={{font: `400 ${tall ? 38 : 36}px ${FONT.quote}`, color: C.ink}}>W</span>Wikipedia · Tether (cryptocurrency)
           </div>
           <div style={{...card, padding: tall ? '38px 42px' : '40px 54px'}}>
@@ -67,11 +69,6 @@ const Hook: React.FC<P> = ({shot, t}) => {
             <div style={{flexBasis: tall ? '100%' : 'auto'}}>
               <PdfRow scale={tall ? 0.95 : 0.95} k={row} />
             </div>
-          </div>
-          <div style={{marginTop: tall ? 70 : 40, opacity: s >= 1.4 ? 1 : 0, transform: `translateY(${(1 - fifty) * 30}px)`}}>
-            <span style={big(tall ? 136 : 132)}>$50 billion </span>
-            {tall ? <br /> : null}
-            <span style={big(tall ? 136 : 132, C.ink3)}>out of date.</span>
           </div>
         </div>
       </AbsoluteFill>
@@ -104,18 +101,21 @@ const Market: React.FC<P> = ({shot, t, T}) => {
       <div style={{height: tall ? 120 : 104, display: 'flex', justifyContent: tall ? 'center' : 'flex-start'}}>
         <Lockup height={tall ? 100 : 92} />
       </div>
-      <div style={{...big(tall ? 66 : 64), marginTop: tall ? 22 : 26, textAlign: tall ? 'center' : 'left'}}>Are most of Tether’s cash reserves U.S. T-Bills, accounting for $72.6 billion?</div>
+      <div style={{...big(tall ? 66 : 64), marginTop: tall ? 22 : 26, textAlign: tall ? 'center' : 'left'}}>Are most of Tether’s cash reserves U.S. T-Bills, accounting for <span style={{background: C.warnBg, color: C.warn, borderRadius: 12, padding: '0 10px'}}>$72.6&nbsp;billion</span>?</div>
+      <div style={{display: 'flex', justifyContent: tall ? 'center' : 'flex-start', marginTop: 18}}>
+        <span style={{display: 'inline-flex', alignItems: 'center', gap: 10, height: 56, padding: '0 22px', borderRadius: 999, background: C.warnBg, color: C.warn, font: `600 ${tall ? 32 : 30}px ${FONT.text}`}}>↑ The figure is what’s in doubt</span>
+      </div>
     </div>
   );
   if (tall) {
     const m = 'radial-gradient(ellipse 540px 600px at 539px 1014px, black 89%, transparent 100%)';
     return (
       <AbsoluteFill style={{background: C.bg}}>
-        <Plate shot="market" local={plateT} set="v6" style={{transform: 'translate(0px, 70px) scale(0.6)', transformOrigin: '539px 1014px', WebkitMaskImage: m, maskImage: m}} />
+        <Plate shot="market" local={plateT} set="v6" style={{transform: 'translate(0px, 110px) scale(0.56)', transformOrigin: '539px 1014px', WebkitMaskImage: m, maskImage: m}} />
         <AbsoluteFill style={{alignItems: 'center', padding: '120px 70px 0'}}>
           <div style={{width: 940}}>{q}</div>
         </AbsoluteFill>
-        <div style={{position: 'absolute', left: 70, right: 70, top: 630, display: 'flex', gap: 18, ...rise(t, 0.3, 24)}}>
+        <div style={{position: 'absolute', left: 70, right: 70, top: 690, display: 'flex', gap: 18, ...rise(t, 0.3, 24)}}>
           {btn('yes')}
           {btn('no')}
         </div>
@@ -183,9 +183,9 @@ const Receipt: React.FC<P> = ({t}) => {
 // ----- beat 4: three signed verdicts; each FALSE seal lands on its own spoken "False" ---------------------------------
 // The judges' words, verbatim from isitpriced.com/rulings (market 18).
 const JUDGES = [
-  {mono: 'DS', name: 'DeepSeek-V4.1-Flash', quote: 'The claim’s $72.6 billion figure is out of date; Tether’s 30 September 2026 attestation reports U.S. Treasury Bills at $122.84 billion, so the stated amount is incorrect.'},
-  {mono: 'Qw', name: 'Qwen3.8-27B', quote: 'The evidence indicates that the figure of $72.6 billion is outdated, whereas the current attestation report from September 30, 2026, lists U.S. Treasury Bills at approximately $122.84 billion.'},
-  {mono: 'GL', name: 'glm-5.3-flash', quote: 'The evidence states the $72.6 billion figure is outdated and that Tether’s attestation reports $122.84 billion in U.S. Treasury Bills as of 30 September 2026.'},
+  {name: 'DeepSeek-V4.1-Flash', line: '…so the stated amount is incorrect.'},
+  {name: 'Qwen3.8-27B', line: '…the figure of $72.6 billion is outdated…'},
+  {name: 'glm-5.3-flash', line: '…in U.S. Treasury Bills as of 30 September 2026.'},
 ];
 
 /** The FALSE seal: a clean double ring and the word, upright, landing with weight. */
@@ -232,23 +232,15 @@ const Verdict: React.FC<P> = ({shot, t, T}) => {
     const inK = ease(t, short ? -0.3 : -0.25 + i * 0.12, 0.5, EASE.out);
     const ft = T - f[i];
     const hit = ft >= 0;
-    const quoteK = short ? 1 : ease(t, 0.15 + i * 0.25, 0.5);
-    const lit = short ? 0 : ease(T, read - 0.1, 0.5);
-    const cl = short ? 1 : ease(T, cloud - 0.1, 0.4);
+    const lineK = short ? 1 : ease(t, 0.2 + i * 0.3, 0.5);
     return (
-      <div key={i} style={{...card, position: 'relative', flex: tall ? 'none' : 1, padding: tall ? '28px 34px 28px' : '34px 36px 100px', opacity: clamp01(inK * 1.5), transform: `translateY(${(1 - inK) * 40}px)`, boxShadow: hit ? `0 0 0 3px ${C.no}, 0 50px 100px -60px rgba(201,34,43,0.5)` : card.boxShadow}}>
-        <div style={{display: 'flex', alignItems: 'center', gap: 16}}>
-          <span style={{width: 60, height: 60, borderRadius: 16, background: C.surface2, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', font: `700 26px ${FONT.disp}`, color: C.ink}}>{j.mono}</span>
-          <div>
-            <div style={{font: `700 ${tall ? 40 : 36}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.ink}}>{j.name}</div>
-            <div style={{font: `500 28px ${FONT.text}`, color: C.ink3, opacity: mix(0.0, 1, cl)}}>on NEAR AI Cloud · sealed hardware</div>
-          </div>
-        </div>
+      <div key={i} style={{...card, position: 'relative', flex: tall ? 'none' : 1, padding: tall ? '30px 36px' : '40px 40px 110px', opacity: clamp01(inK * 1.5), transform: `translateY(${(1 - inK) * 40}px)`, boxShadow: hit ? `0 0 0 3px ${C.no}, 0 50px 100px -60px rgba(201,34,43,0.5)` : card.boxShadow}}>
+        <div style={{font: `700 ${tall ? 44 : 44}px ${FONT.disp}`, letterSpacing: '-0.025em', color: C.ink}}>{j.name}</div>
         {short && !tall ? null : (
-          <div style={{marginTop: tall ? 18 : 26, font: `400 ${tall ? 29 : 30}px/1.34 ${FONT.text}`, color: C.ink2, opacity: tall ? 1 : quoteK, paddingRight: tall ? 150 : 0}}>“{hl(j.quote, lit)}”</div>
+          <div style={{marginTop: tall ? 14 : 26, font: `500 ${tall ? 40 : 42}px/1.24 ${FONT.text}`, letterSpacing: '-0.01em', color: C.ink, opacity: lineK, paddingRight: tall ? 160 : 0}}>“{j.line}”</div>
         )}
-        <div style={{position: tall ? 'relative' : 'absolute', left: tall ? 0 : 36, bottom: tall ? 0 : 38, marginTop: tall ? 14 : 0, display: 'flex', alignItems: 'center', gap: 10, font: `600 28px ${FONT.text}`, color: C.yes, opacity: hit ? clamp01(ft / 0.25) : 0}}>✓ Signature verified on NEAR</div>
-        <div style={{position: 'absolute', right: tall ? 26 : 30, bottom: tall ? 24 : 96}}>
+        <div style={{position: tall ? 'relative' : 'absolute', left: tall ? 0 : 40, bottom: tall ? 0 : 42, marginTop: tall ? 14 : 0, font: `600 30px ${FONT.text}`, color: C.yes, opacity: hit ? clamp01(ft / 0.25) : 0}}>✓ Signature verified on NEAR</div>
+        <div style={{position: 'absolute', right: tall ? 26 : 30, bottom: tall ? 24 : 100}}>
           <Seal t={ft} size={tall ? 140 : 150} />
         </div>
       </div>
@@ -256,13 +248,50 @@ const Verdict: React.FC<P> = ({shot, t, T}) => {
   };
   return (
     <Ground glow="50% 42%">
-      {tall ? (
-        <div style={{position: 'absolute', left: 0, right: 0, top: 150, display: 'flex', justifyContent: 'center', ...rise(t, 0, 16)}}>
-          <span style={{font: `600 40px ${FONT.text}`, color: C.ink}}>Three AI models on NEAR AI Cloud</span>
-        </div>
-      ) : null}
-      <AbsoluteFill style={tall ? {padding: '230px 40px 0', gap: 22} : {flexDirection: 'row', alignItems: short ? 'center' : 'stretch', gap: 32, padding: short ? '0 90px 120px' : '190px 90px 230px'}}>
+      <div style={{position: 'absolute', left: tall ? 50 : 90, right: tall ? 50 : 360, top: tall ? 150 : 128, ...rise(t, -0.2, 16)}}>
+        <div style={{font: `600 ${tall ? 40 : 38}px ${FONT.text}`, color: C.ink}}>Three independent AI models</div>
+        <div style={{font: `500 ${tall ? 32 : 30}px ${FONT.text}`, color: C.ink3, marginTop: 6, opacity: short ? 1 : mix(0.35, 1, ease(T, cloud - 0.1, 0.4))}}>on NEAR AI Cloud, each in sealed hardware</div>
+      </div>
+      <AbsoluteFill style={tall ? {padding: '300px 40px 0', gap: 22} : {flexDirection: 'row', alignItems: short ? 'center' : 'stretch', gap: 32, padding: short ? '120px 90px 160px' : '270px 90px 210px'}}>
         {JUDGES.map(cardEl)}
+      </AbsoluteFill>
+    </Ground>
+  );
+};
+
+// ----- beat 4b: the win closes the money loop: No won, paid in USDC on NEAR (the real settle transaction) ---------------
+const SETTLE = '3KbCTq6sRK8RtSvhwTzbAmGGiUveqasWCfSGTuTk8K1v';
+const Paid: React.FC<P> = ({shot, t, T}) => {
+  const tall = useTall();
+  const no = shot.k?.no ?? shot.at + 1.5;
+  const up = ease(t, -0.2, 0.5, EASE.spring);
+  const won = ease(T, no - 0.1, 0.35, EASE.spring);
+  const chk = ease(t, 0.15, 0.4);
+  const rev = clamp01((t - 0.5) / 0.8);
+  const n = Math.round(rev * SETTLE.length);
+  const hashEl = (str: string, from: number) => (
+    <span>
+      <span style={{color: C.ink}}>{str.slice(0, Math.max(0, n - from))}</span>
+      <span style={{color: 'rgba(17,22,30,0.12)'}}>{str.slice(Math.max(0, n - from))}</span>
+    </span>
+  );
+  return (
+    <Ground glow="50% 45%">
+      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', padding: tall ? '120px 40px 560px' : '0 0 150px'}}>
+        <div style={{...card, width: tall ? 1000 : 1360, padding: tall ? '60px 50px' : '56px 70px', opacity: clamp01(up * 1.6), transform: `translateY(${(1 - up) * 80}px)`, boxShadow: `0 0 0 3px ${C.yes}, 0 50px 100px -60px rgba(0,123,61,0.45)`}}>
+          <div style={{display: 'flex', alignItems: 'center', gap: 24}}>
+            <svg width={tall ? 96 : 92} height={tall ? 96 : 92} viewBox="0 0 70 70">
+              <circle cx="35" cy="35" r="33" fill={C.yes} />
+              <path d="M20 36 l10 10 l20 -22" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="60" strokeDashoffset={60 * (1 - chk)} />
+            </svg>
+            <span style={{...big(tall ? 120 : 120, C.yes), transform: `scale(${mix(1.12, 1, won)})`, transformOrigin: '0 50%', display: 'inline-block'}}>No won</span>
+          </div>
+          <div style={{font: `600 ${tall ? 46 : 46}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.ink, marginTop: 22}}>Paid in USDC on NEAR</div>
+          <div style={{marginTop: 32, padding: tall ? '24px 28px' : '24px 32px', borderRadius: 18, background: 'rgba(0,161,81,0.08)'}}>
+            <div style={{font: `600 ${tall ? 30 : 28}px ${FONT.text}`, color: C.ink3, marginBottom: 8}}>Settlement transaction</div>
+            <div style={{font: `500 ${tall ? 52 : 44}px/1.3 ${FONT.mono}`, letterSpacing: '-0.01em'}}>{tall ? <>{hashEl(SETTLE.slice(0, 22), 0)}<br />{hashEl(SETTLE.slice(22), 22)}</> : hashEl(SETTLE, 0)}</div>
+          </div>
+        </div>
       </AbsoluteFill>
     </Ground>
   );
@@ -342,10 +371,10 @@ const Payoff: React.FC<P> = ({shot, t, T}) => {
           </div>
           <div style={{marginTop: tall ? 90 : 70, opacity: clamp01(two * 1.5), transform: `translateY(${(1 - two) * 30}px)`}}>
             <div style={{display: 'flex', alignItems: 'center', gap: 14, font: `600 ${tall ? 34 : 32}px ${FONT.text}`, color: C.ink3, marginBottom: 10}}>
-              <span>Priced In’s page</span>
+              <span>Priced In’s encyclopedia page</span>
             </div>
-            <div style={{font: `600 ${tall ? 74 : 66}px/1.14 ${FONT.disp}`, letterSpacing: '-0.025em', color: C.ink}}>
-              “…puts at <span style={{color: C.yes, background: C.yesBg, borderRadius: 12, padding: '0 10px'}}>$122.84 billion</span> at 30 September 2026.”
+            <div style={{font: `600 ${tall ? 52 : 50}px/1.2 ${FONT.disp}`, letterSpacing: '-0.025em', color: C.ink}}>
+              “The majority of Tether’s reserves held in cash and cash equivalents are U.S. T-Bills, which Tether’s attestation report, checked on 5 November 2026, puts at <span style={{color: C.yes, background: C.yesBg, borderRadius: 12, padding: '0 10px'}}>$122.84 billion</span> at 30 September 2026.”
             </div>
             <div style={{display: 'inline-flex', alignItems: 'center', gap: 12, marginTop: 28, height: 66, padding: '0 26px', borderRadius: 999, background: C.surface, boxShadow: `0 0 0 1px ${C.lineStrong}`, font: `600 ${tall ? 36 : 32}px ${FONT.text}`, color: C.ink2, opacity: clamp01(s * 1.5), transform: `translateY(${(1 - s) * 14}px)`}}>
               Source: Tether’s attestation, 30 Sep 2026
@@ -394,6 +423,7 @@ export const SHOTS8: Record<string, React.FC<P>> = {
   v8receipt: Receipt,
   v8verdict: Verdict,
   v8asof: AsOf,
+  v8paid: Paid,
   v8dial: Dial,
   v8payoff: Payoff,
   v8end: End,

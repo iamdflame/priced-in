@@ -8,6 +8,6 @@ sheet() { # in out cols width
 }
 sheet $R/pricedin-film-16x9.mp4 $R/contact-film-16x9.png 12 300 8
 sheet $R/pricedin-15s-16x9.mp4 $R/contact-15s-16x9.png 10 300 3
-sheet $R/pricedin-30s-9x16.mp4 $R/contact-30s-9x16.png 16 180 4
+sheet $R/pricedin-30s-9x16.mp4 $R/contact-30s-9x16.png 17 180 4
 "$FF" -v error -y -ss 3.6 -i $R/pricedin-film-16x9.mp4 -frames:v 1 $R/poster.png
 ls -la $R/*.png
