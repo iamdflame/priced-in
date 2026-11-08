@@ -1,17 +1,23 @@
-// What news lines need from the mainnet treasury, and the owner's two calls to give it.
+// What news lines need from the mainnet treasury, and the owner's calls to give it.
 //
 //   node scripts/mainnet/news-funding.mjs                       read only: where the money stands, and what N lines need
 //   node scripts/mainnet/news-funding.mjs --lines 20            the same for 20 lines at a time
 //   CONFIRM_MAINNET=yes node scripts/mainnet/news-funding.mjs --lines 20 --apply
-//                                                               deposit what is short into the treasury, raise the reserve cap,
-//                                                               and top up the market's NEAR for storage (--market-near, default 1)
+//                                                               deposit what is short into the treasury and raise the reserve cap
+//   --market-near 1                                             also send the market 1 NEAR for storage, if its spare is below that
+//                                                               (only when asked: the contract can't send NEAR back out)
+//   --lane-budget 13                                            set the free-bet budget to $13 (13 free $1 bets) out of money the
+//                                                               treasury already holds: no deposit, and news lines wait for it
+//   CONFIRM_MAINNET=yes node scripts/mainnet/news-funding.mjs --lines 0 --lane-budget 13 --apply
+//                                                               only that: one set_limits call, nothing sent
 //
 // Each news line reserves its worst-case loss from the treasury until it settles: about $1.01 at 50%,
 // $1.75 at 30% or 70%, $2.34 at 20% or 80%, with b = $1.45 (--avg-reserve sets the average; 1.40 by
 // default). The treasury also pays every free $1, so the plan keeps the lane budget and the floor whole.
 // Each line and its ruling also grow the market's state, about 0.025 NEAR a line for good: past its
 // spare NEAR every call that stores anything fails, free bets and trades included, so the gate keeps
-// NEWS_MARKET_MIN_NEAR (0.3) untouched. set_limits keeps the lane budget, credit and bond exactly as they are.
+// NEWS_MARKET_MIN_NEAR (0.3) untouched. set_limits keeps the credit and bond exactly as they are, and the lane
+// budget too unless --lane-budget names a new one; the gate counts it out of the treasury before any news line.
 // --apply signs with the owner's key (NEAR_DEPLOYER_PRIVATE_KEY), read only then. Nothing secret is printed.
 import fs from "node:fs";
 import path from "node:path";
@@ -26,6 +32,7 @@ const LINES = Number(arg("--lines", "20"));
 const AVG = BigInt(Math.round(Number(arg("--avg-reserve", "1.40")) * 1e6));
 const FLOOR = BigInt(process.env.NEWS_TREASURY_FLOOR_MICRO || 1_500_000);
 const APPLY = process.argv.includes("--apply");
+const LANE_TO = arg("--lane-budget", null);
 const M = dep.accounts.market, U = dep.accounts.usdc;
 const RPCS = ["https://free.rpc.fastnear.com", "https://near.drpc.org", "https://rpc.mainnet.near.org"];
 const landed = (r, what) => { if (r.status && typeof r.status === "object" && "Failure" in r.status) throw new Error(`${what} failed: ${JSON.stringify(r.status.Failure).slice(0, 200)}`); return r.transaction_outcome?.id || r.transaction?.hash; };
@@ -54,19 +61,27 @@ const [acct, stats, res, raw, ownerUsdc, checker] = await Promise.all([
 const state = (raw.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
 const cap = BigInt(reserveFromState(Buffer.from(state.value, "base64")).capMicro);
 const treasury = BigInt(stats.treasury_micro), reserved = BigInt(stats.reserved_micro), lane = BigInt(stats.lane_budget_micro);
-const free = treasury - lane - FLOOR;
+const credit = BigInt(stats.lane_credit_micro);
+// --lane-budget: the free bets' share of the treasury, an absolute amount (each free bet takes one credit off it)
+if (LANE_TO !== null && !(Number(LANE_TO) >= 0)) { console.error("--lane-budget takes dollars, e.g. --lane-budget 13"); process.exit(1); }
+const laneNew = LANE_TO === null ? lane : BigInt(Math.round(Number(LANE_TO) * 1e6));
+// every credit must stay covered by money the treasury holds, with the floor kept whole
+if (LANE_TO !== null && laneNew + FLOOR > treasury) { console.error(`the treasury holds ${usd(treasury)}: a free-bet budget of at most ${usd(treasury - FLOOR)} keeps the ${usd(FLOOR)} floor whole`); process.exit(1); }
+const free = treasury - laneNew - FLOOR;
+const bets = (m) => (credit > 0n ? Number(m / credit) : 0);
 const room = cap - reserved;
 const now = free < room ? free : room;
 const need = BigInt(LINES) * AVG;
 const deposit = need > free ? need - free : 0n;
 const newCap = reserved + need > cap ? reserved + need : cap;
 
-console.log(`treasury ${usd(treasury)}: ${usd(lane)} is the free bets', ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
+console.log(`treasury ${usd(treasury)}: ${usd(laneNew)} is the free bets' (${bets(laneNew)} free ${usd(credit)} bets${laneNew !== lane ? `, up from ${bets(lane)}` : ""}), ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
 console.log(`reserved ${usd(reserved)} of a ${usd(cap)} cap: ${usd(room)} of room`);
 console.log(`today that carries ${usd(now > 0n ? now : 0n)}: ${now >= 1_006_100n ? `about ${Number(now / AVG)} news line(s)` : "no news line, at any price"}`);
-console.log(`${LINES} lines at a time, about ${usd(AVG)} each, need ${usd(need)}: deposit ${usd(deposit)} into the treasury, and raise the cap to ${usd(newCap)}`);
-const spare = spareNearOf(acct), TOP = Number(arg("--market-near", "1"));
-console.log(`the market account has ${spare.toFixed(2)} NEAR spare for storage: about ${Math.max(0, Math.floor((spare - 0.3) / 0.025))} more lines before the gate stops opening${spare < TOP ? `; send ${TOP} NEAR` : ""}`);
+if (LINES > 0) console.log(`${LINES} lines at a time, about ${usd(AVG)} each, need ${usd(need)}: deposit ${usd(deposit)} into the treasury, and raise the cap to ${usd(newCap)}`);
+// the NEAR top-up only when asked: the market can't send NEAR back out
+const spare = spareNearOf(acct), TOP = Number(arg("--market-near", "0")) || 0;
+console.log(`the market account has ${spare.toFixed(2)} NEAR spare for storage: about ${Math.max(0, Math.floor((spare - 0.3) / 0.025))} more lines before the gate stops opening${spare < TOP ? `; --apply sends ${TOP} NEAR` : ""}`);
 console.log(`the owner holds ${usd(ownerUsdc)} of USDC; the Checker holds ${usd(checker)} of bonds (a ruling ties up ${usd(res.challenge_bond_micro)} for about 20 minutes, and it comes back when the Checker is right)`);
 if (!APPLY) console.log("nothing changed. --apply, with CONFIRM_MAINNET=yes, makes these calls.");
 else {
@@ -83,8 +98,8 @@ else {
     const r = await owner.transfer({ receiverId: M, amount: BigInt(Math.round(TOP * 1000)) * 10n ** 21n });
     console.log(`sent ${TOP} NEAR to ${M}: ${landed(r, "the NEAR top-up")}`);
   }
-  if (newCap !== cap) {
-    const r = await owner.callFunctionRaw({ contractId: M, methodName: "set_limits", args: { reserve_cap_micro: String(newCap), lane_budget_micro: stats.lane_budget_micro, lane_credit_micro: stats.lane_credit_micro, challenge_bond_micro: res.challenge_bond_micro }, gas: 60n * 10n ** 12n });
-    console.log(`reserve cap ${usd(newCap)}: ${landed(r, "set_limits")}`);
+  if (newCap !== cap || laneNew !== lane) {
+    const r = await owner.callFunctionRaw({ contractId: M, methodName: "set_limits", args: { reserve_cap_micro: String(newCap), lane_budget_micro: String(laneNew), lane_credit_micro: stats.lane_credit_micro, challenge_bond_micro: res.challenge_bond_micro }, gas: 60n * 10n ** 12n });
+    console.log(`reserve cap ${usd(newCap)}, free-bet budget ${usd(laneNew)} (${bets(laneNew)} free bets): ${landed(r, "set_limits")}`);
   }
 }
