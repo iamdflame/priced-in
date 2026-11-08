@@ -6,7 +6,7 @@
 //                                                               deposit what is short into the treasury and raise the reserve cap
 //   --market-near 1                                             also send the market 1 NEAR for storage, if its spare is below that
 //                                                               (only when asked: the contract can't send NEAR back out)
-//   --lane-budget 13                                            set the free-bet budget to $13 (13 free $1 bets) out of money the
+//   --lane-budget 13 (or max)                                   set the free-bet budget to $13 (13 free $1 bets) out of money the
 //                                                               treasury already holds: no deposit, and news lines wait for it
 //   CONFIRM_MAINNET=yes node scripts/mainnet/news-funding.mjs --lines 0 --lane-budget 13 --apply
 //                                                               only that: one set_limits call, nothing sent
@@ -63,8 +63,10 @@ const cap = BigInt(reserveFromState(Buffer.from(state.value, "base64")).capMicro
 const treasury = BigInt(stats.treasury_micro), reserved = BigInt(stats.reserved_micro), lane = BigInt(stats.lane_budget_micro);
 const credit = BigInt(stats.lane_credit_micro);
 // --lane-budget: the free bets' share of the treasury, an absolute amount (each free bet takes one credit off it)
-if (LANE_TO !== null && !(Number(LANE_TO) >= 0)) { console.error("--lane-budget takes dollars, e.g. --lane-budget 13"); process.exit(1); }
-const laneNew = LANE_TO === null ? lane : BigInt(Math.round(Number(LANE_TO) * 1e6));
+if (LANE_TO !== null && LANE_TO !== "max" && !(Number(LANE_TO) >= 0)) { console.error("--lane-budget takes dollars, e.g. --lane-budget 13, or max"); process.exit(1); }
+// max: as many whole free bets as the treasury covers with the floor kept whole
+const laneMax = credit > 0n && treasury > FLOOR ? ((treasury - FLOOR) / credit) * credit : 0n;
+const laneNew = LANE_TO === null ? lane : LANE_TO === "max" ? (laneMax > lane ? laneMax : lane) : BigInt(Math.round(Number(LANE_TO) * 1e6));
 // every credit must stay covered by money the treasury holds, with the floor kept whole
 if (LANE_TO !== null && laneNew + FLOOR > treasury) { console.error(`the treasury holds ${usd(treasury)}: a free-bet budget of at most ${usd(treasury - FLOOR)} keeps the ${usd(FLOOR)} floor whole`); process.exit(1); }
 const free = treasury - laneNew - FLOOR;
