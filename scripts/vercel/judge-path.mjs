@@ -8,6 +8,8 @@
 // settled and sig-ok test ids, the lead's .feature a.bet links, and the receipt dialog.
 // Each run without --no-bet spends one free $1 lane credit (a fresh key) on the network the site runs
 // on: real USDC on mainnet, so run it sparingly there. --no-bet stops at the quote and sends nothing.
+// With Today's claims on, the tap is a free pick first, so every run, --no-bet included, also saves
+// one free pick (no money) from its fresh key on the lead fact: it shows in that fact's pick count.
 // Playwright is the site's own (npm run site:install, then npx --prefix site playwright install
 // chromium); PLAYWRIGHT_DIR points at another install.
 import fs from "node:fs";
