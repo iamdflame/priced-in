@@ -236,14 +236,16 @@ const Verdict: React.FC<P> = ({shot, t, T}) => {
     const inK = short ? ease(t, -0.3, 0.4, EASE.out) : ease(T, shot.at + 0.15 + i * 0.55, 0.45, EASE.out);
     const ft = T - f[i];
     const hit = ft >= 0;
+    // each card lifts a little as it arrives and again when its seal lands
+    const lift = Math.max(Math.sin(Math.PI * clamp01((T - (shot.at + 0.15 + i * 0.55)) / 0.7)) * (short ? 0 : 1), Math.sin(Math.PI * clamp01(ft / 0.5)) * (hit ? 1 : 0));
     return (
-      <div key={i} style={{...card, position: 'relative', flex: tall ? 'none' : 1, padding: tall ? '30px 36px' : '38px 40px 34px', opacity: clamp01(inK * 1.6), transform: `translateY(${(1 - inK) * 60}px)`, boxShadow: hit ? `0 0 0 3px ${C.no}, 0 50px 100px -60px rgba(201,34,43,0.5)` : card.boxShadow}}>
+      <div key={i} style={{...card, position: 'relative', display: 'flex', flexDirection: 'column', flex: tall ? 'none' : 1, padding: tall ? '30px 36px' : '38px 40px 34px', opacity: clamp01(inK * 1.6), transform: `translateY(${(1 - inK) * 60 - lift * 16}px) scale(${1 + lift * 0.015})`, boxShadow: hit ? `0 0 0 3px ${C.no}, 0 50px 100px -60px rgba(201,34,43,0.5)` : card.boxShadow}}>
         <div style={{font: `700 ${tall ? 44 : 42}px ${FONT.disp}`, letterSpacing: '-0.025em', color: C.ink}}>{j.name}</div>
         {short && !tall ? null : (
-          <div style={{marginTop: tall ? 12 : 20, font: `500 ${tall ? 42 : 46}px/1.2 ${FONT.text}`, letterSpacing: '-0.015em', color: C.ink}}>“{j.line}”</div>
+          <div style={{marginTop: tall ? 12 : 20, font: `500 ${tall ? 40 : 46}px/1.2 ${FONT.text}`, letterSpacing: '-0.015em', color: C.ink, paddingRight: tall ? 200 : 0}}>“{j.line}”</div>
         )}
         <div style={{marginTop: tall ? 12 : 20, font: `600 28px/1.25 ${FONT.text}`, color: C.yes, opacity: hit ? clamp01(ft / 0.25) : 0}}>✓ Signed in sealed hardware · verified on NEAR</div>
-        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: tall ? -110 : 12}}>
+        <div style={{display: 'flex', justifyContent: 'flex-end', marginTop: tall ? -110 : 'auto', paddingTop: tall ? 0 : 12}}>
           <div style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4}}>
             <div style={{height: tall ? 120 : 130}}>
               <Seal t={ft} size={tall ? 120 : 130} />
@@ -259,7 +261,7 @@ const Verdict: React.FC<P> = ({shot, t, T}) => {
       <div style={{position: 'absolute', left: tall ? 50 : 90, right: tall ? 50 : 360, top: tall ? 150 : 128, ...rise(t, -0.2, 16)}}>
         <div style={{font: `600 ${tall ? 40 : 40}px ${FONT.text}`, color: C.ink}}>Three independent AI models <span style={{color: C.ink3}}>· on NEAR AI Cloud</span></div>
       </div>
-      <AbsoluteFill style={tall ? {padding: '240px 40px 0', gap: 20} : {flexDirection: 'row', alignItems: 'flex-start', gap: 32, padding: short ? '260px 90px 160px' : '230px 90px 160px'}}>
+      <AbsoluteFill style={tall ? {padding: '240px 40px 0', gap: 20} : {flexDirection: 'row', alignItems: 'stretch', gap: 32, padding: short ? '260px 90px 280px' : '230px 90px 280px'}}>
         {JUDGES.map(cardEl)}
       </AbsoluteFill>
     </Ground>
@@ -294,7 +296,7 @@ const Paid: React.FC<P> = ({shot, t, T}) => {
             <span style={{...big(tall ? 120 : 120, C.yes), transform: `scale(${mix(1.12, 1, won)})`, transformOrigin: '0 50%', display: 'inline-block'}}>No won</span>
           </div>
           <div style={{font: `600 ${tall ? 50 : 54}px ${FONT.disp}`, letterSpacing: '-0.02em', color: C.ink, marginTop: 22}}>$4.93 paid to No, in USDC on NEAR</div>
-          <div style={{font: `500 ${tall ? 40 : 40}px ${FONT.text}`, color: C.ink2, marginTop: 12}}>20 minutes after the doubt</div>
+          <div style={{font: `500 ${tall ? 40 : 40}px ${FONT.text}`, color: C.ink2, marginTop: 12}}>Ruled and paid in 20 minutes</div>
           <div style={{marginTop: 32, padding: tall ? '24px 28px' : '24px 32px', borderRadius: 18, background: 'rgba(0,161,81,0.08)'}}>
             <div style={{display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', columnGap: 22}}>
               <span style={{font: `500 ${tall ? 52 : 48}px/1.3 ${FONT.mono}`, color: C.ink}}>3KbCTq…8K1v</span>
@@ -349,7 +351,7 @@ const Dial: React.FC<P> = ({shot, t, T}) => {
         <div style={{width: 880}}>
           <div style={{...big(96), opacity: clamp01(a * 1.5), transform: `translateY(${(1 - a) * 24}px)`}}>Money sets the odds.</div>
           <div style={{...big(96), marginTop: 26, opacity: clamp01(b * 1.5), transform: `translateY(${(1 - b) * 24}px)`}}>Evidence decides.</div>
-          <div style={{display: 'inline-flex', alignItems: 'center', gap: 14, marginTop: 50, padding: '14px 30px', borderRadius: 28, background: C.noBg, color: C.no, font: `600 36px/1.25 ${FONT.text}`, opacity: clamp01(dec * 1.5), transform: `translateY(${(1 - dec) * 16}px)`}}>Decided false from Tether’s report, by three AI judges</div>
+          <div style={{display: 'inline-flex', alignItems: 'center', gap: 14, marginTop: 50, padding: '14px 30px', borderRadius: 28, background: C.noBg, color: C.no, font: `600 36px/1.25 ${FONT.text}`, opacity: clamp01(dec * 1.5), transform: `translateY(${(1 - dec) * 16}px)`}}>Decided false from Tether’s report,<br />by three AI judges</div>
         </div>
       </AbsoluteFill>
     </AbsoluteFill>
@@ -517,7 +519,7 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
       <div style={{position: 'absolute', left: mix(860, 1040, zr), top: 250, width: 860, height: 520}}>
         {side(!tapped, (
           <>
-            <div style={{font: `600 36px ${FONT.text}`, color: C.ink3}}>The market before your bet</div>
+            <div style={{font: `600 36px ${FONT.text}`, color: C.ink3}}>{step >= 5 ? 'The market before your bet' : 'The market, bet by bet'}</div>
             <div style={{...big(150), marginTop: 10}}>{pct}%</div>
             <div style={{font: `600 40px ${FONT.text}`, color: C.ink2, marginTop: 6}}>chance it’s true · {step === 0 ? 'opening price' : `after ${step} bet${step > 1 ? 's' : ''}`}</div>
             <div style={{font: `500 34px ${FONT.text}`, color: C.ink3, marginTop: 28}}>{step >= 5 ? 'The money is already moving to the truth.' : '\u00a0'}</div>
@@ -533,7 +535,7 @@ const Phone82: React.FC<P> = ({shot, t, T}) => {
           <>
             <div style={{display: 'flex', alignItems: 'center', gap: 18}}>
               <svg width="64" height="64" viewBox="0 0 70 70"><circle cx="35" cy="35" r="33" fill={C.yes} /><path d="M20 36 l10 10 l20 -22" fill="none" stroke="#fff" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg>
-              <span style={big(64, C.yes)}>Settled on NEAR in 4.5 s</span>
+              <span style={big(56, C.yes)}>Recorded on NEAR in 4.5 s</span>
             </div>
             <div style={{font: `600 34px ${FONT.text}`, color: C.ink3, marginTop: 30}}>Transaction</div>
             <div style={{font: `500 64px ${FONT.mono}`, color: C.ink, marginTop: 4}}>FGFhi1…BBvc6</div>

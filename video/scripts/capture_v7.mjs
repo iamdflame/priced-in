@@ -555,7 +555,7 @@ if (task === 'phonebet') {
         const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
         if (/^Replay · final on NEAR/.test(t) && e.children.length <= 1) {
           const last = [...e.childNodes].filter((c) => c.nodeType === 3).pop();
-          if (last) last.textContent = 'Settled on NEAR in 4.5 s';
+          if (last) last.textContent = 'Recorded on NEAR in 4.5 s';
         }
       }
     });
