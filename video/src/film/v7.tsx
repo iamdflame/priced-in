@@ -15,6 +15,9 @@ import explorer from '../../public/v7/explorer.json';
 import explorerP from '../../public/v7/explorer-phone.json';
 import att from '../../public/v7/att.json';
 import rulings from '../../public/v7/rulings.json';
+import c18 from '../../public/v7/c18.json';
+import ptether from '../../public/v7/ptether.json';
+import ptetherP from '../../public/v7/ptether-phone.json';
 import rulingsP from '../../public/v7/rulings-phone.json';
 import {Ground, Shot, clamp01, ease, mix, useTall} from './lib';
 
@@ -305,30 +308,67 @@ const Verdict: React.FC<P> = ({shot, T}) => {
     </AbsoluteFill>
   );
 };
-const Decided: React.FC<P> = ({shot}) => <Pending id={shot.id} what="The decided market: “0% chance it’s true · Decided false by three AI judges”" />;
+// ----- beat 5: the decided market: the outcome, not a live price ------------------------------------------------------
+type Dc = Rec & {boxes: Record<string, {x: number; y: number; w: number; h: number}[]>};
+const DC = c18 as unknown as Dc;
+const Decided: React.FC<P> = ({shot, T, t}) => {
+  const W = 1920;
+  const H = 1080;
+  const money = shot.k?.money ?? shot.at + 4;
+  const ev = shot.k?.ev ?? shot.at + 5.5;
+  const fr = 1 + Math.floor((1.2 + t) * 30);
+  const z0 = DC.boxes.zero[0];
+  const cam = camAt([[shot.at, 590, 345, 1.95], [money - 0.2, 600, 348, 2.0], [money + 0.5, 680, 360, 2.3], [ev - 0.35, 690, 362, 2.32], [ev + 0.35, 280, 430, 2.55], [shot.at + shot.dur, 284, 432, 2.6]], T);
+  const lk = ease(T, ev + 0.3, 0.4, EASE.inOut);
+  return (
+    <AbsoluteFill style={{background: '#fff', overflow: 'hidden'}}>
+      <Shotframe src={frameOf('c18', fr, DC.frames)} cam={cam} vw={1600} W={W} H={H} />
+      <Mark boxes={[...DC.boxes.zero, ...DC.boxes.decided]} cam={cam} W={W} H={H} k={lk} color="rgba(201,34,43,0.12)" pad={4} />
+      <Source t={t} at={0.05}>isitpriced.com · decided</Source>
+      {z0 ? null : null}
+    </AbsoluteFill>
+  );
+};
 
-// ----- beat 6: the real Wikipedia sentence beside the page's corrected line ------------------------------------------
-const Payoff: React.FC<P> = ({shot, t}) => {
+// ----- beat 6: the real Wikipedia sentence beside the page's corrected line and its signed proof --------------------------
+type Pt = Rec & {sentence: {x: number; y: number; w: number; h: number}[]};
+const PT = ptether as unknown as Pt;
+const PTP = ptetherP as unknown as Pt;
+const Payoff: React.FC<P> = ({shot, t, T}) => {
   const tall = useTall();
   const W = tall ? 1080 : 1920;
   const H = tall ? 1920 : 1080;
-  const D = tall ? WVP : WV;
-  const {cx, cy} = bbox(D.sentence);
-  const half = tall ? {w: W, h: H / 2} : {w: W / 2, h: H};
-  const z = tall ? 2.77 : 1.1;
-  const cam: Key = [0, tall ? 195 : cx, cy, z];
+  const ours = shot.k?.ours ?? shot.at + 3.5;
+  const src = shot.k?.src ?? shot.at + 7;
+  const R = tall ? PTP : PT;
+  const m = R.marks;
+  // film time to recording time: the page's header, the real scroll to the line on "Priced In's page", "What changed" on "with the source"
+  const rec = recAt([[shot.at, 0], [ours - 1.5, m.scroll.t], [ours + 0.1, m.arrived.t], [src - 0.5, m.open.t]], T);
+  const fr = 1 + Math.floor(rec * 30);
+  // left: mobile Wikipedia (its sentence wraps to a column); right: the page
+  const L = tall ? {x: 0, y: 0, w: W, h: 700} : {x: 0, y: 0, w: 760, h: H};
+  const Rr = tall ? {x: 0, y: 700, w: W, h: H - 700} : {x: 760, y: 0, w: W - 760, h: H};
+  const {cx, cy} = bbox(WVP.sentence);
+  const wcam: Key = tall ? [0, 195, cy + 40, 2.77] : [0, 195, cy + 20, 1.95];
+  const pcam = tall
+    ? camAt([[shot.at, 195, 300, 2.77], [ours - 1.4, 195, 300, 2.77], [ours + 0.1, 195, 330, 2.77], [src - 0.4, 195, 330, 2.77], [src + 0.9, 195, 400, 2.77]], T)
+    : camAt([[shot.at, 458, 330, 1.75], [ours - 1.4, 458, 330, 1.75], [ours + 0.1, 458, 312, 1.75], [src - 0.5, 458, 312, 1.75], [src + 0.6, 458, 322, 1.77]], T);
+  const ptk = ease(T, ours + 0.1, 0.5, EASE.inOut);
+  const atLine = T > ours - 0.1;
   return (
-    <Pending id={shot.id} what="">
-      <div style={{position: 'absolute', left: 0, top: 0, width: half.w, height: half.h, overflow: 'hidden', background: '#fff', borderRight: tall ? 'none' : `1px solid ${C.line}`}}>
-        <Shotframe src={frameOf(tall ? 'wiki-phone' : 'wiki', D.frames, D.frames)} cam={cam} vw={tall ? 390 : 1600} W={half.w} H={half.h} />
-        <Mark boxes={D.sentence} cam={cam} W={half.w} H={half.h} k={1} color="rgba(237,179,69,0.32)" />
-        <Mark boxes={D.number} cam={cam} W={half.w} H={half.h} k={1} color="rgba(237,179,69,0.55)" />
-        <Source t={t}>Wikipedia, today</Source>
+    <AbsoluteFill style={{background: '#fff', overflow: 'hidden'}}>
+      <div style={{position: 'absolute', left: L.x, top: L.y, width: L.w, height: L.h, overflow: 'hidden'}}>
+        <Shotframe src={frameOf('wiki-phone', WVP.frames, WVP.frames)} cam={wcam} vw={390} W={L.w} H={L.h} />
+        <Mark boxes={WVP.sentence} cam={wcam} W={L.w} H={L.h} k={1} color="rgba(237,179,69,0.32)" />
+        <Mark boxes={WVP.number} cam={wcam} W={L.w} H={L.h} k={1} color="rgba(237,179,69,0.55)" />
+        <Source t={t} style={{left: 32, top: 32}}>Wikipedia, today</Source>
       </div>
-      <div style={{position: 'absolute', left: tall ? 0 : W / 2, top: tall ? H / 2 : 0, width: half.w, height: half.h, display: 'flex', alignItems: 'center', justifyContent: 'center', font: `600 36px ${FONT.text}`, color: C.ink3, textAlign: 'center', padding: 60}}>
-        isitpriced.com/p/tether: the corrected line, its source and the signed “What changed” proof (after “site live”)
+      <div style={{position: 'absolute', left: Rr.x, top: Rr.y, width: Rr.w, height: Rr.h, overflow: 'hidden', borderLeft: tall ? 'none' : `2px solid ${C.line}`, borderTop: tall ? `2px solid ${C.line}` : 'none', boxShadow: tall ? '0 -20px 40px -24px rgba(40,52,66,0.35)' : '-20px 0 40px -24px rgba(40,52,66,0.35)'}}>
+        <Shotframe src={frameOf(tall ? 'ptether-phone' : 'ptether', fr, R.frames)} cam={pcam} vw={tall ? 390 : 1600} W={Rr.w} H={Rr.h} />
+        {atLine && !tall ? <Mark boxes={R.sentence} cam={pcam} W={Rr.w} H={Rr.h} k={ptk} color="rgba(0,161,81,0.14)" pad={2} /> : null}
+        <Source t={t} style={{left: 32, top: tall ? 24 : 32}}>Priced In’s page · isitpriced.com/p/tether</Source>
       </div>
-    </Pending>
+    </AbsoluteFill>
   );
 };
 

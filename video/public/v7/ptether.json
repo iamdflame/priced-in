@@ -1,0 +1,52 @@
+{
+ "frames": 206,
+ "marks": {
+  "scroll": {
+   "t": 0.5999999046325684
+  },
+  "arrived": {
+   "t": 4.61899995803833
+  },
+  "open": {
+   "t": 5.2190001010894775,
+   "box": {
+    "x": 146,
+    "y": 346.875,
+    "w": 118.984375,
+    "h": 40
+   }
+  }
+ },
+ "scale": 2,
+ "viewport": {
+  "width": 1600,
+  "height": 900
+ },
+ "header": {
+  "text": "Written by AI from what the market believes and what the judges ruled. Last changed 58 min ago.Wikipedia’s words, from the revision of 30 October 2026.",
+  "x": 150,
+  "y": 201.25,
+  "w": 700.125,
+  "h": 49.5
+ },
+ "sentence": [
+  {
+   "x": 329.890625,
+   "y": 198.125,
+   "w": 427.203125,
+   "h": 24
+  },
+  {
+   "x": 148,
+   "y": 227.875,
+   "w": 577.71875,
+   "h": 24
+  },
+  {
+   "x": 148,
+   "y": 257.625,
+   "w": 520.6875,
+   "h": 24
+  }
+ ]
+}

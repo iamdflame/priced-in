@@ -101,6 +101,29 @@ async function record(page, name, script) {
   return {frames: written, marks, scale: DSF, viewport: vp};
 }
 
+/** Stepped recording, for long pages where the live screencast drops frames: a screenshot per step, each stamped
+ *  with its real time, then resampled to 30 fps like record(). */
+async function stepped(page, name, script) {
+  const d = dir(name);
+  for (const f of fs.readdirSync(d)) fs.unlinkSync(path.join(d, f));
+  const shots = [];
+  const t0 = Date.now() / 1000;
+  const marks = {};
+  const mark = (k, extra = {}) => (marks[k] = {t: Date.now() / 1000 - t0, ...extra});
+  const snap = async () => shots.push({t: Date.now() / 1000 - t0, buf: await page.screenshot({type: 'jpeg', quality: 92})});
+  await script(mark, snap);
+  const end = Date.now() / 1000 - t0;
+  const n = Math.floor(end * FPS);
+  let j = 0;
+  for (let k = 0; k < n; k++) {
+    const t = k / FPS;
+    while (j + 1 < shots.length && shots[j + 1].t <= t) j++;
+    fs.writeFileSync(path.join(d, String(k + 1).padStart(4, '0') + '.jpg'), shots[j].buf);
+  }
+  console.log(name, 'snaps', shots.length, 'written', n);
+  return {frames: n, marks, scale: DSF, viewport: VP};
+}
+
 const browser = await chromium.launch();
 const {devices} = require('playwright');
 const ctx = await browser.newContext({...(PHONE ? devices['iPhone 14'] : {}), viewport: VP, deviceScaleFactor: DSF, colorScheme: 'light', locale: 'en-US'});
@@ -297,6 +320,137 @@ if (task === 'rulings') {
   });
   meta.cards = cards.cards;
   meta.tags = cards.tags;
+}
+
+if (task === 'ptether') {
+  // the page: from its header, a real scroll to the corrected T-Bills line, then a reader opens "What changed"
+  await open(page, `${BASE}/p/tether?film=1`);
+  await page.waitForTimeout(4000);
+  await tidy(page);
+  await page.addStyleTag({content: 'a.hs sup, .pg-odds { visibility: hidden !important; }'});
+  await page.evaluate(() => {
+    for (const e of document.querySelectorAll('body *')) {
+      const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
+      if (e.children.length === 0 && (/^\d+%$/.test(t) || /\d+ of \d+ paragraphs/.test(t))) e.style.visibility = 'hidden';
+    }
+  });
+  const header = await page.evaluate(() => {
+    const b = [...document.querySelectorAll('b, strong, p')].find((x) => /^Written by AI from what the market believes/.test(x.textContent.trim()));
+    const r = b.getBoundingClientRect();
+    return {text: b.textContent.trim(), x: r.x, y: r.y, w: r.width, h: r.height};
+  });
+  const target = await page.evaluate((vh) => {
+    const a = [...document.querySelectorAll('a.hs')].find((x) => /majority of Tether.s reserves held in cash/.test(x.textContent));
+    a.id = 'pi-tbills';
+    const r = a.getBoundingClientRect();
+    return {y: r.top + scrollY - vh * 0.22};
+  }, VP.height);
+  if (!PHONE) {
+    // the desktop page is long and the live screencast drops frames on it: step the same scroll, a frame at a time
+    const ease3 = (k) => (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2);
+    meta = await stepped(page, 'ptether', async (mark, snap) => {
+      for (let i = 0; i < 6; i++) await snap();
+      mark('scroll');
+      const y0 = await page.evaluate(() => scrollY);
+      for (let i = 1; i <= 40; i++) {
+        await page.evaluate((y) => window.scrollTo(0, y), Math.round(y0 + (target.y - y0) * ease3(i / 40)));
+        await snap();
+      }
+      mark('arrived');
+      for (let i = 0; i < 6; i++) await snap();
+      const btn = await page.evaluateHandle(() => {
+        const a = document.getElementById('pi-tbills');
+        let found = null;
+        for (let up = a; up && !found; up = up.parentElement) found = [...up.querySelectorAll('button')].find((bt) => /What changed/.test(bt.textContent) && bt.getBoundingClientRect().top >= a.getBoundingClientRect().top);
+        return found;
+      });
+      const bb = await btn.asElement().boundingBox();
+      mark('open', {box: {x: bb.x, y: bb.y, w: bb.width, h: bb.height}});
+      await btn.asElement().click();
+      for (let i = 0; i < 14; i++) await snap();
+    });
+  } else meta = await record(page, 'ptether', async (mark) => {
+    await page.waitForTimeout(1000);
+    mark('scroll');
+    await page.evaluate((y) => new Promise((res) => {
+      const y0 = scrollY;
+      const t0 = performance.now();
+      const step = (now) => {
+        const k = Math.min(1, (now - t0) / 1600);
+        const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2;
+        window.scrollTo(0, y0 + (y - y0) * e);
+        if (k < 1) requestAnimationFrame(step); else res();
+      };
+      requestAnimationFrame(step);
+    }), target.y);
+    mark('arrived');
+    await page.waitForTimeout(1400);
+    const btn = await page.evaluateHandle(() => {
+      const a = document.getElementById('pi-tbills');
+      let found = null;
+      for (let up = a; up && !found; up = up.parentElement) found = [...up.querySelectorAll('button')].find((bt) => /What changed/.test(bt.textContent) && bt.getBoundingClientRect().top >= a.getBoundingClientRect().top);
+      return found;
+    });
+    const bb = await btn.asElement().boundingBox();
+    await page.mouse.move(bb.x + bb.width / 2, bb.y + bb.height / 2, {steps: 8});
+    mark('open', {box: {x: bb.x, y: bb.y, w: bb.width, h: bb.height}});
+    await page.mouse.down();
+    await page.mouse.up();
+    if (PHONE) {
+      // on a phone the proof rows sit under the fold: scroll them up, as a reader would
+      await page.waitForTimeout(1300);
+      mark('more');
+      await page.evaluate((d) => new Promise((res) => {
+        const y0 = scrollY;
+        const t0 = performance.now();
+        const step = (now) => {
+          const k = Math.min(1, (now - t0) / 900);
+          window.scrollTo(0, y0 + d * (k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2));
+          if (k < 1) requestAnimationFrame(step); else res();
+        };
+        requestAnimationFrame(step);
+      }), 300);
+      await page.waitForTimeout(2200);
+    } else await page.waitForTimeout(3500);
+  });
+  meta.header = header;
+  meta.sentence = await page.evaluate(() => [...document.getElementById('pi-tbills').getClientRects()].map((r) => ({x: r.x, y: r.y, w: r.width, h: r.height})));
+}
+
+if (task === 'c18') {
+  // the decided market, recorded from the moment the page opens: the outcome, not a live price
+  const pats = [...HIDE_TEXT.map((r) => r.source), '^Last price'];
+  await page.addInitScript(({css, pats}) => {
+    const res = pats.map((p) => new RegExp(p));
+    const sweep = () => {
+      for (const e of document.querySelectorAll('body *')) {
+        const t = (e.textContent || '').replace(/\s+/g, ' ').trim();
+        if (!t || t.length > 90) continue;
+        if (res.some((r) => r.test(t)) && ![...e.children].some((c) => res.some((r) => r.test((c.textContent || '').trim())))) e.setAttribute('data-pi-hide', '1');
+      }
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+      const st = document.createElement('style');
+      st.textContent = css;
+      document.head.appendChild(st);
+      sweep();
+      new MutationObserver(sweep).observe(document.body, {childList: true, subtree: true, characterData: true});
+    });
+  }, {css: HIDE, pats});
+  await page.goto('about:blank');
+  meta = await record(page, 'c18', async (mark) => {
+    mark('open');
+    await open(page, `${BASE}/c/18?film=1`);
+    mark('loaded');
+    await page.waitForTimeout(5000);
+  });
+  meta.boxes = await page.evaluate(() => {
+    const find = (re) => [...document.querySelectorAll('body *')].filter((e) => e.children.length === 0 && re.test(e.textContent.trim())).map((e) => {
+      const r = e.getBoundingClientRect();
+      return {t: e.textContent.trim(), x: r.x, y: r.y, w: r.width, h: r.height};
+    }).slice(0, 3);
+    return {zero: find(/^0% chance it.s true$/), decided: find(/^Decided false by three AI judges$/), q: find(/^Are most of Tether/)};
+  });
 }
 
 if (task === 'home') {

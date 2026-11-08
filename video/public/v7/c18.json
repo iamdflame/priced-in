@@ -1,0 +1,45 @@
+{
+ "frames": 184,
+ "marks": {
+  "open": {
+   "t": 0
+  },
+  "loaded": {
+   "t": 1.124000072479248
+  }
+ },
+ "scale": 2,
+ "viewport": {
+  "width": 1600,
+  "height": 900
+ },
+ "boxes": {
+  "zero": [
+   {
+    "t": "0% chance it’s true",
+    "x": 140,
+    "y": 505.546875,
+    "w": 236,
+    "h": 18.84375
+   }
+  ],
+  "decided": [
+   {
+    "t": "Decided false by three AI judges",
+    "x": 166.078125,
+    "y": 523.390625,
+    "w": 183.828125,
+    "h": 17
+   }
+  ],
+  "q": [
+   {
+    "t": "Are most of Tether's cash reserves U.S. T-Bills, accounting for $72.6 billion?",
+    "x": 120,
+    "y": 123,
+    "w": 964,
+    "h": 74.78125
+   }
+  ]
+ }
+}
