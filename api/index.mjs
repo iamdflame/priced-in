@@ -58,7 +58,7 @@ export default async function handler(req, res) {
   const news = newsConfig();
   if (news.enabled && isNewsRoute(route)) {
     let pn;
-    try { pn = prepare(); } catch (e) { return sendJson(res, 503, { error: { code: "unavailable", message: e.message } }); }
+    try { pn = prepare(); } catch (e) { log(`startup: ${e.message}`); return sendJson(res, 503, { error: { code: "unavailable", message: "Priced In's API is starting or misconfigured. Try again in a moment." } }); }
     return newsRoutes(req, res, route, url, pn, news);
   }
   let ctx;
@@ -166,7 +166,7 @@ export default async function handler(req, res) {
 // ---------- GET /claims, /claims?page=, /claims/:id: the snapshot ----------
 async function claimsRoute(res, route, url) {
   let p;
-  try { p = prepare(); } catch (e) { return sendJson(res, 503, { error: { code: "unavailable", message: e.message } }); }
+  try { p = prepare(); } catch (e) { log(`startup: ${e.message}`); return sendJson(res, 503, { error: { code: "unavailable", message: "Priced In's API is starting or misconfigured. Try again in a moment." } }); }
   const t0 = Date.now();
   let snap;
   try { snap = await p.claims.decorated(); } catch (e) {

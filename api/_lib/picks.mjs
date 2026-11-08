@@ -418,7 +418,7 @@ export function leaderboard({ picks, claims, events, reports = new Map(), ai, ni
   const order = (a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1) || b.settled - a.settled || b.points - a.points || String(a.id).localeCompare(String(b.id));
   const board = rows.filter((r) => r.ranked).sort(order).map((r, i) => ({ rank: i + 1, ...r }));
   const waiting = rows.filter((r) => !r.ranked && r.kind === "person" && (r.picks_total > 0 || r.caught > 0)).sort((a, b) => b.settled - a.settled || b.points - a.points).slice(0, 50).map((r) => ({ ...r, needs: minSettled - r.settled }));
-  const aiRows = rows.filter((r) => r.kind === "ai").map((r) => ({ ...r, rank: board.find((b) => b.id === r.id)?.rank ?? null }));
+  const aiRows = rows.filter((r) => r.kind === "ai").sort(order).map((r) => ({ ...r, rank: board.find((b) => b.id === r.id)?.rank ?? null }));
   const bestAi = board.find((r) => r.kind === "ai") || null;
   const people = board.filter((r) => r.kind === "person");
   return {

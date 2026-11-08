@@ -15,6 +15,9 @@ export async function get<T>(path: string, revalidate = 10, timeoutMs = 8000): P
   try {
     const r = await fetch(`${API_ORIGIN}/api${path}`, { headers: { accept: "application/json" }, next: { revalidate }, signal: AbortSignal.timeout(timeoutMs) });
     const body = await r.json().catch(() => null);
+    // a server failure's own words are for the logs, never for visitors (8 Nov: a broken config put account names
+    // and RPC URLs on the home page); a 4xx is written for people (no such fact, too many requests) and shows as sent
+    if (r.status >= 500) { console.error(`API ${path} answered ${r.status}: ${body?.error?.message ?? ""}`); return { ok: false, error: "The market didn’t answer just now.", status: r.status }; }
     if (!r.ok) return { ok: false, error: body?.error?.message ?? `The API answered ${r.status}.`, status: r.status };
     if (body === null) return { ok: false, error: "The API sent something we couldn't read.", status: r.status };
     return { ok: true, value: body as T };

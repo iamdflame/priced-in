@@ -62,7 +62,7 @@ export function EncSpecimen({ spec, index }: { spec: { s: PageSentence; page: Of
 
 /** The AI traders' records for a period, best first: the bar to beat, from /api/leaderboard. */
 export function AiBar({ ai, minSettled, people }: { ai: BoardRow[]; minSettled: number; people: number }) {
-  const rows = [...ai].sort((a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1) || b.settled - a.settled);
+  const rows = [...ai].sort((a, b) => (b.accuracy ?? -1) - (a.accuracy ?? -1) || b.settled - a.settled || b.points - a.points);
   if (!rows.length) return null;
   return (
     <div className="hside aibar">
@@ -79,7 +79,7 @@ export function AiBar({ ai, minSettled, people }: { ai: BoardRow[]; minSettled: 
           );
         })}
       </ol>
-      <p className="fine">{people ? `${plural(people, "person")} picking so far.` : "No person has picked yet."} Ranked from {minSettled} settled picks, AIs included.</p>
+      <p className="fine">{people ? `${plural(people, "person", "people")} picking so far.` : "Nobody has picked yet."} Ranked from {minSettled} settled picks, AIs included.</p>
       <Link className="btn primary" href="/#today">Pick today’s claims</Link>
     </div>
   );

@@ -28,7 +28,7 @@ function Who({ r, you }: { r: BoardRow; you: boolean }) {
   return (
     <span className="who">
       <span className={`lb-av${you ? " you" : ""}`} aria-hidden="true">{r.name.charAt(0).toUpperCase()}</span>
-      <span><b>{r.name}{you ? <span className="youtag">You</span> : null}</b><small>{r.picks_today ? `${r.picks_today} picked today` : `${r.picks_total} picks`}{!r.ranked && r.needs ? ` · ${r.needs} more to rank` : ""}</small></span>
+      <span><b>{r.name}{you ? <span className="youtag">You</span> : null}</b><small>{r.picks_today ? `${r.picks_today} picked today` : `${r.picks_total} picks`}{!r.ranked && r.needs ? ` · ${r.settled} of ${r.settled + r.needs} settled to rank` : ""}</small></span>
     </span>
   );
 }
