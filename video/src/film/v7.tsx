@@ -14,6 +14,8 @@ import replay from '../../public/v7/replay.json';
 import explorer from '../../public/v7/explorer.json';
 import explorerP from '../../public/v7/explorer-phone.json';
 import att from '../../public/v7/att.json';
+import rulings from '../../public/v7/rulings.json';
+import rulingsP from '../../public/v7/rulings-phone.json';
 import {Ground, Shot, clamp01, ease, mix, useTall} from './lib';
 
 type P = {shot: Shot; t: number; T: number};
@@ -225,7 +227,84 @@ const Pending: React.FC<{id: string; what: string; children?: React.ReactNode}> 
   </Ground>
 );
 
-const Verdict: React.FC<P> = ({shot}) => <Pending id={shot.id} what="The real rulings: three signed verdicts and their reasons, “Signature checked by NEAR”; three FALSE marks land" />;
+type Rl = Rec & {cards: {button: {x: number; y: number; w: number; h: number}}[]; tags: {x: number; y: number; w: number; h: number}[]};
+const RL = rulings as unknown as Rl;
+const RLP = rulingsP as unknown as Rl;
+const JUDGES = ['DeepSeek', 'Qwen', 'GLM'];
+
+/** The designed FALSE: a red pill that lands with weight, anchored to the card's own FALSE tag. */
+const FalseMark: React.FC<{x: number; y: number; t: number; size?: number}> = ({x, y, t, size = 54}) => {
+  if (t < 0) return null;
+  const k = ease(t, 0, 0.32, EASE.spring);
+  const flash = clamp01(1 - t / 0.5);
+  return (
+    <div style={{position: 'absolute', left: x, top: y, transform: `translate(-100%, -50%) scale(${mix(1.5, 1, k)})`, transformOrigin: '100% 50%', opacity: clamp01(t / 0.08)}}>
+      <div style={{display: 'inline-flex', alignItems: 'center', gap: 12, height: size * 1.55, padding: `0 ${size * 0.5}px`, borderRadius: 999, background: C.no, color: '#fff', font: `700 ${size}px ${FONT.disp}`, letterSpacing: '0.04em', boxShadow: `0 0 0 ${8 * flash}px rgba(201,34,43,${0.25 * flash}), 0 24px 50px -20px rgba(201,34,43,0.6)`}}>
+        FALSE
+      </div>
+    </div>
+  );
+};
+
+const Verdict: React.FC<P> = ({shot, T}) => {
+  const tall = useTall();
+  const W = tall ? 1080 : 1920;
+  const H = tall ? 1920 : 1080;
+  const R = tall ? RLP : RL;
+  const k = shot.k ?? {};
+  const f = [k.f1 ?? shot.at + 2, k.f2 ?? shot.at + 3, k.f3 ?? shot.at + 5];
+  const m = R.marks;
+  const v = [m.verify1.t, m.verify2.t, m.verify3.t];
+  const lead = shot.rate && shot.rate > 1.3 ? 0.25 : 1.2;
+  const rec = recAt([[shot.at, Math.max(0, v[0] - 0.9)], [f[0] - lead, v[0]], [f[1] - lead, v[1]], [f[2] - lead, v[2]]], T);
+  const fr = 1 + Math.floor(rec * 30);
+  const end = shot.at + shot.dur;
+  const short = shot.dur < 5;
+  const keys: Key[] = tall
+    ? [[shot.at, 195, 422, 2.77], [end, 195, 422, 2.8]]
+    : short
+      ? [[shot.at, 800, 420, 1.3], [end, 800, 422, 1.33]]
+      : [[shot.at, 800, 420, 1.3], [shot.at + 2.2, 800, 420, 1.34], [f[0] - 1.6, 568, 372, 2.06], [f[1] + 0.4, 568, 372, 2.06], [f[2] - 0.5, 1032, 372, 2.06], [end, 1034, 374, 2.08]];
+  const cam = camAt(keys, T);
+  const taps = [0, 1, 2].map((i) => {
+    const b = R.cards[i]?.button;
+    return b ? toFrame(cam, W, H, b.x + b.w / 2, b.y + b.h / 2) : null;
+  });
+  return (
+    <AbsoluteFill style={{background: '#fff', overflow: 'hidden'}}>
+      <Shotframe src={frameOf(tall ? 'rulings-phone' : 'rulings', fr, R.frames)} cam={cam} vw={tall ? 390 : 1600} W={W} H={H} />
+      {!tall ? taps.map((p, i) => (p ? <Tap key={i} x={p.x} y={p.y} t={T - (f[i] - lead)} /> : null)) : null}
+      {!tall
+        ? [0, 1, 2].map((i) => {
+            const tag = RL.tags[i];
+            const p = toFrame(cam, W, H, tag.x + tag.w + 6, tag.y + tag.h / 2);
+            return <FalseMark key={i} x={p.x} y={p.y} t={T - f[i]} size={short ? 40 : 50} />;
+          })
+        : (
+          <>
+          <div style={{position: 'absolute', left: 0, right: 0, top: 0, height: 420, background: 'linear-gradient(rgba(255,255,255,0.97) 70%, rgba(255,255,255,0))'}} />
+          <div style={{position: 'absolute', left: 0, right: 0, top: 160, display: 'flex', justifyContent: 'center', gap: 22}}>
+            {[0, 1, 2].map((i) => {
+              const tt = T - f[i];
+              const kk = ease(tt, 0, 0.32, EASE.spring);
+              return (
+                <div key={i} style={{display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, opacity: tt < 0 ? 0.0 : 1, transform: `scale(${tt < 0 ? 1 : mix(1.4, 1, kk)})`}}>
+                  <div style={{height: 84, padding: '0 26px', borderRadius: 999, background: C.no, color: '#fff', font: `700 46px/84px ${FONT.disp}`, letterSpacing: '0.04em', boxShadow: '0 24px 50px -20px rgba(201,34,43,0.6)'}}>FALSE</div>
+                  <div style={{font: `600 30px ${FONT.text}`, color: C.ink, background: 'rgba(255,255,255,0.92)', borderRadius: 10, padding: '2px 10px'}}>{JUDGES[i]}</div>
+                </div>
+              );
+            })}
+          </div>
+          </>
+        )}
+      {tall ? (
+        <div style={{position: 'absolute', left: 0, right: 0, top: 40, display: 'flex', justifyContent: 'center'}}>
+          <span style={{display: 'inline-flex', alignItems: 'center', height: 76, padding: '0 28px', borderRadius: 999, background: 'rgba(255,255,255,0.96)', boxShadow: `0 0 0 1px ${C.line}, 0 14px 30px -18px rgba(40,52,66,0.5)`, font: `600 36px ${FONT.text}`, color: C.ink}}>Three AI models on NEAR AI Cloud</span>
+        </div>
+      ) : null}
+    </AbsoluteFill>
+  );
+};
 const Decided: React.FC<P> = ({shot}) => <Pending id={shot.id} what="The decided market: “0% chance it’s true · Decided false by three AI judges”" />;
 
 // ----- beat 6: the real Wikipedia sentence beside the page's corrected line ------------------------------------------

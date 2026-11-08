@@ -29,7 +29,8 @@ const HIDE = `
   [data-pi-hide] { visibility: hidden !important; }
 `;
 // text-matched elements to hide: dollar and bet counts (the live strip of bets, .ticker, goes too)
-const HIDE_TEXT = [/bet so far/, /^Live · real money/, /\d+ bets?$/, /paid out/];
+// (and on /rulings the verdict times and the payout line of the timeline)
+const HIDE_TEXT = [/bet so far/, /^Live · real money/, /\d+ bets?$/, /paid out/, /^Ruled in [\d.]+ s$/, /in [\d.]+ s$/, /paid to No/, /^[\d.]+ s$/, /\$[\d.]+ paid/];
 
 const dir = (n) => {
   const d = path.join(OUT, n + SUF);
@@ -253,6 +254,49 @@ if (task === 'replay') {
     mark('hash', {box: hb});
     await page.waitForTimeout(5500);
   });
+}
+
+if (task === 'rulings') {
+  // the three judges' signed verdicts, in their own words; a viewer's real "Verify the signature" on each
+  await open(page, `${BASE}/rulings?film=1`);
+  await page.waitForTimeout(4000);
+  await tidy(page);
+  await page.evaluate((pad) => {
+    const h = [...document.querySelectorAll('h2, h3')].find((e) => /three AI judges, in their own words/.test(e.textContent));
+    window.scrollTo(0, h.getBoundingClientRect().top + scrollY - pad);
+  }, PHONE ? 70 : 92);
+  await page.waitForTimeout(800);
+  await tidy(page);
+  const cards = await page.evaluate(() => {
+    const out = [];
+    for (const b of document.querySelectorAll('button')) {
+      if (!/Verify the signature/.test(b.textContent)) continue;
+      let c = b;
+      for (let i = 0; i < 8 && c && c.getBoundingClientRect().height < 300; i++) c = c.parentElement;
+      const r = c.getBoundingClientRect();
+      const br = b.getBoundingClientRect();
+      out.push({card: {x: r.x, y: r.y, w: r.width, h: r.height}, button: {x: br.x, y: br.y, w: br.width, h: br.height}});
+    }
+    const tags = [...document.querySelectorAll('body *')].filter((e) => e.children.length === 0 && e.textContent.trim() === 'FALSE').map((e) => {
+      const r = e.getBoundingClientRect();
+      return {x: r.x, y: r.y, w: r.width, h: r.height};
+    }).filter((r) => r.y > 0 && r.y < innerHeight);
+    return {cards: out, tags};
+  });
+  const verify = page.getByRole('button', {name: /Verify the signature/});
+  meta = await record(page, 'rulings', async (mark) => {
+    await page.waitForTimeout(1000);
+    for (let i = 0; i < 3; i++) {
+      const bb = cards.cards[i]?.button;
+      if (bb) await page.mouse.move(bb.x + bb.w / 2, bb.y + bb.h / 2, {steps: 8});
+      mark('verify' + (i + 1), {box: bb});
+      if (await verify.count()) await verify.first().click();
+      await page.waitForTimeout(i === 1 ? 1600 : 1200);
+    }
+    await page.waitForTimeout(3500);
+  });
+  meta.cards = cards.cards;
+  meta.tags = cards.tags;
 }
 
 if (task === 'home') {

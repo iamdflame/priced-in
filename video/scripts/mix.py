@@ -393,7 +393,7 @@ def main_v7():
         dict(id='v7hook', at=0.0, dur=round(on - 0.2, 3), k=dict(catch=W('P02', 'catch'))),
         dict(id='v7market', at=round(on - 0.2, 3), dur=round(pub - 0.1 - (on - 0.2), 3), k=dict(tap=tap, near=W('R03', 'Near'))),
         dict(id='v7explorer', at=round(pub - 0.1, 3), dur=round(verdict - (pub - 0.1), 3)),
-        dict(id='v7verdict', at=verdict, dur=round(d['R05'] - 0.15 - verdict, 3), k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'))),
+        dict(id='v7verdict', at=verdict, dur=round(d['R05'] - 0.15 - verdict, 3), k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'), marksFalse=1)),
         dict(id='v7decided', at=round(d['R05'] - 0.15, 3), dur=round(d['P06'] - d['R05'], 3), k=dict(ev=W('N07', 'Evidence'), money=d['N07'])),
         dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['N13'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
         dict(id='v7end', at=round(d['N13'] - 0.15, 3), dur=round(end_of(v, 'N13') + 3.0 - d['N13'] + 0.15, 3), nocap=True),

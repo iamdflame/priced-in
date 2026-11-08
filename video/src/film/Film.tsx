@@ -40,7 +40,7 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
           );
         })}
         <Grade />
-        {c.shots.some((s) => /^v[567]/.test(s.id)) && !c.shots.some((s) => /^v[567]end$/.test(s.id) && T >= s.at) && !c.shots.some((s) => (s.id === 'v6market' || s.id === 'v7market' || (s.id === 'v7explorer' && c.h > c.w)) && T >= s.at && T < s.at + s.dur) ? <Bug /> : null}
+        {c.shots.some((s) => /^v[567]/.test(s.id)) && !c.shots.some((s) => /^v[567]end$/.test(s.id) && T >= s.at) && !c.shots.some((s) => (s.id === 'v6market' || s.id === 'v7market' || ((s.id === 'v7explorer' || s.id === 'v7verdict') && c.h > c.w)) && T >= s.at && T < s.at + s.dur) ? <Bug /> : null}
         <Captions />
         {audio ? <Audio src={staticFile(`audio/mix-${c.id}.wav`)} /> : null}
       </AbsoluteFill>

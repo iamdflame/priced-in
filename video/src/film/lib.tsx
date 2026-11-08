@@ -201,6 +201,8 @@ export const Captions: React.FC = () => {
   if (cut.shots.some((s) => /^(end|v[567]end)$/.test(s.id) && t >= s.at)) return null;
   const here = cut.shots.find((s) => t >= s.at && t < s.at + s.dur);
   if (here?.nocap) return null;
+  // a beat whose FALSE marks land on screen carries the spoken "False." itself
+  if (here?.k?.marksFalse && /^False\.$/.test(cur.text)) return null;
   const k = ease(t, cur.s - 0.05, 0.14);
   return (
     <AbsoluteFill style={{justifyContent: 'flex-end', alignItems: 'center', paddingBottom: tall ? here?.k?.capBottom ?? 400 : 44, pointerEvents: 'none'}}>
