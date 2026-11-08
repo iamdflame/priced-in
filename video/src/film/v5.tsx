@@ -18,13 +18,14 @@ const big = (size: number, color: string = C.ink): React.CSSProperties => ({font
 const card: React.CSSProperties = {borderRadius: 22, overflow: 'hidden', background: C.surface, boxShadow: `0 1px 0 ${C.line}, 0 0 0 1px ${C.line}, 0 40px 80px -40px rgba(40,52,66,0.35)`};
 
 /** A live-site element, flat, at `width` px; `crop` trims CSS px from its top or bottom. */
-const Flat: React.FC<{name: string; width: number; cropTop?: number; cropBottom?: number; style?: React.CSSProperties; frame?: boolean}> = ({name, width, cropTop = 0, cropBottom = 0, style, frame = true}) => {
+const Flat: React.FC<{name: string; width: number; cropTop?: number; cropBottom?: number; cropLeft?: number; viewW?: number; style?: React.CSSProperties; frame?: boolean}> = ({name, width, cropTop = 0, cropBottom = 0, cropLeft = 0, viewW, style, frame = true}) => {
   const e = E[name];
-  const k = width / e.w;
+  const vw = viewW ?? e.w - cropLeft;
+  const k = width / vw;
   const h = (e.h - cropTop - cropBottom) * k;
   return (
     <div style={{position: 'relative', width, height: h, ...(frame ? card : {overflow: 'hidden'}), ...style}}>
-      <Img src={staticFile(`site/v5/${name}.png`)} style={{position: 'absolute', left: 0, top: -cropTop * k, width}} />
+      <Img src={staticFile(`site/v5/${name}.png`)} style={{position: 'absolute', left: -cropLeft * k, top: -cropTop * k, width: e.w * k}} />
     </div>
   );
 };
@@ -139,8 +140,10 @@ const Idea: React.FC<P> = ({shot, t, T}) => {
 const phoneAt = (dt: number) => {
   // dt: seconds after the tap. Before the tap: the idle screen.
   if (dt < 0) return E.phone[0].file;
+  // after the press, skip the sheet's dimmed hand-over frames and land on the settled receipt (23% → 12%)
+  const real = dt < 0.6 ? dt : dt + 2.0;
   let f = E.phone[1].file;
-  for (const p of E.phone.slice(1)) if (p.t <= dt) f = p.file;
+  for (const p of E.phone.slice(1)) if (p.t <= real) f = p.file;
   return f;
 };
 
@@ -219,10 +222,10 @@ const Challenge: React.FC<P> = ({shot, t, T}) => {
     <Ground glow="50% 40%">
       <AbsoluteFill style={{padding: '170px 120px 0', gap: 40}}>
         <div style={enter(t, 0.05, 40)}>
-          <Flat name="challenge" width={1680} />
+          <Flat name="challenge" width={1680} viewW={560} />
         </div>
-        <div style={enter(T, src - 0.1, 60)}>
-          <Flat name="sources" width={1680} />
+        <div style={{alignSelf: 'flex-end', ...enter(T, src - 0.1, 60)}}>
+          <Flat name="sources" width={1250} cropLeft={482} />
         </div>
       </AbsoluteFill>
     </Ground>
@@ -234,13 +237,13 @@ const JUDGES = ['DeepSeek V4.1', 'Qwen 3.8', 'GLM 5.3'];
 const Judges: React.FC<P> = ({t}) => {
   const scan = ease(t, 0.6, 2.2, EASE.inOut);
   const e = E.sources;
-  const w = 1680;
-  const h = (e.h * w) / e.w;
+  const w = 1250;
+  const h = (e.h * w) / (e.w - 482);
   return (
     <Ground glow="50% 45%">
       <AbsoluteFill style={{padding: '230px 120px 0'}}>
-        <div style={{position: 'relative'}}>
-          <Flat name="sources" width={w} />
+        <div style={{position: 'relative', width: w}}>
+          <Flat name="sources" width={w} cropLeft={482} />
           <div style={{position: 'absolute', top: 0, bottom: 0, left: `${scan * 100}%`, width: 6, marginLeft: -3, background: 'rgba(17,22,30,0.25)', opacity: scan > 0 && scan < 1 ? 1 : 0}} />
           <div style={{position: 'absolute', top: 0, bottom: 0, left: 0, width: `${scan * 100}%`, background: 'rgba(17,22,30,0.035)'}} />
         </div>

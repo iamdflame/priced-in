@@ -123,6 +123,7 @@ export const Spoken: React.FC<{t: number; words: Word[]; size: number; lh?: numb
 // ----- captions ------------------------------------------------------------------------------------------
 const SAY: [RegExp, string][] = [
   [/is it priced dot com/i, 'isitpriced.com'],
+  [/Near records/, 'NEAR records'],
   [/One hundred twenty-two point eight four billion/i, '$122.84 billion'],
   [/Four dollars and ninety-three cents/i, '$4.93'],
   [/fifty billion dollars/i, '$50 billion'],
