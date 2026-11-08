@@ -395,7 +395,7 @@ def main_v7():
         dict(id='v7explorer', at=round(pub - 0.1, 3), dur=round(verdict - (pub - 0.1), 3)),
         dict(id='v7verdict', at=verdict, dur=round(d['R05'] - 0.15 - verdict, 3), k=dict(f1=fb, f2=fb + 1.0, f3=fb + 3.1, cloud=W('R04', 'Near'), marksFalse=1)),
         dict(id='v7decided', at=round(d['R05'] - 0.15, 3), dur=round(d['P06'] - d['R05'], 3), k=dict(ev=W('N07', 'Evidence'), money=d['N07'])),
-        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['N13'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['N13'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'), num=W('P06', 'one'))),
         dict(id='v7end', at=round(d['N13'] - 0.15, 3), dur=round(end_of(v, 'N13') + 3.0 - d['N13'] + 0.15, 3), nocap=True),
     ]
     dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
@@ -451,7 +451,7 @@ def vertical_v7():
         dict(id='v7market', at=round(on - 0.2, 3), dur=round(pub - 0.1 - (on - 0.2), 3), k=dict(tap=tap, near=W('R03', 'Near'), capBottom=600)),
         dict(id='v7explorer', at=round(pub - 0.1, 3), dur=round(verdict - (pub - 0.1), 3)),
         dict(id='v7verdict', at=verdict, dur=round(d['P06'] - 0.15 - verdict, 3), rate=1.15, nocap=True, k=dict(f1=fb, f2=fb + 0.85, f3=fb + 2.1, cloud=verdict + 0.2)),
-        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['C6'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'))),
+        dict(id='v7payoff', at=round(d['P06'] - 0.15, 3), dur=round(d['C6'] - d['P06'], 3), k=dict(ours=W('P06', 'Priced'), src=W('P06', 'with'), num=W('P06', 'one'))),
         dict(id='v7end', at=round(d['C6'] - 0.15, 3), dur=round(end_of(v, 'C6') + 1.3 - d['C6'] + 0.15, 3), fast=True, nocap=True),
     ]
     dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)

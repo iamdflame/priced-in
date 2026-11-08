@@ -317,15 +317,11 @@ const Decided: React.FC<P> = ({shot, T, t}) => {
   const money = shot.k?.money ?? shot.at + 4;
   const ev = shot.k?.ev ?? shot.at + 5.5;
   const fr = 1 + Math.floor((1.2 + t) * 30);
-  const z0 = DC.boxes.zero[0];
   const cam = camAt([[shot.at, 590, 345, 1.95], [money - 0.2, 600, 348, 2.0], [money + 0.5, 680, 360, 2.3], [ev - 0.35, 690, 362, 2.32], [ev + 0.35, 280, 430, 2.55], [shot.at + shot.dur, 284, 432, 2.6]], T);
-  const lk = ease(T, ev + 0.3, 0.4, EASE.inOut);
   return (
     <AbsoluteFill style={{background: '#fff', overflow: 'hidden'}}>
       <Shotframe src={frameOf('c18', fr, DC.frames)} cam={cam} vw={1600} W={W} H={H} />
-      <Mark boxes={[...DC.boxes.zero, ...DC.boxes.decided]} cam={cam} W={W} H={H} k={lk} color="rgba(201,34,43,0.12)" pad={4} />
       <Source t={t} at={0.05}>isitpriced.com · decided</Source>
-      {z0 ? null : null}
     </AbsoluteFill>
   );
 };
@@ -339,20 +335,23 @@ const Payoff: React.FC<P> = ({shot, t, T}) => {
   const W = tall ? 1080 : 1920;
   const H = tall ? 1920 : 1080;
   const ours = shot.k?.ours ?? shot.at + 3.5;
-  const src = shot.k?.src ?? shot.at + 7;
+  // the proof opens on the number and holds through "with the source"
+  const src = (shot.k?.num ?? shot.k?.src ?? shot.at + 5) + 0.45;
   const R = tall ? PTP : PT;
   const m = R.marks;
   // film time to recording time: the page's header, the real scroll to the line on "Priced In's page", "What changed" on "with the source"
   const rec = recAt([[shot.at, 0], [ours - 1.5, m.scroll.t], [ours + 0.1, m.arrived.t], [src - 0.5, m.open.t]], T);
   const fr = 1 + Math.floor(rec * 30);
   // left: mobile Wikipedia (its sentence wraps to a column); right: the page
-  const L = tall ? {x: 0, y: 0, w: W, h: 700} : {x: 0, y: 0, w: 760, h: H};
-  const Rr = tall ? {x: 0, y: 700, w: W, h: H - 700} : {x: 760, y: 0, w: W - 760, h: H};
+  // on "with the source" the page's signed proof takes the whole frame (wide), so its rows read at full size
+  const grow = tall ? 0 : ease(T, src - 0.2, 0.7, EASE.inOut);
+  const L = tall ? {x: 0, y: 0, w: W, h: 700} : {x: -760 * grow, y: 0, w: 760, h: H};
+  const Rr = tall ? {x: 0, y: 700, w: W, h: H - 700} : {x: 760 * (1 - grow), y: 0, w: W - 760 * (1 - grow), h: H};
   const {cx, cy} = bbox(WVP.sentence);
   const wcam: Key = tall ? [0, 195, cy + 40, 2.77] : [0, 195, cy + 20, 1.95];
   const pcam = tall
     ? camAt([[shot.at, 195, 300, 2.77], [ours - 1.4, 195, 300, 2.77], [ours + 0.1, 195, 330, 2.77], [src - 0.4, 195, 330, 2.77], [src + 0.9, 195, 400, 2.77]], T)
-    : camAt([[shot.at, 458, 330, 1.75], [ours - 1.4, 458, 330, 1.75], [ours + 0.1, 458, 312, 1.75], [src - 0.5, 458, 312, 1.75], [src + 0.6, 458, 322, 1.77]], T);
+    : camAt([[shot.at, 458, 330, 1.75], [ours - 1.4, 458, 330, 1.75], [ours + 0.1, 458, 312, 1.75], [src - 0.2, 458, 312, 1.75], [src + 0.6, 462, 560, 2.55], [shot.at + shot.dur, 462, 562, 2.6]], T);
   const ptk = ease(T, ours + 0.1, 0.5, EASE.inOut);
   const atLine = T > ours - 0.1;
   return (
@@ -389,7 +388,7 @@ const End: React.FC<P> = ({shot, t}) => {
         <div style={{opacity: lock, transform: `translateY(${(1 - lock) * 14}px)`, marginBottom: 46}}>
           <Lockup height={tall ? 120 : 132} />
         </div>
-        <div style={{...big(tall ? 120 : 132), opacity: q, transform: `translateY(${(1 - q) * 14}px)`}}>Is it true? Bet on it.</div>
+        <div style={{...big(tall ? 120 : 132), opacity: q, transform: `translateY(${(1 - q) * 14}px)`}}>{tall ? <>Is it true?<br />Bet on it.</> : 'Is it true? Bet on it.'}</div>
         <div style={{font: `500 ${tall ? 42 : 40}px/1.3 ${FONT.text}`, color: C.ink2, marginTop: 34, opacity: free}}>Your first $1 is free · no wallet</div>
         <div style={{marginTop: 40, opacity: clamp01(url), transform: `scale(${mix(0.9, 1, url)})`}}>
           <PrimaryButton size={tall ? 2.0 : 1.9}>isitpriced.com</PrimaryButton>
