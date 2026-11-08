@@ -258,7 +258,11 @@ export function pageBand(c, probability, evidence = null) {
   const b = band(probability);
   if (b === null) return null;
   if (evidence && b !== "assert") return "correct";
-  if (b === "hedge" && (c.corrects !== undefined || SELF_HEDGED.test(c.text ?? ""))) return null;
+  // a line that corrects a ruling's false sentence carries the source's words: it is stated as it is, unless its own new
+  // market doubts it outright. A thin new market near 50% made the page call the corrected T-Bills figure "disputed"
+  // (7 Nov 2026), against the evidence the judges ruled on: money sets the odds, evidence decides.
+  if (c.corrects !== undefined && b !== "negate") return null;
+  if (b === "hedge" && SELF_HEDGED.test(c.text ?? "")) return null;
   return c.trades > 0 ? b : null;
 }
 

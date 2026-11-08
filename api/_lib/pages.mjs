@@ -350,7 +350,9 @@ function sentenceOf(slot, ctx, added) {
     if (w && w.sentence.band === "correct") return { ...base, text: w.sentence.text, written_by: "ai", decided, written };
     return { ...base, text: ruledFalseSentence(c.text, rulingOf(c)), written_by: "ruling", decided };
   }
-  if (w) return { ...base, text: w.sentence.text, written_by: "ai", written };
+  // a rewrite shows only while its sentence still gets one: a line the rules now keep in its own words (a correction
+  // near 50%, or one that hedges itself) reads as it is, not as an older rewrite left it
+  if (w && bandNow(c, evidenceOf) !== null) return { ...base, text: w.sentence.text, written_by: "ai", written };
   // the words of a correction came from a signed rewrite, whatever its market does next
   const last = slot.ruled.at(-1);
   if (last) {

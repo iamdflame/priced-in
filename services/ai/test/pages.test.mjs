@@ -57,6 +57,8 @@ test("a page's band: a decided line is not written, unless a source gives the wo
   assert.equal(pageBand(own, 0.95), "assert");
   assert.equal(pageBand({ status: "Open", trades: 2, text: "A line.", corrects: 6 }, 0.6), null, "a correction names its source: the hedge is already there");
   assert.equal(pageBand({ status: "Open", trades: 2, text: "A line.", corrects: 6 }, 0.2), "negate");
+  assert.equal(pageBand({ status: "Open", trades: 3, text: "A line.", corrects: 18 }, 0.47), null, "a thin new market near 50% doesn't make a corrected line 'disputed': evidence decides");
+  assert.equal(pageBand({ status: "Open", trades: 3, text: "A line.", corrects: 18 }, 0.9), null, "and a confident one keeps its words too");
   for (const p of [0.9, 0.7, 0.5, 0.42, 0.2]) assert.equal(pageBand({ status: "Open", trades: 1 }, p), band(p), "the bands stay the writer's");
 });
 
