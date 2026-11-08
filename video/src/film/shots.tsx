@@ -656,11 +656,11 @@ const PageReal: React.FC<P> = ({shot, t, T}) => {
   return (
     <Ground glow="55% 45%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', filter: blur > 0.3 ? `blur(${blur}px)` : undefined}}>
-        <div style={{transform: `translate(${onHead ? mix(330, 290, settle) : mix(320, 380, k)}px, ${onHead ? mix(120, 150, settle) : mix(10, 30, land)}px)`}}>
+        <div style={{transform: `translate(${onHead ? mix(330, 290, settle) : mix(500, 470, k)}px, ${onHead ? mix(120, 150, settle) : mix(10, 40, land)}px)`}}>
           {onHead ? (
             <Browser3D src={h.src} url="isitpriced.com/p/tether" width={1500} height={900} top={0} pose={{rx: mix(12, 7, settle), ry: mix(-16, -10, settle), rz: 1, z: mix(380, 520, settle)}} dof={2} />
           ) : (
-            <Browser3D src={p.src} url="isitpriced.com/p/tether" width={1560} height={940} top={mix(topPara + 220, c.y - 260, land)} pose={{rx: mix(22, 6, land), ry: mix(-14, -6, land), rz: mix(2, 0.5, land), z: mix(-320, 160 + 60 * k, land)}} lifts={[{...c, z: lift * 150, ring: true}]} dim={0.1 * lift} dof={2} />
+            <Browser3D src={p.src} url="isitpriced.com/p/tether" width={1560} height={940} top={mix(topPara + 220, c.y - 300, land)} pose={{rx: mix(22, 5, land), ry: mix(-14, -5, land), rz: mix(2, 0.5, land), z: mix(-320, 820 + 120 * k, land)}} lifts={[{...c, z: lift * 120, ring: true}]} dim={0.1 * lift} dof={2} />
           )}
         </div>
       </AbsoluteFill>
