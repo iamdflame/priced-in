@@ -13,7 +13,7 @@ type P = {shot: Shot; t: number; T: number};
 const big = (size: number, color: string = C.ink): React.CSSProperties => ({font: `700 ${size}px/1.04 ${FONT.disp}`, letterSpacing: '-0.035em', color});
 const rise = (t: number, at: number, dy = 36, dur = 0.5) => {
   const k = ease(t, at, dur, EASE.out);
-  return {opacity: clamp01(k * 1.5), transform: `translateY(${(1 - k) * dy}px)`};
+  return {opacity: clamp01(0.45 + k * 1.2), transform: `translateY(${(1 - k) * dy}px)`};
 };
 const card: React.CSSProperties = {background: C.surface, borderRadius: 30, boxShadow: `0 0 0 1px ${C.line}, 0 50px 100px -60px rgba(40,52,66,0.45)`};
 
@@ -88,7 +88,7 @@ const Market: React.FC<P> = ({shot, t, T}) => {
   const ripple = T >= tap && T < tap + 0.5 ? (T - tap) / 0.5 : 0;
   // the dial plate swings 6.26 s in, 0.15 s after the tap it was cut for: line the swing up with this tap
   const plateT = t + (6.11 - (tap - shot.at));
-  const L = ease(t, 0.05, 0.5, EASE.out);
+  const L = ease(t, -0.25, 0.5, EASE.out);
   const btn = (side: 'yes' | 'no') => {
     const no = side === 'no';
     const fill = no && pressed;
@@ -142,7 +142,7 @@ const Market: React.FC<P> = ({shot, t, T}) => {
 // ----- beat 3b: the receipt chip of the real free $1 ------------------------------------------------------------------
 const Receipt: React.FC<P> = ({t}) => {
   const tall = useTall();
-  const up = ease(t, 0.0, 0.5, EASE.spring);
+  const up = ease(t, -0.2, 0.5, EASE.spring);
   const chk = ease(t, 0.3, 0.4, EASE.out);
   const rev = clamp01((t - 0.55) / 0.9);
   const n = Math.round(rev * HASH.length);
@@ -228,10 +228,10 @@ const Verdict: React.FC<P> = ({shot, t, T}) => {
   const cloud = k.cloud ?? 0;
   const read = k.read ?? 0;
   const cardEl = (j: (typeof JUDGES)[number], i: number) => {
-    const inK = ease(t, short ? 0 : 0.1 + i * 0.22, 0.5, EASE.out);
+    const inK = ease(t, short ? -0.3 : -0.25 + i * 0.12, 0.5, EASE.out);
     const ft = T - f[i];
     const hit = ft >= 0;
-    const quoteK = short ? 1 : ease(t, 0.9 + i * 0.35, 0.6);
+    const quoteK = short ? 1 : ease(t, 0.15 + i * 0.25, 0.5);
     const lit = short ? 0 : ease(T, read - 0.1, 0.5);
     const cl = short ? 1 : ease(T, cloud - 0.1, 0.4);
     return (
@@ -298,7 +298,7 @@ const AsOf: React.FC<P> = ({shot, t, T}) => {
 const Dial: React.FC<P> = ({shot, t, T}) => {
   const ev = shot.k?.ev ?? shot.at + 2.1;
   const plateT = t + (2.0 - (ev - shot.at));
-  const a = ease(t, 0.0, 0.5);
+  const a = ease(t, -0.25, 0.5);
   const b = ease(T, ev - 0.05, 0.4, EASE.out);
   const dec = ease(T, ev + 0.7, 0.45, EASE.out);
   const mk = 'linear-gradient(to bottom, transparent 0px, black 70px), radial-gradient(ellipse 620px 560px at 1380px 520px, black 86%, transparent 100%)';
@@ -328,7 +328,7 @@ const Payoff: React.FC<P> = ({shot, t, T}) => {
     <Ground glow="50% 42%">
       <AbsoluteFill style={{justifyContent: 'center', alignItems: 'center', padding: tall ? '120px 50px 600px' : '0 0 130px'}}>
         <div style={{width: tall ? 980 : 1620}}>
-          <div style={{...rise(t, 0, 20)}}>
+          <div style={{...rise(t, 0, 20), transform: `translateY(${(1 - two) * (tall ? 200 : 150)}px)`}}>
             <div style={{font: `600 ${tall ? 34 : 32}px ${FONT.text}`, color: C.ink3, marginBottom: 10}}>Wikipedia, today</div>
             <div style={{font: `400 ${tall ? 76 : 70}px/1.18 ${FONT.quote}`, fontVariationSettings: "'opsz' 60", color: C.ink}}>
               “…U.S. T-Bills, accounting for{' '}
@@ -359,9 +359,9 @@ const Payoff: React.FC<P> = ({shot, t, T}) => {
 // ----- beat 7: the end card, 4 s: the mark, the line, "Priced In · isitpriced.com" -----------------------------------------
 const End: React.FC<P> = ({t}) => {
   const tall = useTall();
-  const a = ease(t, 0.0, 0.45);
-  const b = ease(t, 0.25, 0.45);
-  const c = ease(t, 0.55, 0.45, EASE.spring);
+  const a = ease(t, -0.25, 0.45);
+  const b = ease(t, 0.1, 0.45);
+  const c = ease(t, 0.4, 0.45, EASE.spring);
   return (
     <Ground glow="50% 46%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', textAlign: 'center', padding: tall ? '0 50px 300px' : '0 0 60px'}}>
