@@ -40,10 +40,12 @@ async function setup({ key = true, ...o } = {}) {
 const trade = (claim_id, price_yes_ppm, n = 1) => ({ uid: `t${claim_id}:${price_yes_ppm}:${n}`, event: "trade", data: { claim_id, trader: "alice.testnet", side: "no", price_yes_ppm }, txHash: `tx${n}` });
 const waitFor = async (pred, ms = 5000) => { const t0 = Date.now(); while (Date.now() - t0 < ms) { const v = pred(); if (v) return v; await new Promise((r) => setTimeout(r, 20)); } throw new Error("timed out"); };
 
-test("bands: assert at 0.85 and above, disputed near 0.5, hedge from 0.4, negate below 0.4", () => {
+test("bands: assert at 0.70 and above, disputed near 0.5, hedge from 0.4, negate below 0.4", () => {
   assert.equal(band(0.85), "assert");
   assert.equal(band(0.99), "assert");
-  assert.equal(band(0.8499), "hedge");
+  assert.equal(band(0.7), "assert", "a likely-true line is stated plainly: a hedge is for real doubt");
+  assert.equal(band(0.79), "assert", "79%, the thin market that made the page write 'is thought to be the issuer'");
+  assert.equal(band(0.6999), "hedge");
   assert.equal(band(0.56), "hedge");
   assert.equal(band(0.55), "disputed");
   assert.equal(band(0.5), "disputed");
@@ -53,7 +55,8 @@ test("bands: assert at 0.85 and above, disputed near 0.5, hedge from 0.4, negate
   assert.equal(band(0.399), "negate");
   assert.equal(band(0.01), "negate");
   assert.equal(templateSentence("X is Y.", 0.9), "X is Y.");
-  assert.equal(templateSentence("X is Y.", 0.75), "X is Y (likely, 75%).");
+  assert.equal(templateSentence("X is Y.", 0.75), "X is Y.", "likely-true is plain");
+  assert.equal(templateSentence("X is Y.", 0.62), "X is Y (reportedly, 62%).");
   assert.equal(templateSentence("X is Y.", 0.5), "Disputed (50%): X is Y.");
   assert.equal(templateSentence("X is Y.", 0.2), "Traders doubt this line: X is Y.");
 });

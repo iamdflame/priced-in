@@ -48,7 +48,8 @@ test("a page's band: a decided line is not written, unless a source gives the wo
   assert.equal(pageBand({ status: "Open", trades: 1 }, 0.9, ev), "assert", "above assert the evidence stays out, as in the writer");
   assert.equal(pageBand({ status: "Open", trades: 1 }, NaN), null);
   const own = { status: "Open", trades: 2, text: "Tether claims its tokens are backed 100% by reserve assets." };
-  assert.equal(pageBand(own, 0.72), null, "it says who says so already: a second hedge would be another claim");
+  assert.equal(pageBand(own, 0.62), null, "it says who says so already: a second hedge would be another claim");
+  assert.equal(pageBand(own, 0.72), "assert", "from 0.70 a line is stated in its own words");
   assert.equal(pageBand({ ...own, text: "Each token purports to represent an ounce." }, 0.63), null);
   assert.equal(pageBand({ ...own, text: "The court dismissed the claims against it." }, 0.63), "hedge", "a noun, not a hedge");
   assert.equal(pageBand(own, 0.5), "disputed", "disputed and doubted lines are still written");

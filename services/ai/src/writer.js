@@ -1,7 +1,9 @@
 // The rewrite writer. On each trade it rewrites only the paragraph that holds the traded
 // sentence, from the new prices, in bands:
-//   assert   p >= 0.85        state it plainly
-//   hedge    0.40 <= p < 0.85 hedged wording
+//   assert   p >= 0.70        state it plainly
+//   hedge    0.40 <= p < 0.70 hedged wording
+// (From 7 Nov 2026 the plain band starts at 0.70, not 0.85: on thin markets a true line sits at 75-85%, and the
+// official pages wrote "Tether is thought to be the issuer of USDT" at 79%; a hedge is for real doubt.)
 //   disputed 0.45 <= p <= 0.55 (inside hedge: near 0.5) say plainly it is disputed
 //   negate   p < 0.40         attribute the doubt and keep the claim intact ("Traders doubt this
 //                             line: ..."): a price is doubt, not evidence, so nothing is negated
@@ -53,7 +55,7 @@ export const BANDS = ["assert", "hedge", "disputed", "negate"];
 
 export function band(p) {
   if (!Number.isFinite(p)) return null;
-  if (p >= 0.85) return "assert";
+  if (p >= 0.7) return "assert";
   if (p < 0.4) return "negate";
   if (p >= 0.45 && p <= 0.55) return "disputed";
   return "hedge";
@@ -67,7 +69,7 @@ export function templateSentence(claim, p, evidence = null) {
   const b = band(p);
   if (b === null || b === "assert") return claim.trim();
   if (evidence?.value_today) return `${stripEnd(claim)}; ${evidence.source_name || "the source"} gives ${stripEnd(evidence.value_today)}${evidence.checked_on ? ` (checked ${evidence.checked_on})` : ""}.`;
-  if (b === "hedge") return `${stripEnd(claim)} (${p >= 0.7 ? "likely" : "uncertain"}, ${pct(p)}).`;
+  if (b === "hedge") return `${stripEnd(claim)} (${p >= 0.55 ? "reportedly" : "uncertain"}, ${pct(p)}).`;
   if (b === "disputed") return `Disputed (${pct(p)}): ${claim.trim()}`;
   return `Traders doubt this line: ${claim.trim()}`;
 }
@@ -204,7 +206,7 @@ export const PAGE_PROMPT = [
   "",
   "Bands:",
   "assert: the market is confident. State the claim plainly, in its own words.",
-  "hedge: keep the claim and hedge it as a whole, on the main verb, never on one item or one clause. At 0.70 or more say it is probable (\"probably\", \"is thought to\"). From 0.55 to 0.70 attribute it lightly (\"reportedly\", \"is said to\"). Under 0.45 say it is uncertain (\"reportedly\", \"it is uncertain whether\"), and never write \"likely\" or \"probably\", because the market leans the other way. Use the suggested wording if it fits the sentence's grammar; if not, use another of the same strength. A claim that already hedges itself (\"purports\", \"claims\", \"according to\", \"is estimated\") needs no second hedge: leave it as it is.",
+  "hedge: keep the claim and hedge it as a whole, on the main verb, never on one item or one clause. From 0.55 to 0.70 attribute it lightly (\"reportedly\", \"is said to\"). Under 0.45 say it is uncertain (\"reportedly\", \"it is uncertain whether\"), and never write \"likely\" or \"probably\", because the market leans the other way. Use the suggested wording if it fits the sentence's grammar; if not, use another of the same strength. A claim that already hedges itself (\"purports\", \"claims\", \"according to\", \"is estimated\") needs no second hedge: leave it as it is.",
   "disputed: say plainly that the claim is disputed (\"It is disputed whether ...\", or \"..., though this is disputed\").",
   "negate: traders doubt the claim. Attribute the doubt to traders and keep every part of the claim (\"Traders doubt that ...\"). A price is doubt, not evidence: never say or imply the claim is false, and never negate it or any part of it, above all a list or a sentence with several parts.",
   "correct: the sentence comes with evidence. State the evidence's value in place of the outdated part and say whose value it is in a few words (\"according to Sky\", \"which Tether's attestation report puts at\"). Keep every other part as it is, and never stretch a clause to cover more than it said. Use only the evidence given: never invent a figure, date or source. Never say the claim is false, and never negate the parts the evidence does not contradict.",
@@ -212,7 +214,7 @@ export const PAGE_PROMPT = [
   "How to write:",
   "This is an edit, not a summary: change as few words as you can. Keep the sentence's order, names, dates and numbers, except where evidence corrects them. Keep a pronoun if the sentence had one, so it still follows the sentence before it. Fix a plain typo or stray comma if you see one.",
   "Add no facts, no names and no figures beyond the claim and the evidence. Outside the negate band do not mention markets, traders, prices or probabilities, and never write a percentage the claim does not have.",
-  "Example, hedge at 0.75: \"The bridge opened in 1932.\" becomes \"The bridge probably opened in 1932.\"",
+  "Example, assert at 0.78: \"The bridge opened in 1932.\" stays \"The bridge opened in 1932.\"",
   "Example, hedge at 0.60: \"The firm employs about 400 people.\" becomes \"The firm is said to employ about 400 people.\"",
   "Example, hedge at 0.42: \"It was the first of its kind.\" becomes \"It is uncertain whether it was the first of its kind.\"",
   "Example, disputed: \"The town was founded by Dutch settlers.\" becomes \"It is disputed whether the town was founded by Dutch settlers.\"",
