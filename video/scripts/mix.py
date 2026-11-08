@@ -82,7 +82,8 @@ def main_cut():
     tap = word_at('L03', 6.75, 'No')
     near = word_at('L03', 6.75, 'NEAR')
     page = round(word_at('L09', 48.0, 'with') - 0.15, 3)
-    written = round(word_at('L09', 48.0, 'Now') - 0.2, 3)
+    # the panel holds through "Now every page here is written by AI,"; the whip to the page's header lands on "from what the market believes"
+    written = round(word_at('L09', 48.0, 'from') - 0.35, 3)
     shots = [
         dict(id='hook', at=0.0, dur=3.75),
         dict(id='wake', at=3.75, dur=3.0),

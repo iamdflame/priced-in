@@ -21,18 +21,18 @@
   "h": 631
  },
  "para": {
-  "src": "site/ptether-d__full.png",
-  "x": 200,
-  "y": 1400,
-  "w": 1800,
-  "h": 400
+  "src": "site/ptether-para.png",
+  "x": 140,
+  "y": 841,
+  "w": 1248,
+  "h": 595
  },
  "changed": {
-  "src": "site/ptether-d__full.png",
-  "x": 200,
-  "y": 1800,
-  "w": 1800,
-  "h": 600
+  "src": "site/ptether-para.png",
+  "x": 140,
+  "y": 1440,
+  "w": 1248,
+  "h": 768
  },
  "homeTop": {
   "src": "site/home-d__full.png",
@@ -42,10 +42,24 @@
   "h": 1800
  },
  "pageHead": {
-  "src": "site/ptether-d__full.png",
-  "x": 0,
-  "y": 0,
-  "w": 2880,
-  "h": 700
+  "src": "site/ptether-head.png",
+  "x": 140,
+  "y": 489,
+  "w": 1400,
+  "h": 50
+ },
+ "facts": {
+  "src": "site/home-d__full.png",
+  "x": 80,
+  "y": 2284,
+  "w": 2720,
+  "h": 60
+ },
+ "trending": {
+  "src": "site/home-d__full.png",
+  "x": 80,
+  "y": 2990,
+  "w": 181,
+  "h": 48
  }
 }

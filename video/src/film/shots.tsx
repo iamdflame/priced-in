@@ -47,6 +47,9 @@ const JUDGES = [
   {name: 'GLM 5.3', tx: '78KBg1…WhR', at: '16.7 s'},
 ];
 const NAMES = JUDGES;
+// the home's facts grid (Trending) and where the encyclopedia's facts begin, measured by the capture
+const FEED_Y = Math.max(0, ((boxes as Record<string, {y: number}>).trending?.y ?? 3000) - 120);
+const FACTS_Y = Math.max(0, ((boxes as Record<string, {y: number}>).facts?.y ?? 2280) - 160);
 const PROOF = [
   ['The free $1 on No', 'FGFhi1…BBvc6'],
   ['The challenge, $1 staked', '5C2kye…SnxaQ'],
@@ -218,7 +221,7 @@ const Feed: React.FC<P> = ({shot, t, T}) => {
     <Ground glow="60% 40%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
         <div style={{transform: 'translate(470px, 70px)'}}>
-          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1500} height={930} top={mix(1180, 1560, k)} pose={{rx: mix(20, 16, k), ry: mix(-26, -20, k), rz: 5, z: mix(-120, -30, k)}} />
+          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1500} height={930} top={mix(FEED_Y, FEED_Y + 380, k)} pose={{rx: mix(20, 16, k), ry: mix(-26, -20, k), rz: 5, z: mix(-120, -30, k)}} />
         </div>
       </AbsoluteFill>
       <AbsoluteFill style={{background: 'linear-gradient(90deg, rgba(248,249,251,0.98) 0%, rgba(248,249,251,0.9) 40%, transparent 66%)'}} />
@@ -562,11 +565,11 @@ const Pullback: React.FC<P> = ({shot, t, T}) => {
   return (
     <Ground glow="50% 60%">
       <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: `translate(${mix(0, 60, k)}px, ${mix(150, 200, k)}px)`}}>
-          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1560} height={940} top={mix(0, 1500, ease(t, 0.6, shot.dur - 0.6, EASE.inOut))} pose={{rx: mix(14, 38, k), ry: mix(-4, -16, k), rz: mix(1, 8, k), z: mix(120, -620, k)}} dof={7} />
+        <div style={{transform: `translate(${mix(0, 60, k)}px, ${mix(260, 200, k)}px)`}}>
+          <Browser3D src="site/home-d__full.png" url="isitpriced.com" width={1560} height={940} top={mix(0, FACTS_Y, ease(t, 0.6, shot.dur - 0.6, EASE.inOut))} pose={{rx: mix(14, 38, k), ry: mix(-4, -16, k), rz: mix(1, 8, k), z: mix(80, -620, k)}} dof={3} />
         </div>
       </AbsoluteFill>
-      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(248,249,251,0.97) 12%, rgba(248,249,251,0.7) 40%, transparent 62%)'}} />
+      <AbsoluteFill style={{background: 'linear-gradient(180deg, rgba(248,249,251,0.97) 0%, rgba(248,249,251,0.86) 22%, transparent 36%)'}} />
       <AbsoluteFill style={{padding: '84px 130px'}}>
         <Spoken t={T} words={split >= 0 ? words.slice(0, split) : words} size={92} paint={false} maxWidth={1400} />
         <div style={{marginTop: 28, display: 'flex', alignItems: 'baseline', gap: 24, opacity: T >= six - 0.05 ? 1 : 0, transformOrigin: '0 100%', transform: `scale(${mix(1.05, 1, b)})`}}>
@@ -635,40 +638,30 @@ const End: React.FC<P> = ({shot, t, T}) => {
 // isitpriced.com/p/tether ("Written by AI from what the market believes right now"): the T-Bills paragraph in its
 // corrected wording, with "What changed" open (ruled false by three AI judges, the TEE signature, the anchor on NEAR).
 const PageReal: React.FC<P> = ({shot, t, T}) => {
-  const cut = useCut();
   const written = shot.written ?? shot.at + shot.dur / 2;
-  const land = ease(t, 0, 1.3, EASE.out);
-  const lift = ease(t, 0.9, 0.9, EASE.out) * (1 - ease(T, written - 0.1, 0.6, EASE.inOut));
-  // two moves in one shot: land on the corrected paragraph and its "What changed" panel, then crane up to the
-  // page's own header ("Written by AI from what the market believes right now") as the voice says it
-  const up = ease(T, written - 0.25, 1.4, EASE.inOut);
+  const land = ease(t, 0, 1.2, EASE.out);
+  const lift = ease(t, 0.7, 0.8, EASE.out);
+  const k = ease(t, 0, written - shot.at, EASE.inOut);
+  // two moves: land on the corrected paragraph with its "What changed" panel lifted toward us, then a whip up the
+  // page to its own header ("Written by AI from what the market believes right now") as the voice says it
+  const whip = ease(T, written - 0.15, 0.5, EASE.inOut);
+  const onHead = whip > 0.5;
+  const blur = Math.sin(Math.PI * whip) * 14;
   const p = boxes.para;
   const c = boxes.changed;
   const h = boxes.pageHead;
-  const topPara = Math.max(0, p.y - 260);
-  const topHead = Math.max(0, h.y - 120);
-  const words = wordsIn(cut, written - 0.1, shot.at + shot.dur);
+  const topPara = Math.max(0, Math.min(p.y, c.y) - 150);
+  // the page's own header carries the sentence on screen; the voice says it
+  const settle = ease(T, written + 0.3, 1.6, EASE.out);
   return (
     <Ground glow="55% 45%">
-      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center'}}>
-        <div style={{transform: `translate(${mix(20, 220, up)}px, ${mix(60, 80, up)}px)`}}>
-          <Browser3D
-            src={p.src}
-            url="isitpriced.com/p/tether"
-            width={1560}
-            height={940}
-            top={mix(mix(topPara + 140, topPara, land), topHead, up)}
-            pose={{rx: mix(mix(26, 9, land), 14, up), ry: mix(-12, -20, up), rz: mix(2, 3, up), z: mix(mix(-380, -40, land), -160, up)}}
-            lifts={[{...c, z: lift * 220, ring: true}]}
-            dim={0.12 * lift}
-            dof={3}
-          />
-        </div>
-      </AbsoluteFill>
-      <AbsoluteFill style={{background: `linear-gradient(90deg, rgba(248,249,251,${0.97 * up}) 0%, rgba(248,249,251,${0.86 * up}) 34%, transparent 56%)`}} />
-      <AbsoluteFill style={{justifyContent: 'center', padding: '0 0 40px 130px'}}>
-        <div style={{width: 820}}>
-          <Spoken t={T} words={words} size={96} paint={false} />
+      <AbsoluteFill style={{alignItems: 'center', justifyContent: 'center', filter: blur > 0.3 ? `blur(${blur}px)` : undefined}}>
+        <div style={{transform: `translate(${onHead ? mix(330, 290, settle) : mix(320, 380, k)}px, ${onHead ? mix(120, 150, settle) : mix(10, 30, land)}px)`}}>
+          {onHead ? (
+            <Browser3D src={h.src} url="isitpriced.com/p/tether" width={1500} height={900} top={0} pose={{rx: mix(12, 7, settle), ry: mix(-16, -10, settle), rz: 1, z: mix(380, 520, settle)}} dof={2} />
+          ) : (
+            <Browser3D src={p.src} url="isitpriced.com/p/tether" width={1560} height={940} top={mix(topPara + 220, c.y - 260, land)} pose={{rx: mix(22, 6, land), ry: mix(-14, -6, land), rz: mix(2, 0.5, land), z: mix(-320, 160 + 60 * k, land)}} lifts={[{...c, z: lift * 150, ring: true}]} dim={0.1 * lift} dof={2} />
+          )}
         </div>
       </AbsoluteFill>
     </Ground>

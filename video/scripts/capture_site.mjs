@@ -44,8 +44,9 @@ async function boxOf(page, text, key, src, minW = 500, minH = 60) {
 async function open(view, url) {
   const ctx = await browser.newContext(view);
   const page = await ctx.newPage();
-  await page.goto(`${BASE}${url}`, {waitUntil: 'networkidle'}).catch(() => {});
-  await page.waitForTimeout(1800);
+  // the live pages hold an event stream open, so 'networkidle' never comes: wait for the DOM, then settle
+  await page.goto(`${BASE}${url}`, {waitUntil: 'domcontentloaded', timeout: 60000});
+  await page.waitForTimeout(2800);
   return {ctx, page};
 }
 
@@ -61,7 +62,15 @@ async function still(view, name, url, opts = {}) {
   await ctx.close();
 }
 
-await still(desktop, 'home-d', '/?film=1', {full: true, after: async (p) => (boxes.homeTop = {src: 'site/home-d__full.png', x: 0, y: 0, w: 2880, h: 1800})});
+await still(desktop, 'home-d', '/?film=1', {
+  full: true,
+  after: async (p) => {
+    boxes.homeTop = {src: 'site/home-d__full.png', x: 0, y: 0, w: 2880, h: 1800};
+    // where the encyclopedia's facts begin, below Today's claims
+    await boxOf(p, /^Facts from Wikipedia$/, 'facts', 'site/home-d__full.png', 10, 10);
+    await boxOf(p, /^Trending$/, 'trending', 'site/home-d__full.png', 10, 10);
+  },
+});
 await still(desktop, 'c18-d', '/c/18?film=1', {
   full: true,
   after: async (p) => {
@@ -70,24 +79,66 @@ await still(desktop, 'c18-d', '/c/18?film=1', {
   },
 });
 await still(desktop, 'c32-d', '/c/32?film=1');
-// The AI-written page: the corrected T-Bills paragraph with its "What changed" panel open.
-await still(desktop, 'ptether-d', '/p/tether?film=1', {
-  full: true,
-  before: async (p) => {
-    const para = p.getByText(/122\.84 billion/).first();
-    await para.scrollIntoViewIfNeeded().catch(() => {});
-    const host = para.locator('xpath=ancestor-or-self::*[.//button or .//summary][1]');
-    const toggle = host.getByText(/What changed/).first();
-    if (await toggle.count()) await toggle.click().catch(() => console.log('could not open What changed'));
-    else console.log('no What changed toggle near the T-Bills paragraph');
-    await p.waitForTimeout(900);
-  },
-  after: async (p) => {
-    await boxOf(p, /122\.84 billion/, 'para', 'site/ptether-d__full.png', 700, 60);
-    await boxOf(p, /Ruled false by three AI judges/i, 'changed', 'site/ptether-d__full.png', 700, 120);
-    await boxOf(p, /Written by AI from what the market believes/i, 'pageHead', 'site/ptether-d__full.png', 600, 40);
-  },
-});
+// The AI-written page, read as a reader would: its header at the top, then, scrolled down, the corrected T-Bills
+// paragraph with its "What changed" panel open. Two pictures: the header screen and a clip around the paragraph.
+{
+  const {ctx, page} = await open(desktop, '/p/tether?film=1');
+  await page.screenshot({path: path.join(OUT, 'ptether-head.png')});
+  const head = await page.getByText(/Written by AI from what the market believes right now/).first().evaluate((el) => {
+    let e = el;
+    while (e.parentElement && e.getBoundingClientRect().width < 600) e = e.parentElement;
+    const r = e.getBoundingClientRect();
+    return {x: r.left, y: r.top + scrollY, w: r.width, h: r.height};
+  });
+  boxes.pageHead = {src: 'site/ptether-head.png', x: Math.round(head.x * 2), y: Math.round(head.y * 2), w: Math.round(head.w * 2), h: Math.round(head.h * 2)};
+  // the paragraph, scrolled into view the way a reader gets there
+  const para = page.locator('a.hs', {hasText: "majority of Tether's reserves held in cash"}).first();
+  for (let y = 0; y < 11000; y += 900) {
+    await page.mouse.wheel(0, 900);
+    await page.waitForTimeout(60);
+  }
+  await para.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(600);
+  const opened = await para.evaluate((a) => {
+    const P = a.closest('p');
+    const sec = P.closest('section') || P.parentElement;
+    const btn = [...sec.querySelectorAll('button.chg-open')].find((b) => P.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) || sec.querySelector('button.chg-open');
+    if (!btn) return false;
+    btn.click();
+    return true;
+  });
+  if (!opened) console.log('no What changed button for the T-Bills paragraph');
+  await page.waitForTimeout(1200);
+  // a full-page clip would paint the sticky header mid-picture: pin it to the top of the document instead
+  await page.addStyleTag({content: 'header, [class*="hdr"], [class*="sticky"] { position: absolute !important; }'});
+  await page.waitForTimeout(300);
+  await para.scrollIntoViewIfNeeded();
+  await page.waitForTimeout(400);
+  const geo = await para.evaluate((a) => {
+    const P = a.closest('p');
+    const sec = P.closest('section') || P.parentElement;
+    const pr = P.getBoundingClientRect();
+    const sr = sec.getBoundingClientRect();
+    const dd = [...document.querySelectorAll('dd, p, li, span, div')].find((e) => /ruled false/i.test(e.textContent) && e.getBoundingClientRect().height > 0 && e.children.length < 6 && e.getBoundingClientRect().top > pr.top - 50);
+    let panel = dd;
+    while (panel && panel.parentElement && (panel.getBoundingClientRect().width < 500 || panel.getBoundingClientRect().height < 120)) panel = panel.parentElement;
+    const cr = panel ? panel.getBoundingClientRect() : null;
+    return {
+      p: {x: pr.left, y: pr.top + scrollY, w: pr.width, h: pr.height},
+      s: {x: sr.left, y: sr.top + scrollY, w: sr.width, h: sr.height},
+      c: cr ? {x: cr.left, y: cr.top + scrollY, w: cr.width, h: cr.height} : null,
+    };
+  });
+  const top = Math.max(0, Math.round(geo.p.y - 420));
+  const bottom = Math.round((geo.c ? geo.c.y + geo.c.h : geo.p.y + geo.p.h) + 360);
+  await page.screenshot({path: path.join(OUT, 'ptether-para.png'), fullPage: true, clip: {x: 0, y: top, width: 1440, height: bottom - top}});
+  const rel = (b) => ({src: 'site/ptether-para.png', x: Math.round(b.x * 2), y: Math.round((b.y - top) * 2), w: Math.round(b.w * 2), h: Math.round(b.h * 2)});
+  boxes.para = rel(geo.p);
+  if (geo.c) boxes.changed = rel(geo.c);
+  else console.log('no "What changed" panel found under the paragraph');
+  console.log('ptether', JSON.stringify({opened, head: boxes.pageHead, para: boxes.para, changed: boxes.changed}));
+  await ctx.close();
+}
 await still(desktop, 'replay-d', '/c/18?recorded=1&film=1');
 await still(phone, 'home-p', '/?film=1');
 await still(phone, 'c18-p', '/c/18?film=1', {full: true});
