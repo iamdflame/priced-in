@@ -181,10 +181,11 @@ const Receipt: React.FC<P> = ({t}) => {
 };
 
 // ----- beat 4: three signed verdicts; each FALSE seal lands on its own spoken "False" ---------------------------------
+// The judges' words, verbatim from isitpriced.com/rulings (market 18).
 const JUDGES = [
-  {mono: 'DS', name: 'DeepSeek-V4.1-Flash', quote: 'The claim’s $72.6 billion figure is out of date; Tether’s 30 September 2026 attestation reports U.S. Treasury Bills at $122.84 billion.'},
-  {mono: 'Qw', name: 'Qwen3.8-27B', quote: 'The figure of $72.6 billion is outdated; the current attestation report from September 30, 2026, lists U.S. Treasury Bills at approximately $122.84 billion.'},
-  {mono: 'GL', name: 'glm-5.3-flash', quote: 'The $72.6 billion figure is outdated; Tether’s attestation reports $122.84 billion in U.S. Treasury Bills as of 30 September 2026.'},
+  {mono: 'DS', name: 'DeepSeek-V4.1-Flash', quote: 'The claim’s $72.6 billion figure is out of date; Tether’s 30 September 2026 attestation reports U.S. Treasury Bills at $122.84 billion, so the stated amount is incorrect.'},
+  {mono: 'Qw', name: 'Qwen3.8-27B', quote: 'The evidence indicates that the figure of $72.6 billion is outdated, whereas the current attestation report from September 30, 2026, lists U.S. Treasury Bills at approximately $122.84 billion.'},
+  {mono: 'GL', name: 'glm-5.3-flash', quote: 'The evidence states the $72.6 billion figure is outdated and that Tether’s attestation reports $122.84 billion in U.S. Treasury Bills as of 30 September 2026.'},
 ];
 
 /** The FALSE seal: a clean double ring and the word, upright, landing with weight. */
