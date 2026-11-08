@@ -4,8 +4,9 @@ import {C} from '../brand/tokens';
 import {CUTS, Captions, CutContext, FPS, Grade} from './lib';
 import {SHOTS} from './shots';
 import {Bug, SHOTS5} from './v5';
+import {SHOTS6} from './v6';
 
-const ALL = {...SHOTS, ...SHOTS5};
+const ALL = {...SHOTS, ...SHOTS5, ...SHOTS6};
 import pending from './pending.json';
 
 // Shots whose site footage waits for the site's final polish: marked on screen until it is recaptured.
@@ -27,7 +28,7 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
             <Sequence key={`${s.id}${s.at}`} from={from} durationInFrames={len} name={s.id} layout="none">
               <AbsoluteFill>
                 <Comp shot={s} t={T - s.at} T={T} />
-                {PENDING.has(s.id) ? (
+                {PENDING.has(s.id) && !s.id.startsWith('v6') ? (
                   <AbsoluteFill style={{alignItems: 'flex-start', justifyContent: 'flex-start', padding: 28, pointerEvents: 'none'}}>
                     <div style={{border: '4px dashed #C9222B', position: 'absolute', inset: 14, borderRadius: 18}} />
                     <span style={{background: '#C9222B', color: '#fff', font: "700 26px 'General Sans', sans-serif", padding: '8px 16px', borderRadius: 10}}>PLACEHOLDER · awaiting site final ({s.id})</span>
@@ -38,7 +39,7 @@ export const Film: React.FC<{cut: string; audio?: boolean}> = ({cut, audio = tru
           );
         })}
         <Grade />
-        {c.shots.some((s) => s.id.startsWith('v5')) && !c.shots.some((s) => s.id === 'v5end' && T >= s.at) ? <Bug /> : null}
+        {c.shots.some((s) => /^v[56]/.test(s.id)) && !c.shots.some((s) => /^v[56]end$/.test(s.id) && T >= s.at) ? <Bug /> : null}
         <Captions />
         {audio ? <Audio src={staticFile(`audio/mix-${c.id}.wav`)} /> : null}
       </AbsoluteFill>

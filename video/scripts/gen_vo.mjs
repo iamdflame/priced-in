@@ -49,6 +49,13 @@ export const LINES = [
   {id: 'N13', text: 'Priced In. Is it true? Bet on it. Your first dollar is free, at is it priced dot com.', speed: 1.0},
   {id: 'N02s', text: 'Priced In pays you to catch it.', speed: 1.06},
   {id: 'N08v', text: 'The page fixed itself, with the source beside it.', speed: 1.08},
+  // v6 (one idea, full frame)
+  {id: 'P02', text: 'Nobody gets paid to catch that. On Priced In, you do.', speed: 1.04},
+  {id: 'P03', text: 'Bet a free dollar that it’s wrong. The Near blockchain records it in four and a half seconds.', speed: 1.08},
+  {id: 'P04a', text: 'Three independent AI judges read Tether’s own report.', speed: 1.04},
+  {id: 'P04b', text: 'Everyone who bet No got paid.', speed: 1.0},
+  {id: 'P06', text: 'Wikipedia still says seventy-two point six billion. Priced In’s page says one hundred twenty-two point eight four, with the source.', speed: 1.08},
+  {id: 'P07', text: 'Every page here keeps itself current: plain where the money is sure, honest where it isn’t.', speed: 1.06},
   // the 15 s cut
   {id: 'C2', text: 'Bet a free dollar that it’s wrong.', speed: 1.12},
   {id: 'C3', text: 'Three AI judges ruled it false.', speed: 1.1},

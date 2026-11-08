@@ -1,0 +1,18 @@
+{
+ "read_at": "2026-11-08T03:28:23.851Z",
+ "url": "https://isitpriced.com/p/tether?film=1",
+ "header": "Written by AI from what the market believes right now.",
+ "tbills": {
+  "text": "It is disputed whether the majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026.",
+  "odds": 47,
+  "note": "47%It is disputed whether the majority…Rewritten from these odds 2 h ago, by glm-5.3-flash. Signed; anchored on NEAR."
+ },
+ "plain": {
+  "text": "Tether is thought to be the issuer of USDT, the world's largest stablecoin by market capitalization and one of the most widely used cryptocurrencies.",
+  "odds": 79
+ },
+ "disputed": {
+  "text": "It is disputed whether, as of July 2024, Tether has more than 350 million users worldwide.",
+  "odds": 46
+ }
+}

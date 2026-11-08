@@ -30,7 +30,7 @@ SPEED = {'L01': 1.15, 'L02': 1.04, 'L03': 1.14, 'L04': 1.12, 'L05': 1.1, 'L06': 
          'L07d': 1.0, 'L07e': 1.12, 'L08': 1.1, 'L09': 1.12, 'L10': 1.11, 'L11': 1.1, 'L12': 1.12, 'L14': 1.0, 'C2': 1.08,
          'C3': 1.15, 'C4': 1.14, 'C5': 1.1, 'C6': 1.12, 'V2c': 1.08, 'V2b': 1.1, 'V3b': 1.08, 'V4': 1.08, 'V5': 1.2,
          'N02': 1.08, 'N03': 1.08, 'N04': 1.08, 'N05': 1.08, 'N06': 1.06, 'N07': 1.0, 'N08': 1.13, 'N09': 1.06, 'N10': 1.08,
-         'N11': 1.08, 'N12': 1.06, 'N13': 1.0, 'N08v': 1.08, 'N02s': 1.06}
+         'N11': 1.08, 'N12': 1.06, 'N13': 1.0, 'N08v': 1.08, 'N02s': 1.06, 'P02': 1.04, 'P03': 1.08, 'P04a': 1.04, 'P04b': 1.0, 'P06': 1.08, 'P07': 1.06}
 
 
 def run(*a):
@@ -292,7 +292,90 @@ def vertical_v5():
     return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
 
 
-CUTS = {'main': main_v5, 'c15': short_v5, 'v30': vertical_v5}
+# ----- v6: one idea, full frame (.apex/prompts/V6-film-one-idea.md) -------------------------------------------------
+def main_v6():
+    v = seq(['L01', 'P02', 'P03', 'P04a'], at={'P02': 3.85}, gap=0.3)
+    fb = round(end_of(v, 'P04a') + 0.55, 3)
+    v += [('L07b', fb), ('L07c', fb + 1.0), ('L07d', fb + 3.1)]
+    v += seq(['P04b', 'N07', 'P06', 'P07', 'N13'], start=fb + 3.1 + 1.25, gap=0.4)
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    stamps = round(fb - 0.55, 3)
+    shots = [
+        dict(id='v6hook', at=0.0, dur=3.75, nocap=True),
+        dict(id='v6market', at=3.75, dur=d['P04a'] - 0.15 - 3.75, tap=W('P03', 'wrong'), chip=W('P03', 'Near'), lock=W('P02', 'Priced')),
+        dict(id='v6evidence', at=d['P04a'] - 0.15, dur=stamps - d['P04a'] + 0.15),
+        dict(id='v6stamps', at=stamps, dur=d['P04b'] - 0.15 - stamps, nocap=True),
+        dict(id='v6won', at=d['P04b'] - 0.15, dur=d['N07'] - d['P04b']),
+        dict(id='v6rule', at=d['N07'] - 0.15, dur=d['P06'] - d['N07'], nocap=True, ev=W('N07', 'Evidence')),
+        dict(id='v6payoff', at=d['P06'] - 0.15, dur=d['P07'] - d['P06'], ours=W('P06', 'Priced')),
+        dict(id='v6pages', at=d['P07'] - 0.15, dur=d['N13'] - d['P07'], honest=W('P07', 'honest')),
+        dict(id='v6end', at=d['N13'] - 0.15, dur=end_of(v, 'N13') + 3.0 - d['N13'] + 0.15, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    m = shots[1]
+    sx = [('tick_soft', 0.0, 0.4), ('whoosh_long', 3.45, 0.45), ('bloom', 4.4, 0.7), ('tick_soft', 5.2, 0.5),
+          ('tap', m['tap'], 0.9), ('bloom', m['tap'] + 0.15, 0.9), ('receipt', m['chip'] + 0.55, 0.6),
+          ('whoosh', shots[2]['at'] - 0.2, 0.4),
+          ('stamp1', fb + 0.05, 1.9), ('stamp2', fb + 1.05, 1.9), ('stamp3', fb + 3.15, 2.2),
+          ('settle', shots[4]['at'] + 0.35, 0.7),
+          ('whoosh_short', shots[5]['at'] - 0.1, 0.35), ('stamp1', shots[5]['ev'], 0.8),
+          ('whoosh', shots[6]['at'] - 0.2, 0.4), ('strike', shots[6]['at'] + 0.6, 0.6), ('morph', shots[6]['ours'] + 0.9, 0.6),
+          ('whoosh', shots[7]['at'] - 0.2, 0.35), ('tick_soft', shots[7]['honest'], 0.6),
+          ('whoosh_long', shots[8]['at'] - 0.4, 0.45), ('bloom', shots[8]['at'] + 0.5, 0.9), ('sting', shots[8]['at'] + 0.5, 0.8)]
+    music = dict(track=72.0, gain=[(0, 0), (1.0, 2.5), (shots[2]['at'], 0), (shots[2]['at'] + 2.0, -9), (fb - 0.2, -60),
+                                   (shots[4]['at'] + 0.1, -60), (shots[4]['at'] + 1.2, -2), (shots[8]['at'], -1), (dur - 2.5, -3), (dur, -30)])
+    return dict(id='main', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def short_v6():
+    v = [('L01', 0.05), ('P02', 3.85)]
+    fb = round(3.85 + words('P02')[-1]['e'] / SPEED['P02'] + 0.75, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.62), ('L07d', fb + 1.93), ('C6', fb + 2.95)]
+    stamps = round(fb - 0.38, 3)
+    end = round(fb + 2.9, 3)
+    shots = [
+        dict(id='v6hook', at=0.0, dur=3.75, nocap=True),
+        dict(id='v6market', at=3.75, dur=stamps - 3.75, tap=99, chip=99, lock=word_at('P02', 3.85, 'Priced')),
+        dict(id='v6stamps', at=stamps, dur=end - stamps, rate=1.6, nocap=True),
+        dict(id='v6end', at=end, dur=round(fb + 2.95 + words('C6')[-1]['e'] / SPEED['C6'] + 0.5 - end, 3), fast=True, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    sx = [('whoosh_long', 3.45, 0.45), ('bloom', 4.4, 0.7), ('whoosh_short', stamps - 0.15, 0.4),
+          ('stamp1', fb + 0.05, 1.7), ('stamp2', fb + 0.67, 1.8), ('stamp3', fb + 1.98, 2.1),
+          ('bloom', end + 0.2, 0.9), ('sting', end + 0.2, 0.75)]
+    music = dict(track=135.0, gain=[(0, -3), (1, -1), (stamps - 0.3, -3), (fb - 0.1, -60), (end - 0.1, -60), (end + 0.3, -2), (dur - 1, -3), (dur, -24)])
+    return dict(id='c15', dur=dur, w=1920, h=1080, voice=v, shots=shots, sfx=sx, music=music)
+
+
+def vertical_v6():
+    v = seq(['L01', 'P02', 'P03'], at={'P02': 3.85}, gap=0.3)
+    fb = round(end_of(v, 'P03') + 1.0, 3)
+    v += [('L07b', fb), ('L07c', fb + 0.85), ('L07d', fb + 2.1)]
+    v += seq(['P06', 'C6'], start=fb + 2.1 + 1.15, gap=0.35)
+    d = dict(v)
+    W = lambda i, pre: word_at(i, d[i], pre)
+    stamps = round(fb - 0.5, 3)
+    shots = [
+        dict(id='v6hook', at=0.0, dur=3.75, nocap=True),
+        dict(id='v6market', at=3.75, dur=stamps - 3.75, tap=W('P03', 'wrong'), chip=W('P03', 'Near'), lock=W('P02', 'Priced')),
+        dict(id='v6stamps', at=stamps, dur=d['P06'] - 0.15 - stamps, rate=1.15, nocap=True, judges=True),
+        dict(id='v6payoff', at=d['P06'] - 0.15, dur=d['C6'] - d['P06'], ours=W('P06', 'Priced')),
+        dict(id='v6end', at=d['C6'] - 0.15, dur=round(end_of(v, 'C6') + 1.3 - d['C6'] + 0.15, 3), fast=True, nocap=True),
+    ]
+    dur = round(shots[-1]['at'] + shots[-1]['dur'], 2)
+    m = shots[1]
+    sx = [('whoosh_long', 3.45, 0.45), ('bloom', 4.4, 0.7), ('tap', m['tap'], 0.9), ('bloom', m['tap'] + 0.15, 0.9), ('receipt', m['chip'] + 0.55, 0.6),
+          ('whoosh_short', shots[2]['at'] - 0.15, 0.4),
+          ('stamp1', fb + 0.05, 1.9), ('stamp2', fb + 0.9, 1.9), ('stamp3', fb + 2.15, 2.2),
+          ('whoosh', shots[3]['at'] - 0.2, 0.4), ('morph', shots[3]['ours'] + 0.9, 0.6), ('bloom', shots[4]['at'] + 0.2, 0.9), ('sting', shots[4]['at'] + 0.2, 0.75)]
+    music = dict(track=117.0, gain=[(0, -2), (1, -1), (m['chip'] - 0.4, -1), (m['chip'] - 0.1, -6), (m['chip'] + 0.8, -6), (m['chip'] + 1.1, -2),
+                                   (stamps - 0.3, -3), (fb - 0.1, -60), (shots[3]['at'] + 0.1, -60), (shots[3]['at'] + 1.2, -3), (dur - 1, -3), (dur, -24)])
+    return dict(id='v30', dur=dur, w=1080, h=1920, voice=v, shots=shots, sfx=sx, music=music)
+
+
+CUTS = {'main': main_v6, 'c15': short_v6, 'v30': vertical_v6}
+
 
 
 

@@ -82,6 +82,9 @@ SHOTS = {
 # B5 the verdict: three stamps land on a plate at the moments the voice says "False"
 HITS = [(0.6, 'DeepSeek V4.1', '8.0 s', 0), (1.6, 'Qwen 3.8', '9.8 s', 1), (3.7, 'GLM 5.3', '16.7 s', 2)]
 SHOTS['stamps'] = dict(frames=168, keys=[(0.0, 10.0)])
+# v6: the market, full frame: the dial wakes onto 23%, holds while the voice sets the idea, then the free $1 on No
+# swings it to 11.63% (the tap is 6.11 s into the plate, from scripts/mix.py)
+SHOTS['market'] = dict(frames=310, keys=[(0.0, 0.0), (0.5, 23.1763), (6.26, 11.6287)], wake=(0.15, 1.2), sweep=(0.1, 2.6))
 S = SHOTS[SHOT]
 
 
@@ -337,8 +340,9 @@ num = text('23', GS, 0.5, -0.06, -0.42, ink, 'RIGHT')
 num.data.space_character = 0.94
 pct = text('%', GS, 0.26, -0.05, -0.47, ink, 'LEFT')
 lab = text('chance it’s true', GE, 0.082, 0, -0.71, ink2)
-s0 = text('0', GE, 0.072, -0.575, -0.70, ink2)
-s100 = text('100', GE, 0.072, 0.575, -0.70, ink2)
+# the scale's 0 and 100 sit just past the sweep's ends, well inside the bezel (v4's sat under its lip)
+s0 = text('0', GE, 0.085, -0.64, -0.47, ink2)
+s100 = text('100', GE, 0.085, 0.64, -0.47, ink2)
 
 # ----- the verdict plate -------------------------------------------------------------------------------
 stamp_sets = []
@@ -476,6 +480,13 @@ def camera_at(sec):
         tgt = (0, -0.06, 0)
         focus, stop = (0, -0.05, 0.05), 0.9
         shift = (0.15, 0) if not TALL else (0, -0.3)
+    elif SHOT == 'market':
+        cd.lens = 60
+        d = lerp(1.32, 1.24, OUTC(k)) * (0.56 if TALL else 1.0)
+        cam.location = (lerp(-0.35, -0.15, sm) * d, lerp(-1.9, -1.6, sm) * d, 5.1 * d)
+        tgt = (0, -0.02, 0)
+        focus, stop = (0, 0, 0.05), 1.4
+        shift = (-0.215, 0) if not TALL else (0, 0.02)
     elif SHOT == 'stamps':
         cd.lens = 50
         shake = 0.0
@@ -514,7 +525,9 @@ def apply(frame):
     needle.rotation_euler = (0, 0, -math.radians(-120 + 240 * p))
     v = digits(sec, S['keys'])
     if SHOT == 'wake':
-        v = round(S['keys'][-1][1])  # the face lights up on the live price only
+        v = round(S['keys'][-1][1])
+    if SHOT == 'market' and sec < 6.26:
+        v = 23  # the face lights up on the live price only
     num.data.body = str(int(v))
     # the wake: everything printed and lit fades up with the light
     w = 1.0
@@ -529,7 +542,7 @@ def apply(frame):
         st(needle_m, 2.2 * (0.06 + 0.94 * w))
         st(core_m, 3.0 * (0.06 + 0.94 * w))
     lit = clamp((w - 0.6) / 0.4)
-    if SHOT == 'wake':
+    if SHOT in ('wake', 'market'):
         lit = OUTC(clamp((sec - 1.55) / 0.5))  # the number appears once the needle has settled on 23%
     if LIGHT:
         # printed ink cannot glow on: it fades in from the ceramic
