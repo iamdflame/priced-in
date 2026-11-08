@@ -52,7 +52,7 @@ test("home → market → free bet → receipt", async ({ page }) => {
   // the receipt
   const receipt = page.getByRole("dialog", { name: /You bet \$1 that it’s false/ });
   await expect(receipt).toBeVisible({ timeout: 30_000 });
-  await expect(receipt.getByTestId("settled")).toContainText(/Settled on NEAR in \d+\.\d s/);
+  await expect(receipt.getByTestId("settled")).toContainText(/Recorded on NEAR in \d+\.\d s/);
   await expect(receipt.getByText("chance it’s true").first()).toBeVisible();
   // the hash is the one this browser signed
   await expect(receipt.locator("a.hashv")).toHaveAttribute("href", /^https:\/\/nearblocks\.io\/txns\/[1-9A-HJ-NP-Za-km-z]{43,44}$/);

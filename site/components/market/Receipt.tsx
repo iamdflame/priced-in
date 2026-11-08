@@ -1,5 +1,5 @@
 "use client";
-// The receipt after a bet: the screenshot moment. "Settled on NEAR in X s" is measured in this browser,
+// The receipt after a bet: the screenshot moment. "Recorded on NEAR in X s" is measured in this browser,
 // from the tap to the chain's final, and the needle swings from the old odds to the new. A native modal
 // dialog: focus stays inside, Escape closes it, and it sits above everything.
 import { useEffect, useRef, useState } from "react";
@@ -41,7 +41,7 @@ function Status({ bet, recorded, replayBlock }: { bet: DoubtState; recorded: boo
   if (recorded) return <span className="ok"><Icon name="check" />{c.txHash ? `Replay · final on NEAR in block ${replayBlock?.toLocaleString("en-US")}` : "Rehearsal · nothing was sent"}</span>;
   const at = c.t.final ?? c.t.optimistic ?? c.startedAt;
   const secs = ((at - c.startedAt) / 1000).toFixed(1);
-  if (c.t.final) return <span className="ok" data-testid="settled"><Icon name="check" />Settled on NEAR in {secs} s</span>;
+  if (c.t.final) return <span className="ok" data-testid="settled"><Icon name="check" />Recorded on NEAR in {secs} s</span>;
   return <span className="ok wait"><span className="spin" />Executed in {secs} s · {c.finalNote ?? "waiting for NEAR to make it final"}</span>;
 }
 

@@ -138,7 +138,7 @@ export default async function HowPage() {
               </div>
             )}
             <div className="how-receipt">
-              <span className="ok"><Icon name="check" />Settled on NEAR in 4.5 s</span>
+              <span className="ok"><Icon name="check" />Recorded on NEAR in 4.5 s</span>
               <p className="how-move"><b>{from}% <Icon name="arrow" /> {to}%</b><span>chance it’s true</span></p>
               <a className="hashv" href={explorerTx(REPLAY.betTx)} target="_blank" rel="noopener" aria-label="This bet on the NEAR explorer">{shortHash(REPLAY.betTx)}</a>
             </div>
