@@ -101,8 +101,8 @@ test("the replay of the real mainnet run: bet, signed rewrite verified in the br
   await expect(receipt.getByText(/The Skeptic, an AI trader, replied/)).toBeVisible({ timeout: 25_000 });
   await receipt.getByRole("button", { name: "Close the receipt" }).click();
   // then the ruling plays
-  await expect(page.getByText("All three AI judges ruled it false")).toBeVisible({ timeout: 40_000 });
-  await expect(page.getByRole("heading", { name: "Ruled FALSE by 3 AI judges" })).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText("All three AI judges decided it false")).toBeVisible({ timeout: 40_000 });
+  await expect(page.getByRole("heading", { name: "Decided false by 3 AI judges" })).toBeVisible({ timeout: 20_000 });
   await expect(page.getByRole("link", { name: /See the new market/ })).toHaveAttribute("href", "/c/32");
   expect(g.laneKeys).toBe(0);
   expect(g.sends).toBe(0);

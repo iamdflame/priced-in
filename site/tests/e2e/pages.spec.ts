@@ -48,7 +48,8 @@ test("/rulings and /stats show the API's real record, and agree", async ({ page,
     const record = page.getByLabel("The record so far");
     await expect(record).toContainText(paid, { timeout: 2_000 });
     await expect(record.locator(".kpi").first().locator(".v")).toHaveText(String(settled.length), { timeout: 2_000 });
-    await expect(page.locator(".rrow")).toHaveCount(api.rulings.length, { timeout: 2_000 });
+    // the first settled ruling is the story at the top; the record lists every other one
+    await expect(page.locator(".rrow")).toHaveCount(api.rulings.length - (settled.length ? 1 : 0), { timeout: 2_000 });
     await page.goto("/stats");
     await expect(page.locator("#rulings").locator("xpath=following::div[contains(@class, 'books')][1]")).toContainText(paid, { timeout: 2_000 });
   }).toPass({ timeout: 60_000, intervals: [5_000] });
@@ -157,7 +158,8 @@ test("/new: prices a sentence, greys an opinion, and says how a market opens", a
   await expect(page.locator(".pline").first()).toContainText("80");
   await expect(page.locator(".pline").first()).toContainText("our AI’s starting estimate");
   await expect(page.locator(".pline.grey")).toContainText("not priced");
-  await page.getByText("How this becomes a market").click();
+  // no live fact is close to it here, so the next step is open from the start: how it becomes a market
+  await expect(page.getByText("Not a market yet: how it becomes one")).toBeVisible();
   await expect(page.getByText("The free $1 on this site only bets on facts that are already live.")).toBeVisible();
   noMoney(g);
 });

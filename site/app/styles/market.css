@@ -124,9 +124,9 @@
   .ticket.dock { position: fixed; left: 0; right: 0; bottom: calc(68px + env(safe-area-inset-bottom)); top: auto; z-index: 35; border-radius: 18px 18px 0 0; padding: 10px 12px 12px; gap: 8px; box-shadow: 0 -12px 30px -14px oklch(0 0 0 / .45); max-height: calc(100dvh - 140px); overflow-y: auto; }
   .ticket.dock h2 { font-size: 15px; }
   .ticket.dock .hide-dock { display: none; }
-  /* before a side is picked the bar is Yes and No alone: about a fifth of the screen with the nav, so the chart shows */
+  /* before a side is picked the bar is Yes and No and the one line on what a wrong pick costs: about a fifth of the screen with the nav, so the chart shows */
   .ticket.dock.compact { padding: 8px 10px 10px; gap: 6px; }
-  .ticket.dock.compact > h2, .ticket.dock.compact > .fine, .ticket.dock.compact .wentry, .ticket.dock.compact .tk-score { display: none; }
+  .ticket.dock.compact > h2, .ticket.dock.compact .wentry, .ticket.dock.compact .tk-score { display: none; }
   .ticket.dock.compact .seg button { height: 54px; }
   .mk-wallet { display: block; margin-top: 14px; padding: 12px 16px; }
 }
