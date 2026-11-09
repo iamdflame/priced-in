@@ -1320,7 +1320,8 @@ test("the schedule as it stands: two caught lines on 12 and 13 November, then ne
   assert.equal(c.next_ruling_at, at(12, 15));
   assert.deepEqual(c.schedule, [{ claim_id: 27, at: at(12, 15), kind: "wikipedia" }, { claim_id: 26, at: at(13, 15), kind: "wikipedia" }]);
   c = clock(at(9, 16), {}, news([{ claim_id: 44, due_at: at(11, 6) }, { claim_id: 40, due_at: at(15, 6) }]));
-  assert.equal(c.next_ruling_note, "The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC. News facts go to them as they come due: the next on 11 November at 06:00 UTC");
+  assert.equal(c.next_ruling_note, "News facts go to the AI judges as they come due: the next on 11 November at 06:00 UTC. The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC", "in the order things happen");
+  assert.equal(clock(at(9, 16), {}, news([{ claim_id: 40, due_at: at(15, 6) }])).next_ruling_note, "The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC. News facts go to them as they come due: the next on 15 November at 06:00 UTC");
   assert.equal(c.next_ruling_at, at(11, 6), "the next decision is the news line due first");
   assert.deepEqual(c.schedule.map((x) => [x.claim_id, x.kind]), [[44, "news"], [27, "wikipedia"], [26, "wikipedia"], [40, "news"]]);
 

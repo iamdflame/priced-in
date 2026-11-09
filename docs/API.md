@@ -397,7 +397,7 @@ The clock's states, first match wins. `queue`, `waiting_for_bets` and `rulings_t
 | The objection window is open | the first cron run after it closes | Anyone can object with twice the bond until the window closes, then the keeper settles it |
 | Escalated | null | This ruling went to the council after three disputes |
 
-With no live ruling the note is the Checker's half, then the news half, joined; each half is left out when it has nothing to say.
+With no live ruling the note is the Checker's half and the news half, the one whose next decision comes first leading (a news line past its date leads); each half is left out when it has nothing to say.
 
 | Checker state | Its half of the note |
 |---|---|

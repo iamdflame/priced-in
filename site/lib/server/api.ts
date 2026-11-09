@@ -121,10 +121,18 @@ export interface Rulings {
   next_challenge_at: number | null;
   next_ruling_at: number | null;
   next_ruling_note?: string;
+  /** when the AI judges take each queued fact, soonest first (absent from an older API) */
+  schedule?: Scheduled[];
+  /** the hour (UTC) the Checker's daily turn starts, and how many doubted facts a day */
+  sitting_hour_utc?: number;
+  per_day?: number;
   checker?: { account: string; balance_usd: number; lines_left: number; note?: string };
   rulings: Ruling[];
   asOf: number;
 }
+
+/** One fact queued for the AI judges: a doubted Wikipedia line at its sitting, or a news line when it comes due. */
+export interface Scheduled { claim_id: number; at: number; kind: "wikipedia" | "news" | string }
 
 /** /rulings as it arrives: `ruling_now` is a summary until resolveRulingNow swaps in the full record. */
 export type RulingsWire = Omit<Rulings, "ruling_now"> & { ruling_now: { challenge_id: number } | null };

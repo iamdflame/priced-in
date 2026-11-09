@@ -25,6 +25,9 @@ export const dayTimeUtc = (ms: number) => {
   return `${d.getUTCDate()} ${d.toLocaleString("en-GB", { month: "short", timeZone: "UTC" })}, ${clockUtc(ms)}`;
 };
 
+/** 12 November, 15:00 UTC: a day people plan around, spelled out */
+export const longDayTimeUtc = (ms: number) => `${new Date(ms).toLocaleDateString("en-GB", { day: "numeric", month: "long", timeZone: "UTC" })}, ${clockUtc(ms)}`;
+
 /** "4 min ago", "3 h ago", "2 days ago", measured against `now`. */
 export function ago(ms: number, now: number): string {
   const s = Math.max(0, Math.round((now - ms) / 1000));

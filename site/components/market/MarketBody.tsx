@@ -12,12 +12,14 @@ import { Sk } from "../States";
 import { MarketTabs } from "./MarketTabs";
 import { NewsRules, NewsSources, Rules, Sources } from "./Sources";
 import { Ticket } from "./Ticket";
+import { DecideWhen } from "./DecideWhen";
+import { WalletEntry } from "../money/WalletEntry";
 import { CatchPanel, ReportButton } from "../today/Report";
 import { dayTimeUtc, money, plural } from "@/lib/format";
 import { priceWords, type ClaimView, type Fact } from "@/lib/model";
 import { shortDate } from "@/lib/news";
 import { REPLAY } from "@/lib/replay/record";
-import { verdictOf } from "@/lib/rulings";
+import { priceBeforeRuling, verdictOf } from "@/lib/rulings";
 import { wikiOf } from "@/lib/server/facts";
 import { getMarket, type Market } from "@/lib/server/market";
 import { getNews } from "@/lib/server/news";
@@ -33,7 +35,7 @@ export function MarketHead({ f, report = false }: { f: Fact; report?: boolean })
         <TopicIcon icon={f.icon} /><span>{f.topic}</span>
         {n && <span className="chip"><Icon name="pulse" />From today’s news</span>}
         {f.caught && f.status !== "settled" && <span className="chip warn"><Icon name="flag" />A newer source disagrees<WrongExplain caught={f.caught} /></span>}
-        {f.status === "settled" && <span className={`chip ${f.outcome ? "yes" : "no"}`}><Icon name="gavel" />Ruled {f.outcome ? "TRUE" : "FALSE"}</span>}
+        {f.status === "settled" && <span className={`chip ${f.outcome ? "yes" : "no"}`}><Icon name="gavel" />Decided: {f.outcome ? "true" : "false"}</span>}
         {f.status === "deciding" && <span className="chip warn"><Icon name="clock" />Being decided</span>}
         {waiting(f) && <span className="chip warn"><Icon name="clock" />Waiting for its source</span>}
         {f.bountyUsd > 0 && f.status !== "settled" && <span className="chip brand"><Icon name="coin" />{money(f.bountyUsd)} bounty</span>}
@@ -65,11 +67,14 @@ function PricePanel({ m, recorded }: { m: Market; recorded: boolean }) {
   const f = m.fact;
   const words = priceWords(f, !!m.corrects);
   const ruled = m.ruling?.settled_at && !recorded ? { outcome: verdictOf(m.ruling), at: m.ruling.settled_at } : null;
+  // a decided fact's price is its outcome (0 or 100%): the dial shows what the market said just before the AI judges decided
+  const before = f.status === "settled" && f.trades > 0 ? priceBeforeRuling(m.points, m.ruling?.settled_at ?? null) : null;
+  const shown = before ?? f.price;
   return (
     <div className="panel chartp">
       <div className="dialbox">
-        <Dial p={f.price} sizes="(max-width: 760px) 112px, 236px" priority />
-        <p className="dialcap"><b>{Math.round(f.price * 100)}% {words.means}</b><span>{words.whose}</span>{words.firstRead && <WhyEstimate pct={Math.round((f.openPrice ?? f.price) * 100)} />}</p>
+        <Dial p={shown} sizes="(max-width: 760px) 112px, 236px" priority />
+        <p className="dialcap"><b>{Math.round(shown * 100)}% {words.means}{before !== null ? " before the AI judges decided" : ""}</b><span>{words.whose}</span>{words.firstRead && <WhyEstimate pct={Math.round((f.openPrice ?? f.price) * 100)} />}</p>
       </div>
       <div>
         {/* a replay knows how many bets there were, not their dollars: it says the count alone, never "$0.00 bet so far" */}
@@ -79,7 +84,7 @@ function PricePanel({ m, recorded }: { m: Market; recorded: boolean }) {
         ) : (
           <div className="chartempty">
             <b>No bets yet</b>
-            <span>{f.status === "settled" ? "Nobody bet on it before the judges ruled." : `The first bet draws the line. It opens at ${Math.round((f.openPrice ?? f.price) * 100)}%, ${m.corrects ? "the reopening price" : "our AI’s starting estimate"}.`}</span>
+            <span>{f.status === "settled" ? "Nobody bet on it before the AI judges decided." : `The first bet draws the line. It opens at ${Math.round((f.openPrice ?? f.price) * 100)}%, ${m.corrects ? "the reopening price" : "our AI’s starting estimate"}.`}</span>
           </div>
         )}
       </div>
@@ -99,8 +104,11 @@ export async function MarketBody({ claim, recorded, side }: { claim: ClaimView; 
     <>
       <div className="mk-l">
         <PricePanel m={m} recorded={recorded} />
+        {m.decide && !late && <DecideWhen at={m.decide.at} kind={m.decide.kind} />}
+        {/* on a phone the bet bar is compact: the wallet's way in sits here, in the page */}
+        {!settled && !late && !recorded && f.quotes && <div className="panel mk-wallet"><WalletEntry claimId={f.id} question={f.question} status={claim.status} outcome={claim.outcome} side={null} /></div>}
         {late && <Waiting f={f} note={line?.settler?.note ?? null} lookedAt={line?.settler?.last_look_at ?? null} />}
-        {f.quotes && !late && <JudgesLine className="phone-only" />}
+        {f.quotes && !late && !m.decide && <JudgesLine className="phone-only" />}
         {ruling && (recorded ? <ReplayRuling r={ruling} correctedQuestion={m.correctedQuestion} /> : <RulingBlock r={ruling} correctedQuestion={m.correctedQuestion} />)}
         {corrects && (
           <section className="panel corrected">
@@ -108,11 +116,11 @@ export async function MarketBody({ claim, recorded, side }: { claim: ClaimView; 
             <Link className="btn soft" href={`/c/${corrects.claim_id}`}>See the ruling</Link>
           </section>
         )}
-        {f.news ? <><NewsSources f={f} /><NewsRules f={f} /></> : <><Sources f={f} wiki={m.wiki} corrected={!!corrects} /><Rules f={f} wiki={m.wiki} /></>}
+        {f.news ? <><NewsSources f={f} /><NewsRules f={f} /></> : <><Sources f={f} wiki={m.wiki} corrected={!!corrects} /><Rules f={f} wiki={m.wiki} decideAt={m.decide?.at ?? null} /></>}
         {on && claim.status === "Open" && <CatchPanel claimId={f.id} question={f.question} news={!!f.news} bountyUsd={f.bountyUsd} />}
         <MarketTabs bets={m.bets} rationales={m.rationales} history={m.history} />
       </div>
-      <Ticket id={f.id} question={f.question} sentence={f.text} claim={claim} lane={m.lane} initialSide={f.quotes && !late ? side : null} recorded={recorded} replayBlock={recorded ? REPLAY.betBlock : null} settled={settled}
+      <Ticket id={f.id} question={f.question} sentence={f.text} claim={claim} lane={m.lane} initialSide={f.quotes && !late ? side : null} recorded={recorded} replayBlock={recorded ? REPLAY.betBlock : null} settled={settled} decideAt={m.decide?.at ?? null}
         picks={on && f.status === "open" && !late} closed={late ? `Its date (${shortDate(f.news!.settles.by)}) has passed: it takes no new bets while it settles.` : null} settlesBy={f.news ? shortDate(f.news.settles.by) : null} />
     </>
   );

@@ -25,7 +25,7 @@ export const PICKS = "picks.jsonl";
 export const PROFILES = "profiles.jsonl";
 export const REPORTS = "reports.jsonl";
 export const MAX_SKEW_MS = 10 * 60_000;
-export const RULES = "Picks are free and win nothing: no purchase, no prize, no payout, no sweepstakes. They only count toward accuracy on this board. A verified catch the jury upholds adds to your caught count and your points.";
+export const RULES = "Picks are free and win nothing: no purchase, no prize, no payout, no sweepstakes. They only count toward accuracy on this board. A verified catch the AI judges uphold adds to your caught count and your points.";
 const DAY = 86_400_000;
 const sha256hex = (s) => createHash("sha256").update(String(s), "utf8").digest("hex");
 const isoDay = (ms) => new Date(ms).toISOString().slice(0, 10);
@@ -247,9 +247,9 @@ const PLAIN = {
   retry: "Received. The check could not finish yet; it runs again soon.",
   refused: "Refused.",
   verified: "The words are on that page and it supports your report. The Checker challenges the line next.",
-  challenged: "The Checker challenged the line with your receipt. Three AI judges rule next.",
-  ruling: "Three AI judges are ruling on it.",
-  upheld: "Upheld: the jury ruled your way. It counts as a catch.",
+  challenged: "The Checker challenged the line with your receipt. Three AI judges decide next.",
+  ruling: "Three AI judges are deciding it.",
+  upheld: "Upheld: the AI judges decided your way. It counts as a catch.",
   rejected: "Not upheld: the line settled the other way.",
   expired: "The ruling ran out of time without a decision. Nothing counts either way.",
   closed: "The line stopped taking challenges before we could act on it.",
@@ -484,7 +484,7 @@ export function challengeCall(claim, { marketId, network, bondMicro, news = null
     evidence: {
       max_bytes: 4000,
       format: 'Say what is wrong, then one or more receipts: "Source: <a public https:// page>" on one line and "Receipt excerpt: "<the exact words from that page>"" on the next.',
-      checked: "Our jury runner fetches every source and finds every quoted passage before any model reads it, then three attested models check that the page supports your challenge. If it doesn't, our runner calls no model and the Sentinel disputes any ruling that sides with you.",
+      checked: "Our AI judges' runner fetches every source and finds every quoted passage before any model reads it, then three attested models check that the page supports your challenge. If it doesn't, our runner calls no model and the Sentinel disputes any ruling that sides with you.",
     },
     claimed_outcome: "false if the line is wrong; true if it is right and you want it settled TRUE.",
     after: "POST /api/after-challenge {txHash, signerId}: three AI judges rule within minutes. Two matching verdicts open a dispute window; then the keeper settles it.",

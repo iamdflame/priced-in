@@ -303,6 +303,10 @@ export interface PostInfo {
   text: string;
   mediaCount?: number;
   linkCount?: number;
+  /** X's embed cut a long post and no reliable copy gave the rest: it continues on X */
+  truncated?: boolean;
+  /** where the rest of a long post came from, when it did */
+  fullText?: { from: string; url: string };
   thread?: unknown;
   fetchedAt?: number;
   checkedAt?: number;

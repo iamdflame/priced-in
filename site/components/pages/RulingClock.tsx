@@ -4,7 +4,7 @@
 import type { ReactNode } from "react";
 import { Icon } from "../Icon";
 import { useClock } from "../Live";
-import { mmss, waitWords } from "@/lib/format";
+import { longDayTimeUtc, mmss, waitWords } from "@/lib/format";
 
 export function RulingClock({ windowEndsAt }: { windowEndsAt: number | null }) {
   const at = useClock() ?? Date.now();
@@ -13,11 +13,11 @@ export function RulingClock({ windowEndsAt }: { windowEndsAt: number | null }) {
   return <><div className="bignum" suppressHydrationWarning>Settling</div><p>The 10 minutes for objections are over. The keeper settles it next and pays the winners.</p></>;
 }
 
-/** The hero's clock between rulings: the time only while it's a real future time, then the sentence alone. */
+/** The hero's clock between decisions, with the exact time it counts to: the time only while it's a real future time, then the sentence alone. */
 export function NextRuling({ at, ahead, none }: { at: number | null; ahead: ReactNode; none: ReactNode }) {
   const now = useClock();
   const left = at === null ? 0 : at - (now ?? Date.now());
-  if (at === null || left <= 0) return <><span className="k"><Icon name="clock" />Next ruling</span><p className="clockline" suppressHydrationWarning>{none}</p></>;
+  if (at === null || left <= 0) return <><span className="k"><Icon name="clock" />Next decision</span><p className="clockline" suppressHydrationWarning>{none}</p></>;
   // a wait of a day or more reads as days and hours, not 181:23:45
-  return <><span className="k"><Icon name="clock" />Next ruling in</span><div className="bignum num" suppressHydrationWarning>{waitWords(left)}</div><p>{ahead}</p></>;
+  return <><span className="k"><Icon name="clock" />Next decision in</span><div className="bignum num" suppressHydrationWarning>{waitWords(left)}</div><p className="clockat">{longDayTimeUtc(at)}</p><p>{ahead}</p></>;
 }

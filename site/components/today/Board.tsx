@@ -7,8 +7,8 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "../Icon";
 import { existingKey, myRecord, saveNickname } from "@/lib/client/picks";
 import { myScore, type Score } from "@/lib/client/score";
-import { money } from "@/lib/format";
-import { aiName, pctWords, recordWords, type Board, type BoardRow, type MyRecord, type Period } from "@/lib/news";
+import { money, plural } from "@/lib/format";
+import { aiName, foldWaiting, pctWords, recordWords, waitingWords, type Board, type BoardRow, type MyRecord, type Period } from "@/lib/news";
 
 const PERIODS: { id: Period; label: string; empty: string }[] = [
   { id: "week", label: "This week", empty: "this week" },
@@ -28,7 +28,7 @@ function Who({ r, you }: { r: BoardRow; you: boolean }) {
   return (
     <span className="who">
       <span className={`lb-av${you ? " you" : ""}`} aria-hidden="true">{r.name.charAt(0).toUpperCase()}</span>
-      <span><b>{r.name}{you ? <span className="youtag">You</span> : null}</b><small>{r.picks_today ? `${r.picks_today} picked today` : `${r.picks_total} picks`}{!r.ranked && r.needs ? ` · ${r.settled} of ${r.settled + r.needs} settled to rank` : ""}</small></span>
+      <span><b>{r.name}{you ? <span className="youtag">You</span> : null}</b><small>{r.picks_today ? `${r.picks_today} picked today` : plural(r.picks_total, "pick")}{!r.ranked && r.needs ? ` · ${r.settled} of ${r.settled + r.needs} settled to rank` : ""}</small></span>
     </span>
   );
 }
@@ -47,7 +47,8 @@ function Row({ r, you, rank, score }: { r: BoardRow; you: boolean; rank: string;
 }
 
 function Table({ b, me, scores }: { b: Board; me: string | null; scores: Record<string, number | null> }) {
-  const unranked = [...b.ai.filter((a) => !a.ranked), ...b.waiting];
+  const { rows: unranked, first } = foldWaiting([...b.ai.filter((a) => !a.ranked), ...b.waiting], me);
+  const waitingLine = waitingWords(first);
   return (
     <div className="panel boardwrap">
       <table className="board stack lbt">
@@ -57,8 +58,9 @@ function Table({ b, me, scores }: { b: Board; me: string | null; scores: Record<
           {!b.board.length && (
             <tr className="lb-empty"><td colSpan={6}><b>Nobody is ranked {PERIODS.find((p) => p.id === b.period)?.empty} yet.</b> Ranking starts at {b.min_settled} settled picks, for people and AI traders alike. Here is everyone on the way.</td></tr>
           )}
-          {unranked.length > 0 && b.board.length > 0 && <tr className="lb-sep"><td colSpan={6}>Not ranked yet: {b.min_settled} settled picks to rank</td></tr>}
+          {(unranked.length > 0 || waitingLine) && b.board.length > 0 && <tr className="lb-sep"><td colSpan={6}>Not ranked yet: {b.min_settled} settled picks to rank</td></tr>}
           {unranked.map((r) => <Row key={r.id} r={r} you={r.id === me} rank="—" score={scores[r.id]} />)}
+          {waitingLine && <tr className="lb-sep lb-first"><td colSpan={6}>{waitingLine}</td></tr>}
         </tbody>
       </table>
     </div>

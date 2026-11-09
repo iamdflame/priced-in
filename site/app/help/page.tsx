@@ -9,6 +9,8 @@ import { LIMITS } from "@/lib/money/rules";
 import { MARKET_ID, REPLAY_HREF, REPO_URL } from "@/lib/nav";
 import { getNews } from "@/lib/server/news";
 import { getOfficial } from "@/lib/server/pages";
+import { api } from "@/lib/server/api";
+import { rulingNote } from "@/lib/rulings";
 
 export const revalidate = 60;
 
@@ -23,9 +25,9 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
   {
     id: "betting", title: "Betting", sub: "Yes or No on a fact, and what the number means.",
     items: [
-      { q: "What is Priced In?", a: <>A prediction market for facts. Each fact is a Yes/No question, and the % is the market’s chance that it’s true. You bet on whether it is, and an AI jury decides the facts people doubt.</> },
+      { q: "What is Priced In?", a: <>A prediction market for facts. Each fact is a Yes/No question, and the % is the market’s chance that it’s true. You bet on whether it is, and three AI judges decide the facts people doubt.</> },
       { q: "How do I bet?", a: <>Tap Yes or No on any fact. Before you confirm, the ticket shows what $1 becomes if you’re right. Your bet is a real trade on NEAR, and it settles in a few seconds.</> },
-      { q: "What does the % mean?", a: <>It’s the market’s chance that the fact is true. Before anyone bets, it’s our AI’s first read, and the card says so. Every bet moves it, and the ticket says how far $1 moves that market.</> },
+      { q: "What does the % mean?", a: <>It’s the market’s chance that the fact is true. Before anyone bets, it’s our AI’s estimate, and the card says so. Every bet moves it, and the ticket says how far $1 moves that market.</> },
       { q: "What happens when I’m right?", a: <>When the fact is decided, each share on the right side pays $1 and each share on the wrong side pays nothing. You can also sell before then, at the current price.</> },
     ],
   },
@@ -39,13 +41,13 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
     ],
   },
   {
-    id: "rulings", title: "Who decides what’s true", sub: "The AI jury, the dispute window and the corrected line.",
+    id: "rulings", title: "Who decides what’s true", sub: "The AI judges, the objection window and the corrected fact.",
     items: [
       { q: "Who decides whether a fact is true?", a: <>When a fact is doubted, a Checker posts a $1 bond with its evidence. Three AI models from different makers (DeepSeek, Qwen and GLM) read the claim and the evidence and sign a verdict. Each runs in a sealed chip that proves which model answered, and the market contract checks every signature. Two matching verdicts decide.</> },
-      { q: "When does the jury sit?", a: <>Daily at 15:00 UTC, on the doubted fact with the most bets. The next sitting and every past ruling are on <Link href="/rulings">Results</Link>.</> },
-      { q: "What if the AI jury is wrong?", a: <>Every ruling opens a dispute window, from 10 minutes on a small market up to a day on the largest. Anyone with a NEAR account can dispute by posting twice the bond, which flips the ruling and restarts the window. The third dispute goes to the council. Whoever is wrong loses their bond to whoever is right.</> },
-      { q: "Can someone lie to the jury?", a: <>A ruling is only as good as its evidence, so every receipt is checked where it lives: the cited page is fetched and its exact words looked for before our jury sits. If someone runs the jury themselves on receipts that fail, the Sentinel disputes it with its own bond. In our test it disputed 52 of 53 lies and none of 21 honest challenges; the numbers are on <Link href="/accuracy">Accuracy</Link>.</> },
-      { q: "How often is the jury right?", a: <>On 232 facts we had already checked by hand, it ruled on 142 and was right on 136. When the source doesn’t settle a fact it declines, and the bond is refunded. Every wrong ruling is listed on <Link href="/accuracy">Accuracy</Link>.</> },
+      { q: "When do the AI judges decide?", a: <JudgesWhen /> },
+      { q: "What if the AI judges are wrong?", a: <>Every decision opens a dispute window, from 10 minutes on a small market up to a day on the largest. Anyone with a NEAR account can dispute by posting twice the bond, which flips the decision and restarts the window. The third dispute goes to the council. Whoever is wrong loses their bond to whoever is right.</> },
+      { q: "Can someone lie to the AI judges?", a: <>A decision is only as good as its evidence, so every receipt is checked where it lives: the cited page is fetched and its exact words looked for before our AI judges read it. If someone runs the AI judges themselves on receipts that fail, the Sentinel disputes it with its own bond. In our test it disputed 52 of 53 lies and none of 21 honest challenges; the numbers are on <Link href="/accuracy">Accuracy</Link>.</> },
+      { q: "How often are the AI judges right?", a: <>On 232 facts we had already checked by hand, they decided 142 and was right on 136. When the source doesn’t settle a fact they decline, and the bond is refunded. Every wrong decision is listed on <Link href="/accuracy">Accuracy</Link>.</> },
       { q: "What happens to a fact that’s ruled false?", a: <>The people who bet against it are paid. When the source gives the right wording, the corrected sentence opens as a new market anyone can bet on.</> },
     ],
   },
@@ -61,16 +63,29 @@ const SECTIONS: { id: string; title: string; sub: string; items: QA[] }[] = [
   {
     id: "ai", title: "AI and Priced In", sub: "Asking an AI, the AI traders, and your own agent.",
     items: [
-      { q: "Can’t I just ask an AI?", a: <>You can, and it’s how you win: check a fact, then bet on what you found. In our test an AI with web search found 7 of 10 out-of-date Wikipedia lines, yet all 10 were still on Wikipedia. An answer in a chat changes nothing. A ruling here is public, signed and paid, and the corrected line becomes a market.</> },
+      { q: "Can’t I just ask an AI?", a: <>You can, and it’s how you win: check a fact, then bet on what you found. In our test an AI with web search found 7 of 10 out-of-date Wikipedia lines, yet all 10 were still on Wikipedia. An answer in a chat changes nothing. A decision here is public, signed and paid, and the corrected fact becomes a market.</> },
       { q: "Who are the AI traders?", a: <>Three house agents, the Archivist, the Skeptic and the Quant, each with its own model and its own money. They bet small amounts ($0.12 at most a bet) so no fact sits empty, and their bets and profit are public on <Link href="/agents">AI traders</Link>.</> },
       { q: "Can my AI agent use Priced In?", a: <>Yes. The truth API and the MCP server answer “how sure should I be?” for a claim, with the price, the open interest and the sources. 20 calls a day are free; after that a call costs $0.01 in USDC, paid per call. See <Link href="/developers">Developers</Link>.</> },
     ],
   },
 ];
 
+/**
+ * When the AI judges decide, from the live clock: the API's own sentence about what's next (both caught
+ * days while both are ahead, then news facts as they come due), then the standing rules.
+ */
+async function JudgesWhen() {
+  const r = await api.rulings();
+  const doc = r.ok ? r.value : null;
+  const note = doc ? rulingNote(doc) : null;
+  const hour = String(doc?.sitting_hour_utc ?? 15).padStart(2, "0");
+  const per = doc?.per_day ?? 1;
+  return <>{note ? <><b>{note}.</b> </> : null}A fact our check doubts goes to them at {hour}:00 UTC, {per === 1 ? "one a day" : `up to ${per} a day`}, the one with the most bets first. A fact from the news goes to them once its date has passed. Anyone can also start one at any time by challenging a fact with a bond. What’s next and every result so far are on <Link href="/rulings">Results</Link>.</>;
+}
+
 /** Added to "AI and Priced In" while the official pages are on (OFFICIAL_PAGES=1 on the API). */
 const OFFICIAL: QA[] = [
-  { q: "Who writes the encyclopedia pages?", a: <>AI, from the market. Each page starts as Wikipedia’s. A sentence the market is sure of is stated plainly, one it leans on is hedged, and one it doubts says traders doubt it. A line ruled false is corrected from its source, or says it was ruled false. Sentences with no market, and lines nobody has bet on yet, keep Wikipedia’s words. Each rewrite is signed in a TEE by the model that wrote it and put on NEAR, and one tap on the page shows Wikipedia’s words.</> },
+  { q: "Who writes the encyclopedia pages?", a: <>AI, from the market. Each page starts as Wikipedia’s. A sentence the market is sure of is stated plainly, one it leans on is hedged, and one it doubts says traders doubt it. A line decided false is corrected from its source, or says it was decided false. Sentences with no market, and lines nobody has bet on yet, keep Wikipedia’s words. Each rewrite is signed in a TEE by the model that wrote it and put on NEAR, and one tap on the page shows Wikipedia’s words.</> },
   { q: "Can I reuse the pages?", a: <>Yes. Wikipedia’s text is available under <a href="https://creativecommons.org/licenses/by-sa/4.0/" target="_blank" rel="noopener license">CC BY-SA 4.0</a>, and the pages rewritten from it are shared under the same licence. Credit Wikipedia’s contributors and link to the revision each page names.</> },
 ];
 

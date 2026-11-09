@@ -19,8 +19,8 @@ import { NextRuling, RulingClock } from "@/components/pages/RulingClock";
 import { VerifyVerdict } from "@/components/pages/VerifyVerdict";
 import { clockUtc, dayTimeUtc, explorerAccount, explorerTx, money, plural, span } from "@/lib/format";
 import type { Fact } from "@/lib/model";
-import { rulingNote, rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
-import type { Ruling } from "@/lib/server/api";
+import { priceBeforeRuling, rulingNote, rulingRecord, verdictOf, winningSide } from "@/lib/rulings";
+import type { Ruling, Scheduled } from "@/lib/server/api";
 import { judgeWords, verdictTx } from "@/lib/server/proof";
 import { getNews } from "@/lib/server/news";
 import { getSite } from "@/lib/server/site";
@@ -47,6 +47,8 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
   const ruledIds = new Set(all.map((r) => r.claim_id));
   const queue = site.facts.filter((f) => f.caught && f.status === "open" && !ruledIds.has(f.id)).sort((a, b) => b.trades - a.trades || a.id - b.id);
   const reopened = all.flatMap((r) => (r.correction ? [r.correction.claim_id] : []));
+  // up next, soonest first: every fact the AI judges have a time for, then the doubted ones still waiting for a bet
+  const next = upNext(R.schedule, queue, byId, site.asOf);
 
   return (
     <main id="main" className="wrap pg">
@@ -56,10 +58,10 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
         { v: medianMs === null ? "—" : span(medianMs), l: "from doubt to paid", s: settled.length > 1 ? "the median" : "the one so far" },
         { v: money(paidUsd), l: "paid to the winners", s: "in USDC, on-chain" },
         { v: <>{unanimous}<i> of {settled.length}</i></>, l: "with all three judges agreeing", s: "each verdict signed separately" },
-        { v: queue.length, l: "facts Wikipedia may have wrong", s: "queued for the Checker" },
+        { v: queue.length, l: queue.length === 1 ? "fact Wikipedia may have wrong" : "facts Wikipedia may have wrong", s: "queued for the Checker" },
       ]} />
 
-      {hero && <Case r={hero} f={byId.get(hero.claim_id) ?? null} corrected={hero.correction ? byId.get(hero.correction.claim_id) ?? null : null} />}
+      {hero && <Case r={hero} f={byId.get(hero.claim_id) ?? null} before={priceBeforeRuling(site.history[String(hero.claim_id)], hero.settled_at)} corrected={hero.correction ? byId.get(hero.correction.claim_id) ?? null : null} />}
 
       {hero && (
         <>
@@ -70,30 +72,36 @@ export default async function RulingsPage({ searchParams }: { searchParams: Prom
         </>
       )}
 
-      <SHead id="now" title="Being decided now" sub="A ruling runs in three stages: the AI judges read (minutes), 10 minutes for objections, then settlement." />
+      <SHead id="now" title="Being decided now" sub="A decision runs in three stages: the AI judges read (minutes), 10 minutes for objections, then settlement." />
       {live ? <RulingBlock r={live} /> : (
         <div className="panel quiet">
           <Icon name="clock" />
           <div>
             <b>Nothing is being decided this minute.</b>
-            <p>{rulingNote(R) ?? ((R.next_challenge_at ?? R.next_ruling_at ?? 0) > R.asOf ? <>The next ruling starts at {clockUtc((R.next_challenge_at ?? R.next_ruling_at)!)}: the Checker bets a bond against the next fact Wikipedia may have wrong, and the AI judges rule within minutes.</> : <>No ruling is scheduled. A ruling starts whenever anyone bonds a challenge against a fact.</>)}</p>
+            <p>{rulingNote(R) ?? ((R.next_challenge_at ?? R.next_ruling_at ?? 0) > R.asOf ? <>The next decision starts at {clockUtc((R.next_challenge_at ?? R.next_ruling_at)!)}: the Checker bets a bond against the next fact Wikipedia may have wrong, and three AI judges read it.</> : <>Nothing is scheduled. A decision starts whenever anyone bonds a challenge against a fact.</>)}</p>
           </div>
         </div>
       )}
 
-      {queue.length > 0 && (
+      {next.length > 0 && (
         <>
-          <SHead id="next" title="Up next: facts Wikipedia may have wrong" sub={news.on ? "Our check found a newer source that disagrees with each of these sentences. Call it before the AI judges decide: a pick is free, and a bet is on its page." : "Our check found a newer source that disagrees with each of these sentences. You can bet before the AI judges decide."} right={plural(queue.length, "fact")} />
-          <div className="grid">
-            {queue.slice(0, 8).map((f) => <FactCard key={f.id} f={f} points={site.history[String(f.id)]} reopened={reopened.includes(f.id)} picks={news.on} />)}
+          <SHead id="next" title="Up next for the AI judges" sub={`Soonest first, with when each is decided.${news.on ? " Call it before then: a pick is free, and a bet is on its page." : " You can bet until then."}`} right={plural(next.length, "fact")} />
+          <div className="grid upnext">
+            {next.map(({ f, at }) => (
+              <div key={f.id} className="upnext-i">
+                <p className="when"><Icon name="clock" />{at ? <>AI judges decide <b>{dayTimeUtc(at)}</b></> : "Waits for its first bet"}</p>
+                <FactCard f={f} points={site.history[String(f.id)]} reopened={reopened.includes(f.id)} picks={news.on} />
+              </div>
+            ))}
           </div>
         </>
       )}
 
-      <SHead id="record" title="The full record" sub="Every challenge ever filed on the market, newest first. Each one’s receipts are checked where they live before our judges sit, and the Sentinel disputes any ruling that rests on receipts that failed." right={plural(all.length, "ruling")} />
+      <SHead id="record" title="The full record" sub={`${hero ? "Every challenge since the first one, told in full above" : "Every challenge ever filed on the market"}, newest first. Each one’s receipts are checked where they live before our AI judges read them, and the Sentinel disputes any decision that rests on receipts that failed.`} right={plural(all.length, "result")} />
+      {/* the first one is the story above: listed again here, it read as the same case three times */}
       <div className="panel rlist">
-        {all.length ? all.map((r) => <RecordRow key={r.challenge_id} r={r} f={byId.get(r.claim_id) ?? null} />) : (
-          <div className="quiet"><Icon name="gavel" /><div><b>No rulings yet.</b><p>The first one will appear here the moment a challenge is filed.</p></div></div>
+        {all.length ? all.filter((r) => r.challenge_id !== hero?.challenge_id).map((r) => <RecordRow key={r.challenge_id} r={r} f={byId.get(r.claim_id) ?? null} />) : (
+          <div className="quiet"><Icon name="gavel" /><div><b>No results yet.</b><p>The first one will appear here the moment a challenge is filed.</p></div></div>
         )}
       </div>
       <p className="fine devfoot">
@@ -107,7 +115,7 @@ function Head({ next, note, checker, live }: { next: number | null; note?: strin
   return (
     <PageHero
       kick="Results · decided by three AI judges"
-      title="Doubt a fact. Three AI judges decide it within minutes."
+      title="Doubt a fact. Three AI judges decide it."
       lede={<>When a fact looks wrong, a Checker bets a bond against it. <b>Three AI models</b> read the sources and sign their verdicts on-chain<span className="long">, anyone can object for 10 minutes, then the winners are paid and the corrected fact opens as a new market</span>.</>}
       side={
         <div className="clockc" aria-live="off">
@@ -119,8 +127,8 @@ function Head({ next, note, checker, live }: { next: number | null; note?: strin
           ) : (
             <NextRuling
               at={next}
-              ahead={note ?? <>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges rule within minutes, then 10 minutes for objections.</>}
-              none={note ?? "Nothing is scheduled right now. A ruling starts whenever someone bonds a challenge."}
+              ahead={note ?? <>{checker ? <><b>{plural(checker.lines_left, "fact")}</b> queued for the Checker, with <b>{money(checker.balance_usd)}</b> ready for bonds.</> : null} Three AI judges read it, then 10 minutes for objections.</>}
+              none={note ?? "Nothing is scheduled right now. A decision starts whenever someone bonds a challenge."}
             />
           )}
         </div>
@@ -129,17 +137,19 @@ function Head({ next, note, checker, live }: { next: number | null; note?: strin
   );
 }
 
-function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact | null }) {
+function Case({ r, f, before: last, corrected }: { r: Ruling; f: Fact | null; before: number | null; corrected: Fact | null }) {
   const verdict = verdictOf(r);
+  // with no bets, the last price is our AI's estimate, not what a market said
+  const before = f && f.trades > 0 ? last : null;
   const took = r.settled_at ? span(r.settled_at - r.opened_at) : null;
   const lastJudge = r.verdicts.length ? span(Math.max(...r.verdicts.map((v) => v.at)) - r.opened_at) : null;
   return (
     <section className="panel case" aria-labelledby="case-h">
       <div>
         <div className="chips">
-          <span className={`verdict-big ${verdict === "TRUE" ? "true" : ""}`}><Icon name="gavel" />Ruled {verdict}</span>
+          <span className={`verdict-big ${verdict === "TRUE" ? "true" : ""}`}><Icon name="gavel" />Decided: {verdict.toLowerCase()}</span>
           {f && <span className="chip"><TopicIcon icon={f.icon} />{f.topic}</span>}
-          <span className="chip">First ruling on real money · {dayTimeUtc(r.opened_at)}</span>
+          <span className="chip">First decision on real money · {dayTimeUtc(r.opened_at)}</span>
         </div>
         <h2 id="case-h">{f ? <Link href={`/c/${r.claim_id}`}>{f.question}</Link> : r.claim}</h2>
         <div className="ba">
@@ -149,7 +159,7 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
         {f?.caught && <a className="src" href={f.caught.source} target="_blank" rel="noopener">{f.caught.label}<Icon name="ext" /></a>}
         <Receipts r={r} />
         <div className="facts3">
-          <div><b>{lastJudge ?? "—"}</b>for all three judges to rule</div>
+          <div><b>{lastJudge ?? "—"}</b>for all three AI judges to decide</div>
           <div><b>{took ?? "—"}</b>from doubt to paid</div>
           <div><b>{r.payout_usd ? money(r.payout_usd) : "—"}</b>paid to {winningSide(verdict)}</div>
         </div>
@@ -162,8 +172,9 @@ function Case({ r, f, corrected }: { r: Ruling; f: Fact | null; corrected: Fact 
       </div>
       {f && (
         <div className="case-side">
-          <div className="case-dial"><Dial p={f.price} label="chance it’s true" sizes="230px" /></div>
-          <p className="dialcap"><b>What the market said</b>{plural(f.trades, "bet")}, before the judges ruled it {verdict.toLowerCase()}</p>
+          <div className="case-dial"><Dial p={before ?? f.price} label="chance it’s true" sizes="230px" /></div>
+          {/* the market's last price before the ruling: the settled price is the outcome itself, never what the money said */}
+          <p className="dialcap">{before !== null ? <><b>What the market said</b>{Math.round(before * 100)}% chance it’s true after {plural(f.trades, "bet")}, before the AI judges decided it {verdict.toLowerCase()}</> : <><b>Decided {verdict.toLowerCase()}</b>Nobody had bet before the AI judges decided it</>}</p>
         </div>
       )}
     </section>
@@ -186,7 +197,7 @@ async function Judges({ r }: { r: Ruling }) {
             </div>
             {words ? <blockquote>{words}</blockquote> : <p className="fine">The judge’s words are in its transaction; open it below.</p>}
             <div className="meta2">
-              <span>Ruled in {span(v.at - r.opened_at)}</span>
+              <span>Decided in {span(v.at - r.opened_at)}</span>
               <span>{v.runner?.attestation?.ok ? "Attested secure chip" : "Signed"}</span>
               <a href={explorerTx(v.tx)} target="_blank" rel="noopener">See the verdict<Icon name="ext" /></a>
               <Link href="/trust#judges">Its proof</Link>
@@ -201,7 +212,7 @@ async function Judges({ r }: { r: Ruling }) {
 
 function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
   const verdict = verdictOf(r);
-  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "escalated" ? "With the market’s council after three objections" : r.status === "void" ? "Voided by the council: every bond came back" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
+  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "escalated" ? "With the market’s council after three objections" : r.status === "void" ? "Voided by the council: every bond came back" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the AI judges didn’t reach a verdict in time" : r.status;
   return (
     <div className="rrow" id={`ruling-${r.challenge_id}`}>
       {f ? <span className="ti" aria-hidden="true"><Art name={f.art} width={72} height={72} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
@@ -216,4 +227,22 @@ function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
       </div>
     </div>
   );
+}
+
+/**
+ * Up next, soonest first: the facts the AI judges have a time for (the API's schedule), then doubted
+ * facts still waiting for a first bet. One row's worth, so the section never stands half empty when
+ * the news has lines coming due.
+ */
+function upNext(schedule: Scheduled[] | undefined, queue: Fact[], byId: Map<number, Fact>, now: number, max = 4): { f: Fact; at: number | null }[] {
+  const out: { f: Fact; at: number | null }[] = [];
+  const seen = new Set<number>();
+  for (const s of schedule ?? []) {
+    const f = byId.get(s.claim_id);
+    if (!f || f.status !== "open" || s.at <= now || seen.has(f.id)) continue;
+    out.push({ f, at: s.at });
+    seen.add(f.id);
+  }
+  for (const f of queue) if (!seen.has(f.id)) { out.push({ f, at: null }); seen.add(f.id); }
+  return out.slice(0, max);
 }

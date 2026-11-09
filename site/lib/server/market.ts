@@ -10,7 +10,8 @@ import type { Rationale } from "../core/api";
 import { modelShort, money } from "../format";
 import type { ClaimView, Fact } from "../model";
 import { REPLAY } from "../replay/record";
-import { verdictOf } from "../rulings";
+import { decideTime, verdictOf } from "../rulings";
+import type { Scheduled } from "./api";
 
 export interface HistoryItem {
   at: number;
@@ -34,6 +35,8 @@ export interface Market {
   lane: Site["lane"];
   /** the time the chart's last step is drawn at */
   nowAt: number;
+  /** when the AI judges take this fact, if it is queued for them */
+  decide: Scheduled | null;
 }
 
 function rulingLines(r: Ruling): HistoryItem[] {
@@ -81,5 +84,6 @@ export async function getMarket(claim: ClaimView, recorded: boolean): Promise<Ma
     wiki: wikiOf(fact.page),
     lane: site.lane,
     nowAt: recorded ? REPLAY.betAt - 1 : site.asOf,
+    decide: recorded || fact.status !== "open" ? null : decideTime(site.rulings, id, site.asOf),
   };
 }

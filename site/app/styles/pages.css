@@ -48,6 +48,13 @@
 .clockc p { font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
 .clockc p b { color: var(--ink); font-weight: 600; }
 .clockc .clockline { margin-top: 8px; font-size: 15px; color: var(--ink); }
+.clockc .clockat { font: 600 15px/1.3 var(--disp); color: var(--ink); margin-bottom: 4px; font-feature-settings: 'tnum'; }
+/* Up next on /rulings: each card under the time the AI judges decide it */
+.upnext-i { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.upnext-i > :last-child { flex: 1; }
+.upnext-i .when { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--ink2); }
+.upnext-i .when b { color: var(--ink); font-weight: 600; font-feature-settings: 'tnum'; }
+.upnext-i .when .ic { width: 15px; height: 15px; color: var(--ink3); }
 
 /* Key numbers */
 .kpis { display: grid; grid-template-columns: repeat(var(--k, 5), minmax(0, 1fr)); gap: 1px; margin-top: 16px; border-radius: var(--r-lg); overflow: hidden; background: var(--line); box-shadow: var(--card-shadow); }
@@ -333,6 +340,7 @@
 .postc .au b { display: block; font: 600 16px var(--disp); }
 .postc .au small { display: block; font-size: 13px; color: var(--ink3); }
 .postc .tx { font-size: 19px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
+.postc .more { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; min-height: 44px; font: 600 15px var(--disp); color: var(--brand-text); }
 .plines { display: flex; flex-direction: column; }
 .pline { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; padding: 16px 18px; border-top: 1px solid var(--line); align-items: start; }
 .pline:first-child { border-top: 0; }

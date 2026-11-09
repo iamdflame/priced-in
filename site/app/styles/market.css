@@ -85,6 +85,17 @@
 
 
 
+/* the wallet's way in, in the page: only on a phone, where the bet bar is compact */
+.mk-wallet { display: none; }
+/* when the AI judges decide this fact */
+.decidewhen { display: flex; gap: 12px; align-items: flex-start; margin-top: 14px; padding: 16px 18px; }
+.decidewhen > .ic { width: 20px; height: 20px; margin-top: 2px; color: var(--ink2); flex: none; }
+.dw-k { font-size: 13px; color: var(--ink3); }
+.dw-at { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin-top: 2px; }
+.dw-at b { font: 700 20px/1.2 var(--disp); letter-spacing: -.01em; color: var(--ink); font-feature-settings: 'tnum'; }
+.dw-in { font: 600 15px/1.2 var(--disp); color: var(--ink2); font-feature-settings: 'tnum'; }
+.dw-s { margin-top: 6px; font-size: 13.5px; line-height: 1.5; color: var(--ink2); max-width: 70ch; text-wrap: pretty; }
+
 @media (max-width: 1240px) {
   .mk { grid-template-columns: minmax(0, 1fr) 340px; }
 }
@@ -113,6 +124,11 @@
   .ticket.dock { position: fixed; left: 0; right: 0; bottom: calc(68px + env(safe-area-inset-bottom)); top: auto; z-index: 35; border-radius: 18px 18px 0 0; padding: 10px 12px 12px; gap: 8px; box-shadow: 0 -12px 30px -14px oklch(0 0 0 / .45); max-height: calc(100dvh - 140px); overflow-y: auto; }
   .ticket.dock h2 { font-size: 15px; }
   .ticket.dock .hide-dock { display: none; }
+  /* before a side is picked the bar is Yes and No alone: about a fifth of the screen with the nav, so the chart shows */
+  .ticket.dock.compact { padding: 8px 10px 10px; gap: 6px; }
+  .ticket.dock.compact > h2, .ticket.dock.compact > .fine, .ticket.dock.compact .wentry, .ticket.dock.compact .tk-score { display: none; }
+  .ticket.dock.compact .seg button { height: 54px; }
+  .mk-wallet { display: block; margin-top: 14px; padding: 12px 16px; }
 }
 .phone-only { display: none; }
 .replaylink { font-size: 13px; align-self: flex-start; min-height: 32px; display: inline-flex; align-items: center; }

@@ -1,6 +1,6 @@
 // What the bet is on and who settles it: the source in plain view, and the rules one glance below.
 import { Icon } from "../Icon";
-import { dayTimeUtc } from "@/lib/format";
+import { dayTimeUtc, longDayTimeUtc } from "@/lib/format";
 import type { Fact } from "@/lib/model";
 import { headlineOf, outletOf } from "@/lib/news";
 import type { Market } from "@/lib/server/market";
@@ -27,11 +27,11 @@ export function Sources({ f, wiki, corrected }: { f: Fact; wiki: Market["wiki"];
   );
 }
 
-export function Rules({ f, wiki }: { f: Fact; wiki: Market["wiki"] }) {
+export function Rules({ f, wiki, decideAt = null }: { f: Fact; wiki: Market["wiki"]; decideAt?: number | null }) {
   return (
     <div className="panel rules">
       <div><h2>How Yes or No wins</h2><p>Yes wins if the sentence is accurate as written on the day it’s decided. No wins if a newer, cited source contradicts it.</p></div>
-      <div><h2>Who decides</h2><p>Three AI judges, each a different attested model, rule within minutes of a challenge and sign on-chain. Then anyone can object for 10 minutes.</p></div>
+      <div><h2>Who decides, and when</h2><p>Three AI judges, each a different attested model, decide it {decideAt ? <>on <b>{longDayTimeUtc(decideAt)}</b></> : "within minutes of a challenge"} and sign on-chain. Then anyone can object for 10 minutes.</p></div>
       <div><h2>Where it’s from</h2><p>{wiki.attribution ?? `Wikipedia: ${wiki.title}.`}{f.caught ? ` Checked against ${f.caught.label}.` : ""}</p></div>
     </div>
   );

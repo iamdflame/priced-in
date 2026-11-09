@@ -291,15 +291,15 @@ function planWords(plan, { sitting, queue, waiting, today, held }) {
  * The open news lines in one sentence: those past their date, and when the next comes due.
  * @param {{ lines?: { claim_id: number, due_at: number }[] }|null} news
  */
-function newsWords(news, nowMs, first) {
+function newsWords(news, nowMs, lead) {
   const lines = news?.lines ?? [];
   const late = lines.filter((l) => l.due_at <= nowMs).length;
   const ahead = lines.filter((l) => l.due_at > nowMs).map((l) => l.due_at);
   const next = ahead.length ? Math.min(...ahead) : null;
   const parts = [];
   if (late) parts.push(late === 1 ? "One news fact is past its date: the AI judges decide it once its source answers" : `${numWord(late).replace(/^./, (x) => x.toUpperCase())} news facts are past their date: the AI judges decide each once its source answers`);
-  if (next !== null) parts.push(`News facts go to ${first && !late ? "the AI judges" : "them"} as they come due: the next on ${dayWords(next)} at ${timeWords(next)}`);
-  return { note: parts.length ? parts.join(". ") : null, next };
+  if (next !== null) parts.push(`News facts go to ${lead && !late ? "the AI judges" : "them"} as they come due: the next on ${dayWords(next)} at ${timeWords(next)}`);
+  return { note: parts.length ? parts.join(". ") : null, next, late };
 }
 
 /**
@@ -339,9 +339,11 @@ export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null,
       : waiting >= queue ? "No doubted Wikipedia fact has a bet yet, so the AI judges wait for one"
         : c.funded === false ? "The AI judges wait for the Checker’s bond to be funded"
           : c.refused ? "Today’s decision is delayed while the keeper tries again" : null;
-  const nw = newsWords(news, nowMs, !wiki);
+  // the half whose next decision comes first leads, so the sentence reads in the order things happen
+  const soonNews = (() => { const n = newsWords(news, nowMs, true); return n.late > 0 || (n.next !== null && (!plan[0] || n.next < plan[0].at)); })();
+  const nw = newsWords(news, nowMs, !wiki || soonNews);
   const at = [plan[0]?.at, nw.next].filter((x) => Number.isFinite(x)).sort((a, b) => a - b)[0] ?? null;
-  const note = [wiki, nw.note].filter(Boolean).join(". ")
+  const note = (soonNews ? [nw.note, wiki] : [wiki, nw.note]).filter(Boolean).join(". ")
     || (!c.enabled ? "The AI judges aren’t deciding doubted facts right now" : "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond");
   return say(at, note);
 }

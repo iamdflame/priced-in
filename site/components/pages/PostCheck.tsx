@@ -9,10 +9,11 @@ import { Sk, StateBox } from "../States";
 import { PricedLines } from "./PricedLines";
 import { browserApi } from "@/lib/client/api";
 import type { ApiFailure, PostResult } from "@/lib/core/api";
+import type { LiveFact } from "@/lib/related";
 
 type State = { at: "loading" } | { at: "done"; post: PostResult } | { at: "failed"; error: ApiFailure };
 
-export function PostCheck({ user, id }: { user: string; id: string }) {
+export function PostCheck({ user, id, live = [] }: { user: string; id: string; live?: LiveFact[] }) {
   const [state, setState] = useState<State>({ at: "loading" });
   const load = useCallback(async () => {
     setState({ at: "loading" });
@@ -49,16 +50,17 @@ export function PostCheck({ user, id }: { user: string; id: string }) {
           <div><b>{p.post.authorName}</b><small>@{p.post.handle}{p.post.date ? ` · ${p.post.date}` : ""}</small></div>
         </div>
         <p className="tx">{p.post.text}</p>
+        {p.post.truncated && <a className="more" href={p.post.url} target="_blank" rel="noopener">The post continues on X<Icon name="ext" /></a>}
         <a className="src" href={p.post.url} target="_blank" rel="noopener">See it on X<Icon name="ext" /></a>
       </article>
       {p.notices.map((n) => <p key={n.code} className="notice info result-gap"><Icon name="info" /><span>{n.message}</span></p>)}
       <div className="shead">
         <div>
           <h2>{checkable ? `${checkable === 1 ? "1 checkable line" : `${checkable} checkable lines`}, priced` : "Nothing here to bet on"}</h2>
-          <p>{checkable ? "Each estimate is our AI’s starting read, before anyone has bet." : p.voice ?? p.message ?? "Every line is opinion or can’t be checked."}</p>
+          <p>{checkable ? "Each % is our AI’s estimate, before anyone has bet. Beside it: the closest live fact to bet on now, or how the line becomes a market of its own." : p.voice ?? p.message ?? "Every line is opinion or can’t be checked."}</p>
         </div>
       </div>
-      <PricedLines sentences={p.sentences} label="The post’s lines, as our AI read them" />
+      <PricedLines sentences={p.sentences} label="The post’s lines, as our AI read them" live={live} />
     </>
   );
 }

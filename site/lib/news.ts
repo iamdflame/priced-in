@@ -186,6 +186,24 @@ export interface BoardRow {
   needs?: number;
 }
 
+/**
+ * The board's rows not ranked yet, with the people still waiting for their first result folded into one
+ * line: a row each of "Visitor… 1 pick, 0 settled" read as an empty board. AI traders, people with a result,
+ * and you (by key) keep their rows.
+ */
+export function foldWaiting(rows: BoardRow[], me: string | null): { rows: BoardRow[]; first: { people: number; picks: number } } {
+  const folded = rows.filter((r) => r.kind === "person" && r.settled === 0 && r.id !== me && !r.caught);
+  const out = new Set(folded);
+  return { rows: rows.filter((r) => !out.has(r)), first: { people: folded.length, picks: folded.reduce((n, r) => n + r.picks_total, 0) } };
+}
+
+/** "7 people are waiting for their first result, with 8 picks between them" */
+export function waitingWords({ people, picks }: { people: number; picks: number }): string | null {
+  if (!people) return null;
+  const who = people === 1 ? "1 person is waiting for a first result" : `${people} people are waiting for their first result`;
+  return `${who}, with ${picks === 1 ? "1 pick" : `${picks} picks`} ${people === 1 ? "open" : "between them"}. A pick counts here once its fact is decided.`;
+}
+
 /** GET /api/leaderboard?period= */
 export interface Board {
   period: Period;

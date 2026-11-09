@@ -41,6 +41,8 @@ export interface TicketProps {
   /** a line that takes no new bets on this site, and why (a news line past its date) */
   closed?: string | null;
   settlesBy?: string | null;
+  /** when the AI judges take this fact, if it is queued for them */
+  decideAt?: number | null;
 }
 
 /** What stands in the way of the free bet, in plain words, before the tap. */
@@ -140,8 +142,10 @@ function BetTicket(p: TicketProps) {
       </aside>
     );
   }
+  // on a phone the docked ticket is one compact bar of Yes and No until a side is picked, so the chart stays in view
+  const compact = !side && !busy && !done && !failure && !flow.receiptOpen;
   return (
-    <aside className="panel ticket dock" aria-label="Bet ticket" ref={ref}>
+    <aside className={`panel ticket dock${compact ? " compact" : ""}`} aria-label="Bet ticket" ref={ref}>
       <h2>{p.recorded ? "Replay the free $1" : scoring ? "Bet your score" : "Bet your free $1"}{scoring ? <span className="chip hide-dock"><Icon name="gift" />Score, not cash</span> : <span className="chip brand hide-dock"><Icon name="gift" />No wallet</span>}</h2>
       {scoring && scoreUsd && !done && <p className="tk-score">Your free $1 has won you <b>{money(scoreUsd)} of score</b>. Bet it again on any fact: right answers grow it. Score can’t be cashed out.</p>}
       {p.picks && pick.mine && <p className="tk-pick hide-dock"><Icon name="check" />Your free pick: <b className={pick.mine === "yes" ? "pos" : "neg"}>{pick.mine === "yes" ? "Yes, it’s true" : "No, it’s false"}</b></p>}
@@ -158,7 +162,7 @@ function BetTicket(p: TicketProps) {
         </div>
       ) : <p className="decide">This market can’t be quoted right now: one side is at its price cap.</p>}
       {quotes && !blocked && (side ? <Picked side={side} quotes={quotes} score={scoreUsd} /> : scoring ? null : <HowItWorks quotes={quotes} />)}
-      <JudgesLine className="hide-dock" />
+      <JudgesLine className="hide-dock" at={p.decideAt ?? null} />
       {failure && (
         <div className="notice err" role="alert">
           <Icon name="alert" />

@@ -9,14 +9,15 @@ import { Kpis, PageHero, SHead } from "@/components/pages/Kit";
 import { ago, clockUtc, money } from "@/lib/format";
 import { MARKET_ID } from "@/lib/nav";
 import { api } from "@/lib/server/api";
+import { problemsKpi, rpcState, statusTitle, type PartState, type RpcCheck } from "@/lib/status";
 
 export const metadata: Metadata = {
   title: "Status",
-  description: "Whether every part of Priced In is running right now: the market on NEAR, prices, free bets, the AI traders, the AI jury and payments.",
+  description: "Whether every part of Priced In is running right now: the market on NEAR, prices, free bets, the AI traders, the AI judges and payments.",
 };
 
 interface Checks {
-  rpc?: { reachable: number; urls: { ok: boolean; latencyMs?: number; height?: number }[] };
+  rpc?: RpcCheck;
   index?: { errors: unknown[] };
   lane?: { configured: boolean; open: boolean; paused: boolean };
   coverage?: { open: number; answered_today: number };
@@ -29,7 +30,7 @@ interface Checks {
 }
 interface FullHealth { ok: boolean; network: string; failures?: string[]; checks?: Checks }
 
-type State = "ok" | "warn" | "down" | "unknown";
+type State = PartState;
 const WORD: Record<State, string> = { ok: "Running", warn: "Degraded", down: "Down", unknown: "Not reported" };
 const t = (iso: string | undefined) => (iso ? Date.parse(iso) : NaN);
 
@@ -51,12 +52,13 @@ export default async function StatusPage() {
   const fastest = best.length ? Math.min(...best.map((u) => u.latencyMs ?? Infinity)) : null;
   const height = best.length ? Math.max(...best.map((u) => u.height ?? 0)) : null;
   const cronAt = t(c.cron?.last_run);
+  const nodes = rpcState(c.rpc);
 
   const parts: { name: string; what: string; state: State; detail: string }[] = [
     {
       name: "The market on NEAR", what: "Holds every bet and pays every winner.",
-      state: !c.rpc ? "unknown" : c.rpc.reachable === 0 ? "down" : c.rpc.reachable < c.rpc.urls.length ? "warn" : "ok",
-      detail: c.rpc ? `${MARKET_ID} on NEAR ${h.network}. ${c.rpc.reachable} of ${c.rpc.urls.length} NEAR nodes answer${fastest !== null && Number.isFinite(fastest) ? `, the fastest in ${fastest} ms` : ""}${height ? `, at block ${height.toLocaleString("en-US")}` : ""}.` : "Not reported.",
+      state: nodes.state,
+      detail: c.rpc ? `${MARKET_ID} on NEAR ${h.network}. ${c.rpc.reachable} of ${c.rpc.urls.length} NEAR nodes answer${fastest !== null && Number.isFinite(fastest) ? `, the fastest in ${fastest} ms` : ""}${height ? `, at block ${height.toLocaleString("en-US")}` : ""}.${nodes.note ? ` ${nodes.note}` : ""}` : "Not reported.",
     },
     {
       name: "Prices and history", what: "Reads every transaction, so prices, charts and results stay current.",
@@ -74,9 +76,9 @@ export default async function StatusPage() {
       detail: c.coverage ? `Looked at ${c.coverage.answered_today} of ${c.coverage.open} open facts today${t(c.outcomes?.last_answer) ? `, most recently ${ago(t(c.outcomes?.last_answer), now)}` : ""}.` : "Not reported.",
     },
     {
-      name: "AI jury", what: "Three attested AI models that rule on doubted facts.",
+      name: "AI judges", what: "Three attested AI models that decide doubted facts.",
       state: !c.ai ? "unknown" : c.ai.jury === "on" ? "ok" : "warn",
-      detail: [c.ruling?.next_ruling_note, c.ruling?.rulings_today !== undefined ? `${c.ruling.rulings_today} ruled today.` : null].filter(Boolean).join(" ") || "Not reported.",
+      detail: [c.ruling?.next_ruling_note, c.ruling?.rulings_today !== undefined ? `${c.ruling.rulings_today} decided today.` : null].filter(Boolean).join(" ") || "Not reported.",
     },
     {
       name: "Signed rewrites", what: "Rewrites a doubted line from its source, signed by the model, anchored on NEAR.",
@@ -96,7 +98,7 @@ export default async function StatusPage() {
   ];
   const down = parts.filter((p) => p.state === "down").length;
   const warn = parts.filter((p) => p.state === "warn").length + (failures.length && !down ? 1 : 0);
-  const title = down ? "Part of Priced In is down." : warn ? "Priced In is running, with a problem." : "Everything is running.";
+  const title = statusTitle(down, warn);
 
   return (
     <main id="main" className="wrap pg">
@@ -109,9 +111,9 @@ export default async function StatusPage() {
         label="Status at a glance"
         items={[
           { v: `${parts.filter((p) => p.state === "ok").length} of ${parts.length}`, l: "parts running" },
-          { v: c.rpc ? `${c.rpc.reachable} of ${c.rpc.urls.length}` : "—", l: "NEAR nodes answering" },
+          { v: c.rpc ? `${c.rpc.reachable} of ${c.rpc.urls.length}` : "—", l: "NEAR nodes answering", s: nodes.state === "ok" && nodes.note ? (c.rpc && c.rpc.urls.length - c.rpc.reachable === 1 ? "the quiet one is a spare: nothing is affected" : "the quiet ones are spares: nothing is affected") : undefined },
           { v: Number.isFinite(cronAt) ? ago(cronAt, now) : "—", l: "prices last read" },
-          { v: failures.length ? String(failures.length) : "None", l: "problems reported", tone: failures.length ? "neg" : undefined },
+          { ...problemsKpi(failures.length), tone: failures.length ? "neg" : undefined },
         ]}
       />
       <section aria-labelledby="parts">

@@ -66,13 +66,13 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
     const p = Math.round(steps[i].p * 100);
     if (i === 0) return `${openLabel}: ${p}%`;
     if (b) return `${b.who} bet ${b.free ? "a free $1" : money(b.usd)} on ${b.side === "yes" ? "Yes" : "No"} · ${p}% · ${clockUtc(b.at)}`;
-    if (i === n && ruled) return `Ruled ${ruled.outcome} · ${clockUtc(ruled.at)}`;
+    if (i === n && ruled) return `Decided ${ruled.outcome.toLowerCase()} · ${clockUtc(ruled.at)}`;
     return `${p}% · ${clockUtc(steps[i].t)}`;
   }
   return (
     <div className="chartwrap" ref={box} onMouseLeave={() => setHover(null)}>
       <svg className="chart" viewBox={`0 0 ${W} ${H}`} role="img" tabIndex={n > 1 ? 0 : undefined} onKeyDown={step} onBlur={() => setHover(null)}
-        aria-label={trades ? `Chance it’s true after each of ${trades} bets, from ${first}% at the start to ${last}%${ruled ? `, then ruled ${ruled.outcome}` : " now"}` : `No bets yet: flat at ${first}%`}>
+        aria-label={trades ? `Chance it’s true after each of ${trades} bets, from ${first}% at the start to ${last}%${ruled ? `, then decided ${ruled.outcome.toLowerCase()}` : " now"}` : `No bets yet: flat at ${first}%`}>
         <defs><linearGradient id={`cg${id}`} x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="currentColor" stopOpacity=".16" /><stop offset="1" stopColor="currentColor" stopOpacity="0" /></linearGradient></defs>
         {[0, 0.25, 0.5, 0.75, 1].map((p) => (
           <g key={p}><line className="g" x1={L} x2={W - R} y1={Y(p)} y2={Y(p)} /><text x={W - R + 8} y={Y(p) + 4}>{p * 100}%</text></g>
@@ -86,7 +86,7 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
           if (!b || hover !== i) return null;
           return <circle key={i} className={`bd ${b.side === "no" ? "n" : "y"}`} cx={X(i)} cy={Y(s.p)} r={5.5} />;
         })}
-        {ruled && <><line className="rule" x1={X(n)} x2={X(n)} y1={T} y2={H - B} /><text className="rulet" x={X(n) - 6} y={T + 12} textAnchor="end">Ruled {ruled.outcome}</text></>}
+        {ruled && <><line className="rule" x1={X(n)} x2={X(n)} y1={T} y2={H - B} /><text className="rulet" x={X(n) - 6} y={T + 12} textAnchor="end">Decided {ruled.outcome.toLowerCase()}</text></>}
         <circle className="endd" cx={X(n)} cy={Y(steps[n].p)} r={5} />
         <text x={X(0)} y={H - 6}>{openLabel}: {first}%</text>
         <text x={X(n)} y={H - 6} textAnchor="end">{ruled ? "Last price" : "Now"}: {last}%</text>

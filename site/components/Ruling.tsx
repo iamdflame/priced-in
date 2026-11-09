@@ -38,14 +38,14 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
     <section className="panel rulingp" aria-labelledby="ruling-h" id="ruling">
       <header>
         <div>
-          <h2 id="ruling-h">{settled ? (judged !== verdict && r.disputes.length ? `Settled ${verdict} after ${r.disputes.length === 1 ? "an objection" : `${r.disputes.length} objections`}` : `Ruled ${verdict} by ${r.verdicts.length} AI judges`) : r.escalated ? "Three objections: the council decides" : verdicts.length ? `${verdicts.length} of 3 AI judges have ruled` : "Challenged: the AI judges are reading"}</h2>
+          <h2 id="ruling-h">{settled ? (judged !== verdict && r.disputes.length ? `Settled ${verdict.toLowerCase()} after ${r.disputes.length === 1 ? "an objection" : `${r.disputes.length} objections`}` : `Decided ${verdict.toLowerCase()} by ${r.verdicts.length} AI judges`) : r.escalated ? "Three objections: the council decides" : verdicts.length ? `${verdicts.length} of 3 AI judges have decided` : "Challenged: the AI judges are reading"}</h2>
           <p className="sub">
             {settled
               ? <>Settled in {span((r.settled_at ?? r.opened_at) - r.opened_at)}{r.payout_usd ? <> · {money(r.payout_usd)} paid to {side}</> : null}{replay ? " · replayed at the real offsets, the 10-minute window shortened" : ""}</>
               : <>Three attested AI models read the sources and sign their verdicts on-chain. Then anyone can object for 10 minutes.</>}
           </p>
         </div>
-        {settled && <span className={`verdict ${verdict.toLowerCase()}`} data-size="lg">{verdict}</span>}
+        {/* the heading says the verdict: a second badge made four FALSEs on one screen */}
       </header>
       <ol className="tl">
         <li>
@@ -62,12 +62,12 @@ export function RulingBlock({ r, correctedQuestion, upTo = Infinity, replay = fa
         <li>
           <span className={`dotc ${verdicts.length ? "no" : ""}`}><Icon name="scale" /></span>
           <div className="what">
-            <b>{verdicts.length ? `${agree === verdicts.length ? (verdicts.length === 3 ? "All three" : verdicts.length) : `${agree} of ${verdicts.length}`} AI judges ruled it ${judged.toLowerCase() || "…"}` : "Three AI judges are reading the sources"}</b>, each signing its verdict inside a secure chip; the market checked every signature against the model’s registered key.
+            <b>{verdicts.length ? `${agree === verdicts.length ? (verdicts.length === 3 ? "All three" : verdicts.length) : `${agree} of ${verdicts.length}`} AI judges decided it ${judged.toLowerCase() || "…"}` : "Three AI judges are reading the sources"}</b>, each signing its verdict inside a secure chip; the market checked every signature against the model’s registered key.
             <div className="verdicts3">
               {r.verdicts.map((v, i) => shown(1 + i) ? (
                 <div key={v.tx} className="vcard">
                   <b title={v.model}>{judgeName(v.model)}</b>
-                  <span className={`v ${v.verdict === "TRUE" ? "true" : ""}`}><Icon name="check" />{v.verdict} · in {span(v.at - r.opened_at)}</span>
+                  <span className={`v ${v.verdict === "TRUE" ? "true" : ""}`}><Icon name="check" />{v.verdict === "TRUE" ? "True" : v.verdict === "FALSE" ? "False" : v.verdict} · in {span(v.at - r.opened_at)}</span>
                   <span>Signature verified on-chain{v.runner?.attestation?.ok ? " · attested" : ""}</span>
                   <TxLink tx={v.tx} label="See the verdict" />
                 </div>

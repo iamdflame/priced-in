@@ -1,5 +1,5 @@
 // The ruling record, as plain rules. Every count on screen comes from /api/rulings through these.
-import type { BondResult, Dispute, Ruling, Rulings, RulingsWire } from "./server/api";
+import type { BondResult, Dispute, Ruling, Rulings, RulingsWire, Scheduled } from "./server/api";
 
 /** Settled rulings, newest first. */
 export const settledRulings = (rulings: Ruling[]): Ruling[] => rulings.filter((r) => r.status === "settled").sort((a, b) => (b.settled_at ?? 0) - (a.settled_at ?? 0));
@@ -21,6 +21,27 @@ export const winningSide = (verdict: string) => (verdict === "FALSE" ? "No" : "Y
 /** Corrected claim id to the claim it replaced. */
 export function correctionsOf(rulings: Ruling[]): Map<number, number> {
   return new Map(rulings.flatMap((r) => (r.correction ? [[r.correction.claim_id, r.claim_id] as const] : [])));
+}
+
+/**
+ * What the market said just before a ruling: the last price in its history before the settlement, 0 to 1.
+ * A settled fact's own price is its outcome (0 or 1), never what the money thought. With no settlement time,
+ * trailing points at exactly 0 or 1 are the settlement itself and are skipped (an open market never sits
+ * there). Null when there is no such point.
+ * @param points [t_ms, price_yes_ppm] in time order
+ */
+export function priceBeforeRuling(points: [number, number][] | undefined, settledAt: number | null | undefined): number | null {
+  if (!points?.length) return null;
+  const before = typeof settledAt === "number" && Number.isFinite(settledAt) ? points.filter(([t]) => t < settledAt) : [...points];
+  while (settledAt == null && before.length > 1 && (before.at(-1)![1] <= 0 || before.at(-1)![1] >= 1e6)) before.pop();
+  const last = before.at(-1);
+  return last ? last[1] / 1e6 : null;
+}
+
+/** When the AI judges take this fact, from the API's schedule; null when it isn't queued (or the API is older). */
+export function decideTime(doc: { schedule?: Scheduled[] } | null | undefined, claimId: number, now = Date.now()): Scheduled | null {
+  const hit = doc?.schedule?.find((s) => s.claim_id === claimId) ?? null;
+  return hit && hit.at > now ? hit : null;
 }
 
 /**
