@@ -63,6 +63,18 @@ export function sentinelState(spareNear, balanceUsd, bondUsd) {
   return { state: low ? "WARN" : "PASS", detail: `${spareNear.toFixed(3)} NEAR spare, $${balanceUsd.toFixed(2)} in the market for a $${(2 * bondUsd).toFixed(2)} first dispute${low ? ": top it up with scripts/mainnet/sentinel.mjs" : ""}` };
 }
 
+/**
+ * Today's news lines, from /health's checks.news. A treasury too short for the next line only holds that line
+ * back, so it WARNs (top it up with scripts/mainnet/news-funding.mjs); no new line for more than 26 hours is
+ * what a judge would see, a board that stopped moving, and that FAILs. Null when the API reports news as fine.
+ */
+export function newsState(news) {
+  if (!news || news.ok !== false) return null;
+  const hours = news.hours_since;
+  const stale = hours === null || hours === undefined || !(hours <= 26);
+  return { state: stale ? "FAIL" : "WARN", detail: String(news.note || "not ok").slice(0, 200) };
+}
+
 // ---------- the reads ----------
 
 async function get(url, { json = false, timeout = 25_000 } = {}) {
@@ -111,9 +123,12 @@ async function main() {
   });
   await check("API", async () => {
     const r = await get(`${API}/health`, { json: true });
-    const bad = Object.entries(r.body.checks || {}).filter(([, v]) => v && v.ok === false);
+    // news has its own row below: a short treasury is a top-up, not a failure
+    const bad = Object.entries(r.body.checks || {}).filter(([k, v]) => v && v.ok === false && k !== "news");
     const why = bad.map(([k, v]) => (v.note ? `${k} (${String(v.note).slice(0, 140)})` : k));
-    say(r.body.ok && !bad.length ? "PASS" : "FAIL", "the API is healthy", bad.length ? `failing: ${why.join("; ")}` : !r.body.ok ? `failures: ${(r.body.failures || []).join("; ").slice(0, 200)}` : `spend $${r.body.checks?.spend?.spent_usd ?? "?"} of $${r.body.checks?.spend?.cap_usd ?? "?"} today`);
+    say(r.body.ok && !bad.length ? "PASS" : "FAIL", "the API is healthy", bad.length ? `failing: ${why.join("; ")}` : !r.body.ok ? `failures: ${(r.body.failures || []).join("; ").slice(0, 200)}` : `spend ${r.body.checks?.spend?.spent_usd ?? "?"} of ${r.body.checks?.spend?.cap_usd ?? "?"} today`);
+    const news = newsState(r.body.checks?.news);
+    if (news) say(news.state, "new fact lines keep opening", news.detail);
   });
   await check("keeper", async () => {
     const r = await get(`${API}/api/rulings`, { json: true });

@@ -1,7 +1,7 @@
 // The watchdog's thresholds (scripts/watchdog.mjs): a FAIL emails the founder, a WARN never does.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkerBondState, freeBetState, houseState, marketStorageState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
+import { checkerBondState, freeBetState, houseState, marketStorageState, newsState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
 
 const before = Date.parse("2026-11-12T10:00:00Z");
 const judging = Date.parse("2026-11-16T10:00:00Z");
@@ -45,6 +45,18 @@ test("watchdog: the free $1 is a WARN while held for the judges, and fails below
   assert.equal(freeBetState({ available: false, credits_left: 9, reason: "lane_daily_cap" }, judging).state, "WARN");
   assert.equal(freeBetState({ available: false, credits_left: 9, reason: "rate_limited" }, before).state, "WARN");
   assert.equal(freeBetState({ available: false, credits_left: 2, reason: "lane_daily_cap" }, judging).state, "FAIL", "capped and nearly out is still a FAIL");
+});
+
+test("watchdog: a treasury short for the next news line WARNs; no new line for over 26 hours FAILs", () => {
+  const short = "The treasury can carry $0.21 more of reserves, less than the $0.40 the last line reserved: the next line won't open until money is added (scripts/mainnet/news-funding.mjs).";
+  assert.equal(newsState({ enabled: true, ok: true, hours_since: 3 }), null, "fine news says nothing beyond the API row");
+  assert.equal(newsState({ enabled: false, ok: true }), null, "news switched off is not a failure");
+  assert.equal(newsState(undefined), null, "an API without the news check is not a failure");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 9.2, note: short }).state, "WARN", "the 9 November case: short, but a line opened 9 hours ago");
+  assert.match(newsState({ enabled: true, ok: false, hours_since: 9.2, note: short }).detail, /news-funding/);
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26 }).state, "WARN");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26.1 }).state, "FAIL", "a board that stopped moving");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: null, note: "No news line has opened yet." }).state, "FAIL");
 });
 
 test("watchdog: the house agents, the x402 relayer and the Sentinel only ever WARN", () => {
