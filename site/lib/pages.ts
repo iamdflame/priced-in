@@ -82,11 +82,35 @@ export interface PageTotals {
   models: string[];
 }
 
+/** A line on the page ruled false: what Wikipedia said, what replaced it, and the proof. Null where the API has nothing. */
+export interface PageCorrection {
+  claim_id: number;
+  /** the revision's sentence; null for a line opened since */
+  wikipedia: string | null;
+  text: string;
+  outcome: "true" | "false" | null;
+  by: string;
+  trades: number;
+  corrected: { text: string | null; claim_id: number | null; url: string | null } | null;
+  source: { name: string | null; url: string | null; figure: string | null; on_page: string | null; checked_on: string | null } | null;
+  price_before: number | null;
+  price_written: number | null;
+  challenge_id: number | null;
+  decided_at: number | null;
+  tx: string | null;
+  explorer: string | null;
+  url: string;
+  payout: { usd: number; side: "yes" | "no" | null } | null;
+  rewrite: { id: string; model: string | null; signed: boolean; tx: string | null; explorer: string | null } | null;
+}
+
 export interface OfficialPage {
   slug: string;
   title: string;
   source: { url: string; attribution: string; licence: string; revised_at: string };
   totals: PageTotals;
+  /** absent from an API older than the corrections */
+  corrections?: PageCorrection[];
   paragraphs: PageParagraph[];
   asOf: number;
 }

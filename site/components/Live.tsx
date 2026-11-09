@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { Explain, PAYOUT_WHY } from "./Explain";
 import { Icon } from "./Icon";
-import { ago, mmss } from "@/lib/format";
+import { ago, waitWords } from "@/lib/format";
 import { REPLAY_HREF } from "@/lib/nav";
 
 /** The time, each second once hydrated; null until then, so the server and the browser agree. */
@@ -19,11 +19,12 @@ export function useClock(): number | null {
   return now;
 }
 
-/** A time still ahead, with what it counts to. When it passes the line goes: a clock never stands at zero. */
+/** A time still ahead, with what it counts to. When it passes the line goes: a clock never stands at zero.
+ *  A wait of a day or more reads as days and hours ("3d 4h"), not 183:17:54. */
 export function Until({ to, label }: { to: number; label: string }) {
   const now = useClock();
   if (now !== null && to <= now) return null;
-  return <span>{label} <span className="num" suppressHydrationWarning>{mmss(Math.max(0, to - (now ?? Date.now())))}</span></span>;
+  return <span>{label} <span className="num" suppressHydrationWarning>{waitWords(Math.max(0, to - (now ?? Date.now())))}</span></span>;
 }
 
 export function Ago({ at }: { at: number }) {

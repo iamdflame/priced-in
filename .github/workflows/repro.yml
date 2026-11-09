@@ -1,6 +1,6 @@
-# The contract rebuild (judge check 3) on clean Linux and Windows runners, so a screener on either gets the
-# same answer: the market and swarm wasm rebuilt from this source, byte for byte, against the hashes on chain.
-# Runs on this branch while the Linux build is made path-independent; the wasm of each run is kept for diffing.
+# Judge check 3 on clean Linux, macOS and Windows runners: the market and swarm wasm rebuilt from this
+# source, byte for byte, against the hashes recorded in deployments/testnet.json and on chain.
+# Each run keeps its wasm, so a difference can be diffed.
 name: repro
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, windows-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -20,12 +20,11 @@ jobs:
         with:
           node-version: 22
       - name: Rust 1.99.1 with the wasm target
-        # the runner's preinstalled stable may also be rustc 1.99.1 under another toolchain name, without the wasm target:
-        # make the pinned toolchain the default so the active one has the target
+        # deliberately not made the default: the runner's preinstalled stable may also be rustc 1.99.1
+        # without the wasm target, and tools/judge/lib/repro.mjs must pick the toolchain that has it
         run: |
           rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
-          rustup default 1.99.1
-          rustup target list --installed
+          rustup toolchain list
       - name: Rebuild and compare
         run: node tools/judge/repro.mjs --verbose
       - name: Keep the wasm

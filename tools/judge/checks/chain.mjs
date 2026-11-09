@@ -4,6 +4,7 @@
 import { createHash, createPublicKey, verify } from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
+import { booksAt } from "../lib/books.mjs";
 import { marketEvents } from "../lib/near.mjs";
 import { reproBuild } from "../lib/repro.mjs";
 
@@ -41,57 +42,16 @@ export async function checkRepro(repo, dep, rpc, { offline, build, mainnet = nul
 // ---------- 4. the deployment is live and its books close ----------
 export async function checkBooks(dep, rpc) {
   const M = dep.accounts.market;
-  const s = await rpc.view(M, "stats");
-  const held = BigInt(await rpc.view(dep.accounts.usdc, "ft_balance_of", { account_id: M }));
-  const b = (k) => BigInt(s[k]);
-  const buckets = b("treasury_micro") + b("reserved_micro") + b("balances_micro") + b("collected_micro") + b("payouts_micro") + b("bonds_micro") + b("bounties_micro");
-  // every claim, every page
-  let collected = 0n, payouts = 0n, bounties = 0n, reserved = 0n, n = 0;
-  for (let from = 0; ; from += 100) {
-    const page = await rpc.view(M, "get_claims", { from, limit: 100 });
-    for (const c of page) {
-      n++;
-      if (c.status !== "Settled") collected += BigInt(c.collected_micro);
-      payouts += BigInt(c.payout_left_micro);
-      bounties += BigInt(c.bounty_micro);
-    }
-    if (page.length < 100) break;
-  }
-  // every balance, read from the contract's own storage (the "b" map: borsh String -> u128)
-  let balances = 0n, holders = 0, how;
-  try {
-    const st = await rpc.state(M, "b");
-    for (const { key, value } of st.values || []) {
-      const k = Buffer.from(key, "base64");
-      if (k[0] !== 0x62 || k.length < 5 || k.readUInt32LE(1) !== k.length - 5) continue;
-      const v = Buffer.from(value, "base64");
-      if (v.length !== 16) continue;
-      balances += v.readBigUInt64LE(0) + (v.readBigUInt64LE(8) << 64n);
-      holders++;
-    }
-    how = `${holders} balances read from the contract's storage`;
-  } catch (e) {
-    // an RPC may refuse to list a large contract's state: then the listed seed traders only
-    for (const t of dep.seed.traders) balances += BigInt(await rpc.view(M, "get_balance", { trader: t }));
-    how = `the RPC would not list storage (${String(e.message).slice(0, 60)}), so the ${dep.seed.traders.length} seed traders' balances`;
-  }
-  const rows = [
-    ["USDC the market holds = held_micro", held === b("held_micro")],
-    ["held = treasury + reserved + balances + collected + payouts + bonds + bounties", held === buckets],
-    ["sum of balances = balances_micro", balances === b("balances_micro")],
-    ["sum of open claims' collected = collected_micro", collected === b("collected_micro")],
-    ["sum of payouts left = payouts_micro", payouts === b("payouts_micro")],
-    ["sum of bounties = bounties_micro", bounties === b("bounties_micro")],
-  ];
-  const failed = rows.filter((r) => !r[1]).map((r) => r[0]);
-  const detail = `${M}: ${n} claims, ${s.paused ? "PAUSED" : "live"}; USDC held ${held} = treasury ${s.treasury_micro} + reserved ${s.reserved_micro} + balances ${s.balances_micro} + collected ${s.collected_micro} + payouts ${s.payouts_micro} + bonds ${s.bonds_micro} + bounties ${s.bounties_micro} (micro-USDC); ${how}`;
-  if (failed.length || s.paused || n === 0) return { status: "FAIL", detail: `${failed.join("; ") || (s.paused ? "the market is paused" : "no claims")} · ${detail}`, see: X("address", M) };
-  void reserved;
+  // every read at one final block, so a trade landing mid-check can't split the books
+  const r = rpc.pinned(await rpc.finalHeight());
+  const k = await booksAt(r.view, M, dep.accounts.usdc, { state: (prefix) => r.state(M, prefix), traders: dep.seed?.traders });
+  const detail = `${M} at block ${r.blockId}: ${k.claims} claims, ${k.paused ? "PAUSED" : "live"}; ${k.equation}; ${k.how}`;
+  if (!k.ok) return { status: "FAIL", detail: `${k.failed.join("; ") || (k.paused ? "the market is paused" : "no claims")} · ${detail}`, see: X("address", M) };
   return { status: "PASS", detail: `books close to the micro-USDC: ${detail}`, see: X("address", M) };
 }
 
 // ---------- 5. a recorded signed rewrite verifies offline, and is anchored ----------
-const ED_SPKI = Buffer.from("302a300506032b6570032100", "hex");
+export const ED_SPKI = Buffer.from("302a300506032b6570032100", "hex");
 const sha256 = (b) => createHash("sha256").update(b).digest("hex");
 const clean = (h) => String(h || "").toLowerCase().replace(/^0x/, "");
 
@@ -107,9 +67,16 @@ function signedSentences(bytes) {
   } catch { return null; }
 }
 
-export async function checkRewrite(repo, dep, rpc, { offline }) {
-  const ev = JSON.parse(fs.readFileSync(path.join(repo, "tools/judge/evidence/rewrite.json"), "utf8"));
+/**
+ * A recorded rewrite: its bytes, hashes and ed25519 signature offline; online, the key the market
+ * holds for the writer and the anchor_rewrite event. `evidence` is the record's path in the repo,
+ * `explorer` the chain's explorer link maker; `blockId` pins the key read.
+ */
+export async function checkRewrite(repo, dep, rpc, { offline, evidence = "tools/judge/evidence/rewrite.json", explorer = X, blockId = null }) {
+  const ev = JSON.parse(fs.readFileSync(path.join(repo, evidence), "utf8"));
   const rec = ev.record, p = rec.provenance;
+  const net = dep.network || "testnet";
+  const anchor = p.anchor?.tx_hash ? p.anchor : rec.anchor?.tx_hash ? rec.anchor : {};
   const steps = [];
   const step = (name, ok) => steps.push([name, ok]);
   const req = Buffer.from(p.request_b64 || "", "base64"), resp = Buffer.from(p.response_b64 || "", "base64");
@@ -126,10 +93,11 @@ export async function checkRewrite(repo, dep, rpc, { offline }) {
   step("the words on the page are the words signed", !!words && words.length === shown.length && words.every((w, i) => w === shown[i]));
   // the registered key: on testnet, or as recorded when offline
   let registered = null, anchored = null;
+  step(`the record is from ${dep.accounts.market}`, !ev.market || ev.market === dep.accounts.market);
   if (offline) registered = dep.keys.writer_public_hex;
   else {
-    registered = (await rpc.view(dep.accounts.market, "get_model", { model: p.model }))?.signing_address_hex ?? null;
-    const tx = await rpc.tx(p.anchor.tx_hash, p.anchor.sender_id);
+    registered = (await rpc.view(dep.accounts.market, "get_model", { model: p.model }, { blockId }))?.signing_address_hex ?? null;
+    const tx = await rpc.tx(anchor.tx_hash, anchor.sender_id || dep.accounts.market);
     const hit = marketEvents(tx, dep.accounts.market).find((d) => d.event === "rewrite" && clean(d.request_hash) === rh && clean(d.response_hash) === sh && clean(d.signature) === clean(p.signature) && d.model === p.model);
     anchored = !!hit;
   }
@@ -137,11 +105,12 @@ export async function checkRewrite(repo, dep, rpc, { offline }) {
   if (!offline) step("the market logged anchor_rewrite with these hashes and this signature", anchored);
   const failed = steps.filter((s) => !s[1]).map((s) => s[0]);
   const label = ev.writer_key === "test" ? "TEST writer key (services/ai's offline NEAR AI stand-in; no NEAR AI key exists yet), not NEAR AI Cloud" : "NEAR AI Cloud's TEE key";
-  if (failed.length) return { status: "FAIL", detail: `${failed.join("; ")} · rewrite ${rec.id} signed by the ${label}`, see: "tools/judge/evidence/rewrite.json" };
+  if (failed.length) return { status: "FAIL", detail: `${failed.join("; ")} · rewrite ${rec.id} signed by the ${label}`, see: evidence };
   return {
     status: "PASS",
-    detail: `rewrite ${rec.id} (${req.length} request bytes, ${resp.length} response bytes): both sha256s, the signed text and ed25519 verify offline${offline ? "; anchor not read (--offline)" : `; anchor_rewrite event on testnet in ${p.anchor.tx_hash}`}. Signed by the ${label}`,
-    see: offline ? "tools/judge/evidence/rewrite.json" : X("txns", p.anchor.tx_hash),
+    detail: `rewrite ${rec.id} (${req.length} request bytes, ${resp.length} response bytes): both sha256s, the signed text and ed25519 verify offline${offline ? "; anchor not read (--offline)" : `; anchor_rewrite event on ${net} in ${anchor.tx_hash}`}. Signed by the ${label}`,
+    see: offline ? evidence : explorer("txns", anchor.tx_hash),
+    anchor: anchor.tx_hash || null,
   };
 }
 

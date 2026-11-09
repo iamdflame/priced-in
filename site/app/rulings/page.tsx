@@ -203,7 +203,7 @@ function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
   const verdict = verdictOf(r);
   const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
   return (
-    <div className="rrow">
+    <div className="rrow" id={`ruling-${r.challenge_id}`}>
       {f ? <span className="ti" aria-hidden="true"><Art name={f.art} width={72} height={72} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
       <div className="shrink">
         <Link className="q" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>

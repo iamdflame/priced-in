@@ -53,7 +53,15 @@ export function mmss(ms: number): string {
   return h ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
 }
 
-export const explorerTx = (tx: string) => `https://nearblocks.io/txns/${tx}`;
+const DAY_MS = 86_400_000;
+
+/** A wait on a clock: mm:ss or h:mm:ss under a day, days and hours ("3d 4h") from a day on, never negative. */
+export function waitWords(ms: number): string {
+  if (ms < DAY_MS) return mmss(ms);
+  return `${Math.floor(ms / DAY_MS)}d ${Math.floor((ms % DAY_MS) / 3_600_000)}h`;
+}
+
+export const explorerTx =(tx: string) => `https://nearblocks.io/txns/${tx}`;
 export const explorerAccount = (a: string) => `https://nearblocks.io/address/${a}`;
 
 /** "z-ai/glm-5.3-flash" to "glm-5.3-flash". */

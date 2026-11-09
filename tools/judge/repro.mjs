@@ -8,7 +8,7 @@ import { Rpc } from "./lib/near.mjs";
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
 const r = await reproBuild({ log: process.argv.includes("--verbose") ? (s) => process.stderr.write(s) : undefined });
-if (!r.ok) { console.error(`not built: ${r.reason}`); process.exit(1); }
+if (!r.ok) { console.error(`not built: ${r.reason}${r.install ? `\nfix: ${r.install}` : ""}`); process.exit(1); }
 const rpc = new Rpc();
 let bad = 0;
 for (const k of ["market", "swarm"]) {

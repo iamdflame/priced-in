@@ -676,7 +676,15 @@ Also `GET /v1/pages/<slug>`, free. Cached 10 s by the CDN. 404 `no_such_page` fo
 ```
 {"slug":"tether","title":"Tether (cryptocurrency)",
  "source":{"url":"https://en.wikipedia.org/w/index.php?title=Tether_(cryptocurrency)&oldid=…","attribution":"…licensed CC BY-SA 4.0…","licence":"CC BY-SA 4.0","revised_at":"2026-10-30T17:27:49Z"},
- "totals":{"paragraphs":52,"written_by_ai":11,"sentences":190,"facts_priced":20,"facts_decided":0,"facts_no_bets":7,"rewrites":11,"signed":9,"anchored":9,"last_changed":1794064311697,"models":["z-ai/glm-5.3-flash"]},
+ "totals":{"paragraphs":52,"written_by_ai":11,"sentences":190,"facts_priced":20,"facts_decided":2,"facts_no_bets":7,"rewrites":11,"signed":9,"anchored":9,"last_changed":1794064311697,"models":["z-ai/glm-5.3-flash"]},
+ "corrections":[
+  {"claim_id":18,"wikipedia":"The majority of Tether's reserves … accounting for $72.6 billion.","text":"The majority of Tether's reserves … accounting for $72.6 billion.","outcome":"false","by":"three AI judges","trades":7,
+   "corrected":{"text":"… which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026.","claim_id":32,"url":"/c/32"},
+   "source":{"name":"Tether's attestation report","url":"https://assets.ctfassets.net/…","figure":"$122.84 billion at 30 September 2026","on_page":"$72.6 billion in U.S. T-Bills, stated without a date","checked_on":"2026-11-05"},
+   "price_before":0.099804,"price_written":0.116287,
+   "challenge_id":0,"decided_at":1793937003508,"tx":"3KbCTq…","explorer":"https://nearblocks.io/txns/3KbCTq…","url":"/c/18",
+   "payout":{"usd":4.9301,"side":"no"},
+   "rewrite":{"id":"tether:9:v3","model":"z-ai/glm-5.3-flash","signed":true,"tx":"BRsksf…","explorer":"https://nearblocks.io/txns/BRsksf…"}}, …],
  "paragraphs":[
   {"index":0,"section":"","written_by":"ai","changed":true,
    "wikipedia":"Tether is a stablecoin… It is represented by its currency codes USD₮ and USDT. …",
@@ -698,7 +706,9 @@ Also `GET /v1/pages/<slug>`, free. Cached 10 s by the CDN. 404 `no_such_page` fo
 | Field | Meaning |
 |---|---|
 | `totals.written_by_ai` | Paragraphs with at least one sentence a model wrote, a correction included. |
-| `totals.facts_priced` | Sentences with a market. `facts_decided` of them are settled and `facts_no_bets` have no bets. |
+| `totals.facts_priced` | Sentences with a market now. `facts_no_bets` of them have no bets. |
+| `totals.facts_decided` | Every claim on the page settled with an outcome, a line whose sentence its correction now speaks for included. |
+| `corrections[]` | One per line on the page ruled false, the most bet first. `wikipedia` is the revision's sentence (null for a line opened since); `corrected` is the correction that opened as a market (`claim_id`), or the model's sourced wording (`claim_id` null), or null; `source` is the corpus record (`corpus/ERRORS.json`) or a verified receipt, else null; `price_before` is the last price before the settlement (0 to 1, from the indexed trades; with no bets it is the opening estimate); `price_written` is the price the rewrite that wrote the correction recorded for the line; `payout` is what the settlement paid the winning side (`side` `yes` or `no`); `rewrite` is that rewrite's model, whether its TEE signature verified, and its anchor transaction. Any field the API can't fill is null. |
 | `totals.last_changed` | The newest rewrite in use or ruling on the page, in ms. |
 | `paragraphs[].written_by` | `ai`, `market` (only a ruling or an added line changed it) or `wikipedia`. |
 | `paragraphs[].wikipedia`, `market`, `diff` | The two texts, and the word diff from one to the other. `wikipedia` is null on the last paragraph of added lines, and `diff` is null when nothing changed. |

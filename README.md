@@ -8,7 +8,7 @@ Every checkable sentence is a Yes/No market with real USDC behind it. AI traders
 - **Every day, new claims from the news.** Twice a day a scout turns unconfirmed headlines into claims a named source will settle within a week. Picks are free; come back to see if you called it, and climb the leaderboard against the three AI traders.
 
 - **Live on NEAR mainnet:** https://isitpriced.com
-- **Check it yourself, no secrets:** `npm run judge` runs 10 checks (below).
+- **Check it yourself, no secrets:** `npm run judge` runs 11 checks (below).
 - **Any post on X, priced:** change `x.com` to `isitpriced.com` in a post's link. Example: https://isitpriced.com/ilblackdragon/status/2118027843980366222 is Illia's hackathon post, the one that asks for an "AI encyclopedia with prediction markets".
 
 ## The problem
@@ -73,6 +73,7 @@ npm run judge                     # about 1 to 3 minutes; reads testnet and main
 - `SITE_URL=https://isitpriced.com npm run judge` also checks the hosted site.
 - `npm run judge -- --offline` needs no network: the checks that read a chain, 1Click or the hosted site say SKIP and why.
 - `npm run judge -- --json` gives machine-readable output.
+- `npm run judge:quick` skips the Rust rebuild and the unit suites (checks 3 and 8 say SKIP) and checks the hosted site: about 30 seconds. `npm run judge:full` installs everything, then runs all 11 checks against the hosted site as JSON.
 - Rust is optional. With rustc 1.99.1 and the `wasm32-unknown-unknown` target installed, check 3 rebuilds the contracts. Without them it says SKIP and gives the install command.
 - The judge only reads. It holds no key and sends no transaction.
 
@@ -90,6 +91,7 @@ Each step below is one line of `npm run judge`, in the same order. VERIFY.md doe
 8. **The unit suites.** You should see `PASS 8. unit suites: AI, API, site: AI 76/76, API 129/129, site 238/238, all passing, no network`. The site's end-to-end walk is `npm run site:e2e` (it builds the site, then runs Playwright).
 9. **The hosted site.** Run `SITE_URL=https://isitpriced.com npm run judge`. You should see `PASS 9. hosted demo: ...: /health 200, 22 priced sentences on the Tether page (the count grows), a "message" event on the SSE stream`. `/health` fails when no trade, rewrite or agent answer has happened in a day.
 10. **The jury's models are attested, and mainnet holds their keys.** You should see `PASS 10. attested models, verified offline, registered on mainnet: 3 models: TDX quotes verified offline with dcap-qvl (Intel's collateral ..., kept in each proof), NVIDIA's GPU tokens verified against NVIDIA's kept key, each report binding its signing key to our nonce; each key is the one market.isitpriced.near holds`. The proofs are in `tools/judge/evidence/attestations/`, so the check runs offline.
+11. **Mainnet's books close and every ruling settled, signed by the attested models.** You should see `PASS 11. mainnet books and rulings: market.isitpriced.near at block ...: books close to the micro-USDC, USDC 81.607427 held = treasury ... (48 claims; 9 balances read from the contract's storage); 17208628… is USDC with 6 decimals; 8 of 8 challenges settled ...; 24 verdicts by 3 models ...: each request hash = sha256(canonical_request), each response and signature taken from its submit_verdict transaction, sha256(response) = response_hash, ed25519 verifies against get_model's key, and the rules read the recorded verdict ...; rewrite: rewrite tether:25:v1 ...: anchor_rewrite event on mainnet in ALdDyEDx...` (the numbers grow). Every read is pinned to one block, so live trades can't split the books. `tools/judge/evidence/mainnet-rulings.json` keeps only the transaction hashes and their bytes, so `--offline` still checks the hashes and signatures; everything else is read from mainnet. `node tools/judge/snapshot-mainnet-rulings.mjs` remakes it.
 
 The last run against the hosted site printed `10 checks: 10 PASS, 0 FAIL, 0 SKIP` at commit 56f0c6f.
 
