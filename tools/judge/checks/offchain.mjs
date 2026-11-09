@@ -81,6 +81,8 @@ export async function checkSuites(repo) {
     if (!ok) { missing.push(`${name} (run ${install})`); continue; }
     const t0 = Date.now();
     const r = await run(npm, ["run", "-s", script], { cwd: repo });
+    // CI runners get colored output (vitest's "Tests  319 passed" comes wrapped in ANSI escapes): read it plain
+    r.out = r.out.replace(/\x1b\[[0-9;?]*[A-Za-z]/g, "");
     const c = parse(r.out);
     const failedNames = [...r.out.matchAll(/^\s*(?:✖|×|FAIL)\s+(.{0,90})/gm)].map((m) => m[1].trim()).slice(0, 2);
     // counts that can't be read: show the suite's last lines, so the reason is in the report
