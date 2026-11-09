@@ -82,9 +82,10 @@ if (MAIN) Object.assign(plain, {
   CHECKER_PER_DAY: "1",
   CHECKER_SITTING_HOUR_UTC: "15",
   CHECKER_MIN_BETS: "1",
-  // the corpus's last caught lines wait for the judges: judging runs 16 to 18 November, so the jury's next Wikipedia
-  // sittings are 16 and 17 November at 15:00 UTC (news lines still go to the jury as they come due)
-  CHECKER_FROM: "2026-11-16T00:00:00Z",
+  // the corpus's last two caught lines go on trial before the 14 November freeze, so the judged repo and the
+  // week's posts carry their rulings: Wikipedia sittings resume on 12 and 13 November at 15:00 UTC (news lines
+  // still go to the jury as they come due, through judging week)
+  CHECKER_FROM: "2026-11-12T00:00:00Z",
   // the lane account holds 1 NEAR for the visitors' gas and key storage
   LANE_MIN_BALANCE_NEAR: "0.3",
   // the last 4 free bets wait for the judges: the AI screen and judging start once submissions close on
