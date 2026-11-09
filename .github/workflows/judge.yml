@@ -1,0 +1,47 @@
+# The judge on a clean machine for every push to main: the same 11 checks anyone can run locally
+# (AGENTS.md), against NEAR mainnet, the persistent testnet market and the live site, with Rust 1.99.1
+# so check 3 rebuilds the contracts byte for byte. It holds no key and signs nothing. The JSON report
+# is kept as an artifact and shown on the run's summary page. The run fails only if a check FAILs;
+# a SKIP (a rate-limited RPC, say) gives its reason.
+name: judge
+on:
+  push:
+    branches: [main, ci/judge]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: judge-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  judge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: |
+            package-lock.json
+            site/package-lock.json
+      - name: Rust 1.99.1 with the wasm target (check 3)
+        # not made the default: tools/judge/lib/repro.mjs picks the toolchain that has the target
+        run: rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
+      - name: Install (root and site, for check 8's unit suites)
+        run: |
+          npm ci
+          npm --prefix site ci
+      - name: Judge, 11 checks
+        run: node tools/judge/judge.mjs --site=https://isitpriced.com --json > judge.json
+      - name: Report
+        if: always()
+        run: node tools/judge/ci-summary.mjs judge.json
+      - name: Keep the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: judge-report
+          path: judge.json
+          if-no-files-found: warn
