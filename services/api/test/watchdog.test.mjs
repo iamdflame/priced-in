@@ -48,7 +48,8 @@ test("watchdog: the free $1 is a WARN while held for the judges, and fails below
 });
 
 test("watchdog: the house agents, the x402 relayer and the Sentinel only ever WARN", () => {
-  assert.equal(houseState(0.74).state, "WARN");
+  assert.equal(houseState(0.39).state, "WARN");
+  assert.equal(houseState(0.74).state, "PASS");
   assert.equal(houseState(2.5).state, "PASS");
   assert.equal(relayerState(0.049).state, "WARN");
   assert.equal(relayerState(0.2).state, "PASS");

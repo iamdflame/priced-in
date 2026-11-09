@@ -72,12 +72,14 @@ const plain = {
 };
 if (MAIN) Object.assign(plain, {
   // each house agent holds $2.50 of real USDC: at most $0.75 of bets a day, $1 of losses
-  SIGNER_DAILY_SPEND_MICRO: "750000",
+  // 9 Nov: two agents were down to $0.44 and $0.69, so each bets at most $0.40 a day until its open lines settle and
+  // pay back (and the owner tops them up after the 12 November sitting): quiet agents are better than broke ones
+  SIGNER_DAILY_SPEND_MICRO: "400000",
   AGENT_DAILY_LOSS_USD: "1",
   // the market's taker fee (v3): an agent's edge must beat it; before the upgrade this only asks a little more edge
   AGENT_FEE_POINTS: "0.01",
   // small bets, so the daily cap reaches the whole catalog: at $0.75 a day, 6 or 7 bets each instead of 2
-  AGENT_MAX_BET_USD: "0.12",
+  AGENT_MAX_BET_USD: "0.08",
   // the AI jury sits once a day at 15:00 UTC, on the doubted fact with the most bets; a fact with none waits
   CHECKER_PER_DAY: "1",
   CHECKER_SITTING_HOUR_UTC: "15",

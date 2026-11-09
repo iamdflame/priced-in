@@ -51,8 +51,8 @@ export function freeBetState(body, nowMs) {
   return { state: !body?.available || left < 3 ? "FAIL" : left < 5 ? "WARN" : "PASS", name: "the free $1 is available", detail: `${left} free bets left${body?.available ? "" : ` (${body?.reason ?? "unavailable"})`}${left < 5 ? topUp : ""}` };
 }
 
-/** A house agent's USDC inside the market: below a day of its bets ($0.75), it goes quiet soon. Never a FAIL. */
-export const houseState = (usd) => ({ state: usd < 0.75 ? "WARN" : "PASS", detail: `$${usd.toFixed(2)} in the market${usd < 0.75 ? ": less than a day of bets ($0.75)" : ""}` });
+/** A house agent's USDC inside the market: below a day of its bets ($0.40), it goes quiet soon. Never a FAIL. */
+export const houseState = (usd) => ({ state: usd < 0.4 ? "WARN" : "PASS", detail: `$${usd.toFixed(2)} in the market${usd < 0.4 ? ": less than a day of bets ($0.40)" : ""}` });
 
 /** The x402 relayer pays the gas of paid API calls (the API flags it low under 0.02 NEAR). Never a FAIL. */
 export const relayerState = (near) => ({ state: near < 0.05 ? "WARN" : "PASS", detail: `${near.toFixed(3)} NEAR spare${near < 0.05 ? ": top it up with scripts/mainnet/x402.mjs" : ""}` });
