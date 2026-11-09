@@ -186,9 +186,9 @@ export const AskIllia: React.FC<{pct?: number}> = ({pct = 66}) => {
   const P = Math.max(0, Math.min(100, Math.round(pct)));
 
   // 0 to 3 s: the source, the top-of-page sentence, "2018" marked
-  const src = prog(t, 0.05, 0.5);
-  const qa = prog(t, 0.2, 0.6);
-  const markA = prog(t, 1.05, 0.5, EASE.inOut);
+  const src = prog(t, -1, 0.5); // on screen from frame 0: X can show the first frame as the thumbnail
+  const qa = prog(t, -1, 0.6);
+  const markA = prog(t, 0.45, 0.5, EASE.inOut);
   // 3 to 6 s: the History sentence, "early 2017" marked, everything but the dates steps back
   const qb = prog(t, 3.0, 0.6);
   const markB = prog(t, 3.75, 0.5, EASE.inOut);
