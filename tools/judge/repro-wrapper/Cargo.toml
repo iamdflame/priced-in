@@ -1,0 +1,16 @@
+# The RUSTC_WRAPPER of the reproducible build (tools/judge/lib/repro.mjs). It changes one thing:
+# the -C metadata cargo gives each wasm crate, which it sets to the value recorded from the deployed
+# build (tools/judge/repro-paths.json). Cargo derives that value partly from the host it runs on (a
+# crate that uses a proc macro or a build script hashes the host triple in), and the value seeds
+# every symbol name, so the order of functions in the wasm. Nothing else is touched.
+# Standalone (its own [workspace]), std only.
+[package]
+name = "repro-wrapper"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[workspace]
+
+[profile.release]
+opt-level = 1

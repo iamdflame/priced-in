@@ -1,13 +1,15 @@
 // Rebuilds the market and swarm contracts reproducibly and prints their code hashes next to the
 // ones recorded in deployments/testnet.json and the ones on testnet.
-//   node tools/judge/repro.mjs [--offline]
+//   node tools/judge/repro.mjs [--offline] [--verbose]
+//   node tools/judge/repro.mjs --record   on the recorded host (x86_64-pc-windows-gnu) after a dependency
+//                                         change: stores cargo's -C metadata values in repro-paths.json
 import fs from "node:fs";
 import path from "node:path";
 import { reproBuild, REPO } from "./lib/repro.mjs";
 import { Rpc } from "./lib/near.mjs";
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
-const r = await reproBuild({ log: process.argv.includes("--verbose") ? (s) => process.stderr.write(s) : undefined });
+const r = await reproBuild({ record: process.argv.includes("--record"), log: process.argv.includes("--verbose") ? (s) => process.stderr.write(s) : undefined });
 if (!r.ok) { console.error(`not built: ${r.reason}${r.install ? `\nfix: ${r.install}` : ""}`); process.exit(1); }
 const rpc = new Rpc();
 let bad = 0;
