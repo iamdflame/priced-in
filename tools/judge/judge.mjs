@@ -6,6 +6,9 @@
 //   npm run judge -- --json        machine-readable output
 //   SITE_URL=https://... npm run judge   also checks the hosted demo
 //   npm run judge -- --no-build    skip the Rust rebuild (check 3)
+//   npm run judge -- --quick       no Rust rebuild and no unit suites (checks 3 and 8 SKIP)
+//   npm run judge:quick            --quick, with the hosted site: under a minute
+//   npm run judge:full             npm ci, the site's install, then every check against the hosted site, as JSON
 //
 // Node 22.18 or later (it imports the browser's TypeScript LMSR directly). Needs no Rust and no
 // keys; Rust 1.99.1 adds the reproducible-build check. Reads only: it never sends a transaction.
@@ -15,7 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const argv = process.argv.slice(2);
-const OFFLINE = argv.includes("--offline"), JSON_OUT = argv.includes("--json"), NO_BUILD = argv.includes("--no-build");
+const OFFLINE = argv.includes("--offline"), JSON_OUT = argv.includes("--json"), QUICK = argv.includes("--quick"), NO_BUILD = QUICK || argv.includes("--no-build");
 const SITE = (argv.find((a) => a.startsWith("--site="))?.slice(7) || process.env.SITE_URL || "").trim();
 
 // TypeScript type stripping is on by default from Node 22.18 / 23.6; earlier 22.x needs the flag
@@ -32,7 +35,8 @@ const { checkRules } = await import("./checks/rules.mjs");
 const { checkRepro, checkBooks, checkRewrite, reproBuild } = await import("./checks/chain.mjs");
 const { checkOneClick, checkCorpus, checkSuites, checkSite } = await import("./checks/offchain.mjs");
 const { checkAttestations } = await import("./checks/attestation.mjs");
-const { Rpc, MAINNET_RPCS } = await import("./lib/near.mjs");
+const { checkMainnet } = await import("./checks/mainnet.mjs");
+const { Rpc, MAINNET_RPCS, crashAsSkip } = await import("./lib/near.mjs");
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
 const rpc = new Rpc();
@@ -43,7 +47,7 @@ const t0 = Date.now();
 
 // slow work starts at once and runs while the quick checks do
 const build = NO_BUILD ? Promise.resolve({ ok: false, reason: "not built (--no-build)" }) : reproBuild({}).catch((e) => ({ ok: false, reason: e.message }));
-const suites = checkSuites(REPO);
+const suites = QUICK ? Promise.resolve({ status: "SKIP", detail: "--quick: the unit suites were not run", see: "npm run judge (without --quick), or npm run ai:unit, api:unit, site:test and judge:test" }) : checkSuites(REPO);
 
 const offlineSkip = (what) => async () => ({ status: "SKIP", detail: `--offline: ${what} not read`, see: "npm run judge (without --offline)" });
 const CHECKS = [
@@ -57,6 +61,7 @@ const CHECKS = [
   [8, "unit suites: AI, API, site", () => suites],
   [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set; the hosted demo is https://isitpriced.com", see: "SITE_URL=https://isitpriced.com npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
   [10, "attested models, verified offline, registered on mainnet", () => checkAttestations(REPO, { mainnet, offline: OFFLINE })],
+  [11, "mainnet books and rulings", () => checkMainnet(REPO, mainnet, { offline: OFFLINE, site: SITE || "https://isitpriced.com" }), "node tools/judge/snapshot-mainnet-rulings.mjs (remakes the evidence)"],
 ];
 
 const results = [];
@@ -66,8 +71,8 @@ for (const [id, name, fn, see] of CHECKS) {
   let r;
   try { r = await fn(); }
   catch (e) {
-    const net = /fetch failed|ENOTFOUND|ECONNREFUSED|ETIMEDOUT|timeout|aborted|EAI_AGAIN/i.test(String(e.message) + String(e.cause?.code || ""));
-    r = net ? { status: "SKIP", detail: `offline or the RPC is unreachable: ${String(e.cause?.code || e.message).slice(0, 120)}`, see: "npm run judge -- --offline" } : { status: "FAIL", detail: `the check itself crashed: ${String(e.stack || e).split("\n").slice(0, 2).join(" ")}` };
+    // a network that's down, rate-limited or still catching up is a SKIP with its reason, not a crash
+    r = crashAsSkip(e) || { status: "FAIL", detail: `the check itself crashed: ${String(e.stack || e).split("\n").slice(0, 2).join(" ")}` };
   }
   const row = { id, name, status: r.status, detail: r.detail, see: r.see || see || "", seconds: Number(((Date.now() - s) / 1000).toFixed(1)) };
   results.push(row);
@@ -76,9 +81,9 @@ for (const [id, name, fn, see] of CHECKS) {
 
 const count = (st) => results.filter((r) => r.status === st).length;
 const secs = (Date.now() - t0) / 1000;
-const summary = { pass: count("PASS"), fail: count("FAIL"), skip: count("SKIP"), seconds: Number(secs.toFixed(1)), offline: OFFLINE, node: process.versions.node, platform: process.platform, deployment: dep.accounts.market, commit: (spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: REPO, encoding: "utf8" }).stdout || "").trim() || null };
+const summary = { pass: count("PASS"), fail: count("FAIL"), skip: count("SKIP"), seconds: Number(secs.toFixed(1)), offline: OFFLINE, node: process.versions.node, platform: process.platform, deployment: dep.accounts.market, mainnet: mainnet?.dep.accounts.market ?? null, commit: (spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: REPO, encoding: "utf8" }).stdout || "").trim() || null };
 if (JSON_OUT) console.log(JSON.stringify({ checks: results, summary }, null, 1));
-else console.log(`\n${results.length} checks: ${summary.pass} PASS, ${summary.fail} FAIL, ${summary.skip} SKIP in ${Math.floor(secs / 60)}m${String(Math.round(secs % 60)).padStart(2, "0")}s${OFFLINE ? " (offline)" : ""} · testnet market ${dep.accounts.market} · commit ${summary.commit}`);
+else console.log(`\n${results.length} checks: ${summary.pass} PASS, ${summary.fail} FAIL, ${summary.skip} SKIP in ${Math.floor(Math.round(secs) / 60)}m${String(Math.round(secs) % 60).padStart(2, "0")}s${OFFLINE ? " (offline)" : ""} · testnet market ${dep.accounts.market}${mainnet ? ` · mainnet market ${mainnet.dep.accounts.market}` : ""} · commit ${summary.commit}`);
 // the exit code is set first: the unref'd timer below only cuts short sockets a check left open,
 // and when nothing holds the loop Node exits before it fires, which used to make every run exit 0
 process.exitCode = summary.fail ? 1 : 0;
