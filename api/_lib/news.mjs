@@ -426,6 +426,18 @@ export function newsField(meta) {
   };
 }
 
+/**
+ * The open news lines and when each comes due for the AI judges: its settle-by day's end plus the grace
+ * the settler gives it (settleTiming's due_at). For the clock: [{ claim_id, due_at }].
+ */
+export function newsDue(claims, doc, { graceH = 6 } = {}) {
+  const open = new Set(claims.filter((c) => c.status === "Open").map((c) => c.id));
+  return Object.values(doc?.lines || {})
+    .filter((m) => open.has(m.claim_id) && m.settles?.by)
+    .map((m) => ({ claim_id: m.claim_id, due_at: endOfDay(m.settles.by) + graceH * H }))
+    .filter((l) => Number.isFinite(l.due_at));
+}
+
 /** Claims with their news metadata merged in (news lines only; every other claim is unchanged). */
 export function mergeNews(claims, doc) {
   const lines = doc?.lines || {};

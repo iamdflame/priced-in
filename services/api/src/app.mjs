@@ -10,7 +10,7 @@ import { Claims, TtlCache } from "./claims.mjs";
 import { LaneIssuer, ApiError, parsePublicKey, laneHold, laneHoldMessage, LANE_REPLAY, LANE_USED_UP_MESSAGE, LANE_LOW_GAS_MESSAGE } from "./lane.mjs";
 import { DailyLimiter, clientIp } from "./ratelimit.mjs";
 import { splitSentences } from "./sentences.mjs";
-import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
+import { parseSigningKey, labelSentences, plannerContext, PLANNER_VERSION, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
 import { RewriteStore } from "./rewrites.mjs";
 import { PostStore, parsePostLink, postSlug, pricedText, postNotices } from "./posts.mjs";
 import { createCredence } from "./credence.mjs";
@@ -168,9 +168,9 @@ export function createApp(config, deps = {}) {
   /**
    * @param {{ text: string, page?: string }} body
    * @param {string} ip
-   * @param {{ planCache?: TtlCache, limit?: boolean }} [opts] the post route brings its own cache and limits
+   * @param {{ planCache?: TtlCache, limit?: boolean, about?: object }} [opts] the post route brings its own cache, limits and context (its author and date)
    */
-  async function paste(body, ip, { planCache = plannerCache, limit = true } = {}) {
+  async function paste(body, ip, { planCache = plannerCache, limit = true, about = {} } = {}) {
     if (!body || typeof body.text !== "string") throw new ApiError(400, "bad_request", 'Send JSON {"text": "..."}');
     if (!body.text.trim()) throw new ApiError(400, "empty_text", "Paste some text first.");
     if (body.text.length > config.paste.maxInputChars) throw new ApiError(413, "text_too_long", `Paste at most ${config.paste.maxInputChars} characters.`);
@@ -196,7 +196,10 @@ export function createApp(config, deps = {}) {
     const texts = split.sentences.map((s) => s.text);
     let labels;
     try {
-      labels = await planCache.get(`${page}\n${texts.join("\n")}`, () => labelSentences(pc, texts, deps.fetchImpl));
+      const context = plannerContext({ nowMs: now(), ...about });
+      // the prompt's version and the author are in the key: an estimate made under an older prompt is never served again
+      const key = [PLANNER_VERSION, page, context.author?.handle ?? "", context.posted_on ?? "", ...texts].join("\n");
+      labels = await planCache.get(key, () => labelSentences(pc, texts, deps.fetchImpl, context));
     } catch (e) {
       if (limit) pasteIp.release(ip);
       log(`planner unavailable: ${e.message}`);
@@ -268,7 +271,7 @@ export function createApp(config, deps = {}) {
     if (!text) return { status: 200, body: noText };
     let r;
     try {
-      r = await paste({ text, page }, ip, { planCache: postPlans, limit: false });
+      r = await paste({ text, page }, ip, { planCache: postPlans, limit: false, about: { source: "a post on X", author: { name: p.authorName, handle: p.handle, bio: p.authorBio ?? null }, postedAt: p.postedAt } });
     } catch (e) {
       if (e instanceof ApiError && e.code === "no_sentences") return { status: 200, body: noText };
       throw e;

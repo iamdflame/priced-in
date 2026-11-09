@@ -10,6 +10,7 @@ import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceH
 import { namesOf, readRulings } from "./rulings.mjs";
 import { checkerFacts, checkerQueue, rulingClock, sittingConfig } from "./keeper.mjs";
 import { readLedger } from "./sentinel.mjs";
+import { cachedLines, newsConfig, newsDue } from "./news.mjs";
 import { laneHold, laneHoldMessage, parsePublicKey, LANE_REPLAY, LANE_USED_UP_MESSAGE, LANE_LOW_GAS_MESSAGE } from "../../services/api/src/lane.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
@@ -93,7 +94,10 @@ export async function clockOf(p, rulings, claims) {
   const nowMs = Date.now();
   const sitting = sittingConfig();
   const q = checkerQueue({ claims, rulings, account: c?.account ?? null, nowMs, sitting });
-  const clock = rulingClock({ rulings, nowMs, sitting, checker: checkerFacts(c, q, nowMs) });
+  // with NEWS_ENABLED=1 the open news lines come due for the AI judges too: the clock names the next
+  const nc = newsConfig();
+  const news = nc.enabled ? { lines: newsDue(claims, await cachedLines(p.state).catch(() => null), { graceH: nc.graceH }) } : null;
+  const clock = rulingClock({ rulings, nowMs, sitting, checker: checkerFacts(c, q, nowMs), news });
   return { ...clock, checker: c ? { account: c.account, balance_usd: c.balance_micro === null ? null : Number(c.balance_micro) / 1e6, lines_left: clock.queue, note: c.note ?? c.reason ?? null } : null, keeper_ran_at: k?.at ?? null };
 }
 

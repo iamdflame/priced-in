@@ -8,6 +8,8 @@ import path from "node:path";
 import { FsState, JournalDir } from "../../../api/_lib/store.mjs";
 import { Indexer, NearblocksSource, FastnearSource, sourcesFor } from "../../../api/_lib/indexer.mjs";
 import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceHistory, rulingsOf, whoIs } from "../../../api/_lib/views.mjs";
+import { checkerPlan, daysWords } from "../../../api/_lib/keeper.mjs";
+import { newsDue } from "../../../api/_lib/news.mjs";
 import { bOf, betsOn, checkerCandidates, checkerDecision, checkerEvidence, checkerFacts, checkerQueue, corpusRecord, correctedWording, firstSitting, isCapRefusal, juryRefused, keeperRound, nextTick, planKeeper, rulingClock, SITTING, sittingConfig } from "../../../api/_lib/keeper.mjs";
 import { activityRoute, attestationsRoute, historyRoute, laneStatusRoute, portfolioRoute, rulingsRoute, traderHistory } from "../../../api/_lib/routes.mjs";
 import { LEDGER, ledgerChecks, putCheck, putSentinel, readLedger, runSentinel } from "../../../api/_lib/sentinel.mjs";
@@ -508,9 +510,10 @@ test("CHECKER_FROM holds every sitting until its day, then the jury sits as befo
   const checker = { enabled: true, queue: 2, waiting_for_bets: 0, rulings_today: 1, funded: true };
   const held = rulingClock({ rulings: [], nowMs: Date.UTC(2026, 10, 8, 22), sitting: s, checker });
   assert.equal(held.next_ruling_at, first);
-  assert.equal(held.next_ruling_note, "The jury's next sitting is 16 November at 15:00 UTC");
-  assert.equal(rulingClock({ rulings: [], nowMs: Date.UTC(2026, 10, 8, 22), sitting: s, checker: { ...checker, queue: 0 } }).next_ruling_note, "No doubted fact is waiting for the jury", "an empty queue says so, hold or not");
-  assert.equal(rulingClock({ rulings: [], nowMs: first + 3 * H, sitting: s, checker }).next_ruling_note.startsWith("Today's ruling is done"), true);
+  assert.equal(held.next_ruling_note, "The AI judges decide the two doubted Wikipedia facts left on 16 and 17 November at 15:00 UTC");
+  assert.deepEqual(held.schedule, [], "no claim ids given: the plan is in the note, not per fact");
+  assert.equal(rulingClock({ rulings: [], nowMs: Date.UTC(2026, 10, 8, 22), sitting: s, checker: { ...checker, queue: 0 } }).next_ruling_note, "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond", "an empty queue says so, hold or not");
+  assert.equal(rulingClock({ rulings: [], nowMs: first + 3 * H, sitting: s, checker }).next_ruling_note, "Today’s result is in. The AI judges decide the two doubted Wikipedia facts left on 17 and 18 November at 15:00 UTC");
 });
 
 test("the Checker's decision: each reason to wait is a quiet note, and it goes only when all of them clear", () => {
@@ -542,7 +545,7 @@ test("the Checker's queue: its own rulings today count, UTC days apart, and the 
   assert.equal(checkerQueue({ claims, rulings, account: null, nowMs: DAY + 16 * H }).rulingsToday, 0);
   assert.equal(checkerQueue({ claims, rulings, account: "checker.near", nowMs: DAY + 16 * H, sitting: { ...SITTING, minBets: 3 } }).ready.length, 0);
   const facts = checkerFacts({ enabled: true, funded: true, refused: null, capped_on: "2026-11-06" }, q, DAY + 16 * H);
-  assert.deepEqual(facts, { enabled: true, queue: 2, waiting_for_bets: 1, rulings_today: 1, funded: true, refused: null, capped: true });
+  assert.deepEqual(facts, { enabled: true, queue: 2, waiting_for_bets: 1, rulings_today: 1, funded: true, refused: null, capped: true, ready_ids: [18] });
   assert.equal(checkerFacts({ enabled: true, capped_on: "2026-11-05" }, q, DAY + 16 * H).capped, false, "a cap reached yesterday is over");
   assert.equal(checkerFacts(null, q, DAY).enabled, false);
 });
@@ -569,7 +572,7 @@ test("the clock: stages of a live ruling, never a time already past, and never o
   assert.equal(jury.ruling_now.stage, "jury");
   assert.ok(jury.next_ruling_at > now + 600_000 && jury.next_ruling_at <= now + 25 * 60_000);
   assert.equal(jury.next_challenge_at, null);
-  assert.match(jury.next_ruling_note, /judges are ruling/);
+  assert.match(jury.next_ruling_note, /judges are deciding/);
   const win = rulingClock({ nowMs: now, rulings: [{ status: "window", challenge_id: 4, claim_id: 18, claim: "x", verdicts: [{ model: "m", verdict: "FALSE" }], provisional: "FALSE", opened_at: now - 1000, window_ends_at: now + 60_000 }] });
   assert.equal(win.ruling_now.stage, "window");
   assert.equal(win.ruling_now.finalize_due_at, nextTick(now + 60_000));
@@ -597,28 +600,28 @@ test("the clock when no ruling runs: every state says what is true, in a sentenc
 
   // before the sitting
   let c = clock(at(10));
-  assert.deepEqual([c.next_ruling_at, c.next_challenge_at, c.next_ruling_note], [at(15), at(15), "The jury sits daily at 15:00 UTC"]);
+  assert.deepEqual([c.next_ruling_at, c.next_challenge_at, c.next_ruling_note], [at(15), at(15), "The AI judges decide the next three doubted Wikipedia facts on 6, 7 and 8 November at 15:00 UTC"]);
   assert.deepEqual([c.sitting_hour_utc, c.rulings_today, c.per_day, c.queue, c.waiting_for_bets, c.ruling_now], [15, 0, 1, 4, 1, null]);
   // today's ruling is done, after the hour or before it (today's six ran from 03:30)
   for (const t of [at(16), at(10)]) {
     c = clock(t, { rulings_today: 1 });
-    assert.deepEqual([c.next_ruling_at, c.next_ruling_note], [tomorrow, "Today's ruling is done. The next sitting is tomorrow at 15:00 UTC"]);
+    assert.deepEqual([c.next_ruling_at, c.next_ruling_note], [tomorrow, "Today’s result is in. The AI judges decide the next three doubted Wikipedia facts on 7, 8 and 9 November at 15:00 UTC"]);
   }
   assert.equal(clock(at(16), { rulings_today: 6 }).rulings_today, 6);
-  assert.equal(clock(at(16), { rulings_today: 2 }, { ...SITTING, perDay: 2 }).next_ruling_note, "Today's rulings are done. The next sitting is tomorrow at 15:00 UTC");
+  assert.equal(clock(at(16), { rulings_today: 2 }, { ...SITTING, perDay: 2 }).next_ruling_note, "Today’s results are in. The AI judges decide the next three doubted Wikipedia facts on 7 and 8 November at 15:00 UTC");
   // the signer's cap is reached: the same honest answer, whatever per_day says
   assert.equal(clock(at(16), { rulings_today: 6, capped: true }, { ...SITTING, perDay: 50 }).next_ruling_at, tomorrow);
   // the sitting is due: the cron run about to act, not a promise of the next one
   assert.equal(clock(at(15, 0, 5)).next_ruling_at, at(15, 0, 30));
   assert.equal(clock(at(18, 3)).next_ruling_at, at(18, 10, 30));
-  assert.equal(clock(at(18, 3)).next_ruling_note, "The jury sits within the next 10 minutes");
+  assert.equal(clock(at(18, 3)).next_ruling_note, "The AI judges start on a doubted Wikipedia fact within the next 10 minutes");
   // nothing can happen: no time at all, and the home page's timer reads the same
   const none = (o, note) => { const n = clock(at(10), o); assert.deepEqual([n.next_ruling_at, n.next_challenge_at, n.next_ruling_note], [null, null, note]); };
-  none({ queue: 0, waiting_for_bets: 0 }, "No doubted fact is waiting for the jury");
-  none({ waiting_for_bets: 4 }, "No doubted fact has a bet yet, so the next sitting waits for one");
-  none({ funded: false }, "The next sitting waits for the Checker's bond to be funded");
-  none({ refused: "Smart contract panicked" }, "Today's sitting is delayed while the keeper tries again");
-  none({ enabled: false }, "The jury isn't sitting right now");
+  none({ queue: 0, waiting_for_bets: 0 }, "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond");
+  none({ waiting_for_bets: 4 }, "No doubted Wikipedia fact has a bet yet, so the AI judges wait for one");
+  none({ funded: false }, "The AI judges wait for the Checker’s bond to be funded");
+  none({ refused: "Smart contract panicked" }, "Today’s decision is delayed while the keeper tries again");
+  none({ enabled: false }, "The AI judges aren’t deciding doubted facts right now");
   assert.equal(rulingClock({ nowMs: at(10), rulings: [] }).next_ruling_at, null);
   // nothing to rule outranks "done today": tomorrow's sitting would have nothing either
   assert.equal(clock(at(16), { rulings_today: 6, waiting_for_bets: 4 }).next_ruling_at, null);
@@ -626,7 +629,7 @@ test("the clock when no ruling runs: every state says what is true, in a sentenc
   assert.equal(clock(at(10), { funded: null }).next_ruling_at, at(15));
   // another hour, and across the end of the year
   assert.equal(clock(at(10), {}, { ...SITTING, hourUtc: 9 }).next_ruling_at, at(10, 0, 30));
-  assert.equal(clock(at(1), {}, { ...SITTING, hourUtc: 9 }).next_ruling_note, "The jury sits daily at 09:00 UTC");
+  assert.equal(clock(at(1), {}, { ...SITTING, hourUtc: 9 }).next_ruling_note, "The AI judges decide the next three doubted Wikipedia facts on 6, 7 and 8 November at 09:00 UTC");
   assert.equal(clock(Date.UTC(2026, 11, 31, 20), { rulings_today: 1 }).next_ruling_at, Date.UTC(2027, 0, 1, 15));
 });
 
@@ -787,7 +790,7 @@ test("the Checker waits: for funding, for its sitting, and for a key; a job out 
   assert.equal(r.challenged, null);
   assert.match(r.checker.note, /sitting is at 15:00 UTC/);
   assert.equal(r.clock.next_ruling_at, DAY + 15 * H);
-  assert.equal(r.clock.next_ruling_note, "The jury sits daily at 15:00 UTC");
+  assert.equal(r.clock.next_ruling_note, "The AI judges decide the last doubted Wikipedia fact on 6 November at 15:00 UTC");
   w.now += 10 * 60_000;
   r = await w.round();
   assert.equal(r.challenged.claim_id, 18);
@@ -799,7 +802,7 @@ test("the Checker waits: for funding, for its sitting, and for a key; a job out 
   r = await w.round();
   assert.equal(r.checker.enabled, false);
   assert.match(r.checker.reason, /no Checker key/);
-  assert.equal(r.clock.next_ruling_note, "The jury isn't sitting right now");
+  assert.equal(r.clock.next_ruling_note, "The AI judges aren’t deciding doubted facts right now");
   w = loopWorld();
   r = await w.round({ left: () => 1000 });
   assert.equal(r.challenged, null);
@@ -839,7 +842,8 @@ test("one sitting a day: after today's ruling the Checker rests, and tomorrow it
     assert.match(r.checker.note, /today's sitting is done: 1 of 1/);
     assert.deepEqual(r.errors, []);
     assert.deepEqual([r.clock.next_ruling_at, r.clock.rulings_today, r.clock.queue], [DAY + 39 * H, 1, 1]);
-    assert.equal(r.clock.next_ruling_note, "Today's ruling is done. The next sitting is tomorrow at 15:00 UTC");
+    assert.equal(r.clock.next_ruling_note, "Today’s result is in. The AI judges decide the last doubted Wikipedia fact on 7 November at 15:00 UTC");
+    assert.deepEqual(r.clock.schedule, [{ claim_id: 19, at: DAY + 39 * H, kind: "wikipedia" }], "the fact itself knows when its turn comes");
   }
   assert.equal(w.sent.filter((x) => x.method === "challenge").length, 1);
   // the next day: before the hour it waits, at the hour it sits
@@ -868,7 +872,7 @@ test("rule what people bet on: the most bets goes first, and a line with none wa
   assert.deepEqual(r.errors, []);
   assert.match(r.checker.note, /2 caught lines wait for bets/);
   assert.deepEqual([r.clock.next_ruling_at, r.clock.queue, r.clock.waiting_for_bets], [null, 2, 2]);
-  assert.match(r.clock.next_ruling_note, /No doubted fact has a bet yet/);
+  assert.match(r.clock.next_ruling_note, /No doubted Wikipedia fact has a bet yet/);
   assert.deepEqual(r.checker.lines.map((x) => x.bets), [0, 0]);
   // the first bet lands after the hour: the next run sits
   w.claims[0].trades = 1;
@@ -886,7 +890,7 @@ test("rule what people bet on: the most bets goes first, and a line with none wa
   w.claims = [claim(3)];
   r = await w.round();
   assert.match(r.checker.note, /no caught line/);
-  assert.deepEqual([r.clock.next_ruling_at, r.clock.next_ruling_note, r.errors], [null, "No doubted fact is waiting for the jury", []]);
+  assert.deepEqual([r.clock.next_ruling_at, r.clock.next_ruling_note, r.errors], [null, "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond", []]);
 });
 
 test("a cap is a quiet state: the keeper doesn't try what it knows will be refused, and a real refusal still fails", async () => {
@@ -1078,7 +1082,7 @@ test("GET /rulings: the chain's live view, the clock and the Checker's state", a
     assert.deepEqual([r.body.checker.account, r.body.checker.balance_usd, r.body.checker.lines_left], ["checker.x.near", 1, 2]);
     assert.deepEqual([r.body.sitting_hour_utc, r.body.per_day, r.body.queue, r.body.waiting_for_bets, r.body.rulings_today], [15, 1, 2, 1, 0]);
     // the exact shape docs/API.md gives
-    assert.deepEqual(Object.keys(r.body).sort(), ["asOf", "checker", "count", "keeper_ran_at", "next_challenge_at", "next_ruling_at", "next_ruling_note", "per_day", "queue", "ruling_now", "rulings", "rulings_today", "sitting_hour_utc", "waiting_for_bets"]);
+    assert.deepEqual(Object.keys(r.body).sort(), ["asOf", "checker", "count", "keeper_ran_at", "next_challenge_at", "next_ruling_at", "next_ruling_note", "per_day", "queue", "ruling_now", "rulings", "rulings_today", "schedule", "sitting_hour_utc", "waiting_for_bets"]);
     const idle = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE, trades: 5 })], docs }));
     assert.equal(idle.body.ruling_now, null);
     assert.ok(idle.body.next_ruling_at > Date.now());
@@ -1087,11 +1091,11 @@ test("GET /rulings: the chain's live view, the clock and the Checker's state", a
     // the queue is read as it stands, not as the last cron run left it: 2 in the record, 1 here, no bets on it
     const noBets = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE })], docs }));
     assert.deepEqual([noBets.body.next_ruling_at, noBets.body.next_challenge_at, noBets.body.queue, noBets.body.waiting_for_bets, noBets.body.checker.lines_left], [null, null, 1, 1, 1]);
-    assert.match(noBets.body.next_ruling_note, /No doubted fact has a bet yet/);
+    assert.match(noBets.body.next_ruling_note, /No doubted Wikipedia fact has a bet yet/);
     const empty = await rulingsRoute(routeWorld(mock, { claims: [claim(1)], docs }));
     assert.deepEqual([empty.body.next_ruling_at, empty.body.queue], [null, 0]);
     const never = await rulingsRoute(routeWorld(mock, { claims: [claim(18, { text: STALE, trades: 5 })] }));
-    assert.deepEqual([never.body.next_ruling_at, never.body.checker, never.body.next_ruling_note], [null, null, "The jury isn't sitting right now"]);
+    assert.deepEqual([never.body.next_ruling_at, never.body.checker, never.body.next_ruling_note], [null, null, "The AI judges aren’t deciding doubted facts right now"]);
   } finally { await mock.close(); }
 });
 
@@ -1128,11 +1132,11 @@ test("a challenge our jury refused: the clock doesn't call it a sitting, and it 
   assert.equal(juryRefused({ ...r, receipt_check: null }), false, "not checked yet: the jury may still sit");
   assert.equal(juryRefused({ ...r, status: "window" }), false, "someone else's jury ruled: it is a ruling like any other");
   const clock = rulingClock({ rulings: [r], nowMs: now });
-  assert.equal(clock.next_ruling_note, "Our jury isn't sitting on this challenge: its receipts did not verify");
+  assert.equal(clock.next_ruling_note, "Our AI judges aren’t deciding this challenge: its receipts did not verify");
   assert.ok(clock.next_ruling_at >= r.jury_deadline_at, "its real next step is the deadline, not a settlement in minutes");
   const real = { ...r, challenge_id: 10, receipt_check: { result: "verified" } };
   assert.equal(rulingClock({ rulings: [r, real], nowMs: now }).ruling_now.challenge_id, 10, "a real sitting comes first");
-  assert.match(rulingClock({ rulings: [real], nowMs: now }).next_ruling_note, /Three AI judges are ruling/);
+  assert.match(rulingClock({ rulings: [real], nowMs: now }).next_ruling_note, /Three AI judges are deciding/);
 });
 
 test("a run's receipt check still shows if the ledger's write failed", () => {
@@ -1296,4 +1300,70 @@ test("GET /attestations: a model nobody published is a 404, and the summary neve
 test("chronological: once per uid, oldest first, in log order within a receipt", () => {
   const a = { uid: "R:1:0", event: "trade", blockTimestampMs: 5, txHash: "T" }, b = { uid: "R:0:0", event: "open", blockTimestampMs: 5, txHash: "T" }, c = { uid: "Q:0:0", event: "open", seenAtMs: 1 };
   assert.deepEqual(chronological([a, b, c, a, null]).map((e) => e.uid), ["Q:0:0", "R:0:0", "R:1:0"]);
+});
+
+test("the schedule as it stands: two caught lines on 12 and 13 November, then news lines as they come due, then nothing", () => {
+  const s = sittingConfig({ CHECKER_FROM: "2026-11-12" });
+  const at = (d, h, m = 0) => Date.UTC(2026, 10, d, h, m);
+  const news = (lines) => ({ lines });
+  const checker = (o = {}) => ({ enabled: true, queue: 2, waiting_for_bets: 0, rulings_today: 0, funded: true, ready_ids: [27, 26], ...o });
+  const clock = (nowMs, c = {}, n = null) => rulingClock({ rulings: [], nowMs, sitting: s, checker: checker(c), news: n });
+
+  // the plan: one a day from the first sitting, in the queue's order
+  assert.deepEqual(checkerPlan({ nowMs: at(9, 16), sitting: s, ids: [27, 26] }), [{ claim_id: 27, at: at(12, 15), soon: false }, { claim_id: 26, at: at(13, 15), soon: false }]);
+  assert.deepEqual(checkerPlan({ nowMs: at(9, 16), sitting: { ...s, perDay: 2 }, ids: [27, 26, 5] }).map((p) => p.at), [at(12, 15), at(12, 15), at(13, 15)]);
+  assert.deepEqual(checkerPlan({ nowMs: at(9, 16), sitting: s, ids: [] }), []);
+
+  // 9 November: both caught lines ahead, and both days named; the news line due first is named too, and it is the next decision
+  let c = clock(at(9, 16));
+  assert.equal(c.next_ruling_note, "The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC");
+  assert.equal(c.next_ruling_at, at(12, 15));
+  assert.deepEqual(c.schedule, [{ claim_id: 27, at: at(12, 15), kind: "wikipedia" }, { claim_id: 26, at: at(13, 15), kind: "wikipedia" }]);
+  c = clock(at(9, 16), {}, news([{ claim_id: 44, due_at: at(11, 6) }, { claim_id: 40, due_at: at(15, 6) }]));
+  assert.equal(c.next_ruling_note, "The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC. News facts go to them as they come due: the next on 11 November at 06:00 UTC");
+  assert.equal(c.next_ruling_at, at(11, 6), "the next decision is the news line due first");
+  assert.deepEqual(c.schedule.map((x) => [x.claim_id, x.kind]), [[44, "news"], [27, "wikipedia"], [26, "wikipedia"], [40, "news"]]);
+
+  // 12 November, the sitting due: the cron run about to act
+  c = clock(at(12, 15, 2));
+  assert.equal(c.next_ruling_note, "The AI judges start on a doubted Wikipedia fact within the next 10 minutes");
+  assert.ok(c.next_ruling_at > at(12, 15, 2) && c.next_ruling_at <= at(12, 15, 11));
+
+  // 12 November, after the first result: the last caught line, on 13 November (never "tomorrow" left vague)
+  c = clock(at(12, 16), { queue: 1, rulings_today: 1, ready_ids: [26] });
+  assert.equal(c.next_ruling_note, "Today’s result is in. The AI judges decide the last doubted Wikipedia fact on 13 November at 15:00 UTC");
+  assert.equal(c.next_ruling_at, at(13, 15));
+
+  // 13 November, the caught lines are done: news lines as they come due, or nothing at all
+  const after = (n, o = {}) => clock(at(13, 16), { queue: 0, rulings_today: 1, ready_ids: [], ...o }, n);
+  c = after(news([{ claim_id: 40, due_at: at(15, 6) }, { claim_id: 46, due_at: at(16, 6) }]));
+  assert.equal(c.next_ruling_note, "News facts go to the AI judges as they come due: the next on 15 November at 06:00 UTC");
+  assert.equal(c.next_ruling_at, at(15, 6));
+  assert.deepEqual(c.schedule.map((x) => x.claim_id), [40, 46]);
+  c = after(news([{ claim_id: 43, due_at: at(13, 6) }, { claim_id: 40, due_at: at(15, 6) }]));
+  assert.equal(c.next_ruling_note, "One news fact is past its date: the AI judges decide it once its source answers. News facts go to them as they come due: the next on 15 November at 06:00 UTC");
+  c = after(news([{ claim_id: 43, due_at: at(13, 6) }, { claim_id: 41, due_at: at(13, 7) }]));
+  assert.equal(c.next_ruling_note, "Two news facts are past their date: the AI judges decide each once its source answers");
+  assert.equal(c.next_ruling_at, null, "nothing past due gets a countdown");
+  c = after(news([]));
+  assert.deepEqual([c.next_ruling_at, c.next_ruling_note, c.schedule], [null, "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond", []]);
+  assert.equal(after(null).next_ruling_note, c.next_ruling_note, "news off reads the same as no news");
+  // the Checker off, news still running
+  assert.equal(after(news([{ claim_id: 40, due_at: at(15, 6) }]), { enabled: false }).next_ruling_note, "News facts go to the AI judges as they come due: the next on 15 November at 06:00 UTC");
+  // no visitor sentence says jury or sitting, in any state
+  for (const x of [clock(at(9, 16)), clock(at(12, 16), { queue: 1, rulings_today: 1, ready_ids: [26] }), after(null), after(null, { enabled: false })]) assert.doesNotMatch(x.next_ruling_note, /jury|sitting|tomorrow/i);
+});
+
+test("the days in words, and the news lines' due times as the settler counts them", () => {
+  const d = (n, m = 10) => Date.UTC(2026, m, n, 15);
+  assert.equal(daysWords([d(12)]), "12 November");
+  assert.equal(daysWords([d(12), d(13), d(12)]), "12 and 13 November");
+  assert.equal(daysWords([d(12), d(13), d(14)]), "12, 13 and 14 November");
+  assert.equal(daysWords([d(30), d(1, 11)]), "30 November and 1 December");
+  assert.equal(daysWords([d(12), d(13), d(14), d(15)]), "every day from 12 to 15 November");
+  assert.equal(daysWords([]), "");
+  const doc = { lines: { 40: { claim_id: 40, settles: { by: "2026-11-14" } }, 41: { claim_id: 41, settles: { by: "2026-11-14" } }, 42: { claim_id: 42, settles: {} } } };
+  const claims = [{ id: 40, status: "Open" }, { id: 41, status: "Settled" }, { id: 42, status: "Open" }];
+  assert.deepEqual(newsDue(claims, doc, { graceH: 6 }), [{ claim_id: 40, due_at: Date.UTC(2026, 10, 15, 6) }]);
+  assert.deepEqual(newsDue(claims, null), []);
 });

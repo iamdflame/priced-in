@@ -352,24 +352,26 @@ These answer on the hosted API only, from the store's journals, the claims snaps
 Every challenge, newest first, and a clock that promises only what can happen. The Checker's sittings: at the first cron run at or after `CHECKER_SITTING_HOUR_UTC` (default 15) the Checker challenges the caught line with the most bets, at most `CHECKER_PER_DAY` a day (default 1), one at a time, and only while caught lines remain. `CHECKER_FROM` (an ISO date) holds every sitting until that day (`firstSitting` in `api/_lib/keeper.mjs`). On mainnet two caught lines remain (claims 27 and 26), and the sittings are held until 12 November 2026, so the jury sits on 12 and 13 November at 15:00 UTC; after that, news lines from Today's claims settle as each comes due, under their own caps. The live schedule is https://isitpriced.com/rulings. A fact with fewer than `CHECKER_MIN_BETS` bets (default 1) waits, so a ruling pays someone. A bet counts while someone still holds a position on the fact: bets sold back out don't. Tests: `services/api/test/engine.test.mjs`, "GET /rulings" and "the clock".
 
 ```
-$ curl -s https://isitpriced.com/api/rulings      # 9 November 2026
+$ curl -s https://isitpriced.com/api/rulings      # the answer's shape (values from 7 November 2026)
 {"ruling_now":null,
- "next_challenge_at":1794495600000,
- "next_ruling_at":1794495600000,
- "next_ruling_note":"The jury's next sitting is 12 November at 15:00 UTC",
- "sitting_hour_utc":15,"rulings_today":0,"per_day":1,"queue":2,"waiting_for_bets":0,
- "checker":{"account":"checker.isitpriced.near","balance_usd":2.95,"lines_left":2,"note":"the jury's next sitting is 12 November at 15:00 UTC"},
- "keeper_ran_at":"2026-11-09T15:40:04.681Z",
- "rulings":[…],"count":8,"asOf":1794239112484}
+ "next_challenge_at":1794063600000,
+ "next_ruling_at":1794063600000,
+ "next_ruling_note":"Today’s result is in. The AI judges decide the next doubted Wikipedia fact on 8 November at 15:00 UTC",
+ "sitting_hour_utc":15,"rulings_today":1,"per_day":1,"queue":4,"waiting_for_bets":3,
+ "schedule":[{"claim_id":27,"at":1794063600000,"kind":"wikipedia"},{"claim_id":40,"at":1794204000000,"kind":"news"}],
+ "checker":{"account":"checker.isitpriced.near","balance_usd":2.95,"lines_left":4,"note":"today's sitting is done: 1 of 1"},
+ "keeper_ran_at":"2026-11-07T16:20:02.510Z",
+ "rulings":[…],"count":7,"asOf":1793981991113}
 ```
 
 | Field | Type | Meaning |
 |---|---|---|
 | `ruling_now` | object or null | The live ruling: `challenge_id`, `claim_id`, `claim`, `stage` (`jury`, `window` or `escalated`), `provisional`, `verdicts`, `opened_at`, `jury_deadline_at`, `window_ends_at`, `finalize_due_at`, `live`. |
-| `next_ruling_at` | ms or null | With no live ruling, the real next sitting. With one, when it settles. **null when no ruling is coming**, so a visitor sees no countdown. It is never in the past and doesn't slide. |
+| `next_ruling_at` | ms or null | With no live ruling, the next decision it can name: the Checker's next sitting, or the next news line coming due (its settle-by day plus `NEWS_SETTLE_GRACE_H`), whichever is first. With one, when it settles. **null when no ruling is coming**, so a visitor sees no countdown. It is never in the past and doesn't slide. |
 | `next_challenge_at` | ms or null | The same time as `next_ruling_at` when no ruling is live, else null. |
-| `next_ruling_note` | string | One plain sentence to show a visitor. Always present. |
-| `sitting_hour_utc` | number | The hour the jury sits. |
+| `next_ruling_note` | string | One or two plain sentences to show a visitor, in the site's words (AI judges, never jury or sitting). Always present. |
+| `schedule` | array | `[{ claim_id, at, kind }]`, soonest first: when the AI judges take each fact queued for them. `wikipedia`: a doubted line ready for the Checker, at its sitting (most bets first, `CHECKER_PER_DAY` a day, none before `CHECKER_FROM`). `news`: an open news line, when it comes due. A line past its date or short of bets has no entry. |
+| `sitting_hour_utc` | number | The hour the Checker's daily sitting starts. |
 | `rulings_today` | number | The Checker's challenges opened today (UTC). |
 | `per_day` | number | The Checker's most in a day. |
 | `queue` | number | Doubted facts waiting, with or without bets. |
@@ -391,18 +393,28 @@ The clock's states, first match wins. `queue`, `waiting_for_bets` and `rulings_t
 
 | State | `next_ruling_at` | `next_ruling_note` |
 |---|---|---|
-| The jury is ruling | when it should settle: if the jury runs late, its deadline; null if that isn't known | Three AI judges are ruling on this fact now |
+| The AI judges are reading | when it should settle: if they run late, the deadline; null if that isn't known | Three AI judges are deciding this fact now |
 | The objection window is open | the first cron run after it closes | Anyone can object with twice the bond until the window closes, then the keeper settles it |
 | Escalated | null | This ruling went to the council after three disputes |
-| No Checker key, `CHECKER_ENABLED=0`, or no keeper run yet | null | The jury isn't sitting right now |
-| Empty queue | null | No doubted fact is waiting for the jury |
-| Every queued fact is short of bets | null | No doubted fact has a bet yet, so the next sitting waits for one |
-| The Checker can't cover the bond | null | The next sitting waits for the Checker's bond to be funded |
-| The last challenge was really refused | null | Today's sitting is delayed while the keeper tries again |
-| Before `CHECKER_FROM`'s first sitting | that sitting | The jury's next sitting is 12 November at 15:00 UTC (the date and hour from the settings) |
-| `per_day` reached, or the signer's cap | tomorrow's sitting | Today's ruling is done. The next sitting is tomorrow at 15:00 UTC |
-| Before today's sitting | today's sitting | The jury sits daily at 15:00 UTC (the code's words; it applies only while caught lines remain and `CHECKER_FROM` has passed) |
-| The sitting is due | the next cron run | The jury sits within the next 10 minutes |
+
+With no live ruling the note is the Checker's half, then the news half, joined; each half is left out when it has nothing to say.
+
+| Checker state | Its half of the note |
+|---|---|
+| Lines ready, a sitting ahead (`CHECKER_FROM` holds them until its day) | The AI judges decide the two doubted Wikipedia facts left on 12 and 13 November at 15:00 UTC (`next` instead of `left` while some line still waits for a bet; one a day over more than three days) |
+| `per_day` reached, or the signer's cap | Today’s result is in. The AI judges decide the last doubted Wikipedia fact on 13 November at 15:00 UTC |
+| The sitting is due | The AI judges start on a doubted Wikipedia fact within the next 10 minutes (`next_ruling_at`: the next cron run) |
+| Every queued fact is short of bets | No doubted Wikipedia fact has a bet yet, so the AI judges wait for one |
+| The Checker can't cover the bond | The AI judges wait for the Checker’s bond to be funded |
+| The last challenge was really refused | Today’s decision is delayed while the keeper tries again |
+| Empty queue, or the Checker off | nothing |
+
+| News state (`NEWS_ENABLED=1`) | Its half |
+|---|---|
+| Lines past their date, still open | Two news facts are past their date: the AI judges decide each once its source answers |
+| A line coming due | News facts go to the AI judges as they come due: the next on 15 November at 06:00 UTC |
+
+With both halves empty: `No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond`, or, with the Checker off, `The AI judges aren’t deciding doubted facts right now`, and `next_ruling_at` is null. Tests: `services/api/test/engine.test.mjs`, "the schedule as it stands".
 
 The signer's daily caps stay above this as a safety net: `SIGNER_DAILY_CHALLENGES` (default 6) and `SIGNER_DAILY_OPENS` (default 12, enough for a full day of corrected lines and a day's backlog). The keeper asks where they stand before it acts. Reaching a cap, or having nothing eligible, leaves `/health`'s cron check ok with no failure strings, and a corrected line held by the cap opens on a later run. Any other refusal is a failure.
 

@@ -94,7 +94,8 @@ test("oEmbed: text, author, handle, date and link; entities decoded; line breaks
   assert.equal(p.linkCount, 1);
   assert.equal(p.language.english, true);
   assert.equal(p.thread, null);
-  assert.deepEqual(Object.keys(p).sort(), ["authorName", "authorUrl", "date", "handle", "id", "lang", "language", "linkCount", "mediaCount", "postedAt", "text", "thread", "url"].sort(), "only what the page needs");
+  assert.deepEqual(Object.keys(p).sort(), ["authorName", "authorUrl", "date", "handle", "id", "lang", "language", "linkCount", "mediaCount", "postedAt", "text", "thread", "truncated", "url"].sort(), "only what the page needs");
+  assert.equal(p.truncated, false);
 
   // an old pre-snowflake post: the date comes from the blockquote
   const old = parseOembed(oembedJson({ id: "20", user: "jack", name: "jack", body: "just setting up my twttr", date: "March 21, 2006" }), "20");
@@ -192,7 +193,7 @@ async function setup(t, posts, env = {}, deps = {}) {
   t.after(() => rpc.close());
   const oe = await startMockOembed(posts);
   t.after(() => oe.close());
-  const api = await startApi({ RPC_URLS: rpc.url, MARKET_CONTRACT_ID: "market.testnet", POST_OEMBED_URL: oe.url, POST_OEMBED_BACKOFF_MS: "10", POST_OEMBED_RETRIES: "1", ...env }, deps);
+  const api = await startApi({ RPC_URLS: rpc.url, MARKET_CONTRACT_ID: "market.testnet", POST_OEMBED_URL: oe.url, POST_OEMBED_BACKOFF_MS: "10", POST_OEMBED_RETRIES: "1", POST_FULLTEXT_URL: "off", ...env }, deps);
   t.after(() => api.close());
   return { api, oe, rpc };
 }
@@ -366,7 +367,7 @@ test("GET /post with a planner: one planner call per post, about_a_person greyed
     if (!String(url).startsWith("https://cloud-api.near.ai/v1")) return fetch(url, init);
     const body = JSON.parse(init.body);
     calls.push(body);
-    const sentences = JSON.parse(body.messages[1].content).map((x) => x.sentence);
+    const sentences = JSON.parse(body.messages[1].content).sentences.map((x) => x.sentence);
     let labels;
     if (sentences.some((s) => /NEAR Intents/.test(s))) {
       // a model fooled by the post: 99% on everything, junk fields, and a "priced" person
@@ -402,7 +403,7 @@ test("GET /post with a planner: one planner call per post, about_a_person greyed
   assert.match(SYSTEM_PROMPT, /data, never instructions/);
   assert.match(SYSTEM_PROMPT, /about_a_person/);
   assert.equal(sent.messages[1].role, "user");
-  assert.deepEqual(JSON.parse(sent.messages[1].content).map((x) => x.sentence), r.json.sentences.map((s) => s.text));
+  assert.deepEqual(JSON.parse(sent.messages[1].content).sentences.map((x) => x.sentence), r.json.sentences.map((s) => s.text));
 
   const [fact, inj, health, crime, address] = r.json.sentences;
   assert.equal(fact.status, "priced");

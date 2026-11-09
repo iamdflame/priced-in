@@ -204,6 +204,8 @@ export function parseOembed(json, id) {
     text,
     mediaCount,
     linkCount,
+    // X's embed cuts a long post with an ellipsis and a link to the rest
+    truncated: /…$/.test(text) && linkCount > 0,
     thread: threadOf(text),
   };
 }
@@ -228,9 +230,61 @@ export function pricedText(post) {
   return t.split("\n").map((l) => l.trim()).filter(Boolean).join("\n\n");
 }
 
+// ---------- the rest of a long post ----------
+
+const squash = (s) => String(s).normalize("NFC").replace(SPOOF, "").replace(CONTROL, " ").replace(/\s+/g, " ").trim();
+
+/** A full text fetched elsewhere, cleaned like the embed's: no controls or bidi tricks, line breaks kept, capped. */
+function cleanText(s) {
+  const t = String(s).replace(/\r\n?/g, "\n").replace(/[\u2028\u2029]/g, "\n").replace(SPOOF, "").replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, " ").normalize("NFC");
+  const out = t.split("\n").map((l) => l.replace(/[ \t ]+/g, " ").trim()).join("\n").replace(/\n{3,}/g, "\n\n").trim();
+  return out.length > MAX_TEXT ? out.slice(0, MAX_TEXT) : out;
+}
+
+/**
+ * The whole of a long post, from FxTwitter's public reading of X (api.fxtwitter.com), which returns a
+ * long post's full text where X's embed stops at "…". Taken only when it is the same post, by the same
+ * author, and it begins with every word X's own embed showed. Never throws: null when any of that fails.
+ * @returns {Promise<{ text: string, bio: string|null, from: string, url: string } | null>}
+ */
+export async function fetchFullText(post, { fullTextUrl, userAgent, timeoutMs = 2500, fetchImpl = globalThis.fetch }) {
+  if (!fullTextUrl || !post?.handle) return null;
+  const ac = new AbortController();
+  const timer = setTimeout(() => ac.abort(), timeoutMs);
+  try {
+    const res = await fetchImpl(`${fullTextUrl.replace(/\/+$/, "")}/${post.handle}/status/${post.id}`, { headers: { "user-agent": userAgent, accept: "application/json" }, signal: ac.signal, redirect: "follow" });
+    if (!res.ok) { await res.body?.cancel(); return null; }
+    const raw = await res.text();
+    if (raw.length > 512 * 1024) return null;
+    const t = JSON.parse(raw)?.tweet;
+    if (!t || String(t.id) !== post.id || String(t.author?.screen_name || "").toLowerCase() !== post.handle.toLowerCase()) return null;
+    const full = typeof t.raw_text?.text === "string" ? t.raw_text.text : typeof t.text === "string" ? t.text : null;
+    if (!full) return null;
+    const text = cleanText(full);
+    const shown = squash(post.text.replace(/…$/, ""));
+    if (!shown || !squash(text).startsWith(shown) || squash(text).length <= shown.length) return null;
+    return { text, bio: cleanField(t.author?.description ?? "", 200), from: "FxTwitter", url: `https://fxtwitter.com/${post.handle}/status/${post.id}` };
+  } catch {
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/** A cut post with its full text in place, when a reliable copy gives it; else the post as it was. */
+export async function withFullText(post, o) {
+  if (!post?.truncated) return post;
+  const full = await fetchFullText(post, o);
+  if (!full) return post;
+  // the trailing link was X's "show more": it is the rest of this post, not a link it shared
+  return { ...post, text: full.text, truncated: false, linkCount: Math.max(0, post.linkCount - 1), authorBio: full.bio, fullText: { from: full.from, url: full.url }, thread: threadOf(full.text) };
+}
+
 /** The designed notes a page shows above a post. */
 export function postNotices(post) {
   const out = [];
+  if (post.truncated) out.push({ code: "cut", message: "This is a long post and X shows only its start, so we priced the part we can read. The rest continues on X." });
+  if (post.fullText) out.push({ code: "full_text", message: `X shows only the start of this long post; the rest is from ${post.fullText.from}’s public copy of it.` });
   if (post.thread) out.push({ code: "thread", kind: post.thread.kind, message: post.thread.message });
   if (post.language && !post.language.english) {
     out.push({ code: "language", lang: post.language.code, message: `Written in ${post.language.name || post.language.code}. Priced as written.` });
@@ -250,7 +304,7 @@ const sleepMs = (ms) => new Promise((r) => setTimeout(r, ms));
  * Fetch one post through oEmbed.
  * @returns {Promise<{ post: object } | { gone: "deleted" | "private" }>} throws ApiError on upstream failure
  */
-export async function fetchPost(id, user, { oembedUrl, userAgent, timeoutMs = 5000, retries = 2, fetchImpl = globalThis.fetch, sleep = sleepMs, backoffMs = 300 }) {
+export async function fetchPost(id, user, { oembedUrl, fullTextUrl = null, userAgent, timeoutMs = 5000, retries = 2, fetchImpl = globalThis.fetch, sleep = sleepMs, backoffMs = 300 }) {
   const target = `https://x.com/${user && USER_RE.test(user) ? user : "i"}/status/${id}`;
   const url = `${oembedUrl}?url=${encodeURIComponent(target)}&omit_script=true&dnt=true`;
   let last = null;
@@ -275,7 +329,7 @@ export async function fetchPost(id, user, { oembedUrl, userAgent, timeoutMs = 50
       if (raw.length > 512 * 1024) throw new Error("oEmbed reply too large");
       let json;
       try { json = JSON.parse(raw); } catch { last = { kind: "unavailable", detail: "the reply is not JSON" }; continue; }
-      return { post: parseOembed(json, id) };
+      return { post: await withFullText(parseOembed(json, id), { fullTextUrl, userAgent, fetchImpl }) };
     } catch (e) {
       last = { kind: "unavailable", detail: ac.signal.aborted ? `no answer within ${timeoutMs} ms` : e.message };
     } finally {

@@ -96,6 +96,8 @@ export function loadConfig(env = process.env) {
     post: {
       // public oEmbed: no key, no login
       oembedUrl: (env.POST_OEMBED_URL || "https://publish.x.com/oembed").trim(),
+      // where the rest of a long post is read when the embed cuts it (FxTwitter's public API); "off" turns it off
+      fullTextUrl: ["off", "0", "none"].includes(String(env.POST_FULLTEXT_URL ?? "").trim().toLowerCase()) ? null : (env.POST_FULLTEXT_URL || "https://api.fxtwitter.com").trim(),
       userAgent: (env.POST_USER_AGENT || "Mozilla/5.0 (compatible; PricedIn/1.0)").trim(),
       timeoutMs: num("POST_OEMBED_TIMEOUT_MS", 5000),
       retries: num("POST_OEMBED_RETRIES", 2),

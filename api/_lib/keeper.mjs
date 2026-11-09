@@ -181,9 +181,9 @@ export function checkerDecision({ nowMs, sitting = SITTING, live = null, queue, 
   return { go: true, note: null };
 }
 
-/** The clock's view of the Checker: the last run's record of it, and the queue as it stands. */
+/** The clock's view of the Checker: the last run's record of it, and the queue as it stands (ready_ids in the order it takes them). */
 export function checkerFacts(chk, q, nowMs) {
-  return { enabled: Boolean(chk?.enabled), queue: q.candidates.length, waiting_for_bets: q.candidates.length - q.ready.length, rulings_today: q.rulingsToday, funded: chk?.funded ?? null, refused: chk?.refused ?? null, capped: chk?.capped_on === day(nowMs) };
+  return { enabled: Boolean(chk?.enabled), queue: q.candidates.length, waiting_for_bets: q.candidates.length - q.ready.length, rulings_today: q.rulingsToday, funded: chk?.funded ?? null, refused: chk?.refused ?? null, capped: chk?.capped_on === day(nowMs), ready_ids: q.ready.map((x) => x.claim.id) };
 }
 
 // ---------- corrections ----------
@@ -224,27 +224,107 @@ export function bOf(claim, events) {
 /** What a live ruling waits for next, and when. Never a time already past, and never one that slides. */
 function liveClock(r, nowMs, juryMs, windowMs) {
   if (r.status === "escalated") return { at: null, note: "This ruling went to the council after three disputes" };
-  if (juryRefused(r)) return { at: r.jury_deadline_at ? nextTick(Math.max(nowMs, r.jury_deadline_at)) : null, note: "Our jury isn't sitting on this challenge: its receipts did not verify" };
+  if (juryRefused(r)) return { at: r.jury_deadline_at ? nextTick(Math.max(nowMs, r.jury_deadline_at)) : null, note: "Our AI judges aren’t deciding this challenge: its receipts did not verify" };
   if (r.status === "window") return { at: r.window_ends_at ? nextTick(Math.max(nowMs, r.window_ends_at)) : null, note: "Anyone can object with twice the bond until the window closes, then the keeper settles it" };
   const expected = (r.opened_at || nowMs) + juryMs;
   // a late jury has one known limit left: its deadline, when the keeper expires the challenge
   const at = nowMs <= expected ? nextTick(expected + windowMs) : r.jury_deadline_at ? nextTick(Math.max(nowMs, r.jury_deadline_at)) : null;
-  return { at, note: "Three AI judges are ruling on this fact now" };
+  return { at, note: "Three AI judges are deciding this fact now" };
+}
+
+/**
+ * When each line ready for the Checker goes to the AI judges, in the queue's order (most bets first):
+ * [{ claim_id, at, soon }]. Each day's sitting takes perDay lines. A sitting already due is the cron run
+ * about to act (`soon`), never a time already past.
+ * @param {{ nowMs: number, sitting?: { perDay: number, hourUtc: number, fromMs?: number }, ids: (number|null)[], today?: number, capped?: boolean }} a
+ */
+export function checkerPlan({ nowMs, sitting = SITTING, ids, today = 0, capped = false }) {
+  const out = [];
+  if (!ids?.length) return out;
+  const per = Math.max(1, sitting.perDay);
+  const first = firstSitting(sitting);
+  let slot, room;
+  if (first && nowMs < first) { slot = first; room = per; }
+  else if (today >= per || capped) { slot = sittingAt(nowMs, sitting.hourUtc, 1); room = per; }
+  else { slot = sittingAt(nowMs, sitting.hourUtc); room = per - today; }
+  for (const id of ids) {
+    if (room <= 0) { slot = sittingAt(slot, sitting.hourUtc, 1); room = per; }
+    const soon = slot <= nowMs;
+    out.push({ claim_id: id, at: soon ? nextTick(nowMs - SLOT_MS, CRON_EVERY_MS, SLOT_MS) : slot, soon });
+    room--;
+  }
+  return out;
+}
+
+const NUM = ["no", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten"];
+const numWord = (n) => NUM[n] ?? String(n);
+const andList = (xs) => (xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} and ${xs.at(-1)}`);
+const utcDay = (t) => { const d = new Date(t); return Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()); };
+const monthWords = (t) => new Date(t).toLocaleDateString("en-GB", { month: "long", timeZone: "UTC" });
+const timeWords = (t) => `${new Date(t).toISOString().slice(11, 16)} UTC`;
+
+/** Days in words: "12 November", "12 and 13 November", "30 November and 1 December", "every day from 12 to 20 November". */
+export function daysWords(times) {
+  const days = [...new Set(times.map(utcDay))].sort((a, b) => a - b);
+  if (!days.length) return "";
+  const sameMonth = days.every((d) => monthWords(d) === monthWords(days[0]));
+  if (days.length > 3) return `every day from ${sameMonth ? new Date(days[0]).getUTCDate() : dayWords(days[0])} to ${dayWords(days.at(-1))}`;
+  return sameMonth ? `${andList(days.map((d) => String(new Date(d).getUTCDate())))} ${monthWords(days[0])}` : andList(days.map(dayWords));
+}
+
+/** The Checker's plan in one sentence: which doubted Wikipedia facts the AI judges decide, and when. */
+function planWords(plan, { sitting, queue, waiting, today, held }) {
+  if (!plan.length) return null;
+  if (plan[0].soon) return "The AI judges start on a doubted Wikipedia fact within the next 10 minutes";
+  const n = plan.length;
+  // "left" only when every doubted line is in the plan: none waits for a first bet
+  const which = waiting === 0 && n === queue
+    ? (n === 1 ? "the last doubted Wikipedia fact" : `the ${numWord(n)} doubted Wikipedia facts left`)
+    : (n === 1 ? "the next doubted Wikipedia fact" : `the next ${numWord(n)} doubted Wikipedia facts`);
+  const times = plan.map((p) => p.at);
+  const when = new Set(times.map(utcDay)).size > 3 ? `one a day at ${hhmm(sitting.hourUtc)}, ${daysWords(times)}` : `on ${daysWords(times)} at ${hhmm(sitting.hourUtc)}`;
+  const done = !held && today > 0 && today >= sitting.perDay ? (today === 1 ? "Today’s result is in. " : "Today’s results are in. ") : "";
+  return `${done}The AI judges decide ${which} ${when}`;
+}
+
+/**
+ * The open news lines in one sentence: those past their date, and when the next comes due.
+ * @param {{ lines?: { claim_id: number, due_at: number }[] }|null} news
+ */
+function newsWords(news, nowMs, first) {
+  const lines = news?.lines ?? [];
+  const late = lines.filter((l) => l.due_at <= nowMs).length;
+  const ahead = lines.filter((l) => l.due_at > nowMs).map((l) => l.due_at);
+  const next = ahead.length ? Math.min(...ahead) : null;
+  const parts = [];
+  if (late) parts.push(late === 1 ? "One news fact is past its date: the AI judges decide it once its source answers" : `${numWord(late).replace(/^./, (x) => x.toUpperCase())} news facts are past their date: the AI judges decide each once its source answers`);
+  if (next !== null) parts.push(`News facts go to ${first && !late ? "the AI judges" : "them"} as they come due: the next on ${dayWords(next)} at ${timeWords(next)}`);
+  return { note: parts.length ? parts.join(". ") : null, next };
 }
 
 /**
  * The clock promises only what can happen. Every answer has the same fields.
- *   next_ruling_at    the real next sitting (a live ruling: when it settles), or null when none is coming
- *   next_ruling_note  one plain sentence for a visitor
- * @param {{ rulings: object[], nowMs: number, sitting?: { perDay: number, hourUtc: number, minBets: number },
- *   checker?: { enabled: boolean, queue?: number, waiting_for_bets?: number, rulings_today?: number, funded?: boolean|null, capped?: boolean, refused?: string|null }|null,
- *   juryMs?: number, windowMs?: number }} a
+ *   next_ruling_at    the next decision we can name: a live ruling's settlement, the Checker's next sitting,
+ *                     or the next news line coming due; null when none is coming
+ *   next_ruling_note  one plain sentence for a visitor (two at most), in the AI judges' words
+ *   schedule          [{ claim_id, at, kind }]: when the AI judges take each fact queued for them, soonest first
+ * @param {{ rulings: object[], nowMs: number, sitting?: { perDay: number, hourUtc: number, minBets: number, fromMs?: number },
+ *   checker?: { enabled: boolean, queue?: number, waiting_for_bets?: number, rulings_today?: number, funded?: boolean|null, capped?: boolean, refused?: string|null, ready_ids?: number[] }|null,
+ *   news?: { lines: { claim_id: number, due_at: number }[] }|null, juryMs?: number, windowMs?: number }} a
  */
-export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null, juryMs = 3 * 60_000, windowMs = 10 * 60_000 }) {
+export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null, news = null, juryMs = 3 * 60_000, windowMs = 10 * 60_000 }) {
   const c = checker || {};
   const queue = c.queue ?? 0, waiting = c.waiting_for_bets ?? 0, today = c.rulings_today ?? 0;
   const facts = { sitting_hour_utc: sitting.hourUtc, rulings_today: today, per_day: sitting.perDay, queue, waiting_for_bets: waiting };
-  const say = (at, note, ruling_now = null) => ({ ruling_now, next_challenge_at: ruling_now ? null : at, next_ruling_at: at, next_ruling_note: note, ...facts });
+  // the Checker's plan, when it can go at all: on, with lines that have bets, funded, not stuck
+  const goes = c.enabled && queue > 0 && waiting < queue && c.funded !== false && !c.refused;
+  const ids = Array.isArray(c.ready_ids) ? c.ready_ids : Array.from({ length: Math.max(0, queue - waiting) }, () => null);
+  const plan = goes ? checkerPlan({ nowMs, sitting, ids, today, capped: !!c.capped }) : [];
+  const schedule = [
+    ...plan.filter((p) => p.claim_id !== null).map((p) => ({ claim_id: p.claim_id, at: p.at, kind: "wikipedia" })),
+    ...(news?.lines ?? []).filter((l) => l.due_at > nowMs).map((l) => ({ claim_id: l.claim_id, at: l.due_at, kind: "news" })),
+  ].sort((a, b) => a.at - b.at || a.claim_id - b.claim_id);
+  const say = (at, note, ruling_now = null) => ({ ruling_now, next_challenge_at: ruling_now ? null : at, next_ruling_at: at, next_ruling_note: note, ...facts, schedule });
 
   const live = rulings.filter((r) => LIVE.includes(r.status));
   if (live.length) {
@@ -252,17 +332,18 @@ export function rulingClock({ rulings, nowMs, sitting = SITTING, checker = null,
     const { at, note } = liveClock(r, nowMs, juryMs, windowMs);
     return say(at, note, { challenge_id: r.challenge_id, claim_id: r.claim_id, claim: r.claim, stage: r.status, provisional: r.provisional, verdicts: r.verdicts.map((v) => ({ model: v.model, verdict: v.verdict })), opened_at: r.opened_at, jury_deadline_at: r.jury_deadline_at, window_ends_at: r.window_ends_at, finalize_due_at: at, live: live.length });
   }
-  if (!c.enabled) return say(null, "The jury isn't sitting right now");
-  if (!queue) return say(null, "No doubted fact is waiting for the jury");
-  if (waiting >= queue) return say(null, "No doubted fact has a bet yet, so the next sitting waits for one");
-  if (c.funded === false) return say(null, "The next sitting waits for the Checker's bond to be funded");
-  if (c.refused) return say(null, "Today's sitting is delayed while the keeper tries again");
-  const first = firstSitting(sitting);
-  if (first && nowMs < first) return say(first, `The jury's next sitting is ${dayWords(first)} at ${hhmm(sitting.hourUtc)}`);
-  if (today >= sitting.perDay || c.capped) return say(sittingAt(nowMs, sitting.hourUtc, 1), `Today's ${sitting.perDay > 1 ? "rulings are" : "ruling is"} done. The next sitting is tomorrow at ${hhmm(sitting.hourUtc)}`);
-  const at = sittingAt(nowMs, sitting.hourUtc);
-  if (nowMs < at) return say(at, `The jury sits daily at ${hhmm(sitting.hourUtc)}`);
-  return say(nextTick(nowMs - SLOT_MS, CRON_EVERY_MS, SLOT_MS), "The jury sits within the next 10 minutes");
+  // the Wikipedia half: the plan, or why there is none
+  const held = firstSitting(sitting) > nowMs;
+  const wiki = plan.length ? planWords(plan, { sitting, queue, waiting, today, held })
+    : !c.enabled || !queue ? null
+      : waiting >= queue ? "No doubted Wikipedia fact has a bet yet, so the AI judges wait for one"
+        : c.funded === false ? "The AI judges wait for the Checker’s bond to be funded"
+          : c.refused ? "Today’s decision is delayed while the keeper tries again" : null;
+  const nw = newsWords(news, nowMs, !wiki);
+  const at = [plan[0]?.at, nw.next].filter((x) => Number.isFinite(x)).sort((a, b) => a - b)[0] ?? null;
+  const note = [wiki, nw.note].filter(Boolean).join(". ")
+    || (!c.enabled ? "The AI judges aren’t deciding doubted facts right now" : "No fact is waiting for the AI judges. Anyone can start one by challenging a fact with a bond");
+  return say(at, note);
 }
 
 // ---------- one round ----------
