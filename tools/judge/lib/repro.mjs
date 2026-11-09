@@ -151,47 +151,100 @@ function spawnCargo(tc, args, env, log) {
 }
 const lastLines = (s) => s.split("\n").filter(Boolean).slice(-3).join(" | ");
 
+// ---------- the recorded -C metadata ----------
+// Cargo gives each crate a -C metadata hash that seeds its symbol names, and so the order of functions
+// in the wasm. For a crate that depends on a proc macro or a build script, that hash includes the
+// host triple (the host crates' own hashes do), so Linux, macOS and Windows-msvc hosts name the same
+// functions differently from the Windows-gnu host the deployed build ran on. tools/judge/repro-wrapper,
+// a std-only RUSTC_WRAPPER, sets each wasm crate's -C metadata to the value recorded from that build.
+
+const WRAPPER_DIR = path.join(here, "../repro-wrapper");
+const readRecord = () => (fs.existsSync(PATHS_FILE) ? JSON.parse(fs.readFileSync(PATHS_FILE, "utf8")) : {});
+function saveRecord(rec) {
+  const out = { note: PATHS_NOTE, recorded_host: rec.recorded_host, paths: [...(rec.paths || [])].sort(), metadata_note: META_NOTE, metadata: rec.metadata || {} };
+  fs.writeFileSync(PATHS_FILE, JSON.stringify(out, null, 1) + "\n");
+}
+/** The host triple of a toolchain, from `rustc -vV`. */
+export function hostTriple(tc) {
+  const r = spawnSync("rustc", [...tc.args, "-vV"], { encoding: "utf8", env: tc.env });
+  return (r.stdout || "").match(/^host: (\S+)/m)?.[1] || "unknown";
+}
+
+async function buildWrapper(tc, targetDir, log) {
+  const dir = path.join(targetDir, "wrapper");
+  const r = await spawnCargo(tc, ["build", "--release", "--locked", "--manifest-path", path.join(WRAPPER_DIR, "Cargo.toml"), "--target-dir", dir], { ...tc.env }, log);
+  if (!r.ok) return { ok: false, reason: `the build wrapper (tools/judge/repro-wrapper) did not build: ${lastLines(r.err)}` };
+  return { ok: true, exe: path.join(dir, "release", `repro-wrapper${process.platform === "win32" ? ".exe" : ""}`) };
+}
+
 /**
  * Build market, swarm and the agent wallet reproducibly into targetDir.
- * Returns { ok, wasm: { market, swarm, agent }: { bytes, hash, sha256, size }, flags, toolchain, rebuilt }
+ * Returns { ok, wasm: { market, swarm, agent }: { bytes, hash, sha256, size }, flags, toolchain, host, rebuilt }
  * or { ok: false, reason, env } where env is true when the cause is this machine (no toolchain, no
  * network for the crates, a path that couldn't be remapped), not the source.
  * learn: add newly leaked paths to repro-paths.json and build again (the deploy scripts do; the judge doesn't).
+ * record: on the recorded host, store cargo's own -C metadata values in repro-paths.json (after a dependency change).
  */
-export async function reproBuild({ targetDir = path.join(REPO, "target", "judge-repro"), log, learn = true } = {}) {
+export async function reproBuild({ targetDir = path.join(REPO, "target", "judge-repro"), log, learn = true, record = false } = {}) {
   const tc = toolchain();
   if (!tc.ok) return { ok: false, env: true, reason: tc.reason, install: tc.install };
+  const host = hostTriple(tc);
+  let rec = readRecord();
+  if (record && rec.recorded_host && rec.recorded_host !== host) return { ok: false, env: true, reason: `the -C metadata values are recorded on ${rec.recorded_host}; this host is ${host}` };
   const env = { ...tc.env, CARGO_TARGET_DIR: targetDir };
-  delete env.RUSTFLAGS;
+  delete env.RUSTFLAGS; delete env.RUSTC_WRAPPER; delete env.RUSTC_WORKSPACE_WRAPPER;
   // the registry must be unpacked before the remaps are listed: a clean machine has no registry/src yet
   const fetched = await spawnCargo(tc, ["fetch", "--locked", "--target", TARGET], env, log);
   if (!fetched.ok) return { ok: false, env: true, reason: `cargo fetch failed (the crates could not be downloaded): ${lastLines(fetched.err)}` };
-  let known = recordedPaths();
+  const wrapper = await buildWrapper(tc, targetDir, log);
+  if (!wrapper.ok) return { ok: false, env: true, reason: wrapper.reason };
+  fs.mkdirSync(targetDir, { recursive: true });
+  const metaFile = path.join(targetDir, "repro-metadata.txt"), missFile = path.join(targetDir, "repro-misses.txt"), recFile = path.join(targetDir, "repro-recorded.txt");
   const pkgs = [["pricedin-market", "pricedin_market"], ["pricedin-swarm", "pricedin_swarm"], ["pricedin-agent", "pricedin_agent"]];
   let rebuilt = 0;
   for (let pass = 0; pass < 3; pass++) {
-    const flags = [...BASE_FLAGS, ...remapFlags(known)];
-    const benv = { ...env, CARGO_ENCODED_RUSTFLAGS: flags.join("\x1f") };
+    const meta = record ? "" : Object.entries(rec.metadata || {}).map(([k, v]) => `${k} ${v}`).join("\n") + "\n";
+    // cargo doesn't see the table, so it wouldn't recompile a crate whose recorded value changed: a stamp does
+    const stamp = sha256hex(Buffer.from(JSON.stringify({ meta, record, wrapper: fs.readFileSync(path.join(WRAPPER_DIR, "src", "main.rs"), "utf8") })));
+    const stampFile = path.join(targetDir, "repro-stamp");
+    if (record || !fs.existsSync(stampFile) || fs.readFileSync(stampFile, "utf8") !== stamp) fs.rmSync(path.join(targetDir, TARGET), { recursive: true, force: true });
+    fs.writeFileSync(metaFile, meta);
+    for (const f of [missFile, recFile]) fs.rmSync(f, { force: true });
+    const flags = [...BASE_FLAGS, ...remapFlags(rec.paths || [])];
+    const benv = { ...env, CARGO_ENCODED_RUSTFLAGS: flags.join("\x1f"), RUSTC_WRAPPER: wrapper.exe, PRICEDIN_REPRO_MISSES: missFile, ...(record ? { PRICEDIN_REPRO_RECORD: recFile } : { PRICEDIN_REPRO_METADATA: metaFile }) };
     for (const [pkg] of pkgs) {
       const r = await spawnCargo(tc, ["build", "--locked", "-p", pkg, "--release", "--target", TARGET], benv, log);
       if (!r.ok) return { ok: false, reason: `cargo build -p ${pkg} failed: ${lastLines(r.err)}` };
+    }
+    fs.writeFileSync(stampFile, stamp);
+    if (record) {
+      const metadata = {};
+      for (const line of fs.readFileSync(recFile, "utf8").split("\n").filter(Boolean)) { const i = line.lastIndexOf(" "); metadata[line.slice(0, i)] = line.slice(i + 1).trim(); }
+      rec = { ...rec, recorded_host: host, metadata };
+      saveRecord(rec);
+    } else if (fs.existsSync(missFile)) {
+      const missing = [...new Set(fs.readFileSync(missFile, "utf8").split("\n").filter(Boolean))];
+      return { ok: false, env: true, reason: `${missing.length} crates have no recorded -C metadata (the dependencies changed since the recorded build; node tools/judge/repro.mjs --record on ${rec.recorded_host} records them): ${missing.slice(0, 3).join(", ")}` };
     }
     const wasm = {};
     let leaks = [];
     for (const [, file] of pkgs) {
       const bytes = fs.readFileSync(path.join(targetDir, TARGET, "release", `${file}.wasm`));
       wasm[file.replace("pricedin_", "")] = { bytes, hash: codeHash(bytes), sha256: sha256hex(bytes), size: bytes.length };
-      leaks.push(...leakedPaths(bytes, known));
+      leaks.push(...leakedPaths(bytes, rec.paths || []));
     }
     leaks = [...new Set(leaks)];
-    if (!leaks.length) return { ok: true, wasm, flags: flags.join(" "), toolchain: tc.version, rebuilt };
+    if (!leaks.length) return { ok: true, wasm, flags: flags.join(" "), toolchain: tc.version, host, rebuilt };
+    const known = rec.paths || [];
     const add = [...new Set(leaks.map((p) => recordedForm(p)))].filter((p) => !known.includes(p));
     if (!learn || !add.length) return { ok: false, env: true, reason: `the build carries source paths the recorded build doesn't, so its bytes can't match: ${leaks.slice(0, 3).join(", ")}` };
-    known = [...known, ...add].sort();
-    fs.writeFileSync(PATHS_FILE, JSON.stringify({ note: PATHS_NOTE, paths: known }, null, 1) + "\n");
+    rec = { ...rec, paths: [...known, ...add] };
+    saveRecord(rec);
     rebuilt++;
   }
   return { ok: false, env: true, reason: "paths kept leaking after three builds" };
 }
 
-const PATHS_NOTE = "The source-file paths the deployed market and swarm wasm carry (in panic messages), exactly as they are in the deployed bytes. The deployed build ran on Windows: a registry crate's path is /crates/ then the crate's own path with backslashes, a workspace file's path is relative with forward slashes. tools/judge/lib/repro.mjs remaps each local source file to its string here on every OS, so Linux and macOS rebuild the same bytes.";
+const PATHS_NOTE = "What the deployed market and swarm wasm were built with, so any OS rebuilds the same bytes (tools/judge/lib/repro.mjs). paths: the source-file paths the deployed wasm carries in panic messages, exactly as they are in its bytes. The deployed build ran on Windows: a registry crate's path is /crates/ then the crate's own path with backslashes, a workspace file's path is relative with forward slashes. Each local source file is remapped to its string here.";
+const META_NOTE = "metadata: the -C metadata cargo gave each wasm crate on recorded_host, keyed '<package>@<version> <crate>'. Cargo hashes the host triple into it for crates that use a proc macro or a build script, and it seeds the symbol names, so the function order. tools/judge/repro-wrapper sets these values on every host. Recorded with node tools/judge/repro.mjs --record on recorded_host.";
+

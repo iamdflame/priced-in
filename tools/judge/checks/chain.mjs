@@ -6,7 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { booksAt } from "../lib/books.mjs";
 import { marketEvents } from "../lib/near.mjs";
-import { reproBuild } from "../lib/repro.mjs";
+import { reproBuild, CI_EVIDENCE } from "../lib/repro.mjs";
 
 const X = (kind, v) => `https://testnet.nearblocks.io/${kind}/${v}`;
 
@@ -15,7 +15,8 @@ export async function checkRepro(repo, dep, rpc, { offline, build, mainnet = nul
   const r = await build; // started early: the build runs while the other checks do
   if (!r.ok) {
     if (/--no-build/.test(r.reason)) return { status: "SKIP", detail: "--no-build: the contracts were not rebuilt", see: "npm run judge (without --no-build)" };
-    if (/not installed|needs rustc|wasm32/.test(r.reason)) return { status: "SKIP", detail: `${r.reason}, so nothing was built`, see: "rustup toolchain install 1.99.1 --target wasm32-unknown-unknown, then npm run judge (or node tools/judge/repro.mjs)" };
+    // a cause on this machine (no toolchain, no crates download, a path it can't remap) is not a mismatch: SKIP, say why
+    if (r.env) return { status: "SKIP", detail: `${r.reason}, so this machine can't rebuild the recorded bytes; clean Linux, macOS and Windows runners do (${CI_EVIDENCE})`, see: r.install ? `${r.install}, then npm run judge (or node tools/judge/repro.mjs)` : "node tools/judge/repro.mjs --verbose; VERIFY.md, step 3" };
     return { status: "FAIL", detail: r.reason, see: "node tools/judge/repro.mjs" };
   }
   const want = { market: dep.code.market.code_hash, swarm: dep.code.swarm.code_hash };
