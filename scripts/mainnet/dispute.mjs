@@ -7,7 +7,8 @@
 //   options: --deposit <USD>   the most it may move from the owner's USDC into its market balance when that
 //                              can't cover the bond; only the shortfall moves
 //            --for true|false  the outcome the owner stands for, when it holds no bond here yet (default: its
-//                              own latest bond on this challenge, else the claim of the house's Checker)
+//                              own latest bond on this challenge, else the latest bond of the house's
+//                              Checker or Sentinel)
 //            --drill           label the evidence on-chain as a drill of the dispute path
 //
 // Signed by the owner: NEAR_DEPLOYER_PRIVATE_KEY from .env on mainnet (read only after CONFIRM_MAINNET=yes,
@@ -51,6 +52,8 @@ const dep = JSON.parse(fs.readFileSync(path.join(ROOT, `deployments/${NET}.json`
 if (dep.network !== NET) throw new Error(`deployments/${NET}.json is not a ${NET} deployment`);
 const M = dep.accounts.market, U = dep.accounts.usdc, OWNER = dep.root;
 const CHECKER = dep.keys?.checker_account || `checker.${dep.root}`;
+const SENTINEL = dep.keys?.sentinel_account || `sentinel.${dep.root}`;
+const HOUSE = [CHECKER, SENTINEL];
 const RPCS = MAIN ? (process.env.NEAR_RPC_MAINNET || "https://rpc.fastnear.com,https://near.drpc.org,https://free.rpc.fastnear.com").split(",") : ["https://near-testnet.drpc.org", "https://test.rpc.fastnear.com", "https://rpc.testnet.fastnear.com"];
 const provider = new FailoverRpcProvider(RPCS.map((url) => new JsonRpcProvider({ url }, { retries: 4, backoff: 2, wait: 800 })));
 const view = (contractId, method, args = {}) => provider.callFunction({ contractId, method, args, blockQuery: { finality: "optimistic" } });
@@ -70,10 +73,10 @@ const ownerUsdc = BigInt(await view(U, "ft_balance_of", { account_id: OWNER }));
 console.log(`network ${NET}; market ${M}; signer ${OWNER} (the owner): ${fmt(balance)} in the market, ${fmt(ownerUsdc)} USDC`);
 if (ch) {
   console.log(`challenge ${CHALLENGE} on claim ${ch.claim_id}: filed by ${ch.challenger} for ${word(ch.claimed_outcome)}; ${ch.disputes} dispute(s); current bond ${fmt(ch.bond_micro)}; ruling now ${word(claim?.provisional)}; claim ${claim?.status ?? "missing"}`);
-  console.log(`window ${endsNs ? `ends ${iso(endsNs)}` : "not running"}; chain time ${iso(nowNs)}; the owner holds ${word(WANT ?? heldSide(ch, OWNER, CHECKER))}${WANT !== null ? " (--for)" : ""}`);
+  console.log(`window ${endsNs ? `ends ${iso(endsNs)}` : "not running"}; chain time ${iso(nowNs)}; the owner holds ${word(WANT ?? heldSide(ch, OWNER, HOUSE))}${WANT !== null ? " (--for)" : ""}`);
   if (claim?.text) console.log(`claim: ${claim.text}`);
 }
-const plan = disputePlan({ challengeId: CHALLENGE, ch, claim, endsNs, nowNs, signer: OWNER, checker: CHECKER, want: WANT, evidence: EVIDENCE, balance, usdc: ownerUsdc, depositCap: DEPOSIT_CAP });
+const plan = disputePlan({ challengeId: CHALLENGE, ch, claim, endsNs, nowNs, signer: OWNER, house: HOUSE, want: WANT, evidence: EVIDENCE, balance, usdc: ownerUsdc, depositCap: DEPOSIT_CAP });
 if (!plan.ok) { console.error(`refused: ${plan.why}`); process.exit(2); }
 console.log(`plan: ${plan.deposit ? `deposit ${fmt(plan.deposit)} of the owner's USDC into its market balance, then ` : ""}dispute ${CHALLENGE} with a ${fmt(plan.bond)} bond (twice ${fmt(plan.current)}), flipping the ruling ${word(plan.ruling)} -> ${word(plan.proposed)}; ${plan.escalates ? "this is the third dispute: it goes to the council and opens no window" : "it restarts the window"}`);
 console.log(`evidence (${Buffer.byteLength(EVIDENCE, "utf8")} bytes): ${EVIDENCE}`);

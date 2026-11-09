@@ -384,6 +384,16 @@ test("rulings: the third objection goes to the council and opens no window", () 
   assert.deepEqual([r.status, r.escalated, r.window_ends_at, r.disputes.length, r.disputes[2].window_ends_at], ["escalated", true, null, 3, null]);
 });
 
+test("rulings: the house Sentinel's dispute shows like anyone's, named", () => {
+  const events = [
+    ...challengeEvents(8, 12, 1000),
+    ev("dispute", { challenge_id: 8, claim_id: 12, trader: "sentinel.isitpriced.near", amount_micro: "2000000", round: 1, proposed: true, window_ends_ns: NS(900_000) }, 2000),
+  ];
+  const [r] = rulingsOf({ events, claims: [claim(12, { status: "Challenged", provisional: true, challenge_id: 8 })] });
+  assert.deepEqual(r.disputes.map((d) => [d.who, d.trader, d.bond_usd, d.round, d.proposed, d.window_ends_at]), [["the Sentinel", "sentinel.isitpriced.near", 2, 1, "TRUE", 900_000]]);
+  assert.equal(r.status, "window");
+});
+
 test("rulings: at the end, which bonds were paid and which were lost", () => {
   const base = [
     ...challengeEvents(6, 11, 1000),

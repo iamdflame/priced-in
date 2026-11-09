@@ -9,17 +9,21 @@ export const MAX_EVIDENCE = 4000;
 const fmt = (m) => `$${(Number(m) / 1e6).toFixed(2)}`;
 const word = (b) => (b ? "TRUE" : "FALSE");
 
-/** The side the signer holds: its own latest bond on this challenge, else the house Checker's claim when the Checker filed it. */
-export function heldSide(ch, signer, checker) {
-  const mine = (ch?.stakes || []).filter((s) => s.account === signer);
-  if (mine.length) return mine[mine.length - 1].side;
-  if (checker && ch?.challenger === checker) return ch.claimed_outcome;
-  return null;
+/**
+ * The side the signer holds: its own latest bond on this challenge, else the latest bond of the house's
+ * other accounts (`house`: the Checker, whose challenge is stake 0, and the Sentinel, which disputes
+ * rulings that rest on failed receipts). A string is one house account.
+ */
+export function heldSide(ch, signer, house = []) {
+  const stakes = ch?.stakes || [];
+  const latest = (pred) => { const xs = stakes.filter(pred); return xs.length ? xs[xs.length - 1].side : null; };
+  const others = (Array.isArray(house) ? house : [house]).filter(Boolean);
+  return latest((s) => s.account === signer) ?? latest((s) => others.includes(s.account));
 }
 
 /**
  * @param {{ challengeId: number, ch: object|null, claim: object|null, endsNs: string|null, nowNs: bigint|string,
- *   signer: string, checker?: string|null, want?: boolean|null, evidence: string,
+ *   signer: string, house?: string[], checker?: string|null, want?: boolean|null, evidence: string,
  *   balance: bigint, usdc: bigint, depositCap: bigint|null }} o
  * @returns {{ ok: false, why: string } | { ok: true, bond: bigint, current: bigint, ruling: boolean, proposed: boolean, held: boolean|null,
  *   shortfall: bigint, deposit: bigint, round: number, escalates: boolean, endsNs: bigint, leftSecs: number }}
@@ -44,7 +48,7 @@ export function disputePlan(o) {
   if (bytes > MAX_EVIDENCE) return no(`the evidence is ${bytes} bytes; the contract takes at most ${MAX_EVIDENCE}`);
   const ruling = claim.provisional;
   const proposed = !ruling;
-  const held = o.want ?? heldSide(ch, o.signer, o.checker);
+  const held = o.want ?? heldSide(ch, o.signer, o.house ?? o.checker);
   if (held !== null && held === ruling) return no(`the ruling already says ${word(ruling)}, the side ${o.signer} holds: a dispute always flips it, so it would flip it to ${word(proposed)}, against itself`);
   const current = BigInt(ch.bond_micro);
   const bond = current * 2n;

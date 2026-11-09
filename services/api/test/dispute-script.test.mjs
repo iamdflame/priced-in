@@ -58,6 +58,18 @@ test("dispute script: refuses to dispute toward the outcome the owner already ho
   assert.equal(disputePlan(base({ ch: stranger, want: false })).ok, true);
 });
 
+test("dispute script: the Sentinel's bond counts as the house's side", () => {
+  const house = ["checker.isitpriced.near", "sentinel.isitpriced.near"];
+  // a stranger's challenge on failed receipts; the Sentinel disputed it to FALSE
+  const sentinel = ch({ challenger: "a.near", claimed_outcome: true, disputes: 1, bond_micro: "2000000", stakes: [{ account: "a.near", side: true, amount_micro: "1000000", evidence: "" }, { account: "sentinel.isitpriced.near", side: false, amount_micro: "2000000", evidence: "receipts failed" }] });
+  assert.equal(heldSide(sentinel, "isitpriced.near", house), false);
+  assert.match(disputePlan(base({ ch: sentinel, house, claim: claim({ provisional: false }) })).why, /already says FALSE/, "the owner never flips the Sentinel's own dispute");
+  // the challenger disputed back to TRUE: the owner may defend the Sentinel's side
+  const back = ch({ ...sentinel, disputes: 2, bond_micro: "4000000", stakes: [...sentinel.stakes, { account: "a.near", side: true, amount_micro: "4000000", evidence: "y" }] });
+  const p = disputePlan(base({ ch: back, house, claim: claim({ provisional: true }), balance: 10_000_000n }));
+  assert.deepEqual([p.ok, p.proposed, p.bond, p.escalates], [true, false, 8_000_000n, true]);
+});
+
 test("dispute script: the evidence is 1..4000 bytes, counted as bytes", () => {
   assert.match(disputePlan(base({ evidence: "  " })).why, /--evidence is required/);
   assert.equal(disputePlan(base({ evidence: "x".repeat(4000) })).ok, true);

@@ -179,6 +179,7 @@ export function whoIs(trader, names = new Map()) {
   if (names.has(trader)) return names.get(trader);
   if (String(trader).startsWith("lane:")) return "a free $1 bet";
   if (String(trader).startsWith("checker.")) return "the Checker";
+  if (String(trader).startsWith("sentinel.")) return "the Sentinel";
   return trader;
 }
 
