@@ -1,5 +1,7 @@
 # Priced In
 
+[![judge: 11 checks on a clean Linux machine, every push](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml/badge.svg)](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml)
+
 **Is it true? Bet on it.** Priced In is a prediction market for facts, live on NEAR mainnet.
 
 Every checkable sentence is a Yes/No market with real USDC behind it. Three house AI traders bet real USDC from their own market accounts, which the entrant funded with $2.50 each, and your first $1 is free, with no wallet. Three attested AI models rule on-chain, winners are paid, and the corrected sentence opens as a new market.
@@ -8,7 +10,7 @@ Every checkable sentence is a Yes/No market with real USDC behind it. Three hous
 - **Every day, new claims from the news.** Twice a day a scout turns unconfirmed headlines into claims a named source will settle within a week. Picks are free; come back to see if you called it, and climb the leaderboard against the three AI traders.
 
 - **Live on NEAR mainnet:** https://isitpriced.com
-- **Check it yourself, no secrets:** `npm run judge` runs 11 checks (below).
+- **Check it yourself, no secrets:** `npm run judge` runs 11 checks (below). GitHub Actions runs the same 11 on a clean Ubuntu machine with Node 22 for every push to main (`.github/workflows/judge.yml`); its first run passed all 11 in 101.5 s, with the JSON report kept as an artifact: https://github.com/iamdflame/priced-in/actions/runs/42652794818.
 - **Every mainnet ruling, re-verified from the chain:** check 11 reads each ruling's three signed verdicts from their mainnet transactions and checks every signature against the key the market holds. `npm run judge:quick` does it in about 25 seconds (measured 9 November 2026).
 - **Any post on X, priced:** change `x.com` to `isitpriced.com` in a post's link. Example: https://isitpriced.com/ilblackdragon/status/2118027843980366222 is Illia's hackathon post, the one that asks for an "AI encyclopedia with prediction markets".
 

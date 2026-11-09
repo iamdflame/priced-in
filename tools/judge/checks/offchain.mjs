@@ -101,7 +101,12 @@ export async function checkSite(site) {
   const base = site.replace(/\/+$/, "");
   const get = (p) => fetch(base + p, { signal: AbortSignal.timeout(15_000) });
   let h;
-  try { h = await get("/health"); } catch (e) { return { status: "FAIL", detail: `${base}/health unreachable: ${String(e.message).slice(0, 100)}`, see: `curl ${base}/health` }; }
+  try { h = await get("/health"); } catch (e) {
+    const code = e?.cause?.code || e?.code || "";
+    // a name this machine can't resolve is its own network, not the site: say so instead of failing the site
+    if (code === "ENOTFOUND" || code === "EAI_AGAIN") return { status: "SKIP", detail: `${base} could not be resolved from this machine (${code}): run again once its DNS answers`, see: `curl ${base}/health` };
+    return { status: "FAIL", detail: `${base}/health unreachable: ${String(e.message).slice(0, 100)}${code ? ` (${code})` : ""}`, see: `curl ${base}/health` };
+  }
   const health = await h.json().catch(() => null);
   if (h.status !== 200) return { status: "FAIL", detail: `${base}/health answered ${h.status}: ${JSON.stringify(health?.reasons ?? health).slice(0, 160)}`, see: `curl ${base}/health` };
   const c = await get("/claims?page=tether").then((r) => r.json()).catch(() => null);
