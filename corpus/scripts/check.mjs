@@ -42,11 +42,14 @@ if (existsSync(root + 'raw/ev')) {
   try { execSync('node corpus/scripts/verify.mjs --no-write', { cwd: root + '..', stdio: 'pipe' }); console.log('receipts re-tested against saved evidence'); } catch (e) { fail.push('verify: ' + e.stdout); }
 } else console.log('corpus/raw/ absent: receipts checked for presence only; node corpus/scripts/ev.mjs refetches them');
 try {
+  // a shallow clone (git clone --depth 1, or CI's default checkout) holds only the newest commit, so the order can't be read
+  const shallow = execSync('git rev-parse --is-shallow-repository', { cwd: root + '..', encoding: 'utf8' }).trim() === 'true';
+  if (shallow) throw Object.assign(new Error('shallow'), { shallow: true });
   const log = (p) => execSync(`git log --format=%ct --reverse -- ${p}`, { cwd: root + '..', encoding: 'utf8' }).trim().split('\n')[0];
   const method = +log('corpus/METHOD.md'), verdict = +log('corpus/verdicts.tsv');
   if (!(method && verdict && method < verdict)) fail.push('METHOD.md commit must precede the first verdict commit');
   else console.log('METHOD.md was committed before the first verdict');
-} catch { console.log('git not available: commit order not checked'); }
+} catch (e) { console.log(e?.shallow ? 'shallow clone: commit order not checked (git fetch --unshallow, then run this again)' : 'git not available: commit order not checked'); }
 if (fail.length) { console.error(fail.join('\n')); console.error(`${fail.length} problems`); process.exit(1); }
 const h = s.headline, c = s.counts;
 console.log(`${h.numerator} of ${h.denominator} decided data sentences are stale or wrong: ${(h.share * 100).toFixed(1)}% (95% Wilson ${(h.wilson95[0] * 100).toFixed(1)}%-${(h.wilson95[1] * 100).toFixed(1)}%)`);

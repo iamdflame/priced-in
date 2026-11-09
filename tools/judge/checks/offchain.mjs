@@ -64,7 +64,8 @@ export async function checkSuites(repo) {
   const parts = [];
   const missing = [];
   const nodeTest = (out) => {
-    const n = (k) => Number((out.match(new RegExp(`ℹ ${k} (\\d+)`)) || [])[1] ?? NaN);
+    // the spec reporter prints "ℹ tests 265"; Node 22 with piped output defaults to TAP: "# tests 265"
+    const n = (k) => Number((out.match(new RegExp(`^(?:ℹ|#) ${k} (\\d+)`, "m")) || [])[1] ?? NaN);
     return { tests: n("tests"), pass: n("pass"), fail: n("fail") };
   };
   const suites = [
@@ -82,11 +83,13 @@ export async function checkSuites(repo) {
     const r = await run(npm, ["run", "-s", script], { cwd: repo });
     const c = parse(r.out);
     const failedNames = [...r.out.matchAll(/^\s*(?:✖|×|FAIL)\s+(.{0,90})/gm)].map((m) => m[1].trim()).slice(0, 2);
-    parts.push({ name, ...c, code: r.code, s: ((Date.now() - t0) / 1000).toFixed(0), failedNames });
+    // counts that can't be read: show the suite's last lines, so the reason is in the report
+    const tail = Number.isFinite(c.tests) ? "" : r.out.split(/\r?\n/).map((l) => l.trim()).filter(Boolean).slice(-3).join(" / ").slice(0, 300);
+    parts.push({ name, ...c, code: r.code, s: ((Date.now() - t0) / 1000).toFixed(0), failedNames, tail });
   }
   const txt = parts.map((p) => `${p.name} ${p.pass}/${p.tests} in ${p.s} s`).join(", ");
   const bad = parts.filter((p) => p.code !== 0 || !(p.tests > 0) || p.fail > 0 || p.pass !== p.tests);
-  if (bad.length) return { status: "FAIL", detail: `${txt}; failing: ${bad.map((p) => `${p.name} (${p.fail} failed${p.failedNames.length ? ": " + p.failedNames.join("; ") : ""})`).join(", ")}`, see: bad.map((p) => `npm run ${p.name === "AI" ? "ai:unit" : p.name === "API" ? "api:unit" : "site:test"}`).join(" && ") };
+  if (bad.length) return { status: "FAIL", detail: `${txt}; failing: ${bad.map((p) => `${p.name} (${Number.isFinite(p.fail) ? `${p.fail} failed` : `exit ${p.code}, no test counts`}${p.failedNames.length ? ": " + p.failedNames.join("; ") : ""}${p.tail ? `; last lines: ${p.tail}` : ""})`).join(", ")}`, see: bad.map((p) => `npm run ${p.name === "AI" ? "ai:unit" : p.name === "API" ? "api:unit" : "site:test"}`).join(" && ") };
   if (missing.length) return { status: "SKIP", detail: `not installed: ${missing.join(", ")}${parts.length ? `; ran ${txt}, all passing` : ""}`, see: "npm ci && npm run site:install, then npm run judge" };
   return { status: "PASS", detail: `${txt}, all passing, no network`, see: "npm run ai:unit · npm run api:unit · npm run site:test" };
 }
