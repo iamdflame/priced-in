@@ -1,0 +1,36 @@
+# Judge check 3 on clean Linux, macOS and Windows runners: the market and swarm wasm rebuilt from this
+# source, byte for byte, against the hashes recorded in deployments/testnet.json and on chain.
+# Each run keeps its wasm, so a difference can be diffed.
+name: repro
+on:
+  workflow_dispatch:
+  push:
+    branches: [ci/repro]
+jobs:
+  rebuild:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rust 1.99.1 with the wasm target
+        # deliberately not made the default: the runner's preinstalled stable may also be rustc 1.99.1
+        # without the wasm target, and tools/judge/lib/repro.mjs must pick the toolchain that has it
+        run: |
+          rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
+          rustup toolchain list
+      - name: Rebuild and compare
+        run: node tools/judge/repro.mjs --verbose
+      - name: Keep the wasm
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-${{ matrix.os }}
+          path: target/judge-repro/wasm32-unknown-unknown/release/*.wasm
+          if-no-files-found: warn
