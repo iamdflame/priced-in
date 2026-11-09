@@ -39,8 +39,8 @@ export function Feature({ f, points, bets, picks = false }: { f: Fact; points: [
         {f.caught?.line && <p className="ev hide-phone"><Icon name="flag" /><span>A newer source says {f.caught.line}.</span></p>}
         {picks ? (
           <>
-            <PickButtons id={f.id} question={f.question} quotes={f.quotes} size="lead" />
-            <p className="payline">Picks are free and win nothing. To win something, back yours with the free $1 or USDC on its page.</p>
+            <PickButtons id={f.id} question={f.question} quotes={f.quotes} size="lead" pays />
+            <p className="payline">A tap picks for free. Bet the free $1 on your pick and, if you’re right, you get what its button says.</p>
           </>
         ) : (
           <>

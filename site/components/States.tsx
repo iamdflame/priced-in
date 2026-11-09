@@ -20,11 +20,12 @@ export function CardSkeleton() {
   );
 }
 
-export function StateBox({ icon = "info", title, children, actions }: { icon?: IconName; title: string; children?: React.ReactNode; actions?: React.ReactNode }) {
+export function StateBox({ icon = "info", title, children, actions, level = 2 }: { icon?: IconName; title: string; children?: React.ReactNode; actions?: React.ReactNode; /** 1 when the box is the whole page, as the 404 is */ level?: 1 | 2 }) {
+  const H = level === 1 ? "h1" : "h2";
   return (
     <section className="state">
       <Icon name={icon} />
-      <h2>{title}</h2>
+      <H>{title}</H>
       {children && <p>{children}</p>}
       {actions && <div className="acts">{actions}</div>}
     </section>

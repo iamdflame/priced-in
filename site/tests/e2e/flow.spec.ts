@@ -28,10 +28,11 @@ test("home → market → free bet → receipt", async ({ page }) => {
   expect(g.laneKeys).toBe(0);
 
   // tap No on the first card in the grid: a bet's link with news off; with it on, a free pick whose tray
-  // leads to the same ticket with the side picked
+  // leads to the same ticket with the side picked. Either way the button says what the free $1 wins.
   const no = page.locator(`${FACT_CARDS} a.bet.no`).first();
   await expect(no).toContainText("No, it’s false");
-  if (!NEWS) await expect(no).toContainText(/Right: \$1 becomes \$\d\.\d\d/);
+  await expect(no).toContainText(/Right: \$1 becomes \$\d\.\d\d/);
+  await expect(page.locator(FACT_CARDS).first()).not.toContainText("wins nothing");
   trade.claimId = Number(/\/c\/(\d+)/.exec((await no.getAttribute("href"))!)![1]);
   await no.click();
   if (NEWS) {
@@ -109,10 +110,13 @@ test("the replay of the real mainnet run: bet, signed rewrite verified in the br
   expect(g.errors, g.errors.join("\n")).toEqual([]);
 });
 
-test("a fact that doesn't exist is a real 404", async ({ page }) => {
-  const r = await page.goto("/c/99999");
-  expect(r?.status()).toBe(404);
-  await expect(page.getByRole("heading", { name: "There’s no fact here" })).toBeVisible();
+test("a fact that doesn't exist is a real 404, worded for any wrong address, with ways back", async ({ page }) => {
+  for (const path of ["/c/99999", "/this-does-not-exist"]) {
+    const r = await page.goto(path);
+    expect(r?.status(), path).toBe(404);
+    await expect(page.getByRole("heading", { level: 1, name: "We can’t find that page" })).toBeVisible();
+    await expect(page.getByRole("link", { name: "See every fact" })).toHaveAttribute("href", "/#facts");
+  }
 });
 
 test("film mode: no replay bar, still countdowns and strip, carried across links, no key asked for", async ({ page }) => {

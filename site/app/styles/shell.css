@@ -6,7 +6,9 @@
 .replaybar a { font-weight: 600; text-decoration: underline; text-underline-offset: 3px; min-height: 44px; display: inline-flex; align-items: center; }
 
 /* Nav */
-.nav { position: sticky; top: 0; z-index: 30; background: color-mix(in oklch, var(--bg) 92%, transparent); backdrop-filter: saturate(1.4) blur(12px); border-bottom: 1px solid var(--line); }
+/* The page's own --bg at 92%. Mixed in srgb: in oklch, "transparent" brings a hue of 0 that tinted the dark
+   nav warm (#120C0E on a #0B0F13 page); and no saturate() on the backdrop, which warmed it again. */
+.nav { position: sticky; top: 0; z-index: 30; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(12px); border-bottom: 1px solid var(--line); }
 .nav .wrap { display: flex; align-items: center; gap: 28px; height: 68px; }
 .logo { display: flex; align-items: center; flex: none; color: var(--ink); min-height: 44px; }
 .logo svg { height: 34px; width: auto; }
@@ -69,30 +71,36 @@
 .ft-groups { display: contents; }
 .ft-col { min-width: 0; }
 .ft-col ul, .ft-acc ul { display: flex; flex-direction: column; }
-.ft-groups a { display: inline-flex; align-items: center; gap: 4px; min-height: 36px; font: 500 15px/1.3 var(--text); color: var(--ink); }
+.ft-groups a { display: inline-flex; align-items: center; gap: 4px; min-height: 44px; font: 500 15px/1.3 var(--text); color: var(--ink); }
 .ft-groups .ic { width: 13px; height: 13px; color: var(--ink3); }
 .ft-acc { display: none; }
 .ft-base { display: flex; align-items: center; gap: 12px 28px; margin-top: 48px; padding-top: 18px; border-top: 1px solid var(--line); }
-.ft-social { display: flex; gap: 2px; margin-left: -10px; flex: none; }
-.ft-social a { width: 40px; height: 40px; display: grid; place-items: center; border-radius: 999px; color: var(--ink2); }
+.ft-social { display: flex; gap: 2px; margin-left: -12px; flex: none; }
+.ft-social a { width: 44px; height: 44px; display: grid; place-items: center; border-radius: 999px; color: var(--ink2); }
 .ft-social a:hover { background: var(--hover); color: var(--ink); }
 .ft-social svg { width: 19px; height: 19px; fill: currentColor; }
 .ft-social svg.ln { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; width: 21px; height: 21px; }
 .ft-legal { flex: 1; display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 0 4px; font-size: 14px; color: var(--ink2); }
 .ft-legal span { font-weight: 600; color: var(--ink); }
-.ft-legal a { display: inline-flex; align-items: center; min-height: 40px; color: var(--ink2); }
+.ft-legal a { display: inline-flex; align-items: center; min-height: 44px; color: var(--ink2); }
 .ft-legal a::before { content: ''; width: 3px; height: 3px; margin: 0 9px 0 5px; border-radius: 50%; background: var(--ink3); } /* a shape, not a character: it stays out of the link's name */
 .ft-theme { flex: none; margin-right: -10px; }
 .ft-fine { margin-top: 14px; max-width: 132ch; font-size: 12.5px; line-height: 1.65; color: var(--ink3); text-wrap: pretty; }
 .ft-fine + .ft-fine { margin-top: 6px; }
 .ft-fine b { font-weight: 600; color: var(--ink2); }
-.ft-fine a { color: var(--ink2); text-decoration: underline; text-decoration-color: color-mix(in oklch, currentColor 35%, transparent); text-underline-offset: 3px; }
+.ft-fine a { color: var(--ink2); text-decoration: underline; text-decoration-color: color-mix(in oklch, currentColor 35%, transparent); text-underline-offset: 3px; padding-block: 14px; } /* a 44 px target in a line of small print; inline padding moves nothing */
 .ft-fine a:hover { color: var(--ink); text-decoration-color: currentColor; }
 
 /* Phone bars */
 .pbar, .pnav { display: none; }
 
 
+/* Laptops: the nav links and the search share the bar; the "/" hint gives way so "Search facts" reads whole */
+@media (max-width: 1400px) {
+  .nav .wrap { gap: 20px; }
+  .search { min-width: 168px; }
+  .search kbd { display: none; }
+}
 @media (max-width: 1240px) {
   .navlinks { display: none; }
   .navmenu { display: block; }

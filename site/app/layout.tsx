@@ -10,6 +10,7 @@ import { OfflineNotice } from "@/components/shell/OfflineNotice";
 import { FILM_SCRIPT } from "@/lib/client/film";
 import { SITE_URL } from "@/lib/nav";
 import { getSite, proofOf } from "@/lib/server/site";
+import { clip } from "@/lib/title";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
@@ -43,7 +44,7 @@ async function LiveBets() {
   return (
     <LiveStrip
       initial={[...site.bets].reverse().slice(0, 16)}
-      facts={Object.fromEntries(site.facts.map((f) => [f.id, { short: f.short, icon: f.icon }]))}
+      facts={Object.fromEntries(site.facts.map((f) => [f.id, { short: clip(f.question, 46), icon: f.icon }]))}
       agents={site.agents}
       proof={site.ok && site.rulings ? proofOf(site) : null}
     />

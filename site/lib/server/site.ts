@@ -5,6 +5,7 @@ import { cache } from "react";
 import { agentNames, api, type Ruling, type Rulings } from "./api";
 import { toFact } from "./facts";
 import { betsFrom, type Bet } from "../bets";
+import { factCounts } from "../counts";
 import type { ClaimView, Fact } from "../model";
 import { correctionsOf, rulingRecord, settledRulings } from "../rulings";
 
@@ -28,13 +29,27 @@ export interface Site {
   asOf: number;
 }
 
-/** The real counts shown as proof: the home page's numbers and the small phone's live strip. */
-export interface Proof { liveFacts: number; topics: number; bets: number; paidUsd: number; ruled: number }
+/**
+ * The real counts shown as proof: the home page's numbers and the small phone's live strip. The fact
+ * counts are lib/counts.ts's, the same the grid's tabs, its "See all" and the footer's topics use.
+ */
+export interface Proof {
+  /** Wikipedia facts on the market, decided ones included */
+  wikiFacts: number;
+  /** topics among them: one per tab */
+  topics: number;
+  /** of the Wikipedia facts, the ones three AI judges have decided */
+  decided: number;
+  /** today's news lines still taking bets */
+  newsOpen: number;
+  bets: number;
+  paidUsd: number;
+}
 
 export function proofOf(site: Site): Proof {
-  const live = site.facts.filter((f) => f.status !== "settled");
+  const c = factCounts(site.facts);
   const record = rulingRecord(site.rulings?.rulings ?? []);
-  return { liveFacts: live.length, topics: new Set(live.map((f) => f.topic)).size, bets: site.totals.trades, paidUsd: record.paidUsd, ruled: record.settled.length };
+  return { wikiFacts: c.wiki, topics: c.topics, decided: c.wikiDecided, newsOpen: c.newsOpen, bets: site.totals.trades, paidUsd: record.paidUsd };
 }
 
 export const getSite = cache(async (): Promise<Site> => {

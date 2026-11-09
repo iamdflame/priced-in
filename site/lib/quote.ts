@@ -50,3 +50,15 @@ export function payoutWords(q: Quote): { get: string; right: string; wrong: stri
   const get = backUsd(q);
   return { get, right: `Right: $1 becomes ${get}`, wrong: "Wrong: the free $1 is gone" };
 }
+
+/**
+ * The line under a free pick's button. On a Wikipedia fact (a real-money market) it says what the free $1
+ * becomes if that side is right, the same exact quote the market page shows; a news line's pick, which
+ * wins nothing, gets none.
+ */
+export function pickPayout(quotes: Quotes | null, side: "yes" | "no", pays: boolean): string | null {
+  return pays && quotes ? payoutWords(quotes[side]).right : null;
+}
+
+/** The line under a card's Yes and No while picks are on: a pick is free, the free $1 is the bet. */
+export const PICK_OR_BET = "Pick free, or bet the free $1";

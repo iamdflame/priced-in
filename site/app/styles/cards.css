@@ -28,8 +28,12 @@
 .card { position: relative; display: flex; flex-direction: column; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--card-shadow); overflow: hidden; transition: box-shadow var(--color); }
 .card:hover { box-shadow: var(--card-hover); }
 .art { position: relative; height: 100px; overflow: hidden; background: #14171C; display: block; }
-.art img { width: 100%; height: 100%; object-fit: cover; object-position: 50% 44%; transition: transform .7s var(--ease-out); }
-.card:hover .art img { transform: scale(1.045); }
+/* The whole object, in both themes: a cover crop cut the trophy, the bars and the podium in half. */
+.art img { width: 100%; height: 100%; object-fit: contain; object-position: 84% 50%; transform: scale(1.16); transform-origin: 80% 52%; transition: transform .7s var(--ease-out); }
+.card:hover .art img { transform: scale(1.21); }
+/* the dark renders fill their frame top to bottom: no zoom at rest, so nothing is cut */
+[data-theme='dark'] .art img { transform: none; transform-origin: 84% 50%; }
+[data-theme='dark'] .card:hover .art img { transform: scale(1.045); }
 [data-theme='dark'] .art::after { content: ''; position: absolute; inset: auto 0 0; height: 44%; background: linear-gradient(0deg, var(--surface), transparent); pointer-events: none; }
 .art .top { position: absolute; z-index: 1; left: 10px; right: 10px; top: 10px; display: flex; justify-content: space-between; align-items: center; gap: 6px; }
 .tag { display: inline-flex; align-items: center; gap: 6px; height: 28px; padding: 0 10px 0 4px; border-radius: 999px; background: oklch(.16 .012 255 / .72); color: oklch(.96 .005 255); font-size: 12.5px; font-weight: 500; backdrop-filter: blur(8px); white-space: nowrap; }
@@ -47,8 +51,6 @@
 /* Light: the object stands on the card's own white, so the band is product photography, not a tile. The %
    moves into the body in ink (the phone's layout), where it reads first and nothing sits on the object. */
 [data-theme='light'] .art { background: var(--surface); height: 104px; }
-[data-theme='light'] .art img { object-fit: contain; object-position: 84% 50%; transform: scale(1.16); transform-origin: 80% 52%; }
-[data-theme='light'] .card:hover .art img { transform: scale(1.21); }
 /* The % and what it means sit in the body, in ink, in both themes: nothing to read over the art. */
 .art .ov { display: none; }
 [data-theme='light'] .tag { background: oklch(1 0 0 / .82); color: var(--ink2); box-shadow: inset 0 0 0 1px var(--line); backdrop-filter: blur(6px); }
@@ -67,12 +69,16 @@ a.q:hover { color: var(--brand-text); }
 .card .bets, .card .whyest, .card .ev a, .card .fromwiki { position: relative; z-index: 2; }
 a.fromwiki { display: block; font-size: 12.5px; line-height: 24px; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-decoration-color: transparent; }
 a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
-.card .fromwiki { margin-top: -8px; }
+/* a 44 px target on a 24 px line: the padding is taken back by the margins, so nothing moves */
+a.fromwiki { padding-block: 10px; margin-block: -10px; }
+.card .fromwiki { margin-top: -18px; }
 .card .odds { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: -2px; }
 .ev { display: flex; gap: 8px; align-items: flex-start; font-size: 13px; line-height: 1.4; color: var(--ink2); }
 .ev .ic { width: 15px; height: 15px; color: var(--warn); margin-top: 1px; }
 .ev b { color: var(--warn); font-weight: 600; }
-.card .bets { margin-top: auto; }
+/* Yes and No sit on the card's floor, so a row of cards lines its buttons up whatever is above them (a free
+   pick wraps its buttons in .picks, so the wrapper takes the push) */
+.cbody > .bets, .cbody > .picks, .cbody > .closed { margin-top: auto; }
 .meta { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 12.5px; color: var(--ink3); min-height: 20px; white-space: nowrap; }
 .card.settled .bets { display: none; }
 .result { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--surface2); font-size: 13.5px; }
@@ -95,17 +101,18 @@ a.fromwiki:hover { color: var(--ink2); text-decoration-color: currentColor; }
   .card .art { height: auto; min-height: 104px; grid-row: 1 / span 2; }
   .card .art .top, .card .art .ov { display: none; }
   [data-theme='dark'] .card .art::after { inset: 0 0 0 auto; width: 36%; height: auto; background: linear-gradient(270deg, var(--surface), transparent); }
-  .card .art img { object-position: 50% 50%; }
-  [data-theme='light'] .card .art img, [data-theme='light'] .card:hover .art img { object-position: 50% 50%; transform: scale(1.7); transform-origin: 50% 50%; }
+  [data-theme] .card .art img, [data-theme] .card:hover .art img { object-position: 50% 50%; transform: scale(1.7); transform-origin: 50% 50%; }
   [data-theme='light'] .card .art { height: auto; }
   .card .cbody { display: contents; }
   .card .q { grid-column: 2; grid-row: 1; padding: 12px 14px 0; font-size: 16px; align-self: start; }
-  .card .fromwiki { grid-column: 2; grid-row: 2; margin: 0 14px; }
-  .card .odds, .card .bets, .card .meta, .card .ev, .card .result { grid-column: 1 / -1; margin-left: 14px; margin-right: 14px; }
+  .card .fromwiki { grid-column: 2; grid-row: 2; margin: -10px 14px; }
+  /* one left edge for everything under the question: the odds, the evidence, Yes and No, the meta line */
+  .card .cbody > :is(.odds, .bets, .picks, .closed, .meta, .ev, .result) { grid-column: 1 / -1; margin-left: 14px; margin-right: 14px; }
   .card .odds { display: flex; margin-top: 10px; }
   .card .odds .nobets { display: none; } /* the line beside it already says so, and its ? keeps its place */
   .card .ev { margin-top: 8px; }
-  .card .bets { margin-top: 10px; }
+  .card .cbody > :is(.bets, .picks, .closed) { margin-top: 10px; }
+  .card .picks .bets { margin: 0; }
   .card .meta { margin-top: 8px; margin-bottom: 12px; }
   .card .result { margin-top: 10px; }
   .card .pct { font-size: 36px; }

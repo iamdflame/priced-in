@@ -70,8 +70,11 @@ test.describe("with today's news on", () => {
     await expect(page.locator(".you .vs li")).toHaveCount(3);
     await expect(page.getByRole("heading", { name: "Just decided" })).toBeVisible();
     await expect(page.getByRole("heading", { name: "Facts from Wikipedia" })).toBeVisible();
-    // one rule for the page: the Wikipedia cards pick too, and say so
-    await expect(page.locator("#facts .grid .card").first()).toContainText("Free pick · wins nothing");
+    // one rule for the page: the Wikipedia cards pick too, and say what the free $1 wins on a real-money fact
+    const card = page.locator("#facts .grid .card").first();
+    await expect(card).toContainText("Pick free, or bet the free $1");
+    await expect(card.locator("a.bet.yes")).toContainText(/Right: \$1 becomes \$\d+\.\d\d/);
+    await expect(card).not.toContainText("wins nothing");
     await expect(page.locator("header.nav .navlinks")).toContainText("Leaderboard");
     expect(g.laneKeys).toBe(0);
     expect(g.errors, g.errors.join("\n")).toEqual([]);

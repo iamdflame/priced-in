@@ -4,14 +4,16 @@ import { explorerAccount, money } from "@/lib/format";
 import { MARKET_ID } from "@/lib/nav";
 import type { Proof } from "@/lib/server/site";
 
-export function ProofBar({ p }: { p: Proof }) {
+// Each says what it counts, and the fact counts are the ones the tabs, "See all" and the footer show.
+export function ProofBar({ p, news = false }: { p: Proof; news?: boolean }) {
   return (
     <ul className="proof" aria-label="The market in numbers">
-      <li><b>{p.liveFacts}</b> live facts</li>
-      <li><b>{p.topics}</b> topics</li>
-      <li><b>{p.bets}</b> bets</li>
+      <li><b>{p.wikiFacts}</b> {p.wikiFacts === 1 ? "fact" : "facts"} from Wikipedia</li>
+      <li><b>{p.topics}</b> {p.topics === 1 ? "topic" : "topics"}</li>
+      {news && p.newsOpen > 0 && <li><b>{p.newsOpen}</b> news {p.newsOpen === 1 ? "claim" : "claims"} open</li>}
+      <li><b>{p.bets}</b> {p.bets === 1 ? "bet" : "bets"}</li>
       <li><b>{money(p.paidUsd)}</b> paid out</li>
-      <li><b>{p.ruled}</b> {p.ruled === 1 ? "ruling" : "rulings"} settled</li>
+      <li><b>{p.decided}</b> {p.decided === 1 ? "fact" : "facts"} decided</li>
       <li className="pub"><a href={explorerAccount(MARKET_ID)} target="_blank" rel="noopener"><Icon name="shield" />Every bet is a public NEAR transaction<Icon name="ext" /></a></li>
     </ul>
   );

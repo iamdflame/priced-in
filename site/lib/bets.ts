@@ -45,3 +45,31 @@ export function betsFrom(events: MarketEvent[], agents: AgentNames, opens: Recor
 
 /** Who bet, for a line on its own: "AI trader Archivist", "Someone". */
 export const bettor = (b: Bet) => (b.free ? "Someone" : b.kind === "agent" ? `AI trader ${b.who.replace(/^The /, "")}` : b.who);
+
+/** One line of the live strip: a bet, and how many identical ones it stands for. */
+export interface BetLine { bet: Bet; times: number }
+
+/**
+ * The live strip's lines, in the order given: bets that would read the same (same bettor, side, fact and
+ * amount to the cent) become one line that says how many times, so the strip never shows two twins.
+ */
+export function betLines(bets: Bet[]): BetLine[] {
+  const out: BetLine[] = [];
+  const seen = new Map<string, BetLine>();
+  for (const b of bets) {
+    const key = `${bettor(b)}|${b.claimId}|${b.side}|${b.free ? "free" : Math.round(b.usd * 100)}`;
+    const line = seen.get(key);
+    if (line) { line.times++; continue; }
+    const fresh = { bet: b, times: 1 };
+    seen.set(key, fresh);
+    out.push(fresh);
+  }
+  return out;
+}
+
+/** "bet $0.12 twice that it’s", "bet the free $1 that it’s": the middle of a strip line, in plain words. */
+export function betWords(l: BetLine): string {
+  const amount = l.bet.free ? "the free $1" : `$${l.bet.usd.toFixed(2)}`;
+  const times = l.times === 2 ? " twice" : l.times > 2 ? ` ${l.times} times` : "";
+  return `bet ${amount}${times} that it’s`;
+}

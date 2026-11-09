@@ -11,7 +11,7 @@ import { Icon } from "./Icon";
 import { PickButtons } from "./today/PickButtons";
 import { money, plural } from "@/lib/format";
 import { priceWords, type Fact } from "@/lib/model";
-import { payoutWords } from "@/lib/quote";
+import { PICK_OR_BET, payoutWords } from "@/lib/quote";
 
 /** Where the claim comes from: one quiet line under the question, so a reader knows what Yes is about. */
 export function FromWikipedia({ f }: { f: Fact }) {
@@ -75,7 +75,8 @@ export function FactCard({ f, points, reopened = false, eager = false, picks = f
         {settled ? (
           <div className="result"><span>The AI judges ruled it <b className={f.outcome ? "pos" : "neg"}>{f.outcome ? "true" : "false"}</b></span><Link className="link" href={href}>See the ruling</Link></div>
         ) : picks && f.status === "open" ? (
-          <PickButtons id={f.id} question={f.question} quotes={f.quotes} />
+          // a Wikipedia fact is a real-money market: its pick says what the free $1 wins if it's right
+          <PickButtons id={f.id} question={f.question} quotes={f.quotes} pays={!f.news} />
         ) : picks ? (
           // one rule for the page's Yes and No: while three AI judges rule, picks are closed, and a bet is on its page
           <p className="closed"><Icon name="scale" /><span><b>Being decided.</b> Picks are closed while three AI judges rule; you can still bet on its page.</span></p>
@@ -83,7 +84,7 @@ export function FactCard({ f, points, reopened = false, eager = false, picks = f
           <BetLinks id={f.id} quotes={f.quotes} question={f.question} />
         )}
         <div className="meta">
-          <span>{settled ? "Decided" : picks && f.status === "open" ? "Free pick · wins nothing" : f.quotes ? payoutWords(f.quotes.yes).wrong : ""}</span>
+          <span>{settled ? "Decided" : picks && f.status === "open" ? (f.news ? "Free pick · wins nothing" : PICK_OR_BET) : f.quotes ? payoutWords(f.quotes.yes).wrong : ""}</span>
           <span>{f.trades ? `${plural(f.trades, "bet")} · ${money(f.volumeUsd)}` : "Be the first to bet"}</span>
         </div>
       </div>

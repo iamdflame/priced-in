@@ -86,7 +86,8 @@ function StatusTag({ l }: { l: TodayLine }) {
 /** "3 picks: 2 Yes, 1 No", with a bar; picks are counted once per browser key. */
 export function PickSplit({ l }: { l: TodayLine }) {
   const { yes, no, total } = l.picks;
-  if (!total) return <p className="split none">No picks yet. Be the first.</p>;
+  // bets can move the % before anyone picks: say which is which, so "down from 20%" never sits beside a bare "no picks"
+  if (!total) return <p className="split none">{l.trades ? `${plural(l.trades, "bet")} moved the odds. No free picks yet: be the first.` : "No free picks yet. Be the first."}</p>;
   return (
     <div className="split" aria-label={`${plural(total, "pick")}: ${yes} Yes, ${no} No`}>
       <div className="split-bar" aria-hidden="true"><i className="y" style={{ width: `${(yes / total) * 100}%` }} /><i className="n" style={{ width: `${(no / total) * 100}%` }} /></div>

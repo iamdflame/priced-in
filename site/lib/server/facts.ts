@@ -6,6 +6,7 @@ import catalogJson from "@/data/catalog.json";
 import questionsJson from "@/data/questions.json";
 import { liveNumbers, type Caught, type ClaimView, type Fact } from "../model";
 import { isNewsPage, newsArt } from "../news";
+import { titleFor } from "../title";
 
 interface CatalogEntry { page: string; topic: string; article: string; icon: string; art: string; short: string; caught: Caught | null }
 interface WikiPage { title: string; url: string; attribution: string }
@@ -14,7 +15,7 @@ const CATALOG: Record<string, CatalogEntry> = catalogJson.claims;
 const PAGES: Record<string, WikiPage> = catalogJson.pages;
 const QUESTIONS: Record<string, { q: string }> = questionsJson.questions;
 
-/** The planner's short question for a sentence. A sentence nobody has titled yet shows as itself. */
+/** The planner's short question for a sentence, or null for a sentence nobody has titled yet. */
 export function questionFor(text: string): string | null {
   return QUESTIONS[createHash("sha256").update(text).digest("hex")]?.q ?? null;
 }
@@ -43,7 +44,7 @@ export function catalogFor(id: number, page: string, correctionOf: number | null
 function newsFact(c: ClaimView, openPpm: number | null): Fact {
   const n = c.news ?? null;
   const topic = n?.topic ?? "News";
-  const question = n?.question ?? c.text;
+  const question = titleFor(n?.question, c.text);
   return {
     id: c.id,
     text: c.text,
@@ -67,7 +68,8 @@ export function toFact(c: ClaimView, openPpm: number | null = null, correctionOf
   return {
     id: c.id,
     text: c.text,
-    question: questionFor(c.text) ?? c.text,
+    // the planner's question, or one made from the sentence: a card's title is never a bare statement
+    question: titleFor(questionFor(c.text), c.text),
     page: c.page,
     topic: cat.topic,
     article: cat.article,

@@ -11,8 +11,8 @@ import { DecidingCard, RuledCard } from "@/components/home/Rails";
 import { FreeBetsOff } from "@/components/Live";
 import { ErrorState } from "@/components/States";
 import { TodayBlock } from "@/components/today/TodayBlock";
+import { isWikiFact } from "@/lib/counts";
 import { feedOrder, leadFact } from "@/lib/lead";
-import { isNewsPage } from "@/lib/news";
 import { leadRuling, rulingRecord } from "@/lib/rulings";
 import { getNews } from "@/lib/server/news";
 import { getSite, proofOf, type Site } from "@/lib/server/site";
@@ -31,8 +31,12 @@ export default async function Home() {
   if (!site.ok) return <main id="main" className="wrap home"><Intro /><ErrorState message={site.error ?? "The market didn’t answer."} /></main>;
   const byId = new Map(site.facts.map((f) => [f.id, f]));
   // a news line is never a Wikipedia card, whatever the API says about news
-  const wiki = site.facts.filter((f) => !f.news && !isNewsPage(f.page));
+  const wiki = site.facts.filter(isWikiFact);
   const lead = leadFact(wiki);
+  // every Wikipedia fact is in the grid, the lead too (after the open ones), so its tabs and "See all"
+  // count what the footer counts; the grid leaves the lead out of its first rows, where it sits above
+  const feed = feedOrder(wiki, lead);
+  const grid = lead ? [...feed.filter((f) => f.status !== "settled"), lead, ...feed.filter((f) => f.status === "settled")] : feed;
   const ruling = leadRuling(site.settled, (id) => byId.get(id)?.trades ?? 0);
   const record = rulingRecord(site.rulings?.rulings ?? []);
   const off = freeBetsOffReason(site);
@@ -40,7 +44,7 @@ export default async function Home() {
   return (
     <main id="main" className={`wrap home${today ? " has-today" : ""}`}>
       <Intro />
-      <ProofBar p={proofOf(site)} />
+      <ProofBar p={proofOf(site)} news={!!today} />
       {off && <FreeBetsOff reason={off} />}
       {today && <TodayBlock today={today} facts={byId} history={site.history} now={site.asOf} />}
       {today && (
@@ -51,12 +55,12 @@ export default async function Home() {
       )}
       <div className="hero">
         {lead && <Feature f={lead} points={site.history[String(lead.id)] ?? []} bets={site.bets.filter((b) => b.claimId === lead.id).reverse()} picks={news.on} />}
-        <aside className="rail" aria-label="Rulings">
+        <aside className="rail" aria-label="Results, and what is being decided">
           {ruling && <RuledCard r={ruling} ruled={byId.get(ruling.claim_id)} corrected={ruling.correction ? byId.get(ruling.correction.claim_id) : undefined} settledCount={record.settled.length} now={site.asOf} />}
           <DecidingCard rulings={site.rulings} facts={byId} />
         </aside>
       </div>
-      <HomeGrid initial={feedOrder(wiki, lead)} points={site.history} reopened={site.reopened} picks={news.on} />
+      <HomeGrid initial={grid} leadId={lead?.id ?? null} points={site.history} reopened={site.reopened} picks={news.on} />
     </main>
   );
 }

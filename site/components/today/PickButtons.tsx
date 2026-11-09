@@ -7,7 +7,7 @@ import { useState, useSyncExternalStore, type KeyboardEvent, type MouseEvent } f
 import { Icon } from "../Icon";
 import { localPicks, sendPick, subscribePicks } from "@/lib/client/picks";
 import type { Side } from "@/lib/news";
-import type { Quotes } from "@/lib/quote";
+import { pickPayout, type Quotes } from "@/lib/quote";
 import { openTray } from "./tray";
 
 const SERVER = { picks: {}, seen: 0 };
@@ -25,9 +25,14 @@ export interface PickProps {
   /** "14 Nov": when it settles, for the tray's last line */
   settlesBy?: string | null;
   size?: "lead" | "card";
+  /**
+   * A Wikipedia fact, a real-money market: each button also says what the free $1 becomes if it's right,
+   * from the contract's exact quote (the market page's own words). Today's news lines stay a plain pick.
+   */
+  pays?: boolean;
 }
 
-export function PickButtons({ id, question, quotes, settlesBy = null, size = "card" }: PickProps) {
+export function PickButtons({ id, question, quotes, settlesBy = null, size = "card", pays = false }: PickProps) {
   const mine = useMyPick(id);
   const [busy, setBusy] = useState<Side | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -54,18 +59,21 @@ export function PickButtons({ id, question, quotes, settlesBy = null, size = "ca
     const yes = side === "yes";
     const chosen = mine === side;
     const label = yes ? "Yes, it’s true" : "No, it’s false";
+    const payout = pickPayout(quotes, side, pays);
+    const name = chosen ? `Your pick: ${label}.` : payout ? `${label}. Pick free, or bet the free $1. ${payout}.` : `Pick ${label} Free, wins nothing.`;
     return (
       <a
-        className={`bet ${yes ? "yes" : "no"} pick${chosen ? " mine" : ""}${mine && !chosen ? " other" : ""}`}
+        className={`bet ${yes ? "yes" : "no"} pick${payout ? " pays" : ""}${chosen ? " mine" : ""}${mine && !chosen ? " other" : ""}`}
         href={`/c/${id}?side=${side}`}
         role="button"
         aria-pressed={chosen}
         aria-busy={busy === side || undefined}
-        aria-label={chosen ? `Your pick: ${label}. ${question}` : `Pick ${label} Free, wins nothing. ${question}`}
+        aria-label={`${name} ${question}`}
         onClick={tap(side)}
         onKeyDown={key(side)}
       >
         <b>{busy === side ? <span className="spin" aria-hidden="true" /> : chosen ? <Icon name="check" /> : null}{chosen ? `Your pick: ${yes ? "Yes" : "No"}` : label}</b>
+        {payout && <small>{payout}</small>}
       </a>
     );
   };

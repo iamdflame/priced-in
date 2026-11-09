@@ -305,11 +305,19 @@
 .bsheet-in h2 { font: 700 22px/1.15 var(--disp); letter-spacing: -.015em; padding-right: 40px; text-wrap: balance; }
 .bsheet-in .sx { position: absolute; top: 8px; right: 8px; }
 .bsheet-in .row2 { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; }
-.pagelist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+.pagelist { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; grid-auto-flow: dense; }
+/* No orphan in the last row: when the pages don't fill whole rows of three, the biggest (first) pages take
+   two columns each until they do (10 pages: Tether and Prediction market wide, then two full rows) */
+@media (min-width: 1241px) {
+  .pagelist:has(> :last-child:nth-child(3n + 1)) > :nth-child(-n + 2), .pagelist:has(> :last-child:nth-child(3n + 2)) > :first-child { grid-column: span 2; }
+}
+@media (min-width: 1001px) and (max-width: 1240px) {
+  .pagelist:has(> :last-child:nth-child(odd)) > :first-child { grid-column: 1 / -1; }
+}
 .pagec { position: relative; display: flex; flex-direction: column; border-radius: var(--r-lg); overflow: hidden; background: var(--surface); box-shadow: var(--card-shadow); }
 .pagec:hover { box-shadow: var(--card-shadow), 0 0 0 1px var(--line-strong); }
 .pagec .art { height: 120px; }
-[data-theme='light'] & .pagec .art img { object-position: 50% 50%; transform-origin: 50% 52%; }
+.pagec .art img { object-position: 50% 50%; transform-origin: 50% 52%; } /* centred in both themes */
 .pagec .b { padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
 .pagec h2 { font: 600 18px/1.2 var(--disp); }
 .pagec p { font-size: 13px; color: var(--ink3); }
@@ -784,8 +792,9 @@ p.rcpt .ic { width: 14px; height: 14px; }
    it came to read as it does. Narrower cards drop the margin; "What changed" carries the same proof. */
 .article.mktv, .article.wikiv { container-type: inline-size; }
 .pnote { display: none; }
-@container (min-width: 850px) {
-  .article:is(.mktv, .wikiv) > section { display: grid; grid-template-columns: minmax(0, 39rem) minmax(0, 1fr); column-gap: clamp(32px, 5cqw, 56px); align-items: start; }
+/* 760 px, not 850: on a 1280 px laptop the article measures 776 px and kept its margin empty */
+@container (min-width: 760px) {
+  .article:is(.mktv, .wikiv) > section { display: grid; grid-template-columns: minmax(0, 39rem) minmax(150px, 1fr); column-gap: clamp(28px, 5cqw, 56px); align-items: start; }
   .article:is(.mktv, .wikiv) > section > * { grid-column: 1 / -1; }
   .article:is(.mktv, .wikiv) > section > p, .article:is(.mktv, .wikiv) > section > .chg { grid-column: 1; }
   .article:is(.mktv, .wikiv) > section > .pnote { grid-column: 2; display: flex; }

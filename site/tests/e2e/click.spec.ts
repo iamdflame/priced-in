@@ -73,9 +73,12 @@ test("the footer is close on the home page: three rows, then See all expands in 
   await page.goto("/");
   const cards = page.locator(`${FACT_CARDS}:visible`);
   await expect(cards).toHaveCount(12);
-  const all = await page.locator(FACT_CARDS).count();
-  const button = page.getByRole("button", { name: `See all ${all} facts` });
+  // "See all" counts every Wikipedia fact, the lead's too: the footer's topics add up to the same number
+  const button = page.getByRole("button", { name: /^See all \d+ facts$/ });
   await expect(button).toBeVisible();
+  const all = Number(/\d+/.exec((await button.textContent())!)![0]);
+  const footer = await page.locator(".ft-topics li:not(.ft-all) span").allTextContents();
+  expect(footer.reduce((n, t) => n + Number(/^\d+/.exec(t)?.[0] ?? 0), 0), "the footer's topics add up to See all").toBe(all);
   const top = await page.locator("footer.foot").evaluate((el) => el.getBoundingClientRect().top + scrollY);
   // today's claims sit above the facts while news is on: the page is longer by that block, no more
   expect(top, "the footer is too far down").toBeLessThan(NEWS ? 3500 : 2300);

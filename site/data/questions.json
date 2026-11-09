@@ -296,6 +296,51 @@
    "model": null,
    "at": "2026-11-06",
    "reviewed": "hand-written 2026-11-06 for the corrected line, from claim 20's question and the correction it opened with"
+  },
+  "e72eb49fdc609b8590660e000178da3d0bafbbb846a271cd79948ceb238f8584": {
+   "q": "Can UNI’s 1,000,000,000 supply grow by up to 2% a year, with no hard cap?",
+   "page": "uniswap",
+   "source": "claim 35",
+   "sentence": "Per the token's own contract code, checked on 2026-11-05, there is no hard cap: the contract allows a mint of up to 2% a year, with live supply at 1,000,000,000 and a minter address set, supporting ongoing development and ecosystem growth.",
+   "model": null,
+   "at": "2026-11-09",
+   "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 21's question and the correction it opened with"
+  },
+  "6ab84d059d0025684f221c29e64f69cb66c8c16a807bed1b4eaa0d69677ff40d": {
+   "q": "Did Tether say on 13 August 2026 that KPMG fully audited its 2025 statements?",
+   "page": "stablecoin",
+   "source": "claim 36",
+   "sentence": "As of November 2026, Tether has completed an audit by an accounting firm: according to Tether, on 13 August 2026 it announced that KPMG U.S. completed a full audit of its 2025 statements with an unqualified opinion, though the audit report is not public.",
+   "model": null,
+   "at": "2026-11-09",
+   "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 22's question and the correction it opened with"
+  },
+  "4591764abdf21fab7b48830a7a2dc66e3375db5067967286634a9650d9e2d9ed": {
+   "q": "Does Polymarket trade on Polygon with pUSD, backed by USDC, as collateral?",
+   "page": "prediction-market",
+   "source": "claim 37",
+   "sentence": "Polymarket is a decentralized prediction market built on the Polygon Chain that, according to Polymarket as checked on 2026-11-05, uses pUSD, backed by USDC, as the collateral for all trading.",
+   "model": null,
+   "at": "2026-11-09",
+   "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 23's question and the correction it opened with"
+  },
+  "68dc3054c31ab693b2f1c91aefb7dcfcb751ae3ead09c0ecdeaf27984e2504a4": {
+   "q": "Is Kalshi CFTC-regulated, with 140+ countries announced in October 2025?",
+   "page": "prediction-market",
+   "source": "claim 38",
+   "sentence": "Kalshi, is a U.S. CFTC-regulated betting market and, according to Kalshi as checked on 2026-11-05, users can trade from many countries, with 140+ countries announced in October 2025.",
+   "model": null,
+   "at": "2026-11-09",
+   "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 24's question and the correction it opened with"
+  },
+  "0b59d329ce66e6430e074a3e8bc5b4e5bdbae627cb966adad1bb6355f5544efe": {
+   "q": "Does Polymarket work in Canada except Alberta, BC, Ontario and Quebec?",
+   "page": "prediction-market",
+   "source": "claim 45",
+   "sentence": "However, Polymarket has operated in much of Canada, though according to Polymarket it is blocked in Alberta, British Columbia, Ontario and Quebec.",
+   "model": null,
+   "at": "2026-11-09",
+   "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 25's question and the correction it opened with"
   }
  }
 }

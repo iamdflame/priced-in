@@ -46,8 +46,11 @@ function useSearchTerm() {
   return [q, setQ] as const;
 }
 
-export function HomeGrid({ initial, points, reopened, picks = false }: {
+export function HomeGrid({ initial, leadId = null, points, reopened, picks = false }: {
+  /** every Wikipedia fact, the lead's included: the tabs and "See all" count them all */
   initial: Fact[];
+  /** the lead's id: it sits above the grid, so the grid's first rows leave it out */
+  leadId?: number | null;
   points: Record<string, [number, number][]>;
   reopened: number[];
   /** today's news is on: every card's Yes and No is a free pick */
@@ -61,12 +64,14 @@ export function HomeGrid({ initial, points, reopened, picks = false }: {
   const topics = useMemo(() => topicsOf(facts), [facts]);
   const wrong = useMemo(() => facts.filter((f) => f.caught).length, [facts]);
   const filters = [{ topic: ALL, n: facts.length }, ...(wrong ? [{ topic: WRONG, n: wrong }] : []), ...topics];
-  const shown = useMemo(() => {
+  // how many cards show first is a width's business, so it lives in home.css: no flash, no mismatch
+  const clamped = !all && tab === ALL && !q.trim();
+  const matching = useMemo(() => {
     const needle = q.trim().toLowerCase();
     return facts.filter((f) => (tab === ALL || (tab === WRONG ? !!f.caught : f.topic === tab)) && (!needle || `${f.question} ${f.text} ${f.topic}`.toLowerCase().includes(needle)));
   }, [facts, tab, q]);
-  // how many cards show first is a width's business, so it lives in home.css: no flash, no mismatch
-  const clamped = !all && tab === ALL && !q.trim();
+  // the first rows leave out the lead, shown just above; "See all", a tab or a search shows it too
+  const shown = clamped ? matching.filter((f) => f.id !== leadId) : matching;
   const seeAll = () => {
     const next = [...(grid.current?.children ?? [])].find((c) => getComputedStyle(c).display === "none");
     setAll(true);
@@ -87,7 +92,7 @@ export function HomeGrid({ initial, points, reopened, picks = false }: {
       <div className={`grid${clamped ? " clamped" : ""}`} ref={grid}>
         {shown.map((f, i) => <FactCard key={f.id} f={f} points={points[String(f.id)]} reopened={reopened.includes(f.id)} eager={i < EAGER_CARDS} picks={picks} />)}
       </div>
-      {clamped && shown.length > 4 && <div className="seeall"><button type="button" className="btn soft lg" onClick={seeAll}>See all {shown.length} facts</button></div>}
+      {clamped && shown.length > 4 && <div className="seeall"><button type="button" className="btn soft lg" onClick={seeAll}>See all {matching.length} facts</button></div>}
       {!shown.length && (
         <StateBox icon="search" title="No facts match" actions={<button type="button" className="btn soft" onClick={() => { setQ(""); setTab(ALL); }}>Show every fact</button>}>
           Nothing here says “{q}”{tab !== ALL ? ` under ${tab}` : ""}. Try another word, or see every fact.

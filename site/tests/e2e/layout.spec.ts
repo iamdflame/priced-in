@@ -38,7 +38,7 @@ for (const width of [360, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/");
     const line = page.locator(".ticker .proofline");
-    await expect(line).toHaveText(/^\d+ live facts · \d+ rulings? · \$\d+\.\d\d paid out$/);
+    await expect(line).toHaveText(/^\d+ facts? · \d+ decided · \$\d+\.\d\d paid out$/);
     await expect(page.locator(".ticker .tape")).toBeHidden();
     expect(await line.evaluate((el) => el.scrollWidth - el.clientWidth), "the line is cut off").toBeLessThanOrEqual(0);
   });

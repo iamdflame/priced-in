@@ -82,8 +82,9 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
         {steps.map((s, i) => {
           if (i === 0 || i === n) return null;
           const b = betAt(i);
-          if (!b) return null;
-          return <circle key={i} className={`bd ${b.side === "no" ? "n" : "y"}`} cx={X(i)} cy={Y(s.p)} r={hover === i ? 5.5 : 3.5} />;
+          // no dots on the steps at rest: a bet's dot shows while its step is read (hover or arrow keys)
+          if (!b || hover !== i) return null;
+          return <circle key={i} className={`bd ${b.side === "no" ? "n" : "y"}`} cx={X(i)} cy={Y(s.p)} r={5.5} />;
         })}
         {ruled && <><line className="rule" x1={X(n)} x2={X(n)} y1={T} y2={H - B} /><text className="rulet" x={X(n) - 6} y={T + 12} textAnchor="end">Ruled {ruled.outcome}</text></>}
         <circle className="endd" cx={X(n)} cy={Y(steps[n].p)} r={5} />
@@ -104,7 +105,7 @@ export function Chart({ points, bets, now, nowAt, ruled, openLabel = "At the sta
 
 /**
  * A small step chart from the same log, for cards and the lead: the opening price, one step per real
- * bet (each marked), then a level line to now. A fact nobody has bet on gets words, not a flat line.
+ * bet, then a level line to now. A fact nobody has bet on gets words, not a flat line.
  */
 export function Spark({ points, w = 132, h = 44, label }: { points: [number, number][]; w?: number; h?: number; label?: string }) {
   // a move under a tenth of a point is the history's "now" point, not a bet
@@ -122,8 +123,8 @@ export function Spark({ points, w = 132, h = 44, label }: { points: [number, num
   for (let i = 1; i <= n; i++) d += `H${X(i).toFixed(1)}V${Y(pts[i]).toFixed(1)}`;
   return (
     <svg className="spark" width={w} height={h} viewBox={`0 0 ${w} ${h}`} role={label ? "img" : undefined} aria-label={label} aria-hidden={label ? undefined : true}>
+      {/* one line, no dots on its steps (design 7.9): the head dot alone says "now" */}
       <path className="ln" d={d} />
-      {pts.slice(1, -1).map((p, i) => <circle key={i} className="bt" cx={X(i + 1)} cy={Y(p)} r={2.6} />)}
       <circle className="hd" cx={X(n)} cy={Y(pts[n])} r={3} />
       <circle className="hl" cx={X(n)} cy={Y(pts[n])} r={3} />
     </svg>

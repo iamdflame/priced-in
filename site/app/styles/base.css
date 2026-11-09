@@ -97,10 +97,13 @@ main.wrap { flex: 1; padding-bottom: 56px; }
 .lab { display: block; font-size: 12.5px; line-height: 1.3; color: var(--ink3); margin-top: 5px; }
 .lab b { display: block; font-weight: 600; color: var(--ink2); }
 .lab > span { display: inline; }
-.whyest { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin-left: 4px; border-radius: 50%; background: var(--surface3); color: var(--ink2); font: 700 11px var(--disp); vertical-align: 1px; position: relative; }
-.whyest::before { content: ''; position: absolute; inset: -13px; }
+/* The "?": a 44 px button that looks like an 18 px disc. The disc is painted in the middle and the margins
+   give the extra 13 px a side back, so the text around it sits exactly where it did. */
+.whyest { --disc: var(--surface3); --gap: 4px; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -13px -13px -13px calc(var(--gap) - 13px); border-radius: 50%; background: radial-gradient(circle, var(--disc) 8.5px, transparent 9.25px); color: var(--ink2); font: 700 11px var(--disp); vertical-align: 1px; position: relative; }
 .whyest:hover { color: var(--ink); }
-.chip .whyest { margin-left: 2px; background: oklch(from currentColor l c h / .18); color: inherit; }
+.whyest:focus-visible { outline: 2px solid var(--focus); outline-offset: -11px; border-radius: 50%; } /* the ring hugs the disc, not the 44 px box */
+.chip .whyest { --gap: 2px; --disc: oklch(from currentColor l c h / .18); color: inherit; }
+.whyest.whyest:is(.dialbox .dialcap *) { margin-left: -7px; } /* market.css gives this one 6 px: keep that gap on the 44 px box */
 
 /* Popover */
 .pop { position: fixed; z-index: 60; max-width: min(340px, calc(100vw - 24px)); background: var(--surface3); color: var(--ink); border-radius: 14px; box-shadow: var(--lift), inset 0 0 0 1px var(--line-strong); padding: 14px 16px; font-size: 14px; line-height: 1.45; }
