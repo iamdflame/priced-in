@@ -369,7 +369,7 @@ export function createStore(deps: StoreDeps) {
     if (e.event === "trade" && e.source !== "ai") onTrade(e);
     else if (e.event === "rewrite" && e.source === "ai") onRewrite(e.data as Rewrite);
     else if (e.event === "agent_rationale") onRationale(e.data as Rationale);
-    else if (e.event === "open" || e.event === "settle" || e.event === "challenge" || e.event === "provisional") scheduleRefetch();
+    else if (e.event === "open" || e.event === "settle" || e.event === "challenge" || e.event === "provisional" || e.event === "dispute" || e.event === "escalate") scheduleRefetch();
   }
 
   function onTrade(e: MarketEvent) {

@@ -229,6 +229,36 @@ export function activityOf({ events = [], rewrites = [], rationales = [], claims
 // ---------- rulings ----------
 
 const OUTCOME = (b) => (b === true ? "TRUE" : b === false ? "FALSE" : null);
+/** The dispute that sends a claim to the council (MAX_DISPUTES in contracts/market/src/lib.rs). */
+export const MAX_DISPUTES = 3;
+
+/**
+ * What became of every bond on a challenge: the challenger's (stake 0), then each dispute's, in the
+ * order they were posted. The contract's rule (rules::split_bonds): each bond on the winning side
+ * comes back with a share of the losing side's bonds in proportion to its size; with no bond on the
+ * winning side, all of them go to the treasury. The amounts are the bond_paid events, matched in
+ * order to the winning stakes; where the index has none, the same rule computes them. A council's
+ * void and an expired challenge give every bond back. Still running: null.
+ */
+export function bondResults(r) {
+  const micro = (x) => Math.round((x ?? 0) * 1e6);
+  const stakes = [{ side: r.claimed, micro: micro(r.bond_usd) }, ...r.disputes.map((d) => ({ side: d.proposed, micro: micro(d.bond_usd) }))];
+  if (r.status === "void" || r.status === "expired") return stakes.map((s) => ({ result: "returned", paid_usd: s.micro / 1e6 }));
+  if (r.status !== "settled" || !r.outcome) return stakes.map(() => ({ result: null, paid_usd: null }));
+  const won = stakes.reduce((n, s) => n + (s.side === r.outcome ? s.micro : 0), 0);
+  const lost = stakes.reduce((n, s) => n + (s.side !== r.outcome ? s.micro : 0), 0);
+  if (won === 0) return stakes.map(() => ({ result: "forfeit", paid_usd: null }));
+  const pays = stakes.map((s) => (s.side === r.outcome ? s.micro + Math.floor((lost * s.micro) / won) : 0));
+  const first = stakes.findIndex((s) => s.side === r.outcome && s.micro > 0);
+  if (first >= 0) pays[first] += won + lost - pays.reduce((a, b) => a + b, 0);
+  const paidEvents = (r.bonds || []).filter((b) => b.paid_usd !== undefined);
+  let k = 0;
+  return stakes.map((s, i) => {
+    if (s.side !== r.outcome) return { result: "lost", paid_usd: null };
+    const ev = paidEvents[k++];
+    return { result: "won", paid_usd: ev ? ev.paid_usd : pays[i] / 1e6 };
+  });
+}
 
 /** A receipt check as /api/rulings shows it: the result, why, and every source and quote (docs/API.md). */
 export function receiptCheckView(c) {
@@ -265,7 +295,8 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
   const blank = (id, claimId) => ({
     challenge_id: id, claim_id: claimId, claim: byId.get(claimId)?.text ?? null, page: byId.get(claimId)?.page ?? null,
     challenger: null, challenger_name: null, claimed: null, bond_usd: null, opened_at: null, open_tx: null, jury_deadline_at: null, evidence: null,
-    verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false,
+    verdicts: [], provisional: null, provisional_at: null, window_ends_at: null, disputes: [], escalated: false, dispute_bond_usd: null,
+    challenger_result: null, challenger_paid_usd: null,
     status: "jury", outcome: null, settled_at: null, settle_tx: null, payout_usd: null, bonds: [], expired_at: null, correction: null,
     receipt_check: null, sentinel: null,
   });
@@ -298,9 +329,14 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
     } else if (e.event === "provisional") {
       r.provisional = OUTCOME(d.outcome); r.provisional_at = t; r.window_ends_at = nsToMs(d.window_ends_ns); r.status = "window";
     } else if (e.event === "dispute") {
-      r.disputes.push({ who: whoIs(d.trader, names), trader: d.trader, bond_usd: usd(d.amount_micro), round: d.round, proposed: OUTCOME(d.proposed), at: t, tx: e.txHash || null });
-      r.provisional = OUTCOME(d.proposed); r.window_ends_at = nsToMs(d.window_ends_ns); r.status = "window";
-    } else if (e.event === "escalate") { r.escalated = true; r.status = "escalated"; }
+      // the third dispute sends it to the council instead of opening a window: its window_ends_ns is the old window's
+      const escalates = Number(d.round) >= MAX_DISPUTES;
+      if (r.disputes.some((x) => x.round === d.round)) continue;
+      r.disputes.push({ who: whoIs(d.trader, names), trader: d.trader, bond_usd: usd(d.amount_micro), round: d.round, proposed: OUTCOME(d.proposed), at: t, tx: e.txHash || null, window_ends_at: escalates ? null : nsToMs(d.window_ends_ns), evidence: null, result: null, paid_usd: null });
+      r.provisional = OUTCOME(d.proposed);
+      if (escalates || r.escalated) { r.escalated = true; r.status = "escalated"; r.window_ends_at = null; }
+      else { r.window_ends_at = nsToMs(d.window_ends_ns); r.status = "window"; }
+    } else if (e.event === "escalate") { r.escalated = true; r.status = "escalated"; r.window_ends_at = null; }
     else if (e.event === "settle") { r.outcome = OUTCOME(d.outcome); r.settled_at = t; r.settle_tx = e.txHash || null; r.payout_usd = usd(d.payout_micro); r.status = "settled"; }
     else if (e.event === "bond_paid") r.bonds.push({ who: whoIs(d.trader, names), trader: d.trader, paid_usd: usd(d.amount_micro), tx: e.txHash || null });
     else if (e.event === "bond_forfeit") r.bonds.push({ who: "the treasury", forfeit_usd: usd(d.amount_micro), tx: e.txHash || null });
@@ -329,7 +365,20 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
       if (claim?.status === "Settled" && claim.challenge_id === id) { r.status = "settled"; r.outcome = OUTCOME(claim.outcome); }
       else if (claim && claim.challenge_id !== id) r.status = "void";
     }
+    // every dispute the chain holds, with its evidence: the index can be behind the chain
+    for (const [i, st] of (ch.stakes || []).entries()) {
+      if (i === 0) continue;
+      let x = r.disputes.find((y) => y.round === i);
+      if (!x) {
+        x = { who: whoIs(st.account, names), trader: st.account, bond_usd: usd(st.amount_micro), round: i, proposed: OUTCOME(st.side), at: null, tx: null, window_ends_at: null, evidence: null, result: null, paid_usd: null };
+        r.disputes.push(x);
+      }
+      x.evidence = st.evidence || x.evidence;
+    }
+    r.disputes.sort((a, b) => a.round - b.round);
     r.disputes_on_chain = ch.disputes ?? r.disputes.length;
+    // what a new dispute posts now: twice the current bond, while the window is open and before the council
+    r.dispute_bond_usd = !ch.resolved && r.status === "window" && (ch.disputes ?? 0) < MAX_DISPUTES && ch.bond_micro ? usd(BigInt(ch.bond_micro) * 2n) : null;
   }
   // what the jury's runner saw: each model's attestation and its own check of the signature
   const runChecks = new Map(); // the check a run carried: said even if the ledger's write failed
@@ -354,6 +403,9 @@ export function rulingsOf({ events = [], claims = [], live = new Map(), windowEn
   }
   const list = [...recs.values()];
   for (const r of list) {
+    const [first, ...rest] = bondResults(r);
+    r.challenger_result = first.result; r.challenger_paid_usd = first.paid_usd;
+    rest.forEach((x, i) => Object.assign(r.disputes[i], x));
     r.receipt_check = receiptCheckView(ledger?.checks?.[r.challenge_id] ?? runChecks.get(r.challenge_id));
     r.sentinel = sentinelView(ledger?.sentinel?.[r.challenge_id]);
   }

@@ -376,7 +376,16 @@ $ curl -s https://isitpriced.com/api/rulings
 | `waiting_for_bets` | number | How many of those are short of `CHECKER_MIN_BETS`. |
 | `checker` | object or null | `account`, `balance_usd`, `lines_left` (the same as `queue`), and `note`: the operator's reason it did or didn't act on the last run. null before the keeper's first run. |
 | `keeper_ran_at` | ISO time or null | The keeper's last run. |
-| `rulings`, `count`, `asOf` | | Every challenge, how many, and the claims snapshot's time. Each ruling carries `receipt_check` and `sentinel`, below. |
+| `rulings`, `count`, `asOf` | | Every challenge, how many, and the claims snapshot's time. Each ruling carries `receipt_check` and `sentinel`, below, and its objections, next. |
+
+Each ruling's objections (the contract's `dispute`: twice the current bond, from a real account, never a lane key; it flips the proposed outcome and restarts the window, and the third goes to the council). Tests: `services/api/test/engine.test.mjs`, "rulings: every objection…", "the third objection…" and "at the end, which bonds…".
+
+| Field | Type | Meaning |
+|---|---|---|
+| `disputes` | array | Every objection in order: `round` (1 to 3), `who`, `trader`, `bond_usd`, `proposed` (`TRUE` or `FALSE`: the ruling after it), `at`, `tx`, `window_ends_at` (when the window it opened was due to close; null for the third, which opens none), `evidence` (from `get_challenge`'s stakes; null until the chain's view is read), `result` and `paid_usd` (below). One the index hasn't seen yet comes from the chain's stakes, with `at` and `tx` null. |
+| `dispute_bond_usd` | number or null | What an objection posts now: twice `get_challenge`'s `bond_micro`, while the window is open and before the third. null otherwise. |
+| `challenger_result`, `challenger_paid_usd` | | What became of the challenger's bond, like a dispute's `result` and `paid_usd`. |
+| `result` | string or null | null while it runs. `won`: the bond came back with a share of the losing side's bonds, in proportion to its size (`paid_usd` is the `bond_paid` event, or the contract's `split_bonds` rule where the index has none). `lost`: it paid the winning side. `forfeit`: no bond was on the winning side, so all went to the treasury. `returned`: a council void or an expired challenge gave it back. |
 
 The clock's states, first match wins. `queue`, `waiting_for_bets` and `rulings_today` are read at request time, so a bet shows at once. The rest comes from the keeper's last run.
 

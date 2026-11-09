@@ -88,6 +88,14 @@
 .evidence { margin-top: 6px; font-size: 13.5px; overflow-wrap: anywhere; }
 .verdict[data-size='lg'] { height: 30px; font-size: 14px; padding: 0 12px; }
 .vcard .v.reading { color: var(--ink3); }
+/* Objections: each one in the timeline, what became of its bond, and the button while the window runs */
+.tl .objection .what { overflow-wrap: anywhere; }
+.tl .fate { display: block; margin-top: 4px; font-size: 13px; font-weight: 500; }
+.tl .fate.yes { color: var(--yes); }
+.tl .fate.no { color: var(--no); }
+.objectbox { margin-top: 10px; display: flex; align-items: center; gap: 6px 12px; flex-wrap: wrap; }
+.objectbox .btn { min-height: 44px; }
+.objectbox .fine { margin: 0; }
 
 /* Receipt */
 .ok { display: inline-flex; align-items: center; gap: 8px; font-weight: 500; color: var(--yes); font-size: 14px; }

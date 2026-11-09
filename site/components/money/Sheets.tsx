@@ -3,6 +3,7 @@
 import { ChallengeSheet } from "./Challenge";
 import { CollectSheet } from "./Collect";
 import { ConnectSheet } from "./Connect";
+import { DisputeSheet } from "./Dispute";
 import { DepositSheet } from "./Deposit";
 import { TradeSheet } from "./Trade";
 import { WithdrawSheet } from "./Withdraw";
@@ -16,5 +17,6 @@ export function Sheets({ req }: { req: SheetReq }) {
     case "trade": return <TradeSheet claimId={req.claimId} question={req.question} mode={req.mode} side={req.side} onClose={closeSheet} />;
     case "collect": return <CollectSheet claimId={req.claimId} question={req.question} winMicro={req.winMicro} onClose={closeSheet} />;
     case "challenge": return <ChallengeSheet claimId={req.claimId} question={req.question} receipt={req.receipt} onClose={closeSheet} />;
+    case "dispute": return <DisputeSheet challengeId={req.challengeId} claimId={req.claimId} question={req.question} onClose={closeSheet} />;
   }
 }

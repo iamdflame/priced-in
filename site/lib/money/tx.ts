@@ -72,6 +72,21 @@ export function challengeTx(c: MoneyConfig, claimId: number, claimedOutcome: boo
   };
 }
 
+/**
+ * Object to an AI ruling during its window: the contract takes twice the current bond from the Priced
+ * In balance, flips the proposed outcome to the other side and restarts the window. `proposed` is the
+ * outcome it flips to (the other side of the ruling now), said in the sentence; the contract decides it.
+ */
+export function disputeTx(c: MoneyConfig, challengeId: number, evidence: string, bondMicro: bigint, proposed: boolean): TxSpec {
+  if (!evidence.trim()) throw new Error("an objection needs its reason");
+  if (bondMicro <= 0n) throw new Error("the bond must be positive");
+  return {
+    receiverId: c.market,
+    actions: [call("dispute", { challenge_id: challengeId, evidence }, GAS.dispute)],
+    says: `Object to the ruling with a ${fmtMicro(bondMicro)} bond from your balance, which flips it to ${proposed ? "true" : "false"}. If the final ruling is ${proposed ? "true" : "false"}, it comes back with a share of the other side’s bonds; if not, you lose it.`,
+  };
+}
+
 /** Register an account on the USDC contract so it can receive USDC (0.00125 NEAR, once). */
 export function storageTx(c: MoneyConfig, accountId: string): TxSpec {
   return {

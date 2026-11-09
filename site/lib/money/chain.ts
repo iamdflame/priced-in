@@ -17,6 +17,28 @@ export interface ClaimView {
   q_yes_micro?: string;
   q_no_micro?: string;
   fee_bps?: number;
+  provisional?: boolean | null;
+  challenge_id?: number | null;
+}
+
+/** A bond on one side of a challenge: the first is the challenger's, the rest are disputes. */
+export interface StakeView { account: string; side: boolean; amount_micro: string; evidence: string }
+
+/** get_challenge, as the contract returns it (contracts/market/src/lib.rs, struct Challenge). */
+export interface ChallengeView {
+  claim_id: number;
+  challenger: string;
+  claimed_outcome: boolean;
+  evidence: string;
+  /** the current bond: a dispute posts twice this */
+  bond_micro: string;
+  opened_ns: string;
+  jury_deadline_ns: string;
+  window_opened_ns: string;
+  window_ends_ns: string;
+  disputes: number;
+  stakes: StakeView[];
+  resolved: boolean;
 }
 
 export class Chain {
@@ -31,6 +53,12 @@ export class Chain {
   claim(claimId: number) { return this.view<ClaimView | null>(this.c.market, "get_claim", { claim_id: claimId }); }
   async usdcBalance(account: string): Promise<bigint> { return BigInt(await this.view<string>(this.c.usdc, "ft_balance_of", { account_id: account })); }
   async canReceiveUsdc(account: string): Promise<boolean> { return (await this.view<unknown>(this.c.usdc, "storage_balance_of", { account_id: account })) !== null; }
+  challenge(challengeId: number) { return this.view<ChallengeView | null>(this.c.market, "get_challenge", { challenge_id: challengeId }); }
+  /** When the running objection window ends, in ms (it can stretch as money arrives); null when no window is running. */
+  async disputeEndsMs(challengeId: number): Promise<number | null> {
+    const ns = await this.view<string | null>(this.c.market, "dispute_ends_ns", { challenge_id: challengeId });
+    return ns ? Number(BigInt(ns) / 1_000_000n) : null;
+  }
 }
 
 let shared: Chain | null = null;
@@ -63,6 +91,11 @@ export function plainPanic(msg: string): string {
   if (s.includes("price is at its cap")) return "The price is at its limit on this side, so there’s nothing left to buy.";
   if (s.includes("amount too small")) return "That amount is too small to buy a share.";
   if (s.includes("notenoughbalance")) return "Your wallet doesn’t hold enough NEAR for that.";
+  if (s.includes("dispute window has closed")) return "The window for objections closed before your objection landed, so no bond was taken.";
+  if (s.includes("can't be disputed")) return "This ruling takes no more objections: it was settled, or it went to the council.";
+  if (s.includes("no provisional outcome")) return "The AI judges haven’t ruled yet, so there’s nothing to object to.";
+  if (s.includes("lane keys can't")) return "The free $1 can’t do this. Connect a NEAR wallet.";
+  if (s.includes("evidence must be")) return "Your reason must be between 1 and 4,000 bytes.";
   return msg.endsWith(".") ? msg : `${msg}.`;
 }
 

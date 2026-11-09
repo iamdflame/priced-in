@@ -1,5 +1,5 @@
 // The ruling record, as plain rules. Every count on screen comes from /api/rulings through these.
-import type { Ruling, Rulings, RulingsWire } from "./server/api";
+import type { BondResult, Dispute, Ruling, Rulings, RulingsWire } from "./server/api";
 
 /** Settled rulings, newest first. */
 export const settledRulings = (rulings: Ruling[]): Ruling[] => rulings.filter((r) => r.status === "settled").sort((a, b) => (b.settled_at ?? 0) - (a.settled_at ?? 0));
@@ -70,4 +70,39 @@ export function rulingRecord(rulings: Ruling[]): RulingRecord {
     paidUsd: settled.reduce((n, r) => n + (r.payout_usd ?? 0), 0),
     unanimous: settled.filter((r) => r.verdicts.length >= 3 && new Set(r.verdicts.map((v) => v.verdict)).size === 1).length,
   };
+}
+
+// ---------- objections ----------
+
+const usd = (x: number) => `$${x.toFixed(2)}`;
+const said = (outcome: string | null | undefined) => (String(outcome).toUpperCase() === "TRUE" ? "true" : "false");
+
+/** What a new objection posts now: the API's figure from get_challenge, else twice the last bond posted. */
+export const nextBondUsd = (r: Pick<Ruling, "dispute_bond_usd" | "disputes" | "bond_usd">): number => r.dispute_bond_usd ?? 2 * (r.disputes.at(-1)?.bond_usd ?? r.bond_usd);
+
+/** What became of one bond, in one sentence ("Its", or "The challenger’s"); null while the ruling runs. */
+export function bondFate(result: BondResult | undefined, bondUsd: number, paidUsd: number | null | undefined, whose = "Its"): string | null {
+  const b = usd(bondUsd);
+  if (result === "won") {
+    const extra = paidUsd !== null && paidUsd !== undefined ? paidUsd - bondUsd : 0;
+    return extra >= 0.005 ? `${whose} ${b} bond came back with ${usd(extra)} from the losing side: ${usd(paidUsd!)} in all.` : `${whose} ${b} bond came back.`;
+  }
+  if (result === "lost") return `${whose} ${b} bond paid the winning side.`;
+  if (result === "forfeit") return `No bond was on the winning side, so ${whose.charAt(0).toLowerCase()}${whose.slice(1)} ${b} went to the treasury.`;
+  if (result === "returned") return `${whose} ${b} bond came back in full.`;
+  return null;
+}
+
+/** One objection, as a sentence: who, which way, what it cost and what it did. */
+export function objectionWords(d: Dispute, max = 3): string {
+  const what = Number(d.round) >= max ? "The third objection sends it to the market’s council" : `It flipped the ruling to ${said(d.proposed)} and opened a new window`;
+  return `${String(d.who ?? d.trader).replace(/^the /, "The ")} says it’s ${said(d.proposed)}, with a ${usd(d.bond_usd)} bond (twice the last). ${what}.`;
+}
+
+/** The window line: open now, how many objections, or nobody objected. */
+export function objectionsSummary(r: Pick<Ruling, "status" | "disputes" | "escalated">): string {
+  const n = r.disputes.length;
+  if (r.escalated || r.status === "escalated") return `${n} filed: the market’s council decides`;
+  if (r.status === "window") return n ? `${n} filed so far, and still open` : "open now";
+  return n ? `${n} filed` : "nobody objected";
 }

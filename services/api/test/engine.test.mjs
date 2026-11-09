@@ -345,6 +345,71 @@ test("rulings: per-model verdicts with how each signature was checked, the windo
   assert.equal(s.correction.claim_id, 32);
 });
 
+test("rulings: every objection with its account, bond, round, proposed outcome and new window; a live one says what the next objection costs", () => {
+  const events = [
+    ...challengeEvents(4, 9, 1000),
+    ev("dispute", { challenge_id: 4, claim_id: 9, trader: "stranger.near", amount_micro: "2000000", round: 1, proposed: true, window_ends_ns: NS(900_000), balance_micro: "0" }, 2000),
+  ];
+  const view = {
+    claim_id: 9, challenger: "checker.x.near", claimed_outcome: false, evidence: "the source", bond_micro: "2000000", disputes: 2, resolved: false, verdicts: [],
+    stakes: [
+      { account: "checker.x.near", side: false, amount_micro: "1000000", evidence: "" },
+      { account: "stranger.near", side: true, amount_micro: "2000000", evidence: "The filing says TRUE: https://example.org/f" },
+      { account: "isitpriced.near", side: false, amount_micro: "4000000", evidence: "Drill: the house defends." },
+    ],
+  };
+  const [r] = rulingsOf({ events, claims: [claim(9, { status: "Challenged", provisional: false, challenge_id: 4 })], live: new Map([[4, { ...view, bond_micro: "4000000" }]]), windowEnds: new Map([[4, NS(1_700_000)]]) });
+  assert.equal(r.status, "window");
+  assert.equal(r.provisional, "FALSE", "the chain's provisional outcome wins over the index's");
+  assert.deepEqual(r.disputes.map((d) => [d.round, d.trader, d.bond_usd, d.proposed, d.window_ends_at]), [[1, "stranger.near", 2, "TRUE", 900_000], [2, "isitpriced.near", 4, "FALSE", null]], "a dispute the index hasn't seen comes from the chain's stakes");
+  assert.equal(r.disputes[0].evidence, "The filing says TRUE: https://example.org/f");
+  assert.equal(r.disputes[1].tx, null);
+  assert.equal(r.dispute_bond_usd, 8, "the next objection posts twice the current bond");
+  assert.equal(r.window_ends_at, 1_700_000);
+  assert.deepEqual([r.challenger_result, r.disputes[0].result], [null, null], "nothing is paid or lost while it runs");
+
+  const closed = rulingsOf({ events, claims: [claim(9, { status: "Challenged", provisional: true, challenge_id: 4 })], live: new Map(), windowEnds: new Map() })[0];
+  assert.equal(closed.dispute_bond_usd, null, "without the chain's view nobody promises a price");
+});
+
+test("rulings: the third objection goes to the council and opens no window", () => {
+  const events = [
+    ...challengeEvents(5, 10, 1000),
+    ev("dispute", { challenge_id: 5, claim_id: 10, trader: "a.near", amount_micro: "2000000", round: 1, proposed: true, window_ends_ns: NS(900_000) }, 2000),
+    ev("dispute", { challenge_id: 5, claim_id: 10, trader: "b.near", amount_micro: "4000000", round: 2, proposed: false, window_ends_ns: NS(1_500_000) }, 3000),
+    ev("escalate", { challenge_id: 5, claim_id: 10 }, 4000),
+    ev("dispute", { challenge_id: 5, claim_id: 10, trader: "a.near", amount_micro: "8000000", round: 3, proposed: true, window_ends_ns: NS(1_500_000) }, 4000),
+  ];
+  const [r] = rulingsOf({ events, claims: [claim(10, { status: "Escalated", provisional: true, challenge_id: 5 })] });
+  assert.deepEqual([r.status, r.escalated, r.window_ends_at, r.disputes.length, r.disputes[2].window_ends_at], ["escalated", true, null, 3, null]);
+});
+
+test("rulings: at the end, which bonds were paid and which were lost", () => {
+  const base = [
+    ...challengeEvents(6, 11, 1000),
+    ev("dispute", { challenge_id: 6, claim_id: 11, trader: "stranger.near", amount_micro: "2000000", round: 1, proposed: true, window_ends_ns: NS(900_000) }, 2000),
+    ev("dispute", { challenge_id: 6, claim_id: 11, trader: "isitpriced.near", amount_micro: "4000000", round: 2, proposed: false, window_ends_ns: NS(1_500_000) }, 3000),
+  ];
+  const settledFalse = rulingsOf({
+    events: [...base,
+      ev("settle", { claim_id: 11, challenge_id: 6, outcome: false, payout_micro: "0" }, 5000),
+      ev("bond_paid", { challenge_id: 6, trader: "checker.x.near", amount_micro: "1400000" }, 5000),
+      ev("bond_paid", { challenge_id: 6, trader: "isitpriced.near", amount_micro: "5600000" }, 5000)],
+    claims: [claim(11, { status: "Settled", outcome: false, challenge_id: 6 })],
+  })[0];
+  assert.deepEqual([settledFalse.challenger_result, settledFalse.challenger_paid_usd], ["won", 1.4]);
+  assert.deepEqual(settledFalse.disputes.map((d) => [d.result, d.paid_usd]), [["lost", null], ["won", 5.6]], "the losing side's $2 pays the winners in proportion to their bonds");
+
+  // the index has the settlement but not the payouts: the contract's own rule gives the same amounts
+  const computed = rulingsOf({ events: [...base, ev("settle", { claim_id: 11, challenge_id: 6, outcome: true, payout_micro: "0" }, 5000)], claims: [claim(11, { status: "Settled", outcome: true, challenge_id: 6 })] })[0];
+  assert.deepEqual([computed.challenger_result, ...computed.disputes.map((d) => d.result)], ["lost", "won", "lost"]);
+  assert.equal(computed.disputes[0].paid_usd, 7, "the only winning bond takes back its $2 and the losers' $5");
+
+  const voided = rulingsOf({ events: [...base, ev("void", { challenge_id: 6, claim_id: 11 }, 6000)], claims: [claim(11, { status: "Open", challenge_id: null })] })[0];
+  assert.deepEqual([voided.challenger_result, ...voided.disputes.map((d) => d.result)], ["returned", "returned", "returned"]);
+  assert.deepEqual(voided.disputes.map((d) => d.paid_usd), [2, 4]);
+});
+
 test("rulings: an index behind the chain still shows a settled challenge as settled, never as running", () => {
   const settle = ev("settle", { claim_id: 7, challenge_id: 0, outcome: false, payout_micro: "1" }, 9000);
   const view = { claim_id: 7, challenger: "seed-a.testnet", claimed_outcome: false, evidence: "e", verdicts: MODELS.map((m) => ({ model: m, outcome: "FALSE" })), resolved: true, opened_ns: NS(100), jury_deadline_ns: NS(3700), stakes: [{ amount_micro: "1000000" }] };

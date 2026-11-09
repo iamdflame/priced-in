@@ -201,13 +201,13 @@ async function Judges({ r }: { r: Ruling }) {
 
 function RecordRow({ r, f }: { r: Ruling; f: Fact | null }) {
   const verdict = verdictOf(r);
-  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
+  const status = r.status === "settled" ? `Settled in ${span((r.settled_at ?? r.opened_at) - r.opened_at)} · ${r.payout_usd ? `${money(r.payout_usd)} paid` : "nobody had bet on the winning side"}` : r.status === "window" ? "Open for objections" : r.status === "escalated" ? "With the market’s council after three objections" : r.status === "void" ? "Voided by the council: every bond came back" : r.status === "jury" ? "The AI judges are reading" : r.status === "expired" ? "Expired: the judges didn’t reach a verdict in time" : r.status;
   return (
     <div className="rrow" id={`ruling-${r.challenge_id}`}>
       {f ? <span className="ti" aria-hidden="true"><Art name={f.art} width={72} height={72} /></span> : <span className="ti mono" aria-hidden="true">#</span>}
       <div className="shrink">
         <Link className="q" href={`/c/${r.claim_id}`}>{f?.question ?? r.claim}</Link>
-        <p className="s">Challenged by {r.challenger_name.replace(/^the /, "the ")} with a {money(r.bond_usd)} bond · {dayTimeUtc(r.opened_at)} · {status}</p>
+        <p className="s">Challenged by {r.challenger_name.replace(/^the /, "the ")} with a {money(r.bond_usd)} bond · {dayTimeUtc(r.opened_at)} · {status}{r.disputes.length ? ` · ${plural(r.disputes.length, "objection")}` : ""}</p>
         <Receipts r={r} />
       </div>
       <div className="r">

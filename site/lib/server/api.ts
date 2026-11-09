@@ -38,6 +38,27 @@ export interface Verdict {
   runner?: { signing_address?: string; signature_kind?: string; attestation?: { ok: boolean; bundle?: string } };
 }
 
+/** won: the bond came back with a share of the losing side's; lost: it paid the winners; forfeit: no bond was on the winning side, so all went to the treasury; returned: given back (void or expired). */
+export type BondResult = "won" | "lost" | "forfeit" | "returned" | null;
+
+/** An objection: a bond of twice the last one that flipped the proposed outcome and, before the third, restarted the window. */
+export interface Dispute {
+  who: string;
+  trader: string;
+  bond_usd: number;
+  /** 1, 2 or 3; the third sends it to the council */
+  round: number;
+  /** the outcome it proposed: the ruling after it */
+  proposed: "TRUE" | "FALSE" | string | null;
+  at: number | null;
+  tx: string | null;
+  /** when the window it opened was due to close; null for the third, which opens none */
+  window_ends_at?: number | null;
+  evidence?: string | null;
+  result?: BondResult;
+  paid_usd?: number | null;
+}
+
 export interface Ruling {
   challenge_id: number;
   claim_id: number;
@@ -55,8 +76,13 @@ export interface Ruling {
   provisional: string | null;
   provisional_at: number | null;
   window_ends_at: number | null;
-  disputes: unknown[];
+  disputes: Dispute[];
   escalated: boolean;
+  /** what an objection posts now (twice the current bond); null when none can be filed */
+  dispute_bond_usd?: number | null;
+  /** what became of the challenger's bond: null while it runs */
+  challenger_result?: BondResult;
+  challenger_paid_usd?: number | null;
   status: "jury" | "window" | "settled" | "expired" | string;
   outcome: string | null;
   settled_at: number | null;
