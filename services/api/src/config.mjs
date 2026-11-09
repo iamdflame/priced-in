@@ -74,7 +74,10 @@ export function loadConfig(env = process.env) {
       issueDeadlineMs: num("LANE_ISSUE_DEADLINE_MS", 12000),
       // the budget check may use market stats this old (the contract is the hard limit)
       statsMaxStaleMs: num("LANE_STATS_MAX_STALE_MS", 10000),
-      minBalanceNear: Number(env.LANE_MIN_BALANCE_NEAR || "1"),
+      // below this much spare NEAR on the lane account (its balance less its storage), no new key is added
+      // (a plain 503). 0.3 by default: the lane holds about 1 NEAR, so a default of 1 would refuse every
+      // free bet whenever the variable is missing. 0 turns the check off
+      minBalanceNear: Number.isFinite(Number(env.LANE_MIN_BALANCE_NEAR)) && String(env.LANE_MIN_BALANCE_NEAR ?? "").trim() !== "" ? Number(env.LANE_MIN_BALANCE_NEAR) : 0.3,
     },
     planner: {
       apiKey: (env.NEARAI_API_KEY || "").trim() || null,

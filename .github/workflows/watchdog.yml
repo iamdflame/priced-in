@@ -1,5 +1,6 @@
 # The live watchdog through judging: every 10 minutes it checks what a judge needs (the site, the
-# free $1, the API, the keeper, the market and its NEAR for gas and storage) with scripts/watchdog.mjs,
+# free $1, the API and its checks, the keeper, the market, its NEAR for gas and storage, and the Checker's
+# bonds; house agents, the x402 relayer and the Sentinel only warn) with scripts/watchdog.mjs,
 # read only and with no secrets. The requests also keep the site's server warm. A failed run emails
 # the repository owner.
 name: watchdog

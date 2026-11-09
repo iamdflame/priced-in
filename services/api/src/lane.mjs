@@ -32,6 +32,30 @@ export function laneHoldMessage(cfg) {
   return `The last free bets are kept for the judges until ${day}. You can still pick Yes or No for free on Today's claims, and every price updates live.`;
 }
 
+/** The recorded real run on the Tether fact (a bet, the rewrite, an agent's answer, the jury's ruling): what a visitor can still watch when no free bet is left. */
+export const LANE_REPLAY = "/c/18?recorded=1";
+
+/** What a visitor reads when no free bet is left, and the replay it offers. */
+export const LANE_USED_UP_MESSAGE = `The free bets are used up for now. Watch a real bet play out, from the tap to the jury's ruling, at isitpriced.com${LANE_REPLAY}. Every price still updates live.`;
+
+/** What a visitor reads while the lane account is short of NEAR for gas (below LANE_MIN_BALANCE_NEAR). */
+export const LANE_LOW_GAS_MESSAGE = `Free bets are paused while the free-bet account is topped up with NEAR for gas. Every price still updates live, and you can watch a real bet play out at isitpriced.com${LANE_REPLAY}.`;
+
+/**
+ * The free $1 credits the market can pay now: floor(min(lane budget, treasury) / credit). Pure.
+ * @param {{ lane_credit_micro: string|number, lane_budget_micro: string|number, treasury_micro: string|number }} s the market's stats
+ */
+export function creditsOf(s) {
+  const credit = BigInt(s.lane_credit_micro);
+  const budget = BigInt(s.lane_budget_micro);
+  const treasury = BigInt(s.treasury_micro);
+  const pool = budget < treasury ? budget : treasury;
+  return credit > 0n ? Number(pool / credit) : 0;
+}
+
+/** What an account can spend, in NEAR, from view_account: its balance less what its bytes lock (1e19 yocto a byte). Pure. */
+export const spareNear = (acct) => Number((BigInt(acct.amount) - BigInt(acct.storage_usage) * 10n ** 19n) / 10n ** 20n) / 1e4;
+
 /** Validate and normalise "ed25519:<base58 32 bytes>". */
 export function parsePublicKey(s) {
   if (typeof s !== "string" || s.length > 100) throw new ApiError(400, "invalid_public_key", "publicKey must be a string like ed25519:<base58>");
@@ -96,13 +120,31 @@ export class LaneIssuer {
    */
   async budget() {
     const s = await this.stats();
-    const credit = BigInt(s.lane_credit_micro);
-    const budget = BigInt(s.lane_budget_micro);
-    const treasury = BigInt(s.treasury_micro);
-    const pool = budget < treasury ? budget : treasury;
-    const credits = credit > 0n ? Number(pool / credit) : 0;
+    const credits = creditsOf(s);
     this.pruneOutstanding();
     return { paused: s.paused, credits, outstanding: this.outstanding.size, free: credits - this.outstanding.size, creditMicro: s.lane_credit_micro };
+  }
+
+  /**
+   * The lane account's spare NEAR (its balance less what its storage locks), read at most once a
+   * minute. Null when it can't be read: the lane then carries on, and the chain stays the hard limit.
+   */
+  async nearSpare() {
+    if (!this.enabled) return null;
+    if (this.nearCache && this.now() - this.nearCache.at < 60_000) return this.nearCache.value;
+    this.nearPending ||= this.rpc.viewAccount(this.cfg.accountId, "final")
+      .then((a) => { this.nearCache = { at: this.now(), value: spareNear(a) }; return this.nearCache.value; })
+      .catch((e) => { this.log(`lane balance: ${e.message}`); return this.nearCache?.value ?? null; })
+      .finally(() => { this.nearPending = null; });
+    return this.nearPending;
+  }
+
+  /** True when the lane's NEAR is known and below LANE_MIN_BALANCE_NEAR: new keys are refused then. */
+  async lowOnGas() {
+    const min = Number(this.cfg.minBalanceNear);
+    if (!(min > 0)) return false;
+    const spare = await this.nearSpare();
+    return spare !== null && spare < min;
   }
 
   async recentBlockHash() {
@@ -122,7 +164,7 @@ export class LaneIssuer {
         if (this.nonce === null && !this.busy) this.nonce = BigInt(ak.nonce);
       }
       this.blockHash = null;
-      await this.recentBlockHash();
+      await Promise.all([this.recentBlockHash(), this.nearSpare()]);
     } catch (e) {
       this.log(`lane warm-up: ${e.message}`);
     }

@@ -86,8 +86,15 @@ if (MAIN) Object.assign(plain, {
   // week's posts carry their rulings: Wikipedia sittings resume on 12 and 13 November at 15:00 UTC (news lines
   // still go to the jury as they come due, through judging week)
   CHECKER_FROM: "2026-11-12T00:00:00Z",
-  // the lane account holds 1 NEAR for the visitors' gas and key storage
+  // the lane account holds 1 NEAR for the visitors' gas and key storage; below 0.3 spare, /lane/key refuses new keys
   LANE_MIN_BALANCE_NEAR: "0.3",
+  // the free $1 is real USDC from a treasury that holds about a dozen of them through judging: at the code's
+  // defaults (10 per address, 1,000 a day) one visitor clearing cookies, or one script, could take them all in a
+  // minute and leave the seven judges none. 2 per address a day still lets a judge retry on a second browser,
+  // and 8 a day spreads the rest over the judging days. Both limits hold across function instances
+  // (LIMITED in api/index.mjs) as well as in each instance (services/api/src/app.mjs laneKey)
+  LANE_KEYS_PER_IP_PER_DAY: "2",
+  LANE_KEYS_PER_DAY: "8",
   // the last 4 free bets wait for the judges: the AI screen and judging start once submissions close on
   // 14 November, so from 15 November 00:00 UTC every credit is open to anyone again
   LANE_RESERVE: "4",

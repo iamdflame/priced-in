@@ -210,6 +210,41 @@ test("/lane/key mirrors the contract's lane budget and says plainly when it is u
   assert.equal((await api.req("POST", "/lane/key", { publicKey: k() })).json.error.code, "market_paused");
 });
 
+test("/lane/key refuses new keys while the lane account is below LANE_MIN_BALANCE_NEAR, read at most once a minute", async (t) => {
+  const mock = await startMockRpc({ blockMs: 100 });
+  t.after(() => mock.close());
+  const admin = KeyPair.fromRandom("ed25519");
+  mock.addAdminKey("lane.testnet", admin.getPublicKey().toString());
+  // 0.25 NEAR, less 3,494 bytes of storage (0.03494 NEAR locked): 0.215 NEAR spare, under the 0.3 default
+  mock.st.accounts.set("lane.testnet", { amount: "250000000000000000000000", storage_usage: 3494 });
+  let clock = Date.now();
+  const api = await startApi({ RPC_URLS: mock.url, MARKET_CONTRACT_ID: "market.testnet", LANE_ACCOUNT_ID: "lane.testnet", LANE_PRIVATE_KEY: admin.toString(), LANE_KEYS_PER_IP_PER_DAY: "2" }, { now: () => clock });
+  t.after(() => api.close());
+  assert.equal(api.app.config.lane.minBalanceNear, 0.3, "the code default is 0.3, not 1: the lane holds about 1 NEAR");
+  const k = () => KeyPair.fromRandom("ed25519").getPublicKey().toString();
+  const keysBefore = mock.st.keys.size;
+  for (let i = 0; i < 3; i++) {
+    const r = await api.req("POST", "/lane/key", { publicKey: k() });
+    assert.equal(r.status, 503);
+    assert.deepEqual([r.json.error.code, r.json.error.reason, r.json.error.replay], ["lane_unavailable", "low_gas", "/c/18?recorded=1"]);
+    assert.match(r.json.error.message, /topped up with NEAR for gas/);
+  }
+  assert.equal(mock.st.keys.size, keysBefore, "no key was added");
+  // topped up: the cached read stands for a minute, then the next key goes through (the refusals used none of the address's 2)
+  mock.st.accounts.set("lane.testnet", { amount: "1000000000000000000000000", storage_usage: 3494 });
+  assert.equal((await api.req("POST", "/lane/key", { publicKey: k() })).status, 503, "the balance is read at most once a minute");
+  clock += 61_000;
+  assert.equal((await api.req("POST", "/lane/key", { publicKey: k() })).status, 200);
+});
+
+test("LANE_MIN_BALANCE_NEAR: unset is 0.3, a set value is kept, 0 turns the check off", async () => {
+  const { loadConfig } = await import("../src/config.mjs");
+  assert.equal(loadConfig({ NEAR_NETWORK: "testnet" }).config.lane.minBalanceNear, 0.3);
+  assert.equal(loadConfig({ NEAR_NETWORK: "testnet", LANE_MIN_BALANCE_NEAR: "" }).config.lane.minBalanceNear, 0.3);
+  assert.equal(loadConfig({ NEAR_NETWORK: "testnet", LANE_MIN_BALANCE_NEAR: "0.5" }).config.lane.minBalanceNear, 0.5);
+  assert.equal(loadConfig({ NEAR_NETWORK: "testnet", LANE_MIN_BALANCE_NEAR: "0" }).config.lane.minBalanceNear, 0);
+});
+
 test("/lane/key: a global daily cap", async (t) => {
   const mock = await startMockRpc();
   t.after(() => mock.close());

@@ -7,7 +7,7 @@ import http from "node:http";
 import { Rpc } from "./rpc.mjs";
 import { EventHub, Scanner } from "./events.mjs";
 import { Claims, TtlCache } from "./claims.mjs";
-import { LaneIssuer, ApiError, parsePublicKey, laneHold, laneHoldMessage } from "./lane.mjs";
+import { LaneIssuer, ApiError, parsePublicKey, laneHold, laneHoldMessage, LANE_REPLAY, LANE_USED_UP_MESSAGE, LANE_LOW_GAS_MESSAGE } from "./lane.mjs";
 import { DailyLimiter, clientIp } from "./ratelimit.mjs";
 import { splitSentences } from "./sentences.mjs";
 import { parseSigningKey, labelSentences, signReceipt, pasteSlug, validPage, PRICEABLE, ABOUT_PEOPLE, PEOPLE_REASON, looksLikeInstruction } from "./planner.mjs";
@@ -291,10 +291,12 @@ export function createApp(config, deps = {}) {
       let b;
       try { b = await lane.budget(); } catch (e) { throw new ApiError(502, "lane_upstream_error", "Could not read the lane budget from the market. Try again."); }
       if (b.paused) throw new ApiError(503, "market_paused", "The market is paused.");
-      if (b.free <= 0) throw new ApiError(503, "lane_used_up", "The judges' lane is used up for now: no free credit is left on the market.");
+      if (b.free <= 0) throw new ApiError(503, "lane_used_up", LANE_USED_UP_MESSAGE, { replay: LANE_REPLAY });
       // the last few wait for the judges until the date set (LANE_RESERVE, LANE_RESERVE_UNTIL)
       const hold = laneHold(config.lane, now());
-      if (hold && b.free <= hold) throw new ApiError(503, "lane_used_up", laneHoldMessage(config.lane), { heldForJudges: hold });
+      if (hold && b.free <= hold) throw new ApiError(503, "lane_used_up", laneHoldMessage(config.lane), { heldForJudges: hold, replay: LANE_REPLAY });
+      // the lane account pays every visitor's gas and key storage: below LANE_MIN_BALANCE_NEAR no new key is added
+      if (await lane.lowOnGas()) throw new ApiError(503, "lane_unavailable", LANE_LOW_GAS_MESSAGE, { reason: "low_gas", replay: LANE_REPLAY });
       const r = await lane.issue(pk);
       if (r.reused) { laneIp.release(ip); laneGlobal.release("global"); }
       return r;

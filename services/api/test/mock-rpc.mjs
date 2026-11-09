@@ -17,6 +17,7 @@ export async function startMockRpc({ chainId = "testnet", blockMs = 200, startHe
     stats: { claims: 0, treasury_micro: "10000000", reserved_micro: "0", lane_budget_micro: "10000000", lane_credit_micro: "1000000", paused: false },
     claims: [],
     views: new Map(), // extra view methods: name -> (args, accountId) => value
+    accounts: new Map(), // accountId -> view_account fields that differ from the default 5 NEAR
     calls: [],
     down: false,
   };
@@ -64,7 +65,7 @@ export async function startMockRpc({ chainId = "testnet", blockMs = 200, startHe
           const k = st.keys.get(`${params.account_id}|${params.public_key}`);
           return k ? { result: { ...k, block_height: st.height, block_hash: b58(`block${st.height}`) } } : err("HANDLER_ERROR", "UNKNOWN_ACCESS_KEY", { public_key: params.public_key });
         }
-        if (params.request_type === "view_account") return { result: { amount: "5000000000000000000000000", locked: "0", storage_usage: 100 } };
+        if (params.request_type === "view_account") return { result: { amount: "5000000000000000000000000", locked: "0", storage_usage: 100, ...st.accounts.get(params.account_id) } };
         return err("HANDLER_ERROR", "UNSUPPORTED");
       }
       case "send_tx":

@@ -17,6 +17,7 @@ import { newsConfig } from "./_lib/news.mjs";
 import { claimsWithNews, isNewsRoute, newsRoutes } from "./_lib/today-routes.mjs";
 import { pagesConfig } from "./_lib/pages.mjs";
 import { isPagesRoute, pagesRoute } from "./_lib/pages-routes.mjs";
+import { mergeSignal } from "./_lib/ops.mjs";
 
 /** CDN caching per route: many browsers polling share one function call. */
 const CACHE = [
@@ -250,6 +251,7 @@ async function health(res, ctxP) {
   if (!config.marketId) failures.push("market: MARKET_CONTRACT_ID is not set");
   if (ctx?.storeError) failures.push(`store: ${ctx.storeError}`);
   const cron = cronDoc?.value ?? null;
+  const sig = cron?.signals ?? {};
   const cronAgeS = cron?.at ? (Date.now() - Date.parse(cron.at)) / 1000 : null;
   if (cronAgeS !== null && cronAgeS > 30 * 60) failures.push(`cron: the last run was ${Math.round(cronAgeS / 60)} min ago (it runs every 10 min)`);
   // the outcome assertion: something real happened in the last day (the cron's record when this instance has no state yet)
@@ -275,14 +277,18 @@ async function health(res, ctxP) {
       index: cron?.index ?? null,
       coverage: cron?.coverage ?? null,
       rpc: { reachable: reachable.length, urls: probes },
-      lane,
+      lane: mergeSignal(lane, sig.lane, cron?.at),
       planner,
       // a low relayer stops revenue, not the site, so it's flagged here and is never a failure
       x402: config.x402.relayerId ? { pay_to: config.x402.payTo, relayer: config.x402.relayerId, relayer_near: relayerBalance, low: relayerBalance !== null && relayerBalance < config.x402.relayerMinNear } : null,
       outcomes: { last_trade: iso(last.trade), last_rewrite: iso(last.rewrite), last_answer: iso(last.answer), maxAgeH: 26 },
       cron: cron ? { last_run: cron.at, age_s: cronAgeS, ok: cron.ok, failures: cron.failures ?? [] } : { last_run: null },
       spend: p.spend.status(),
-      ai: snapDoc?.value ? { at: snapDoc.value.at, writer: snapDoc.value.status?.writer?.writer ?? null, agents: snapDoc.value.status?.agents?.status ?? null, jury: snapDoc.value.status?.jury?.status ?? null, anchoring: snapDoc.value.status?.anchoring ?? null } : null,
+      ai: mergeSignal(snapDoc?.value ? { at: snapDoc.value.at, writer: snapDoc.value.status?.writer?.writer ?? null, agents: snapDoc.value.status?.agents?.status ?? null, jury: snapDoc.value.status?.jury?.status ?? null, anchoring: snapDoc.value.status?.anchoring ?? null } : null, sig.ai, cron?.at),
+      // the cron's operating signals (api/_lib/ops.mjs), each with its own ok: the watchdog emails the owner on any ok false
+      jury_keys: mergeSignal(null, sig.jury_keys, cron?.at),
+      news: mergeSignal(null, sig.news, cron?.at),
+      checker: mergeSignal(null, sig.checker, cron?.at),
       events: app ? { buffered: app.hub.buf.length, lastSeq: app.hub.seq } : null,
       store: ctx ? { ok: !ctx.storeError, kind: storeKind(p.state), hydratedAt: iso(p.journals.hydratedAt) } : { ok: null, kind: storeKind(p.state), note: "this instance is still reading the store (cold start); outcomes are the cron's" },
     },

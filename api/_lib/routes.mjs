@@ -10,7 +10,7 @@ import { activityOf, chronological, downsample, parseTrader, portfolioOf, priceH
 import { namesOf, readRulings } from "./rulings.mjs";
 import { checkerFacts, checkerQueue, rulingClock, sittingConfig } from "./keeper.mjs";
 import { readLedger } from "./sentinel.mjs";
-import { laneHold, laneHoldMessage, parsePublicKey } from "../../services/api/src/lane.mjs";
+import { laneHold, laneHoldMessage, parsePublicKey, LANE_REPLAY, LANE_USED_UP_MESSAGE, LANE_LOW_GAS_MESSAGE } from "../../services/api/src/lane.mjs";
 import { clientIp } from "../../services/api/src/ratelimit.mjs";
 
 export const READ_CACHE = {
@@ -137,7 +137,7 @@ const MESSAGES = {
   credit_spent: "This browser has used its free $1.",
   lane_unavailable: "Free bets are not available on this server.",
   market_paused: "The market is paused.",
-  lane_used_up: "The free bets are used up for now: no free credit is left on the market.",
+  lane_used_up: LANE_USED_UP_MESSAGE,
   lane_daily_cap: "Today's free bets are all taken. Come back tomorrow, or fund your own account.",
 };
 
@@ -162,14 +162,16 @@ export async function laneStatusRoute(url, req, ctx, p) {
       const trader = `lane:${pk}`;
       const credited = events(p).some((e) => e.event === "lane_credit" && e.data?.trader === trader);
       const balance = await raceView(p.api.rpcUrls, p.api.marketId, "get_balance", { trader }, { timeoutMs: 2500 }).then((r) => Number(r.value)).catch(() => null);
-      if (!credited && !(balance > 0)) return budget.credits > 0 ? say("key_ready", { ...credits, key: { on_lane: true, credited: false, balance_usd: 0 } }) : say("lane_used_up", credits);
+      if (!credited && !(balance > 0)) return budget.credits > 0 ? say("key_ready", { ...credits, key: { on_lane: true, credited: false, balance_usd: 0 } }) : say("lane_used_up", { ...credits, replay: LANE_REPLAY });
       return say(balance > 0 ? "key_ready" : "credit_spent", { ...credits, key: { on_lane: true, credited, balance_usd: balance === null ? null : balance / 1e6 } });
     }
   }
-  if (budget.free <= 0) return say("lane_used_up", credits);
+  if (budget.free <= 0) return say("lane_used_up", { ...credits, replay: LANE_REPLAY });
   // the last few wait for the judges until the date set: said before the tap, in the same words as /lane/key
   const hold = laneHold(cfg, Date.now());
-  if (hold && budget.free <= hold) return say("lane_used_up", { ...credits, held_for_judges: hold, held_until: new Date(cfg.reserveUntilMs).toISOString(), message: laneHoldMessage(cfg) });
+  if (hold && budget.free <= hold) return say("lane_used_up", { ...credits, held_for_judges: hold, held_until: new Date(cfg.reserveUntilMs).toISOString(), message: laneHoldMessage(cfg), replay: LANE_REPLAY });
+  // the lane account short of NEAR for gas: /lane/key refuses new keys then, so this says it before the tap
+  if (await app.lane.lowOnGas?.()) return say("lane_unavailable", { ...credits, low_gas: true, message: LANE_LOW_GAS_MESSAGE, replay: LANE_REPLAY });
   const [byIp, today] = await Promise.all([
     p.state.peek("lane", ip, cfg.perIpPerDay).catch(() => ({ remaining: cfg.perIpPerDay, retryAfterS: 0 })),
     p.state.peek("lane-global", "all", cfg.perDay).catch(() => ({ remaining: cfg.perDay, retryAfterS: 0 })),

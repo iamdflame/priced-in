@@ -19,6 +19,9 @@
 //   receipts: a past challenge with no receipt check yet, whose evidence our corpus can check
 //     with no fetch (the Checker's), gets one, so every ruling on /api/rulings says what it rested on
 //   9. the health check: a trade, a rewrite or an agent's answer in the last day, else it fails
+//  10. the operating signals for GET /health (api/_lib/ops.mjs), each a check with an ok flag the
+//      watchdog emails on: ai (calls and refusals today), jury_keys (each jury model's attested key
+//      against the market's, once a day and an hour before each sitting), news, checker, lane
 // The Sentinel (GET /api/sentinel) runs every minute on its own: a 10-minute window can't wait for this.
 // Model calls stop at the daily NEAR AI cap (NEARAI_DAILY_CAP_USD, $1), enforced in code.
 
@@ -32,6 +35,9 @@ import { checkReceipts, FAILED, unsettled } from "../services/ai/src/receipts.js
 import { Rpc } from "../services/api/src/rpc.mjs";
 import { labelSentences, PRICEABLE } from "../services/api/src/planner.mjs";
 import { cronSweep } from "./_lib/pages-routes.mjs";
+import { aiEntry, chainSignals, juryKeysRound, juryKeysEntry, JURY_KEYS_DOC } from "./_lib/ops.mjs";
+import { linesStore, newsConfig, readCapacity } from "./_lib/news.mjs";
+import { NearAI, Attestor } from "../services/ai/src/nearai.js";
 
 const RUN_MS = 285_000; // Vercel stops this function at 300 s
 const CORRECTIONS = "keeper/corrections.json";
@@ -63,6 +69,56 @@ function newestOutcome(p) {
   return { trade, rewrite, answer };
 }
 
+/**
+ * The chain-side operating signals and the jury-key round (api/_lib/ops.mjs), started at once and
+ * collected at the end of the run. done(ms) never throws: whatever has not answered by then is the
+ * last stored jury-key check, and a plain "not read in this run" for the rest.
+ */
+function startSignals(p) {
+  const rpc = new Rpc(p.api.rpcUrls, { timeoutMs: 8000 });
+  const view = (method, args = {}) => rpc.viewFunction(p.api.marketId, method, args, { finality: "final" });
+  const news = newsConfig();
+  const chain = chainSignals({
+    view,
+    account: (id) => rpc.viewAccount(id, "final"),
+    capacity: () => readCapacity(rpc, p.api.marketId),
+    lines: () => linesStore(p.state).read(),
+    news: { enabled: news.enabled, floorMicro: news.floorMicro },
+    checkerId: p.operatorAccounts?.checker ?? null,
+    laneId: p.api.lane.accountId,
+    laneMinNear: p.api.lane.minBalanceNear,
+    nowMs: Date.now(),
+  }).catch((e) => ({ error: `the chain reads failed: ${e.message}` }));
+  // the attested key of each jury model, through the same Attestor the jury uses (a fresh nonce, the
+  // Intel quote, the GPU token, the key binding), against get_model on the market; no bundle is written
+  const attestor = new Attestor({ client: new NearAI({ apiKey: p.ai.nearai.apiKey, baseUrl: p.ai.nearai.baseUrl }), requireGpu: p.ai.requireGpu, dir: null, log });
+  const keys = p.api.marketId ? juryKeysRound({
+    state: p.state,
+    models: p.ai.jury.models,
+    attest: (model) => attestor.preflight(model),
+    registered: (model) => view("get_model", { model }),
+    sitting: sittingConfig(),
+    log,
+  }).catch(async (e) => {
+    log(`cron: jury keys: ${e.message}`);
+    return juryKeysEntry((await p.state.getDoc(JURY_KEYS_DOC).catch(() => null))?.value ?? null, Date.now());
+  }) : Promise.resolve(null);
+  const late = (what) => ({ note: `${what} did not answer in this run` });
+  return {
+    async done(ms) {
+      const timeout = new Promise((r) => setTimeout(() => r("late"), ms));
+      const [c, k] = await Promise.all([Promise.race([chain, timeout]), Promise.race([keys, timeout])]);
+      const stored = k === "late" ? juryKeysEntry((await p.state.getDoc(JURY_KEYS_DOC).catch(() => null))?.value ?? null, Date.now()) : k;
+      return {
+        jury_keys: stored,
+        news: c === "late" ? late("The news reads") : c.news ?? late("The news reads"),
+        checker: c === "late" ? late("The Checker's balance") : c.checker ?? late("The Checker's balance"),
+        lane: c === "late" ? late("The lane's reads") : c.lane ?? late("The lane's reads"),
+      };
+    },
+  };
+}
+
 export default async function handler(req, res) {
   const secret = process.env.CRON_SECRET;
   if (!secret || req.headers.authorization !== `Bearer ${secret}`) return sendJson(res, 401, { error: { code: "unauthorized", message: "The cron is Vercel's to call." } });
@@ -70,6 +126,8 @@ export default async function handler(req, res) {
   const t0 = Date.now();
   const failures = [];
   const remaining = () => t0 + RUN_MS - Date.now();
+  // 10. the operating signals' reads start now, alongside everything else: they wait on no lock
+  const signals = startSignals(p);
 
   // the market's transactions, before anything reads them
   let index = null;
@@ -240,7 +298,10 @@ export default async function handler(req, res) {
   if (Date.now() - newest > 24 * 3600_000) failures.push(`outcomes: no trade, rewrite or agent answer in the last 24 h (newest ${newest ? new Date(newest).toISOString() : "never"})`);
   const busyOnly = failures.length > 0 && failures.every((f) => /lock was held/.test(f));
   const claimsNow = await p.claims.decorated().then((x) => x.claims).catch(() => []);
-  const record = { at: new Date().toISOString(), ok: failures.length === 0 || busyOnly, failures, ms: Date.now() - t0, index, keeper: keeper.round ?? keeper, receipts, writer, agents, coverage: coverage(p, claimsNow), last: Object.fromEntries(Object.entries(last).map(([k, v]) => [k, v ? new Date(v).toISOString() : null])), spend: p.spend.status() };
+  // 10. never a failure of this run: each is a check of its own on /health, with its own ok
+  await p.spend.settle().catch(() => {});
+  const sig = await signals.done(Math.max(3_000, remaining() - 4_000));
+  const record = { at: new Date().toISOString(), ok: failures.length === 0 || busyOnly, failures, ms: Date.now() - t0, index, keeper: keeper.round ?? keeper, receipts, writer, agents, coverage: coverage(p, claimsNow), last: Object.fromEntries(Object.entries(last).map(([k, v]) => [k, v ? new Date(v).toISOString() : null])), spend: p.spend.status(), signals: { ai: aiEntry(p.spend.callsToday()), ...sig } };
   const cur = await p.state.getDoc("snapshots/health.json").catch(() => null);
   await p.state.putDoc("snapshots/health.json", record, { etag: cur?.etag ?? null }).catch((e) => log(`cron: health record: ${e.message}`));
   if (!record.ok) console.error(`cron: FAIL ${failures.join(" | ")}`);

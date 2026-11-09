@@ -1160,7 +1160,16 @@ test("GET /lane/status says before the tap whether this visitor can still get a 
     assert.deepEqual([ipCap.body.available, ipCap.body.reason, ipCap.body.retry_after_s], [false, "rate_limited", 99]);
     assert.match(ipCap.body.message, /used its 10 free bets/);
     assert.equal((await laneStatusRoute(url(), req, ctx(), p({ "peek:lane-global:all": 100 }))).body.reason, "lane_daily_cap");
-    assert.equal((await laneStatusRoute(url(), req, ctx({ paused: false, credits: 0, free: 0 }), p())).body.reason, "lane_used_up");
+    const usedUp = await laneStatusRoute(url(), req, ctx({ paused: false, credits: 0, free: 0 }), p());
+    assert.deepEqual([usedUp.body.reason, usedUp.body.replay], ["lane_used_up", "/c/18?recorded=1"]);
+    assert.match(usedUp.body.message, /used up for now\. Watch a real bet play out, from the tap to the jury's ruling, at isitpriced\.com\/c\/18\?recorded=1\./, "the used-up words offer the recorded run");
+    // the lane account short of NEAR for gas: said before the tap, in the words /lane/key refuses with
+    const lowGas = { paused: false, credits: 5, free: 5 };
+    const gasCtx = (low) => { const c = ctx(lowGas); c.app.lane.lowOnGas = async () => low; return c; };
+    const gas = await laneStatusRoute(url(), req, gasCtx(true), p());
+    assert.deepEqual([gas.body.available, gas.body.reason, gas.body.low_gas], [false, "lane_unavailable", true]);
+    assert.match(gas.body.message, /topped up with NEAR for gas/);
+    assert.equal((await laneStatusRoute(url(), req, gasCtx(false), p())).body.reason, "ok");
     assert.equal((await laneStatusRoute(url(), req, ctx({ paused: true, credits: 5, free: 5 }), p())).body.reason, "market_paused");
     assert.equal((await laneStatusRoute(url(), req, ctx(undefined, false), p())).body.reason, "lane_unavailable");
     assert.equal((await laneStatusRoute(url(), req, ctx("down"), p())).status, 502);
