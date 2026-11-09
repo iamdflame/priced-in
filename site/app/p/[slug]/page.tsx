@@ -8,6 +8,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Icon } from "@/components/Icon";
 import { ErrorState } from "@/components/States";
+import { Corrections } from "@/components/pages/Corrections";
 import { HeatArticle } from "@/components/pages/HeatArticle";
 import { OfficialArticle } from "@/components/pages/OfficialArticle";
 import { plural } from "@/lib/format";
@@ -32,7 +33,7 @@ export default async function ArticlePage({ params }: Params) {
   if (!ARTICLES.some((a) => a.slug === slug)) notFound();
   const [site, official] = await Promise.all([getSite(), getOfficialPage(slug)]);
   if (!site.ok) return <main id="main" className="wrap pg"><ErrorState message={site.error ?? "The prices didn’t load."} /></main>;
-  if (official) return <main id="main" className="wrap pg"><OfficialArticle page={official} facts={site.facts.filter((f) => f.page === slug)} /></main>;
+  if (official) return <main id="main" className="wrap pg"><OfficialArticle page={official} facts={site.facts.filter((f) => f.page === slug)} lead={<Corrections items={official.corrections} />} /></main>;
   const article = await articleOf(slug, site.facts, site.rulings?.rulings ?? []);
   if (!article) notFound();
   const facts = site.facts.filter((f) => f.page === slug);

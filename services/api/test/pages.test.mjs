@@ -358,7 +358,75 @@ test("the totals: what the page says at the top, and the source and licence on e
   assert.deepEqual(s.totals, { paragraphs: 3, written_by_ai: 1, sentences: 9, facts_priced: 3, facts_decided: 1, facts_no_bets: 1, rewrites: 1, signed: 1, anchored: 1, last_changed: NOW - 3 * H, models: ["z-ai/glm-5.3-flash"] });
   assert.deepEqual(s.source, { url: ARTICLE.url, attribution: ARTICLE.attribution, licence: "CC BY-SA 4.0", revised_at: ARTICLE.revisedAt });
   assert.deepEqual(pageSummary(s), { slug: "acme", title: ARTICLE.title, ...s.totals, url: "/p/acme" });
-  assert.deepEqual(Object.keys(s), ["slug", "title", "source", "totals", "paragraphs", "asOf"]);
+  assert.deepEqual(Object.keys(s), ["slug", "title", "source", "totals", "corrections", "paragraphs", "asOf"]);
+});
+
+// the Tether page as it stood on 9 November: the T-Bills line (7 bets) and another line (2 bets) ruled false and
+// replaced by their corrections, a third ruled false with only the model's sourced wording, a fourth ruled true
+const FIXED = "The majority of Tether's reserves held in cash and cash equivalents are U.S. T-Bills, which Tether's attestation report, checked on 5 November 2026, puts at $122.84 billion at 30 September 2026.";
+function ruledPage() {
+  const article = { ...ARTICLE, sentences: [{ section: "(lead)", text: STALE, opinion: false }, ...SENTENCES.slice(1)] };
+  const claims = [
+    claim(6, line(1), { status: "Settled", outcome: false, challenge_id: 1, trades: 2 }),
+    claim(18, STALE, { status: "Settled", outcome: false, challenge_id: 0, trades: 7 }),
+    claim(3, line(3), { status: "Settled", outcome: false, challenge_id: 2, trades: 0 }),
+    claim(7, line(7), { status: "Settled", outcome: true, challenge_id: 4, trades: 1 }),
+    claim(32, FIXED, { trades: 1, price_yes_ppm: 466935 }),
+    claim(33, "The corrected line one.", { trades: 2, price_yes_ppm: 509307 }),
+  ];
+  const links = [
+    { old_claim_id: 18, new_claim_id: 32, challenge_id: 0, text: FIXED, rewrite_id: "acme:0:v3" },
+    { old_claim_id: 6, new_claim_id: 33, challenge_id: 1, text: "The corrected line one.", rewrite_id: "acme:0:v2" },
+  ];
+  const records = [
+    rec("acme:0:v3", [[18, "correct", FIXED, 0.116287]], { page_writer: undefined, trigger: { kind: "trade" }, anchor: { status: "anchored", tx_hash: "BRsksf" } }),
+    rec("acme:0:v2", [[6, "correct", "The corrected line one.", 0]], { page_writer: undefined, trigger: { kind: "ruling" }, status: "unsigned", provenance: { kind: "model", status: "unsigned", verified: false, model: "z-ai/glm-5.3-flash" }, anchor: null }),
+    rec("acme:0:v4", [[3, "correct", "Line three, as the source has it."]]),
+  ];
+  const rulings = [
+    settled({ claim_id: 18, challenge_id: 0, settled_at: NOW - 9 * H, settle_tx: "3KbCTq", payout_usd: 4.9301 }),
+    settled({ claim_id: 6, challenge_id: 1, settled_at: NOW - 8 * H, settle_tx: "26axL9", payout_usd: 0.938864 }),
+    settled({ claim_id: 3, challenge_id: 2, settled_at: NOW - 7 * H, settle_tx: "Tx3", payout_usd: 0 }),
+    settled({ claim_id: 7, challenge_id: 4, outcome: "TRUE", settled_at: NOW - 6 * H, payout_usd: 1.2 }),
+  ];
+  const history = new Map([
+    [18, [[NOW - 20 * H, 500000], [NOW - 12 * H, 116287], [NOW - 10 * H, 99804], [NOW - 9 * H, 0]]],
+    [6, [[NOW - 20 * H, 600000], [NOW - 15 * H, 439786], [NOW - 8 * H, 0]]],
+  ]);
+  return pageState({ article, claims, records, links, rulings, history, nowMs: NOW });
+}
+
+test("the totals: every line ruled on the page is decided, a line its correction replaced included", () => {
+  const s = ruledPage();
+  assert.equal(s.totals.facts_decided, 4, "18 and 6 (replaced by 32 and 33), 3 (ruled false) and 7 (ruled true)");
+  assert.equal(s.totals.facts_priced, 4, "the claims that speak on the page now: 32, 33, 3 and 7");
+  assert.equal(pageSummary(s).facts_decided, 4, "the index says the same");
+  assert.equal(state([claim(1, line(1))]).totals.facts_decided, 0);
+});
+
+test("the corrections: one per line ruled false, the most bet first, from the rulings, the index, the rewrites and the corpus", () => {
+  const s = ruledPage();
+  assert.deepEqual(s.corrections.map((c) => c.claim_id), [18, 6, 3], "by bets; a line ruled true is no correction");
+  assert.deepEqual(s.corrections[0], {
+    claim_id: 18, wikipedia: STALE, text: STALE, outcome: "false", by: "three AI judges", trades: 7,
+    corrected: { text: FIXED, claim_id: 32, url: "/c/32" },
+    source: { name: "Tether's attestation report", url: s.corrections[0].source.url, figure: "$122.84 billion at 30 September 2026", on_page: "$72.6 billion in U.S. T-Bills, stated without a date", checked_on: "2026-11-05" },
+    price_before: 0.099804, price_written: 0.116287,
+    challenge_id: 0, decided_at: NOW - 9 * H, tx: "3KbCTq", explorer: "https://nearblocks.io/txns/3KbCTq", url: "/c/18",
+    payout: { usd: 4.9301, side: "no" },
+    rewrite: { id: "acme:0:v3", model: "z-ai/glm-5.3-flash", signed: true, tx: "BRsksf", explorer: "https://nearblocks.io/txns/BRsksf" },
+  });
+  assert.match(s.corrections[0].source.url, /^https:\/\/assets\.ctfassets\.net\//);
+  const [, six, three] = s.corrections;
+  assert.equal(six.source, null, "no corpus record and no verified receipt: no source");
+  assert.deepEqual([six.price_before, six.price_written, six.payout.usd], [0.439786, 0, 0.938864]);
+  assert.deepEqual(six.rewrite, { id: "acme:0:v2", model: "z-ai/glm-5.3-flash", signed: false, tx: null, explorer: null }, "an unsigned rewrite says so");
+  assert.deepEqual(three.corrected, { text: "Line three, as the source has it.", claim_id: null, url: null }, "the model's sourced wording, with no market of its own");
+  assert.deepEqual([three.price_before, three.payout, three.rewrite.id], [null, { usd: 0, side: "no" }, "acme:0:v4"], "no history: null; nobody on the winning side: $0");
+  // a ruling the index hasn't settled yet: the line still counts, and every field it can't fill is null
+  const bare = state([claim(1, line(1), { status: "Settled", outcome: false, challenge_id: 9 })]);
+  assert.deepEqual([bare.totals.facts_decided, bare.corrections[0].corrected, bare.corrections[0].payout, bare.corrections[0].rewrite, bare.corrections[0].tx, bare.corrections[0].challenge_id], [1, null, null, null, null, 9]);
+  assert.deepEqual(state([claim(1, line(1))]).corrections, []);
 });
 
 // ---------- the record ----------
@@ -405,7 +473,7 @@ test("GET /pages/<slug>: the page's shape, cached by the CDN, and a plain 404", 
     const p = world(mock, { claims, files });
     const r = await pagesRoute("/pages/tether", p);
     assert.equal(r.status, 200);
-    assert.deepEqual(Object.keys(r.body), ["slug", "title", "source", "totals", "paragraphs", "asOf"]);
+    assert.deepEqual(Object.keys(r.body), ["slug", "title", "source", "totals", "corrections", "paragraphs", "asOf"]);
     assert.equal(r.body.asOf, 5000);
     assert.equal(r.body.totals.signed, 1, "the journal's latest record of a rewrite");
     assert.equal(r.body.paragraphs[0].sentences[1].text, "Written.");
@@ -415,6 +483,26 @@ test("GET /pages/<slug>: the page's shape, cached by the CDN, and a plain 404", 
     assert.equal(no.status, 404);
     assert.equal(no.body.error.code, "no_such_page");
     assert.equal((await pagesRoute("/pages/..%2Fsecrets", p)).status, 404);
+  } finally { await mock.close(); }
+});
+
+test("GET /pages/<slug>: a ruled line's price before the ruling and its payout come from the indexed events", async () => {
+  const mock = await startMockRpc({ blockMs: 100000 });
+  try {
+    let n = 0;
+    const ev = (event, data, t) => ({ uid: `r${++n}:0:0`, event, data, txHash: `tx${n}`, blockHeight: t, blockTimestampMs: t });
+    const claims = [claim(0, TETHER, { page: "tether", status: "Settled", outcome: false, challenge_id: 0, trades: 2 })];
+    const events = [
+      ev("open", { claim_id: 0, p0_ppm: 600000 }, 1000),
+      ev("trade", { claim_id: 0, price_yes_ppm: 420000 }, 2000),
+      ev("trade", { claim_id: 0, price_yes_ppm: 310000 }, 3000),
+      ev("challenge", { challenge_id: 0, claim_id: 0, claimed: false, trader: "checker.x.near", amount_micro: "1000000", jury_deadline_ns: String(BigInt(9000) * 1_000_000n) }, 4000),
+      ev("settle", { claim_id: 0, challenge_id: 0, outcome: false, payout_micro: "4930100", treasury_micro: "1" }, 5000),
+    ];
+    const r = await pagesRoute("/pages/tether", world(mock, { claims, events }));
+    assert.equal(r.body.totals.facts_decided, 1);
+    const [c] = r.body.corrections;
+    assert.deepEqual([c.claim_id, c.price_before, c.payout, c.challenge_id, c.tx, c.decided_at], [0, 0.31, { usd: 4.9301, side: "no" }, 0, "tx5", 5000]);
   } finally { await mock.close(); }
 });
 

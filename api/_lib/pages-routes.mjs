@@ -12,6 +12,7 @@ import { articleIndex, evidenceFrom, latestRecords, livePages, pageState, pageSu
 import { readRulings } from "./rulings.mjs";
 import { readLedger } from "./sentinel.mjs";
 import { cachedLines, newsConfig } from "./news.mjs";
+import { priceHistory } from "./views.mjs";
 
 export const SWEEP_DOC = "snapshots/pages-sweep.json";
 export const PAGES_CACHE = "public, max-age=0, s-maxage=10, stale-while-revalidate=60";
@@ -19,12 +20,13 @@ const PAGE = /^\/(?:v1\/)?pages(?:\/([^/]+))?$/;
 const RECORD = /^\/(?:v1\/)?record$/;
 export const isPagesRoute = (route) => PAGE.test(route) || RECORD.test(route);
 
-/** Claims, corrections, rewrites and rulings: everything a page is made of. */
+/** Claims, corrections, rewrites, rulings and prices: everything a page is made of. */
 async function facts(p) {
   const snap = await p.claims.decorated();
   const ledger = await readLedger(p.state).catch(() => null);
   const rulings = await readRulings(p, snap.claims, { ledger });
-  return { claims: snap.claims, asOf: snap.at, rulings, links: p.journals.readCached("links.jsonl"), records: latestRecords(p.journals.readCached("rewrites.jsonl")) };
+  const history = priceHistory(p.journals.readCached("events.jsonl"), snap.claims, { at: snap.at });
+  return { claims: snap.claims, asOf: snap.at, rulings, history, links: p.journals.readCached("links.jsonl"), records: latestRecords(p.journals.readCached("rewrites.jsonl")) };
 }
 
 async function record(p, f) {

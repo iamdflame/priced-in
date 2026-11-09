@@ -9,7 +9,8 @@
 //                than the one it was written in, stalest first, up to WRITER_SWEEP_PER_RUN, and only
 //                while today's model spend is under WRITER_SWEEP_SHARE of the cap
 //   the page     /api/pages/<slug>: per paragraph Wikipedia's words, the market's words, each sentence's
-//                claim, price, band and outcome, and the proof of the rewrite
+//                claim, price, band and outcome, and the proof of the rewrite; first, each line ruled false
+//                there (`corrections`), the most bet first
 //   the record   /api/record: each decided news line, as ruled, with its sources
 //
 // What a sentence says on the page, in order:
@@ -364,21 +365,74 @@ function sentenceOf(slot, ctx, added) {
 
 const joined = (list) => list.join(" ");
 
+/** The market's price just before a ruling: the last point of its history before the settlement, 0 to 1. */
+export function priceBefore(points, settledAt) {
+  if (!Array.isArray(points) || !points.length) return null;
+  // with no settlement time the last point is the settlement itself (0 or 1)
+  const before = Number.isFinite(settledAt) ? points.filter(([t]) => t < settledAt) : points.slice(0, -1);
+  const last = before.at(-1);
+  return last ? last[1] / 1e6 : null;
+}
+
+/** The side a ruling paid, as the bet buttons name it. */
+const WINNER = (c) => (c.outcome === true ? "yes" : c.outcome === false ? "no" : null);
+
+/**
+ * A line ruled false, for the top of its page: Wikipedia's sentence, what replaced it, the source, the price
+ * before the ruling, the payout and the signed rewrite. Only what the rulings, the index, the rewrites and the
+ * corpus hold; null where they hold nothing.
+ */
+function correctionOf(x, slot, added, ctx) {
+  const { evidenceOf, words, recordsById, linkOf, rulingOf, history, byId, network } = ctx;
+  const r = rulingOf(x);
+  const l = linkOf(x.id);
+  // what replaced it: the correction that opened as a market, else the model's sourced correction on the page
+  const w = !l && slot.claim?.id === x.id ? words.get(x.id) : null;
+  const model = w && w.sentence.band === "correct" ? w : null;
+  const corrected = l ? { text: l.text ?? byId.get(l.new_claim_id)?.text ?? null, claim_id: l.new_claim_id ?? null, url: Number.isInteger(l.new_claim_id) ? `/c/${l.new_claim_id}` : null }
+    : model ? { text: model.sentence.text, claim_id: null, url: null } : null;
+  const rec = l ? recordsById.get(l.rewrite_id) ?? null : model?.rec ?? null;
+  const ev = evidenceOf(x);
+  const written = rec?.sentences?.find((s) => s.claim_id === x.id);
+  const view = rulingView(r, x, network);
+  return {
+    claim_id: x.id, wikipedia: added ? null : slot.text, text: x.text, outcome: OUTCOME(x), by: view.by, trades: x.trades ?? 0,
+    corrected,
+    source: ev ? { name: ev.source_name ?? null, url: ev.source_url ?? null, figure: ev.value_today ?? null, on_page: ev.value_on_page ?? null, checked_on: ev.checked_on ?? null } : null,
+    price_before: priceBefore(history.get(x.id), r?.settled_at ?? null),
+    price_written: Number.isFinite(written?.probability) ? written.probability : null,
+    challenge_id: view.challenge_id, decided_at: view.decided_at, tx: view.tx, explorer: view.explorer, url: view.url,
+    payout: r && Number.isFinite(r.payout_usd) ? { usd: r.payout_usd, side: WINNER(x) } : null,
+    rewrite: rec ? { id: rec.id, model: rec.provenance?.model ?? null, signed: rec.status === "signed" && rec.provenance?.verified === true, tx: rec.anchor?.tx_hash ?? null, explorer: rec.anchor?.tx_hash ? `${EXPLORER(network)}${rec.anchor.tx_hash}` : null } : null,
+  };
+}
+
 /**
  * A page's current state.
- * @param {{ article: object, claims: object[], records: object[], links?: object[], rulings?: object[], network?: string, nowMs?: number }} a
+ * @param {{ article: object, claims: object[], records: object[], links?: object[], rulings?: object[], history?: Map<number, number[][]>, network?: string, nowMs?: number }} a
+ *   `history` as priceHistory (views.mjs) gives it: claim id to its [t_ms, price_yes_ppm] points
  */
-export function pageState({ article, claims, records, links = [], rulings = [], network = "mainnet", nowMs = Date.now() }) {
+export function pageState({ article, claims, records, links = [], rulings = [], history = new Map(), network = "mainnet", nowMs = Date.now() }) {
   const evidenceOf = evidenceFrom(rulings);
   const { words } = recordsByClaim(records);
   const recordsById = new Map(records.map((r) => [r.id, r]));
   const link = new Map(links.map((l) => [l.old_claim_id, l]));
   const settled = new Map();
   for (const r of rulings) if (r.status === "settled") settled.set(r.claim_id, r);
-  const ctx = { evidenceOf, words, recordsById, linkOf: (id) => link.get(id) ?? null, rulingOf: (c) => settled.get(c.id) ?? null, network };
+  const byId = new Map(claims.map((c) => [c.id, c]));
+  const ctx = { evidenceOf, words, recordsById, linkOf: (id) => link.get(id) ?? null, rulingOf: (c) => settled.get(c.id) ?? null, history, byId, network };
   let aiParagraphs = 0, last = 0;
   const seenRec = new Set(), facts = new Set(), decided = new Set(), unbet = new Set();
+  const corrections = [];
   const paragraphs = layoutOf(article, claims, links).map((p) => {
+    for (const slot of p.slots) {
+      // every line ruled here is decided, a line whose sentence its correction now speaks for included
+      for (const x of [...slot.ruled, ...(slot.claim ? [slot.claim] : [])]) {
+        if (x.status !== "Settled" || OUTCOME(x) === null) continue;
+        decided.add(x.id);
+        if (x.outcome === false) corrections.push(correctionOf(x, slot, p.added, ctx));
+      }
+    }
     const sentences = p.slots.map((s) => sentenceOf(s, ctx, p.added));
     const wikipedia = p.added ? null : joined(p.slots.map((s) => s.text));
     const market = joined(sentences.map((s) => s.text));
@@ -390,8 +444,7 @@ export function pageState({ article, claims, records, links = [], rulings = [], 
     for (const s of sentences) {
       if (!s.claim) continue;
       facts.add(s.claim.id);
-      if (s.claim.status === "decided") decided.add(s.claim.id);
-      else if (!s.claim.trades) unbet.add(s.claim.id);
+      if (s.claim.status !== "decided" && !s.claim.trades) unbet.add(s.claim.id);
       for (const x of [s.decided, ...(s.ruled ?? [])]) if (x?.decided_at) last = Math.max(last, x.decided_at);
     }
     return {
@@ -411,6 +464,8 @@ export function pageState({ article, claims, records, links = [], rulings = [], 
       rewrites: used.length, signed: used.filter((r) => r.status === "signed").length, anchored: used.filter((r) => r.anchor?.status === "anchored").length,
       last_changed: last || null, models,
     },
+    // the most bet first: the ruling that moved the most money leads the page
+    corrections: corrections.sort((a, b) => b.trades - a.trades || a.claim_id - b.claim_id),
     paragraphs, asOf: nowMs,
   };
 }
