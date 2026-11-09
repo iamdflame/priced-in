@@ -8,10 +8,12 @@
 //   contracts/market/src/lib.rs                         (a workspace file)
 // So every OS remaps each of those source files, one by one, to its recorded string: the local file
 // <CARGO_HOME>/registry/src/<index dir>/near-sdk-5.30.1/src/environment/env.rs becomes
-// /crates/near-sdk-5.30.1\src\environment\env.rs on Linux and macOS too. Nothing else in the build
-// depends on the machine: cargo's -C metadata hashes workspace paths relative to the workspace and
-// ignore RUSTFLAGS, and are the same for the gnu and msvc Windows hosts (tested). CI rebuilds on
-// clean Linux, macOS and Windows runners (.github/workflows/repro.yml).
+// /crates/near-sdk-5.30.1\src\environment\env.rs on Linux and macOS too.
+//
+// The other thing that depends on the machine is cargo's -C metadata (see "the recorded -C metadata"
+// below): a RUSTC_WRAPPER sets the deployed build's values. Not machine-dependent (tested): the
+// workspace and CARGO_HOME locations and RUSTFLAGS. CI rebuilds the deployed hashes on clean Linux,
+// macOS and Windows runners (.github/workflows/repro.yml, run 42542226417).
 //
 // The toolchain is pinned: rustc 1.99.1 with the wasm32-unknown-unknown target. The committed
 // contracts/swarm/res/agent.wasm is embedded in the swarm as it is; the agent wallet is rebuilt
@@ -30,8 +32,8 @@ export const REPO = path.resolve(here, "../../..");
 const PATHS_FILE = path.join(here, "../repro-paths.json");
 const BASE_FLAGS = ["--cfg", "near", "-C", "target-cpu=mvp", "-C", "link-arg=-s"];
 const B58 = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
-/** The evidence that the build reproduces on other machines. */
-export const CI_EVIDENCE = "https://github.com/iamdflame/priced-in/actions/workflows/repro.yml";
+/** The evidence that the build reproduces on other machines: the deployed hashes rebuilt on clean ubuntu, macos and windows runners. */
+export const CI_EVIDENCE = "https://github.com/iamdflame/priced-in/actions/runs/42542226417";
 
 export function base58(buf) {
   let n = BigInt("0x" + (Buffer.from(buf).toString("hex") || "0"));
@@ -159,6 +161,7 @@ const lastLines = (s) => s.split("\n").filter(Boolean).slice(-3).join(" | ");
 // a std-only RUSTC_WRAPPER, sets each wasm crate's -C metadata to the value recorded from that build.
 
 const WRAPPER_DIR = path.join(here, "../repro-wrapper");
+const HOST_TROUBLE = /linker `[^`]+` not found|error: linking with|link\.exe|No space left|Permission denied|Access is denied|failed to run custom build command/;
 const readRecord = () => (fs.existsSync(PATHS_FILE) ? JSON.parse(fs.readFileSync(PATHS_FILE, "utf8")) : {});
 function saveRecord(rec) {
   const out = { note: PATHS_NOTE, recorded_host: rec.recorded_host, paths: [...(rec.paths || [])].sort(), metadata_note: META_NOTE, metadata: rec.metadata || {} };
@@ -214,7 +217,8 @@ export async function reproBuild({ targetDir = path.join(REPO, "target", "judge-
     const benv = { ...env, CARGO_ENCODED_RUSTFLAGS: flags.join("\x1f"), RUSTC_WRAPPER: wrapper.exe, PRICEDIN_REPRO_MISSES: missFile, ...(record ? { PRICEDIN_REPRO_RECORD: recFile } : { PRICEDIN_REPRO_METADATA: metaFile }) };
     for (const [pkg] of pkgs) {
       const r = await spawnCargo(tc, ["build", "--locked", "-p", pkg, "--release", "--target", TARGET], benv, log);
-      if (!r.ok) return { ok: false, reason: `cargo build -p ${pkg} failed: ${lastLines(r.err)}` };
+      // a missing host linker or a full disk is this machine; a compile error is the source
+      if (!r.ok) return { ok: false, env: HOST_TROUBLE.test(r.err), reason: `cargo build -p ${pkg} failed: ${lastLines(r.err)}` };
     }
     fs.writeFileSync(stampFile, stamp);
     if (record) {

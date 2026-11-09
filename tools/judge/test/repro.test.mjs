@@ -88,7 +88,7 @@ test("check 3 SKIPs, with the reason and the evidence, when the cause is the mac
   const dep = { accounts: { market: "m", swarm: "s" }, code: { market: { code_hash: "A" }, swarm: { code_hash: "B" } } };
   const skip = await checkRepro("", dep, null, { offline: true, build: Promise.resolve({ ok: false, env: true, reason: "the build carries source paths the recorded build doesn't" }) });
   assert.equal(skip.status, "SKIP");
-  assert.match(skip.detail, /actions\/workflows\/repro\.yml/);
+  assert.match(skip.detail, /actions\/runs\/42542226417/);
   const tc = await checkRepro("", dep, null, { offline: true, build: Promise.resolve({ ok: false, env: true, reason: "needs rustc 1.99.1", install: "rustup toolchain install 1.99.1 --target wasm32-unknown-unknown" }) });
   assert.equal(tc.status, "SKIP");
   assert.match(tc.see, /^rustup toolchain install/);
