@@ -1,7 +1,7 @@
 import React from 'react';
 import {AbsoluteFill, Img} from 'remotion';
 import {C, DUR, EASE, FONT, needleAngle} from '../brand/tokens';
-import {Lockup, PrimaryButton, Stage, lerp, prog, useT} from '../components/core';
+import {Lockup, Stage, lerp, prog, useT} from '../components/core';
 import {Odometer} from '../components/Dial';
 // The light theme's ceramic face, the site's own render (the video's public/brand/dial.webp is the graphite one).
 // @ts-ignore: webpack serves the file; there is no module declaration for images
@@ -310,7 +310,8 @@ export const AskIllia: React.FC<{pct?: number}> = ({pct = 66}) => {
             Illia, which is it?
           </div>
           <div style={{marginTop: 64, opacity: Math.min(1, e2 * 1.4), transform: `scale(${lerp(0.88, 1, e2)})`}}>
-            <PrimaryButton size={2.1}>isitpriced.com/c/29</PrimaryButton>
+            {/* light theme on white: the deep action cyan with a white label (design skill, cyan rules) */}
+            <span style={{display: 'inline-flex', alignItems: 'center', height: 112, padding: '0 60px', borderRadius: 999, background: 'linear-gradient(180deg, oklch(.56 .13 216), oklch(.51 .13 219))', color: 'oklch(1 0 0)', font: `600 42px ${FONT.disp}`, boxShadow: 'inset 0 1px 0 oklch(1 0 0/.25), 0 18px 36px -16px oklch(.53 .13 218/.45)', whiteSpace: 'nowrap'}}>isitpriced.com/c/29</span>
           </div>
           <div style={{position: 'absolute', bottom: 84, ...fade(e3, 12)}}>
             <Lockup height={64} />
