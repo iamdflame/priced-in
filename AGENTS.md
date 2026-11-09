@@ -8,8 +8,8 @@ Facts only. Every number below comes from a command run or a file read on 9 Nove
 ## Verify in about a minute
 
 ```
-npm ci                  # 27 s measured; Node 22.18 or later
-npm run judge:quick     # 25 to 28 s measured: 11 checks, no Rust, no unit suites, the hosted site included
+npm ci                  # 9 to 27 s measured; Node 22.18 or later
+npm run judge:quick     # 25 s to about 1 minute measured, by network: 11 checks, no Rust, no unit suites, the hosted site included
 ```
 
 Expected last line (measured, 9 November 2026):
@@ -26,7 +26,7 @@ Then everything:
 npm run judge:full      # npm ci, the site's npm ci, then all 11 checks against https://isitpriced.com, as JSON
 ```
 
-- Duration: 4m25s for the whole command on this machine, of which the judge took 2m58s and the two installs the rest. The judge alone (`npm run judge -- --site=https://isitpriced.com`) took 1m59s on a second run.
+- Duration: 4m25s for the whole command on this machine, of which the judge took 2m58s and the two installs the rest. The judge alone (`npm run judge`, which includes the site) took 1m59s on a second run.
 - Needs: network (testnet and mainnet RPC, the 1Click API, isitpriced.com, crates.io for the build) and, for check 3, rustc 1.99.1 with the `wasm32-unknown-unknown` target (`rustup toolchain install 1.99.1 --target wasm32-unknown-unknown`). Without Rust, check 3 says SKIP with the fix; nothing else needs it.
 - Expected: 11 PASS, 0 FAIL, 0 SKIP. Measured on Windows: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` (the judge alone). The first `judge:full` run hit a DNS failure on this machine (check 9 FAIL "fetch failed", check 10 SKIP "ENOTFOUND"); every other check passed, check 3 included, and the rerun passed all 11.
 - On a clean machine: GitHub Actions runs all 11 checks on Ubuntu with Node 22 for every push to main (`.github/workflows/judge.yml`, report on each run's summary page and as the `judge-report` artifact). Measured 9 November 2026: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 101.5 s` ([run 42652794818](https://github.com/iamdflame/priced-in/actions/runs/42652794818)).
@@ -61,7 +61,7 @@ The open swarm (`contracts/swarm`) is testnet only. Check 11 on 9 November: 8 of
 | 8 rulings settled on mainnet, winners paid | https://isitpriced.com/api/rulings (`count`, `status`, `payout_usd`, `challenger_result`) | 4 of 8 paid bettors, $6.98 in all (first settlement `3KbCTq6sRK8RtSvhwTzbAmGGiUveqasWCfSGTuTk8K1v`, $4.93 to No); in the other 4 nobody held the winning side, so `payout_usd` is 0. The Checker won its $1 bond back all 8 times | 11 |
 | Three TEE-signed verdicts per ruling, checked by the contract | `npm run judge:quick` | `tools/judge/evidence/mainnet-rulings.json` (24 verdicts); e.g. `6HWB2Esndp73tCtrzvCD99kfBEwnrmR6YTdtfUZUa2dz`; `tools/judge/evidence/attestations/` | 11, 10 |
 | Pages rewritten from the odds, signed in a TEE, anchored on NEAR | https://isitpriced.com/api/pages/tether (`totals`: 16 signed, 16 anchored) | `tools/judge/evidence/rewrite-mainnet.json`, anchor `ALdDyEDxHKFpTGG5koipfV8JsizymsirejGzHkA5FVAQ` | 11 (mainnet), 5 (testnet) |
-| The Tether T-Bills line ($72.6 billion) ruled FALSE, corrected to $122.84 billion | https://isitpriced.com/p/tether, `corrections[0]` in its API | corrected line opened as claim 32: `8dZz4DmaMGYk3PtriToVePCfxp7as63ZohYB7U6A8eyW` | 11 (challenge 0) |
+| The Tether T-Bills line ($72.6 billion) ruled FALSE, corrected to $122.84 billion | https://isitpriced.com/p/tether, `corrections[0]` in its API. On chain the corrected line is its own claim, opened by `open_claim`; the link from the ruling to it is kept by the API (`correction.claim_id` in /api/rulings) | corrected line opened as claim 32: `8dZz4DmaMGYk3PtriToVePCfxp7as63ZohYB7U6A8eyW` | 11 (challenge 0) |
 | Anyone can object within 10 minutes | `get_resolution` on `market.isitpriced.near` (`dispute_tiers` [50000000, 600]); `dispute` in `contracts/market/src/lib.rs` | no objection yet on mainnet (`disputes: []` on all 8); the flip, window and council path runs in the testnet lifecycle test | 11 reads disputes into each outcome; 2 (bond split) |
 | Your first $1 is free, no wallet | https://isitpriced.com/api/lane/status | first free bet `8ZyUb7UFj2ZknBpKrYHcuy1vhEBgGXDYpLdkgk4Z7Nnw`; `lane.isitpriced.near` | none directly |
 | The contracts rebuild byte-identical | `node tools/judge/repro.mjs` (rustc 1.99.1) | CI runs 42542226417 and 42542566537 | 3 |
@@ -117,5 +117,7 @@ The judge holds no key, signs nothing and sends no transaction: it reads RPC vie
 | `npm run judge:test` | 30 of 30 pass, 1 s |
 | `npm run ai:unit` (inside check 8) | 213 of 213 pass |
 | `npm run test:lifecycle` (contract, testnet) | not rerun: needs `FUNDER_ID`/`FUNDER_KEY` (about 14 NEAR); 238 checks in its last recorded run (`docs/SPEC.md`) |
+
+`npm audit --omit=dev`: the root has 0 advisories; the site has 5 high, all inside the Meteor Wallet connector's tree (`@meteorwallet/sdk` with `query-string`, `decode-uri-component` and `nanoid`), denial-of-service bugs in input parsing and ID generation. npm's only fix is downgrading the connector to 9.3.0, a major version back, so the tested connector stays.
 
 Rules for agents: never set `CONFIRM_MAINNET=yes`, never read `.env` or `.apex-test/`. Docs: `README.md`, `VERIFY.md` (each step by hand), `docs/API.md`, `docs/ARCHITECTURE.md`.

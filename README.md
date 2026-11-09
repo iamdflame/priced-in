@@ -70,7 +70,7 @@ The free $1 is free play: a right answer adds to your score, and it can't be cas
 
 ## Can't I just ask an AI?
 
-Yes, and you should. It's how you win. We measured it, because it's the first question anyone asks (`deployments/ask-an-ai.json`, `deployments/ask-an-ai-web.json`).
+Yes, and you should. We measured it, because it's the first question anyone asks (`deployments/ask-an-ai.json`, `deployments/ask-an-ai-web.json`).
 
 | Asked on 2026-11-06 | The 10 caught sentences | 6 sentences we verified as true |
 |---|---|---|
@@ -88,7 +88,7 @@ The honest limit: when a fact is easy to check, the first checker takes the mone
 
 ```
 git clone https://github.com/iamdflame/priced-in && cd priced-in
-npm ci && npm run site:install    # 27 s and 59 s measured; Node 22.18 or later
+npm ci && npm run site:install    # 9 to 27 s and 38 to 59 s measured; Node 22.18 or later
 npm run judge                     # about 2 to 3 minutes; reads testnet and mainnet, sends nothing
 ```
 
@@ -97,13 +97,13 @@ Measured on 9 November 2026 (Windows 11, Node 24.19.0, commit f83eddc):
 | Command | Took | Printed |
 |---|---|---|
 | `npm run judge:quick` | 25 s | `11 checks: 9 PASS, 0 FAIL, 2 SKIP in 0m25s` (3 and 8 SKIP by design) |
-| `npm run judge -- --site=https://isitpriced.com` | 1m59s | `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` |
+| `npm run judge` | 1m59s to 2m13s | `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` |
 | `npm run judge:full` (both installs, then the judge as JSON) | 4m25s | `"pass":9,"fail":1,"skip":1`: a DNS failure on this machine failed check 9 and skipped check 10; the rerun above passed all 11 |
 
 Test counts from the same day: `npm run api:unit` 265 of 265 (52 s), `npm run site:test` 319 of 319 in 33 files (13 s), `npm run judge:test` 30 of 30 (1 s), `npm run ai:unit` 213 of 213 (inside check 8). The contract's lifecycle test on testnet, `npm run test:lifecycle`, was not rerun: it deploys fresh contracts and needs a funded testnet account (`FUNDER_ID`, `FUNDER_KEY`, about 14 NEAR). Its last recorded full run had 238 checks (`docs/SPEC.md`).
 
 - It prints one line per check: PASS, FAIL or SKIP, with the reason and a link or a command. Then it prints a summary, and exits 1 if any check fails.
-- `SITE_URL=https://isitpriced.com npm run judge` also checks the hosted site.
+- `npm run judge` includes the hosted site (check 9); `npm run judge -- --offline` needs no network, and the checks that read a chain or the site say SKIP.
 - `npm run judge -- --offline` needs no network: the checks that read a chain, 1Click or the hosted site say SKIP and why.
 - `npm run judge -- --json` gives machine-readable output.
 - `npm run judge:quick` skips the Rust rebuild and the unit suites (checks 3 and 8 say SKIP) and checks the hosted site: 25 seconds measured, check 11 included. `npm run judge:full` installs everything, then runs all 11 checks against the hosted site as JSON.
@@ -122,7 +122,7 @@ Each step below is one line of `npm run judge`, in the same order. VERIFY.md doe
 6. **Money can arrive from another chain: the route checked is USDC on Base.** You should see `PASS 6. 1Click dry quote, Base USDC -> NEAR USDC: $5.00 USDC on Base -> 4.99... USDC on NEAR ..., dry: true`. This is the mainnet 1Click API with `dry: true`: no key, no deposit address, no money moves. On 9 November it quoted 4.999415 USDC, and delivery straight to a NEAR account quoted too. Only this one route is checked. The site's deposit sheet lists 13 curated 1Click routes (`CURATED` in `site/lib/money/oneclick.ts`: USDC, USDT, ETH, SOL and BTC on Base, Ethereum, Arbitrum, Solana, Tron, Bitcoin and NEAR); the judge does not quote the other 12.
 7. **The measured number.** You should see `PASS 7. the measured number: ... 16 of 232 decided data sentences are stale or wrong (6.9%)`. This is `npm run corpus:check`, which recomputes the number from `corpus/pages/*.json`. Method: `corpus/METHOD.md`, committed before the first verdict.
 8. **The unit suites.** You should see `PASS 8. unit suites: AI, API, site: AI 213/213 in 53 s, API 265/265 in 41 s, site 319/319 in 9 s, all passing, no network` (9 November 2026; the counts grow). The site's end-to-end walk is `npm run site:e2e` (it builds the site, then runs Playwright).
-9. **The hosted site.** Run `SITE_URL=https://isitpriced.com npm run judge`. You should see `PASS 9. hosted demo: ...: /health 200, 22 priced sentences on the Tether page (the count grows), a "message" event on the SSE stream`. `/health` fails when no trade, rewrite or agent answer has happened in a day.
+9. **The hosted site.** Run `npm run judge` (it includes the site). You should see `PASS 9. hosted demo: ...: /health 200, 22 priced sentences on the Tether page (the count grows), a "message" event on the SSE stream`. `/health` fails when no trade, rewrite or agent answer has happened in a day.
 10. **The jury's models are attested, and mainnet holds their keys.** You should see `PASS 10. attested models, verified offline, registered on mainnet: 3 models: TDX quotes verified offline with dcap-qvl (Intel's collateral ..., kept in each proof), NVIDIA's GPU tokens verified against NVIDIA's kept key, each report binding its signing key to our nonce; each key is the one market.isitpriced.near holds`. The proofs are in `tools/judge/evidence/attestations/`, so the check runs offline.
 11. **Mainnet's books close and every ruling settled, signed by the attested models.** You should see `PASS 11. mainnet books and rulings: market.isitpriced.near at block ...: books close to the micro-USDC, USDC 81.607427 held = treasury ... (49 claims; 9 balances read from the contract's storage); 17208628… is USDC with 6 decimals; 8 of 8 challenges settled ...; 24 verdicts by 3 models ...: each request hash = sha256(canonical_request), each response and signature taken from its submit_verdict transaction, sha256(response) = response_hash, ed25519 verifies against get_model's key, and the rules read the recorded verdict ...; rewrite: rewrite tether:25:v1 ...: anchor_rewrite event on mainnet in ALdDyEDx...` (the numbers grow). Every read is pinned to one block, so live trades can't split the books. `tools/judge/evidence/mainnet-rulings.json` keeps only the transaction hashes and their bytes, so `--offline` still checks the hashes and signatures; everything else is read from mainnet. `node tools/judge/snapshot-mainnet-rulings.mjs` remakes it.
 
@@ -134,7 +134,7 @@ The last full run against the hosted site printed `11 checks: 11 PASS, 0 FAIL, 0
 |---|---|
 | Market contract | **Real, on NEAR mainnet**: `market.isitpriced.near`, the reproducible build of this repo (check 3). The same code runs the persistent testnet deployment that the judge checks. |
 | Money | **Real native USDC** (`17208628f8...36133a1`), funded by the entrant: `isitpriced.near` swapped 22.3 NEAR for $82.11 of USDC in three swaps (`swaps` in `deployments/mainnet.json`, with every transfer).<br>- The treasury reserves each line's worst-case subsidy and backs the free bets. It also collects the 1% taker fee.<br>- Each of the three house agents got $2.50 from the entrant (the `bankroll house-*` transactions).<br>- The Checker got $3 of bonds; the Sentinel got $10, of which $8 went back to the treasury and $2 stays as its bond.<br>Testnet uses test USDC (`contracts/tusdc`). |
-| The markets | **As of 9 November 2026, 49 lines, 41 open and 8 settled** (from `get_claims` on the market; live at https://isitpriced.com):<br>- the 20 `data` sentences of the Tether article (Wikipedia revision 1382852995, pinned in `corpus/pages/tether.json`);<br>- 12 more lines from other crypto articles, among them the ones our measurement caught;<br>- the 8 corrected lines that rulings opened;<br>- 9 news lines from Today's claims.<br>Each opened at the **planner model's own estimate** (DeepSeek V4.1 Flash on NEAR AI Cloud), with $1.45 of liquidity. Usage is small so far: 61 bets and $12.40 of volume as of 9 November. |
+| The markets | **As of 9 November 2026, 49 lines, 41 open and 8 settled** (from `get_claims` on the market; live at https://isitpriced.com):<br>- 20 sentences of the Tether article (Wikipedia revision 1382852995, pinned in `corpus/pages/tether.json`);<br>- 12 more lines from other crypto articles, among them the ones our measurement caught;<br>- the 8 corrected lines that rulings opened;<br>- 9 news lines from Today's claims.<br>Each opened at the **planner model's own estimate** (DeepSeek V4.1 Flash on NEAR AI Cloud), with $1.45 of liquidity. Usage is small so far: 61 bets and $12.40 of volume as of 9 November. |
 | Free bets (the lane) | One $1 bet per visitor, paid by the deployment. They are real trades: `lane.isitpriced.near` signs them with a key made for your browser. Free-bet winnings count as score, not cash: the browser keys can't call `claim_lane`. |
 | Rewrites | GLM-5.3 Flash on NEAR AI Cloud, in a TEE. The response signature is checked against the model's attested key, in your browser and by the contract (`anchor_rewrite`).<br>A line our measurement found stale is corrected to the source's value and the source is named, for example Tether's attestation report. The source goes inside the signed request. |
 | AI agents | **Three house agents trade real USDC on mainnet** on their own: the Archivist, the Skeptic and the Quant (`h-*.isitpriced.near`). The money is the entrant's: each started with $2.50 that `isitpriced.near` deposited into its market account, and wins and losses stay there. Each has its own model, persona and buy/sell/redeem key. Each bet is at most $0.12, each agent is capped at $0.75 of bets a day, and they cite sources that answered HTTP 200.<br>The open swarm, where anyone spawns an agent with a 5 NEAR inference escrow, runs on testnet. |
