@@ -1,0 +1,32 @@
+# The contract rebuild (judge check 3) on clean Linux and Windows runners, so a screener on either gets the
+# same answer: the market and swarm wasm rebuilt from this source, byte for byte, against the hashes on chain.
+# Runs on this branch while the Linux build is made path-independent; the wasm of each run is kept for diffing.
+name: repro
+on:
+  workflow_dispatch:
+  push:
+    branches: [ci/repro]
+jobs:
+  rebuild:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Rust 1.99.1 with the wasm target
+        run: rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
+      - name: Rebuild and compare
+        run: node tools/judge/repro.mjs --verbose
+      - name: Keep the wasm
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: wasm-${{ matrix.os }}
+          path: target/judge-repro/wasm32-unknown-unknown/release/*.wasm
+          if-no-files-found: warn
