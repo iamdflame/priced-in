@@ -36,34 +36,37 @@ cmp /tmp/rules.json tools/judge/vectors/rules.json && echo same
 
 Read `crates/rules/src/lib.rs`. `struct Message` declares only `content`, so `reasoning_content` is never read. `bonds_are_conserved_to_the_micro` runs 200,000 random splits.
 
-## 3. The contracts on testnet are this source (1 to 3 min, needs rustc 1.99.1)
+## 3. The contracts on testnet are this source (2 to 4 min, needs rustc 1.99.1)
 
 ```
 rustup toolchain install 1.99.1 --target wasm32-unknown-unknown   # once
 node tools/judge/repro.mjs
 ```
 
-**Expect:**
+**Expect** (Linux, macOS or Windows):
 ```
-same market built CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2 (...) · recorded CNCKYkjR... · testnet CNCKYkjR...
-same swarm  built FtsYcK13Xbpm5gcTJPotbJTts7K1UqzbVMwX63H9R68q (...) · recorded FtsYcK13... · testnet FtsYcK13...
+same market built FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC (sha256 d5fbcbc8..., 435325 bytes) · recorded FQJXhaVJ... · testnet FQJXhaVJ...
+same swarm  built p7URj5imKbrCxikR8o7xeBh6iZiF41VhoBedJoMqpgi (sha256 0c119dee..., 213019 bytes) · recorded p7URj5im... · testnet p7URj5im...
 same agent  built 14AB93Dn5Ec2JTQr3fjR8ksWbEEkTaeE9sAy9Y4tbKri · committed contracts/swarm/res/agent.wasm
 ```
 
-Read the code hash on-chain yourself:
+Read the code hash on-chain yourself (the mainnet market, `market.isitpriced.near`, has the same market hash):
 
 ```
 curl -s $RPC -H 'content-type: application/json' -d "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"query\",\"params\":{\"request_type\":\"view_account\",\"finality\":\"final\",\"account_id\":\"$M\"}}"
 ```
 
-**Expect:** `"code_hash":"CNCKYkjR7SAepL4KcCSBryUMBGJwMM6Xqi8XTvTjWWL2"`.
+**Expect:** `"code_hash":"FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC"`.
 
-**How the build is made reproducible** (`tools/judge/lib/repro.mjs`):
-- It uses the flags of `npm run build:contracts`, plus `--remap-path-prefix`, so no local path reaches the wasm.
-- Dependency paths become `/crates/<crate>/...`, and workspace paths become `contracts/...`.
-- On Windows each such file is remapped one by one, because a prefix remap keeps backslashes. They are listed in `tools/judge/repro-paths.json`.
+**How the build is made reproducible** (`tools/judge/lib/repro.mjs`). The deployed wasm was built on Windows (host `x86_64-pc-windows-gnu`). Two things in it depend on the machine that builds it, and both are pinned to the deployed build's values:
+- **Source paths in panic messages.** `tools/judge/repro-paths.json` lists the 25 paths the deployed bytes carry, exactly as they are there, for example `/crates/near-sdk-5.30.1\src\environment\env.rs` and `contracts/market/src/lib.rs`. Each local source file is remapped to its string with `--remap-path-prefix`, on every OS. `cargo fetch` runs first, so a clean machine has the registry unpacked before the remaps are listed.
+- **Cargo's `-C metadata`.** For every crate that uses a proc macro or a build script, cargo hashes the host triple into it (49 of 72 compile units differ between the Windows gnu and msvc hosts). It seeds every symbol name, and so the order of functions in the wasm. `tools/judge/repro-wrapper`, a std-only `RUSTC_WRAPPER`, sets each wasm crate's value to the one recorded from the deployed build (`metadata` in `repro-paths.json`). It changes nothing else.
 
-**Tested:** two clean target directories on Windows give identical bytes. **Not yet tested:** a Linux or macOS rebuild. If yours differs, the judge prints both hashes; please tell us.
+The flags are those of `npm run build:contracts`. The workspace location, `CARGO_HOME` and `RUSTFLAGS` don't change the bytes (tested).
+
+**Tested:** clean `ubuntu-latest`, `macos-latest` and `windows-latest` (msvc) GitHub runners rebuild both deployed hashes byte for byte: [run 42542226417](https://github.com/iamdflame/priced-in/actions/runs/42542226417) (`.github/workflows/repro.yml`). So does the founder's Windows machine, with both the gnu and msvc toolchains.
+
+**If this machine can't build** (no rustc 1.99.1 or wasm target, no network for the crates, no host linker, or a source path it can't remap), check 3 says SKIP with the reason and links that run. It says FAIL only when the build completes and its hashes differ from the chain.
 
 ## 4. The deployment is live and its books close (1 min)
 
