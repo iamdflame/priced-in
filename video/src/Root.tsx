@@ -7,6 +7,7 @@ import {DialSwing} from './pieces/DialSwing';
 import {HookType} from './pieces/HookType';
 import {PageFix} from './pieces/PageFix';
 import {VerdictStamp} from './pieces/VerdictStamp';
+import {AskIllia} from './pieces/AskIllia';
 import {TEST_REEL_FRAMES, TestReel} from './reels/TestReel';
 import {ChartSteps, Countdown, Payout, ProofStack} from './pieces/Beats';
 import {BOARD} from './storyboard';
@@ -38,6 +39,7 @@ export const Root: React.FC = () => (
   <>
     <Composition id="TestReel" component={TestReel} durationInFrames={TEST_REEL_FRAMES} fps={FPS} {...WIDE} />
     <Composition id="TestReelVertical" component={TestReel} durationInFrames={TEST_REEL_FRAMES} fps={FPS} {...TALL} />
+    <Composition id="AskIllia-1x1" component={AskIllia} defaultProps={{pct: 66}} durationInFrames={300} fps={FPS} width={1080} height={1080} />
     <Folder name="Film">
       <Composition id="FilmMain" component={Film} defaultProps={{cut: 'main'}} durationInFrames={durationOf('main')} fps={FPS} {...WIDE} />
       <Composition id="Film15s" component={Film} defaultProps={{cut: 'c15'}} durationInFrames={durationOf('c15')} fps={FPS} {...WIDE} />
