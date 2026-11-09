@@ -316,7 +316,7 @@
    "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 22's question and the correction it opened with"
   },
   "4591764abdf21fab7b48830a7a2dc66e3375db5067967286634a9650d9e2d9ed": {
-   "q": "Does Polymarket trade on Polygon with pUSD, backed by USDC, as collateral?",
+   "q": "Does Polymarket use pUSD, backed by USDC, as its collateral?",
    "page": "prediction-market",
    "source": "claim 37",
    "sentence": "Polymarket is a decentralized prediction market built on the Polygon Chain that, according to Polymarket as checked on 2026-11-05, uses pUSD, backed by USDC, as the collateral for all trading.",
@@ -325,7 +325,7 @@
    "reviewed": "hand-written 2026-11-09 for the corrected line, from claim 23's question and the correction it opened with"
   },
   "68dc3054c31ab693b2f1c91aefb7dcfcb751ae3ead09c0ecdeaf27984e2504a4": {
-   "q": "Is Kalshi CFTC-regulated, with 140+ countries announced in October 2025?",
+   "q": "Can Kalshi users trade from 140+ countries?",
    "page": "prediction-market",
    "source": "claim 38",
    "sentence": "Kalshi, is a U.S. CFTC-regulated betting market and, according to Kalshi as checked on 2026-11-05, users can trade from many countries, with 140+ countries announced in October 2025.",
