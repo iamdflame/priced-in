@@ -46,7 +46,7 @@ const mainnet = fs.existsSync(mainFile) ? { dep: JSON.parse(fs.readFileSync(main
 const t0 = Date.now();
 
 // slow work starts at once and runs while the quick checks do
-const build = NO_BUILD ? Promise.resolve({ ok: false, reason: "not built (--no-build)" }) : reproBuild({}).catch((e) => ({ ok: false, reason: e.message }));
+const build = NO_BUILD ? Promise.resolve({ ok: false, reason: "not built (--no-build)" }) : reproBuild({ learn: false }).catch((e) => ({ ok: false, reason: e.message }));
 const suites = QUICK ? Promise.resolve({ status: "SKIP", detail: "--quick: the unit suites were not run", see: "npm run judge (without --quick), or npm run ai:unit, api:unit, site:test and judge:test" }) : checkSuites(REPO);
 
 const offlineSkip = (what) => async () => ({ status: "SKIP", detail: `--offline: ${what} not read`, see: "npm run judge (without --offline)" });
