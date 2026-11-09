@@ -20,7 +20,12 @@ jobs:
         with:
           node-version: 22
       - name: Rust 1.99.1 with the wasm target
-        run: rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
+        # the runner's preinstalled stable may also be rustc 1.99.1 under another toolchain name, without the wasm target:
+        # make the pinned toolchain the default so the active one has the target
+        run: |
+          rustup toolchain install 1.99.1 --target wasm32-unknown-unknown --profile minimal
+          rustup default 1.99.1
+          rustup target list --installed
       - name: Rebuild and compare
         run: node tools/judge/repro.mjs --verbose
       - name: Keep the wasm
