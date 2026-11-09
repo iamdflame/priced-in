@@ -61,7 +61,7 @@ export function FactCard({ f, points, reopened = false, eager = false, picks = f
         <div className="top">
           <span className="tag"><TopicIcon icon={f.icon} />{f.topic}</span>
           {f.status === "deciding" && <span className="tag plain warn"><Icon name="clock" />Being decided</span>}
-          {settled && <span className={`tag plain ${f.outcome ? "" : "no"}`}><Icon name="gavel" />Ruled {f.outcome ? "TRUE" : "FALSE"}</span>}
+          {settled && <span className={`tag plain ${f.outcome ? "" : "no"}`}><Icon name="gavel" />Decided: {f.outcome ? "TRUE" : "FALSE"}</span>}
         </div>
         <div className="ov"><PctOnArt f={f} reopened={reopened} /><span className="ovspark">{spark}</span></div>
       </Link>

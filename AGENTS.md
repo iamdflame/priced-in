@@ -101,7 +101,7 @@ The judge holds no key, signs nothing and sends no transaction: it reads RPC vie
 
 ## Schedule and free bets
 
-- The jury's next sittings are 12 and 13 November 2026 at 15:00 UTC, on the last two caught Wikipedia lines (claims 27 and 26). The keeper holds every sitting until `CHECKER_FROM` (`api/_lib/keeper.mjs`, `firstSitting`), then sits once a day while caught lines remain. News lines from Today's claims settle as each comes due, under their own caps. Live: `next_ruling_note` at https://isitpriced.com/api/rulings ("The jury's next sitting is 12 November at 15:00 UTC" on 9 November) and https://isitpriced.com/rulings.
+- The AI judges next decide on 12 and 13 November 2026 at 15:00 UTC, on the last two caught Wikipedia lines (claims 27 and 26). The keeper holds every sitting until `CHECKER_FROM` (`api/_lib/keeper.mjs`, `firstSitting`), then sits once a day while caught lines remain. News lines from Today's claims settle as each comes due, under their own caps. Live: `next_ruling_note` (one plain sentence naming the next decisions) and `schedule` (each queued fact with its time) at https://isitpriced.com/api/rulings, and https://isitpriced.com/rulings.
 - Free bets: one $1 bet per browser, paid from the lane budget. On 9 November 11 were left (`credits_left`). Until 15 November the last 4 are kept for the judges (`LANE_RESERVE`, `LANE_RESERVE_UNTIL`, `services/api/src/lane.mjs`); from then any visitor can take them. Live: https://isitpriced.com/api/lane/status.
 
 ## Map

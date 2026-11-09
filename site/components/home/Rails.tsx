@@ -16,7 +16,7 @@ export function RuledCard({ r, ruled, corrected, settledCount, now }: { r: Rulin
   return (
     <section className="railcard ruled" aria-labelledby="ruled-h">
       <div className="rbody">
-        <h2 id="ruled-h"><span className={`verdict ${verdict.toLowerCase()}`}>{recent ? "Just ruled" : "Ruled"}: {verdict}</span></h2>
+        <h2 id="ruled-h"><span className={`verdict ${verdict.toLowerCase()}`}>{recent ? "Just decided" : "Decided"}: {verdict}</span></h2>
         <Link className="rq" href={`/c/${r.claim_id}`}>{ruled?.question ?? r.claim}</Link>
         <p className="rs">{r.verdicts.length} AI judges · in {r.settled_at ? span(r.settled_at - r.opened_at) : "—"}{r.payout_usd ? ` · ${money(r.payout_usd)} paid to ${winningSide(verdict)}` : ""}{ruled?.trades ? ` · ${plural(ruled.trades, "bet")}` : ""}</p>
         <p className="rlinks">
