@@ -204,6 +204,25 @@ export function keepRationales(list, { perClaim = RATIONALES_PER_CLAIM, cap = RA
   return out.reverse();
 }
 
+/**
+ * The sweep's picks: the open lines looked at longest ago, so a day's looks reach every open line. A line
+ * never looked at (a new one) has a last look of 0 and goes first; among equal looks, a line nobody has bet
+ * on, then the lower id. Unbet lines used to go first outright, and with a 10-minute cooldown the same few
+ * came back all day while every line with a bet waited (10 Nov 2026: 7 of 45 open lines looked at).
+ * @param {{ id: number, status: string, trades?: number|string }[]} claims
+ * @param {(c: object) => number} lastLook ms of the newest look at the line by any agent, 0 for never
+ * @param {number} max
+ */
+export function sweepPicks(claims, lastLook, max) {
+  const bet = (c) => (Number(c.trades) > 0 ? 1 : 0);
+  return claims
+    .filter((c) => c.status === "Open")
+    .map((c) => ({ c, at: lastLook(c) }))
+    .sort((x, y) => x.at - y.at || bet(x.c) - bet(y.c) || x.c.id - y.c.id)
+    .slice(0, Math.max(0, max))
+    .map((x) => x.c);
+}
+
 export class Crowd {
   /**
    * @param {{ client: object, attestor: object, claims: { one(id: number): Promise<object>, all(): Promise<object[]> }, hub: object,
@@ -368,12 +387,8 @@ export class Crowd {
 
   /** A periodic look at the stalest open claims. */
   async sweep(max = 3) {
-    const all = (await this.claims.all()).filter((c) => c.status === "Open");
-    const age = (c) => Math.max(0, ...this.roster.map((a) => this.last.get(`${a.accountId}|${c.id}`) || 0));
-    // a line nobody has bet on goes first, then the line looked at longest ago: a day's budget spreads
-    // across the catalog instead of going to the lines that come first in the list
-    const bet = (c) => (Number(c.trades) > 0 ? 1 : 0);
-    const picks = all.sort((x, y) => bet(x) - bet(y) || age(x) - age(y)).slice(0, max);
+    const lastLook = (c) => Math.max(0, ...this.roster.map((a) => this.last.get(`${a.accountId}|${c.id}`) || 0));
+    const picks = sweepPicks(await this.claims.all(), lastLook, max);
     for (const c of picks) await this.round(c, c.price_yes_ppm / 1e6, { kind: "sweep", seenAtMs: this.now() }, this.cooldownMs);
   }
 

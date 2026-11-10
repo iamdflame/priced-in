@@ -5,7 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import { KeyPair } from "near-api-js";
 import { NearAI } from "../src/nearai.js";
-import { decide, impliedB, buyQuote, sellQuote, sharesToTarget, dailyLoss, parseCredence, DEFAULT_POLICY } from "../src/agents.js";
+import { decide, impliedB, buyQuote, sellQuote, sharesToTarget, dailyLoss, parseCredence, DEFAULT_POLICY, sweepPicks } from "../src/agents.js";
 import { Research, keywords, excerpt } from "../src/research.js";
 import { SignerClient, validateDecision, validateBill, validateAnchor, validateDispute, checkPermission, DAILY_CHALLENGES, DAILY_DISPUTES, DAILY_DISPUTE_MICRO, DAILY_OPENS, DECISION_FIELDS, MAX_DISPUTE_BOND_MICRO, OPERATOR_METHODS } from "../src/signer.js";
 import { newRunnerKey, operatorKey } from "../src/keystore.js";
@@ -602,4 +602,24 @@ test("a dispute's shape is checked, and the caps default to a few a day, $10, an
   assert.deepEqual([DAILY_DISPUTES, DAILY_DISPUTE_MICRO, MAX_DISPUTE_BOND_MICRO], [3, 10_000_000n, 8_000_000n]);
   const set = loadAiConfig({ NEAR_NETWORK: "testnet", MARKET_CONTRACT_ID: "m.testnet", SIGNER_DAILY_DISPUTES: "5", SIGNER_DAILY_DISPUTE_MICRO: "30000000", SIGNER_MAX_DISPUTE_BOND_MICRO: "16000000" }).ai.agents;
   assert.deepEqual([set.dailyDisputes, set.dailyDisputeMicro, set.maxDisputeBondMicro], [5, 30_000_000, 16_000_000]);
+});
+
+test("sweep picks reach every open line: oldest look first, a new line before all, unbet only breaks ties", () => {
+  const claims = [
+    { id: 1, status: "Open", trades: 0 }, { id: 2, status: "Open", trades: 0 }, { id: 3, status: "Open", trades: 5 },
+    { id: 4, status: "Open", trades: 2 }, { id: 5, status: "Settled", trades: 0 }, { id: 6, status: "Open", trades: 0 },
+  ];
+  const looks = { 1: 9_000, 2: 8_000, 3: 1_000, 4: 2_000, 5: 0, 6: 0 };
+  const at = (c) => looks[c.id];
+  // id 6 was never looked at; 3 and 4 have bets and waited longest; the unbet 1 and 2 were looked at just now
+  assert.deepEqual(sweepPicks(claims, at, 3).map((c) => c.id), [6, 3, 4]);
+  assert.ok(!sweepPicks(claims, at, 10).some((c) => c.status !== "Open"), "only open lines");
+  // a tie on the last look: the line nobody has bet on first, then the lower id
+  assert.deepEqual(sweepPicks([{ id: 9, status: "Open", trades: 3 }, { id: 8, status: "Open", trades: 0 }, { id: 7, status: "Open", trades: 1 }], () => 0, 3).map((c) => c.id), [8, 7, 9]);
+  // round after round with a cooldown, every line gets a look: no line with a bet is starved
+  const seen = new Set();
+  const last = { ...looks };
+  for (let round = 1; round <= 5; round++) for (const c of sweepPicks(claims, (x) => last[x.id], 1)) { seen.add(c.id); last[c.id] = 10_000 + round; }
+  assert.deepEqual([...seen].sort(), [1, 2, 3, 4, 6]);
+  assert.deepEqual(sweepPicks(claims, at, 0), []);
 });
