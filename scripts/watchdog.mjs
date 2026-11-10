@@ -65,13 +65,15 @@ export function sentinelState(spareNear, balanceUsd, bondUsd) {
 
 /**
  * Today's news lines, from /health's checks.news. A treasury too short for the next line only holds that line
- * back, so it WARNs (top it up with scripts/mainnet/news-funding.mjs); no new line for more than 26 hours is
- * what a judge would see, a board that stopped moving, and that FAILs. Null when the API reports news as fine.
+ * back, so it WARNs (top it up with scripts/mainnet/news-funding.mjs); a board that stopped moving FAILs: after
+ * 26 hours when the treasury is short (the owner can fix that now), after 48 hours otherwise (NEAR AI down, or a
+ * scout that found nothing worth opening: a stall to look into). Null when the API reports news as fine.
  */
 export function newsState(news) {
   if (!news || news.ok !== false) return null;
   const hours = news.hours_since;
-  const stale = hours === null || hours === undefined || !(hours <= 26);
+  const short = Number.isFinite(news.reserve_room_usd) && Number.isFinite(news.last_line_reserve_usd) && news.reserve_room_usd < news.last_line_reserve_usd;
+  const stale = hours === null || hours === undefined || !(hours <= (short ? 26 : 48));
   return { state: stale ? "FAIL" : "WARN", detail: String(news.note || "not ok").slice(0, 200) };
 }
 

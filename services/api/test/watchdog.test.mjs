@@ -54,8 +54,11 @@ test("watchdog: a treasury short for the next news line WARNs; no new line for o
   assert.equal(newsState(undefined), null, "an API without the news check is not a failure");
   assert.equal(newsState({ enabled: true, ok: false, hours_since: 9.2, note: short }).state, "WARN", "the 9 November case: short, but a line opened 9 hours ago");
   assert.match(newsState({ enabled: true, ok: false, hours_since: 9.2, note: short }).detail, /news-funding/);
-  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26 }).state, "WARN");
-  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26.1 }).state, "FAIL", "a board that stopped moving");
+  const shortRoom = { reserve_room_usd: 0.21, last_line_reserve_usd: 0.4 };
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26, ...shortRoom }).state, "WARN");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 26.1, ...shortRoom }).state, "FAIL", "short treasury and a board that stopped moving: the owner can fix it");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 30, reserve_room_usd: 3, last_line_reserve_usd: 0.4 }).state, "WARN", "room enough, stale for another reason (NEAR AI down): 48 h before it fails");
+  assert.equal(newsState({ enabled: true, ok: false, hours_since: 48.5, reserve_room_usd: 3, last_line_reserve_usd: 0.4 }).state, "FAIL");
   assert.equal(newsState({ enabled: true, ok: false, hours_since: null, note: "No news line has opened yet." }).state, "FAIL");
 });
 
