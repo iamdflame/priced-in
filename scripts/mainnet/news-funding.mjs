@@ -85,7 +85,7 @@ const now = free < room ? free : room;
 const deposit = pre + (need > free ? need - free : 0n);
 const newCap = reserved + need > cap ? reserved + need : cap;
 
-console.log(`treasury ${usd(pot)}${pre > 0n ? ` (after depositing the owner's ${usd(pre)})` : ""}: ${usd(laneNew)} is the free bets' (${bets(laneNew)} free ${usd(credit)} bets${laneNew !== lane ? `, up from ${bets(lane)}` : ""}), ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
+console.log(`treasury ${usd(pot)}${pre > 0n ? ` (after depositing the owner's ${usd(pre)})` : ""}: ${usd(laneNew)} is the free bets' (${bets(laneNew)} free ${usd(credit)} bets${laneNew !== lane ? `, ${laneNew > lane ? "up" : "down"} from ${bets(lane)}` : ""}), ${usd(FLOOR)} the floor, ${usd(free > 0n ? free : 0n)} free`);
 console.log(`reserved ${usd(reserved)} of a ${usd(cap)} cap: ${usd(room)} of room`);
 console.log(`today that carries ${usd(now > 0n ? now : 0n)}: ${now >= 1_006_100n ? `about ${Number(now / AVG)} news line(s)` : "no news line, at any price"}`);
 if (LINES > 0) console.log(`${LINES} lines at a time, about ${usd(AVG)} each, need ${usd(need)}: deposit ${usd(deposit)} into the treasury, and raise the cap to ${usd(newCap)}`);
