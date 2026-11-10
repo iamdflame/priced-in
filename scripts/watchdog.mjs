@@ -75,6 +75,20 @@ export function newsState(news) {
   return { state: stale ? "FAIL" : "WARN", detail: String(news.note || "not ok").slice(0, 200) };
 }
 
+/**
+ * The AI judges' signing keys, from /health's checks.jury_keys. A key that's wrong (the attested TEE signs with
+ * another key, or the market holds none) means the contract would refuse verdicts: FAIL, with the runbook; so
+ * does a report that came back and didn't verify. A key that couldn't be read because NEAR AI Cloud didn't
+ * answer is their outage: WARN, and the API checks again daily and before each sitting. Null when fine.
+ */
+export function juryKeysState(jk) {
+  if (!jk || jk.ok !== false) return null;
+  const models = Array.isArray(jk.models) ? jk.models : [];
+  const wrong = models.filter((m) => ["mismatch", "not_registered", "unverified"].includes(m.status));
+  if (wrong.length || !models.length) return { state: "FAIL", detail: String(jk.note || "the keys could not be checked").slice(0, 200) };
+  return { state: "WARN", detail: `NEAR AI Cloud's attestation didn't answer for ${models.filter((m) => m.status === "unread").length} model(s), so the keys weren't re-checked; the market still verifies every verdict's signature. ${String(models[0]?.detail || "").slice(0, 90)}` };
+}
+
 // ---------- the reads ----------
 
 async function get(url, { json = false, timeout = 25_000 } = {}) {
@@ -124,11 +138,13 @@ async function main() {
   await check("API", async () => {
     const r = await get(`${API}/health`, { json: true });
     // news has its own row below: a short treasury is a top-up, not a failure
-    const bad = Object.entries(r.body.checks || {}).filter(([k, v]) => v && v.ok === false && k !== "news");
+    const bad = Object.entries(r.body.checks || {}).filter(([k, v]) => v && v.ok === false && k !== "news" && k !== "jury_keys");
     const why = bad.map(([k, v]) => (v.note ? `${k} (${String(v.note).slice(0, 140)})` : k));
     say(r.body.ok && !bad.length ? "PASS" : "FAIL", "the API is healthy", bad.length ? `failing: ${why.join("; ")}` : !r.body.ok ? `failures: ${(r.body.failures || []).join("; ").slice(0, 200)}` : `spend ${r.body.checks?.spend?.spent_usd ?? "?"} of ${r.body.checks?.spend?.cap_usd ?? "?"} today`);
     const news = newsState(r.body.checks?.news);
     if (news) say(news.state, "new fact lines keep opening", news.detail);
+    const keys = juryKeysState(r.body.checks?.jury_keys);
+    if (keys) say(keys.state, "the AI judges' keys match the market's", keys.detail);
   });
   await check("keeper", async () => {
     const r = await get(`${API}/api/rulings`, { json: true });

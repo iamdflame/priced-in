@@ -1,7 +1,7 @@
 // The watchdog's thresholds (scripts/watchdog.mjs): a FAIL emails the founder, a WARN never does.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkerBondState, freeBetState, houseState, marketStorageState, newsState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
+import { checkerBondState, freeBetState, houseState, juryKeysState, marketStorageState, newsState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
 
 const before = Date.parse("2026-11-12T10:00:00Z");
 const judging = Date.parse("2026-11-16T10:00:00Z");
@@ -57,6 +57,19 @@ test("watchdog: a treasury short for the next news line WARNs; no new line for o
   assert.equal(newsState({ enabled: true, ok: false, hours_since: 26 }).state, "WARN");
   assert.equal(newsState({ enabled: true, ok: false, hours_since: 26.1 }).state, "FAIL", "a board that stopped moving");
   assert.equal(newsState({ enabled: true, ok: false, hours_since: null, note: "No news line has opened yet." }).state, "FAIL");
+});
+
+test("watchdog: AI judges' keys that NEAR AI couldn't serve WARN; a wrong or unverified key FAILs", () => {
+  const unread = (m) => ({ model: m, status: "unread", detail: "NEAR AI Cloud's attestation report did not answer: /attestation/report answered HTTP 500" });
+  assert.equal(juryKeysState({ ok: true, complete: true, models: [] }), null);
+  assert.equal(juryKeysState(undefined), null);
+  const outage = { ok: false, complete: false, attempts: 3, models: [unread("a"), unread("b"), unread("c")], note: "a, b, c could not be checked (attempt 3 of 3)." };
+  assert.equal(juryKeysState(outage).state, "WARN", "the 10 November outage: all three unread");
+  assert.match(juryKeysState(outage).detail, /still verifies every verdict/);
+  assert.equal(juryKeysState({ ...outage, models: [unread("a"), { model: "b", status: "mismatch" }, unread("c")] }).state, "FAIL", "a changed key fails even during an outage");
+  assert.equal(juryKeysState({ ok: false, models: [{ model: "a", status: "not_registered" }] }).state, "FAIL");
+  assert.equal(juryKeysState({ ok: false, models: [{ model: "a", status: "unverified" }] }).state, "FAIL", "a report that came back and didn't verify fails");
+  assert.equal(juryKeysState({ ok: false, models: [] }).state, "FAIL", "not ok with nothing to show fails");
 });
 
 test("watchdog: the house agents, the x402 relayer and the Sentinel only ever WARN", () => {
