@@ -4,6 +4,7 @@
 // is what it always was: on a 1440x900 screen the lead and the first row of cards share the first screen.
 // With it on, every card's Yes and No is a free pick (one rule for the whole page); money is the next step.
 import { Feature } from "@/components/home/Feature";
+import { Fix } from "@/components/home/Fix";
 import { HomeGrid } from "@/components/home/HomeGrid";
 import { Intro } from "@/components/home/Intro";
 import { ProofBar } from "@/components/home/ProofBar";
@@ -39,11 +40,15 @@ export default async function Home() {
   const grid = lead ? [...feed.filter((f) => f.status !== "settled"), lead, ...feed.filter((f) => f.status === "settled")] : feed;
   const ruling = leadRuling(site.settled, (id) => byId.get(id)?.trades ?? 0);
   const record = rulingRecord(site.rulings?.rulings ?? []);
+  // the lead ruling is the correction shown under the headline; the rail then carries the newest other one
+  const fix = ruling?.correction ? ruling : null;
+  const railRuling = fix ? site.settled.find((r) => r.claim_id !== fix.claim_id) ?? null : ruling;
   const off = freeBetsOffReason(site);
   const today = news.on && news.today.lines.length ? news.today : null;
   return (
     <main id="main" className={`wrap home${today ? " has-today" : ""}`}>
       <Intro />
+      {fix && <Fix r={fix} ruledQ={byId.get(fix.claim_id)?.question} correctedQ={byId.get(fix.correction!.claim_id)?.question} />}
       <ProofBar p={proofOf(site)} news={!!today} />
       {off && <FreeBetsOff reason={off} />}
       {today && <TodayBlock today={today} facts={byId} history={site.history} now={site.asOf} />}
@@ -56,7 +61,7 @@ export default async function Home() {
       <div className="hero">
         {lead && <Feature f={lead} points={site.history[String(lead.id)] ?? []} bets={site.bets.filter((b) => b.claimId === lead.id).reverse()} picks={news.on} />}
         <aside className="rail" aria-label="Results, and what is being decided">
-          {ruling && <RuledCard r={ruling} ruled={byId.get(ruling.claim_id)} corrected={ruling.correction ? byId.get(ruling.correction.claim_id) : undefined} settledCount={record.settled.length} now={site.asOf} />}
+          {railRuling && <RuledCard r={railRuling} ruled={byId.get(railRuling.claim_id)} corrected={railRuling.correction ? byId.get(railRuling.correction.claim_id) : undefined} settledCount={record.settled.length} now={site.asOf} />}
           <DecidingCard rulings={site.rulings} facts={byId} />
         </aside>
       </div>
