@@ -9,7 +9,7 @@ import { Dial } from "@/components/Dial";
 import { Icon } from "@/components/Icon";
 import { ModelBadge, SHead } from "@/components/pages/Kit";
 import { explorerTx, money, shortHash, span } from "@/lib/format";
-import { REPLAY_HREF } from "@/lib/nav";
+import { REPLAY_HREF, REPO_URL } from "@/lib/nav";
 import { arrange, shortDate, type TodayLine } from "@/lib/news";
 import { payoutWords, quoteClaim } from "@/lib/quote";
 import { preBetClaim, REPLAY } from "@/lib/replay/record";
@@ -196,6 +196,11 @@ export default async function HowPage() {
           </div>
         </li>
       </ol>
+      <p className="how-wiki">
+        On Wikipedia, the same sentence is struck in your browser. Nothing is edited. No wallet.{" "}
+        <a className="link" href={`${REPO_URL}/tree/main/tools/userscript#readme`} target="_blank" rel="noopener">Install the userscript</a>: a userscript manager, then{" "}
+        <a className="link" href="https://raw.githubusercontent.com/iamdflame/priced-in/main/tools/userscript/priced-in.user.js" target="_blank" rel="noopener">the raw file</a>.
+      </p>
 
       {news.on && <DailyLoop example={example} />}
 

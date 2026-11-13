@@ -78,7 +78,9 @@ export function HomeGrid({ initial, leadId = null, points, reopened, picks = fal
   // the first rows leave out the lead, shown just above; "See all", a tab or a search shows it too
   const shown = clamped ? matching.filter((f) => f.id !== leadId) : matching;
   // forty cards that all say "50%, no bets yet" are one card forty times: those are a list of titles
-  const cards = shown.filter(loud);
+  // the open lines a newer source disagrees with lead the cards: those are the ones worth a bet and a ruling
+  const doubted = (f: Fact) => Number(!!f.caught && f.status === "open");
+  const cards = shown.filter(loud).sort((x, y) => doubted(y) - doubted(x));
   const quiet = shown.filter((f) => !loud(f));
   const quietShown = clamped ? quiet.slice(0, QUIET_SHOWN) : quiet;
   const seeAll = () => {

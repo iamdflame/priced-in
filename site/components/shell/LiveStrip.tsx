@@ -4,7 +4,7 @@
 // and one still open to objection says so. The strip never cuts one in half:
 // only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
 // for the next. It renders from the server's read and refreshes while the tab is visible. An encyclopedia
-// page (/p/…) has no strip: nothing moves beside an article being read. On a phone (760 px and
+// page (/p/…) and a fact's page (/c/…) have no strip: nothing talks over the one thing being read. On a phone (760 px and
 // below (SMALL_PHONE, and .proofline in shell.css) the rulings give way to one still line of real counts.
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -95,8 +95,8 @@ export function LiveStrip({ initial, facts, proof }: { initial: StripRuling[] | 
   const rot = useRotation(items);
   const tape = useRef<HTMLDivElement>(null);
   useWrappedInert(tape, rot.shown);
-  const reading = usePathname().startsWith("/p/");
-  if (reading) return null;
+  const path = usePathname();
+  if (path.startsWith("/p/") || path.startsWith("/c/")) return null;
   return (
     <div className={`ticker ${proof ? "has-proof" : ""}`} aria-label="Latest rulings">
       <div className="wrap">

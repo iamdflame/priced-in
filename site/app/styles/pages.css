@@ -524,6 +524,8 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
 .how-herodial figcaption b { display: none; }
 
 .how-steps { list-style: none; margin: 8px 0 0; padding: 0; }
+/* under the walkthrough: the same correction, where the sentence lives */
+.how-wiki { margin: -12px 0 0; padding: 0 0 8px 68px; max-width: 78ch; font-size: 15.5px; line-height: 1.55; color: var(--ink2); text-wrap: pretty; }
 .how-step { display: grid; grid-template-columns: 40px minmax(0, 5fr) minmax(0, 6fr); gap: 0 28px; align-items: start; padding: 44px 0; border-top: 1px solid var(--line); }
 .how-step:first-child { border-top: 0; padding-top: 20px; }
 .how-step > .n { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--surface2); font: 700 15px var(--disp); color: var(--ink); }
@@ -610,6 +612,7 @@ div.stack { display: flex; flex-direction: column; gap: 12px; min-width: 0; }
   .how-herodial .dial .scale, .how-herodial .dial .l { display: none; }
   .how-hero .acts .btn { flex: 1 1 100%; width: 100%; }
   .how-step { grid-template-columns: 36px minmax(0, 1fr); gap: 14px 14px; padding: 32px 0; }
+  .how-wiki { padding-left: 0; font-size: 15px; }
   .how-step > .how-art { grid-column: 1 / -1; }
   .how-judges > div { grid-template-columns: minmax(0, 1fr) auto 46px; gap: 10px; }
   .how-copy h3 { font-size: 25px; }
