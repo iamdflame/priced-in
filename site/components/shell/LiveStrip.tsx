@@ -1,22 +1,22 @@
 "use client";
-// The live strip: the real bets, newest first, from the market contract's own log. Each item reads on its
-// own ("AI trader Skeptic bet $0.22 that it’s false: Are most of Tether’s cash reserves U.S. T-Bills…")
-// and identical bets read as one line ("twice"). The strip never cuts one in half:
+// The live strip: the AI judges' rulings, newest first, from /api/rulings (lib/rulingStrip.ts). Each item
+// reads on its own ("Ruled false by 3 AI judges: Did weekly DEX volume average about $18.6B in mid-2025?"),
+// and one still open to objection says so. The strip never cuts one in half:
 // only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
 // for the next. It renders from the server's read and refreshes while the tab is visible. At 390 px and
-// below (SMALL_PHONE, and .proofline in shell.css) the bets give way to one still line of real counts.
+// below (SMALL_PHONE, and .proofline in shell.css) the rulings give way to one still line of real counts.
 import Link from "next/link";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { TopicIcon } from "../Brand";
-import { betLines, bettor, betWords, betsFrom, type Bet, type BetLine } from "@/lib/bets";
 import { filming } from "@/lib/client/film";
-import { money, plural, type AgentNames } from "@/lib/format";
+import { money, plural } from "@/lib/format";
+import { rulingWords, stripRulings, type StripRuling } from "@/lib/rulingStrip";
 import type { Proof } from "@/lib/server/site";
 
 /** What the strip says about a fact: its question, clipped at a word, and its topic icon. */
 export interface StripFact { short: string; icon: string }
 
-const REFRESH_MS = 30_000;
+const REFRESH_MS = 60_000;
 const SHOWN = 16;
 const ROTATE_MS = 5_000;
 const SMALL_PHONE = "(max-width: 390px)";
@@ -35,13 +35,13 @@ function useRotation<T>(items: T[]) {
   return { shown, hold: () => setHeld(true), release: () => setHeld(false) };
 }
 
-/** "AI trader Archivist bet $0.12 that it’s false: Is Tether issued only for dollars?" */
-function BetSentence({ l, f }: { l: BetLine; f: StripFact | undefined }) {
-  const b = l.bet;
+/** "Ruled false by 3 AI judges: Did weekly DEX volume average about $18.6B in mid-2025?" */
+function RulingSentence({ r, f }: { r: StripRuling; f: StripFact | undefined }) {
+  const w = rulingWords(r);
   return (
-    <Link className="tk" href={`/c/${b.claimId}`} prefetch={false}>
+    <Link className="tk" href={`/c/${r.claimId}`} prefetch={false}>
       {f && <TopicIcon icon={f.icon} />}
-      <span><b>{bettor(b)}</b> {betWords(l)} <b className={b.side}>{b.side === "yes" ? "true" : "false"}</b>: {f?.short ?? `fact ${b.claimId}`}</span>
+      <span><b className={r.outcome ? "yes" : "no"}>{w.verdict}</b>{r.final ? <span className="hide-phone">{w.rest}</span> : w.rest}: {f?.short ?? `fact ${r.claimId}`}</span>
     </Link>
   );
 }
@@ -72,38 +72,38 @@ function useWrappedInert(tape: RefObject<HTMLDivElement | null>, dep: unknown) {
   }, [tape, dep]);
 }
 
-export function LiveStrip({ initial, facts, agents, proof }: { initial: Bet[]; facts: Record<number, StripFact>; agents: AgentNames; proof: Proof | null }) {
-  const [bets, setBets] = useState(initial);
+export function LiveStrip({ initial, facts, proof }: { initial: StripRuling[] | null; facts: Record<number, StripFact>; proof: Proof | null }) {
+  const [rulings, setRulings] = useState(initial);
   const [live, setLive] = useState(true);
   useEffect(() => {
     let stop = false;
     const tick = async () => {
       if (document.hidden || filming() || (proof && smallPhone())) return; // film mode keeps the first items
       try {
-        const r = await fetch("/api/events/recent?since=0", { headers: { accept: "application/json" } });
+        const r = await fetch("/api/rulings", { headers: { accept: "application/json" } });
         if (!r.ok) throw new Error(String(r.status));
         const j = await r.json();
-        if (!stop) { setBets(betsFrom(j.events || [], agents).reverse().slice(0, SHOWN)); setLive(true); }
+        if (!stop && Array.isArray(j.rulings)) { setRulings(stripRulings(j.rulings).slice(0, SHOWN)); setLive(true); }
       } catch { if (!stop) setLive(false); }
     };
     const t = setInterval(tick, REFRESH_MS);
     return () => { stop = true; clearInterval(t); };
-  }, [agents, proof]);
-  const lines = useMemo(() => betLines(bets), [bets]);
-  const rot = useRotation(lines);
+  }, [proof]);
+  const items = useMemo(() => rulings ?? [], [rulings]);
+  const rot = useRotation(items);
   const tape = useRef<HTMLDivElement>(null);
   useWrappedInert(tape, rot.shown);
   return (
-    <div className={`ticker ${proof ? "has-proof" : ""}`} aria-label="Live bets">
+    <div className={`ticker ${proof ? "has-proof" : ""}`} aria-label="Latest rulings">
       <div className="wrap">
-        <span className={`live ${live ? "" : "off"}`}><span className="dot" /><span>{live ? <>Live<span className="hide-phone"> · real money</span></> : "Reconnecting…"}</span></span>
-        {bets.length ? (
+        <span className={`live ${live ? "" : "off"}`}><span className="dot" /><span>{live ? <>Rulings<span className="hide-phone"> · on NEAR</span></> : "Reconnecting…"}</span></span>
+        {items.length ? (
           <div className="tape" ref={tape} onMouseEnter={rot.hold} onMouseLeave={rot.release} onFocus={rot.hold} onBlur={rot.release}>
-            {rot.shown.map((l) => <BetSentence key={`${l.bet.tx}:${l.bet.claimId}:${l.bet.at}`} l={l} f={facts[l.bet.claimId]} />)}
+            {rot.shown.map((r) => <RulingSentence key={r.key} r={r} f={facts[r.claimId]} />)}
           </div>
-        ) : (
-          <span className="net">No bets yet today. Yours could be the first.</span>
-        )}
+        ) : rulings ? (
+          <span className="net">No rulings yet. The AI judges sit daily at 15:00 UTC.</span>
+        ) : null}
         {proof && <span className="proofline"><b>{plural(proof.wikiFacts, "fact")}</b> · <b>{proof.decided}</b> decided · <b>{money(proof.paidUsd)}</b> paid out</span>}
       </div>
     </div>
@@ -112,5 +112,5 @@ export function LiveStrip({ initial, facts, agents, proof }: { initial: Bet[]; f
 
 /** While the strip's read is on its way: the same height, so nothing jumps. */
 export function LiveStripSkeleton() {
-  return <div className="ticker" aria-hidden="true"><div className="wrap"><span className="live"><span className="dot" />Live · real money</span></div></div>;
+  return <div className="ticker" aria-hidden="true"><div className="wrap"><span className="live"><span className="dot" />Rulings<span className="hide-phone"> · on NEAR</span></span></div></div>;
 }

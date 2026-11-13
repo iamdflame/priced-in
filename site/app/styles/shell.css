@@ -50,6 +50,9 @@
 .tk b { font-weight: 600; color: var(--ink); }
 .tk b.yes { color: var(--yes); } .tk b.no { color: var(--no); }
 .tk .when { color: var(--ink3); }
+/* one item wider than the tape (a narrow phone) ends in an ellipsis instead of being cut mid-word */
+.tape .tk { max-width: 100%; min-width: 0; }
+.tape .tk > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 /* Footer: the company footer. Brand, the topics with live markets, three link groups, the base bar, the fine print. */
 .foot { margin-top: 24px; border-top: 1px solid var(--line); background: color-mix(in oklch, var(--surface2) 50%, var(--bg)); color: var(--ink3); font-size: 14px; }

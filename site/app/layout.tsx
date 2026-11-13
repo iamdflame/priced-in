@@ -9,6 +9,7 @@ import { NavWithNews } from "@/components/shell/NavServer";
 import { OfflineNotice } from "@/components/shell/OfflineNotice";
 import { FILM_SCRIPT } from "@/lib/client/film";
 import { SITE_URL } from "@/lib/nav";
+import { stripRulings } from "@/lib/rulingStrip";
 import { getSite, proofOf } from "@/lib/server/site";
 import { clip } from "@/lib/title";
 
@@ -38,14 +39,13 @@ function NavPlaceholder() {
   return <><div className="nav" style={{ height: 69 }} /><div className="pbar" /><div className="pnav" aria-hidden="true" /></>;
 }
 
-/** The strip reads the market on its own, so a slow API never holds up the page. */
-async function LiveBets() {
+/** The strip reads the rulings on its own, so a slow API never holds up the page. */
+async function LiveRulings() {
   const site = await getSite();
   return (
     <LiveStrip
-      initial={[...site.bets].reverse().slice(0, 16)}
+      initial={site.rulings ? stripRulings(site.rulings.rulings).slice(0, 16) : null}
       facts={Object.fromEntries(site.facts.map((f) => [f.id, { short: clip(f.question, 46), icon: f.icon }]))}
-      agents={site.agents}
       proof={site.ok && site.rulings ? proofOf(site) : null}
     />
   );
@@ -64,7 +64,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
             <NavWithNews />
           </Suspense>
           <Suspense fallback={<LiveStripSkeleton />}>
-            <LiveBets />
+            <LiveRulings />
           </Suspense>
           {children}
           <Footer />
