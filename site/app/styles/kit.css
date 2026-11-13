@@ -19,7 +19,10 @@
 .panel { border-radius: var(--r-xl); background: var(--surface); box-shadow: var(--card-shadow); }
 .chartwrap { position: relative; }
 .src { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: 12.5px; color: var(--brand-text); min-height: 24px; }
-.src .ic { width: 13px; height: 13px; }
+.src .ic { width: 13px; height: 13px; flex: none; }
+/* a link's words never push the page sideways: a long address breaks wherever it must */
+.src { max-width: 100%; min-width: 0; overflow-wrap: anywhere; }
+.src > span { min-width: 0; }
 .src:hover { text-decoration: underline; text-underline-offset: 3px; }
 .pos { color: var(--yes); font-weight: 600; } .neg { color: var(--no); font-weight: 600; }
 .held { font-size: 13px; color: var(--ink3); margin-top: 4px; }

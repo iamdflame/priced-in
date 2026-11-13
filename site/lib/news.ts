@@ -1,3 +1,4 @@
+import { undouble } from "./tidy";
 // Today's claims: the shapes the API sends for news lines, free picks, reports and the leaderboard
 // (docs/API.md, "Today's claims, picks, reports and the board"), and the plain words every surface uses
 // for them. Browser-safe. The API answers none of these routes until NEWS_ENABLED is on, and the site
@@ -265,7 +266,7 @@ export function shortDate(iso: string): string {
 /** A headline without the outlet Google News appends: "Tesla Is Ending… - The New York Times". */
 export function headlineOf(s: NewsSource | null): string | null {
   if (!s?.headline) return null;
-  const h = s.headline.trim();
+  const h = undouble(s.headline.trim());
   const out = s.outlet?.trim();
   if (out && h.endsWith(` - ${out}`)) return h.slice(0, -(out.length + 3)).trim();
   const m = /^(.*\S)\s+-\s+([^-]{2,40})$/.exec(h);

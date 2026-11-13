@@ -101,6 +101,9 @@ main.wrap { flex: 1; padding-bottom: 56px; }
    give the extra 13 px a side back, so the text around it sits exactly where it did. */
 .whyest { --disc: var(--surface3); --gap: 4px; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; margin: -13px -13px -13px calc(var(--gap) - 13px); border-radius: 50%; background: radial-gradient(circle, var(--disc) 8.5px, transparent 9.25px); color: var(--ink2); font: 700 11px var(--disp); vertical-align: 1px; position: relative; }
 .whyest:hover { color: var(--ink); }
+/* the same control with its own words ("What counts"): a text link with a 44 px tap box */
+.whytext { display: inline-flex; align-items: center; min-height: 44px; margin: -13px 0 -13px 6px; padding: 0 2px; font: inherit; font-weight: 500; color: var(--brand-text); text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.whytext:hover { color: var(--ink); }
 .whyest:focus-visible { outline: 2px solid var(--focus); outline-offset: -11px; border-radius: 50%; } /* the ring hugs the disc, not the 44 px box */
 .chip .whyest { --gap: 2px; --disc: oklch(from currentColor l c h / .18); color: inherit; }
 .whyest.whyest:is(.dialbox .dialcap *) { margin-left: -7px; } /* market.css gives this one 6 px: keep that gap on the 44 px box */

@@ -170,9 +170,9 @@
   .tape .tk { max-width: 100%; }
   .tape .tk > span { overflow: hidden; text-overflow: ellipsis; }
 }
-/* Small phones: one still line of real counts in place of the moving bets */
+/* Phones: one still line of real counts in place of a tape that could only show one clipped item */
 .proofline { display: none; }
-@media (max-width: 390px) {
+@media (max-width: 760px) {
   .ticker.has-proof .tape, .ticker.has-proof .net { display: none; }
   .ticker.has-proof .dot { animation: none; }
   .ticker.has-proof .proofline { display: block; min-width: 0; font-size: 13px; color: var(--ink2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

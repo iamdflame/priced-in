@@ -8,6 +8,7 @@ import type { Bet } from "@/lib/bets";
 import type { Rationale } from "@/lib/core/api";
 import { explorerTx, money, modelShort, shortHash } from "@/lib/format";
 import type { HistoryItem } from "@/lib/server/market";
+import { sourceLabel, withoutRepeats } from "@/lib/tidy";
 
 const persona = (r: Rationale) => r.persona || r.agent.replace(/^house-/, "").replace(/^./, (c) => c.toUpperCase());
 
@@ -20,7 +21,9 @@ function heldOff(r: Rationale): string | null {
   return t ? `Held off: ${t}` : "Held off.";
 }
 
-export function MarketTabs({ bets, rationales, history }: { bets: Bet[]; rationales: Rationale[]; history: HistoryItem[] }) {
+export function MarketTabs({ bets, rationales: given, history }: { bets: Bet[]; rationales: Rationale[]; history: HistoryItem[] }) {
+  // an AI trader looks again every few hours: the same call in the same words shows once
+  const rationales = withoutRepeats(given);
   const tabs = [
     { id: "dis", label: "Discussion", n: rationales.length },
     { id: "act", label: "Activity", n: bets.length },
@@ -55,7 +58,7 @@ export function MarketTabs({ bets, rationales, history }: { bets: Bet[]; rationa
                 <div className="t"><b>The {p}</b>, an AI trader ({modelShort(r.model)}), puts it at <b>{Math.round(r.credence * 100)}% chance it’s true</b>{held ? "" : <> and bet {money(r.size_usd)} that it’s <span className={r.side === "yes" ? "pos" : "neg"}>{r.side === "yes" ? "true" : "false"}</span></>}.</div>
                 <p className="reason">{r.rationale}</p>
                 {held && <p className="held">{held}</p>}
-                {r.source_url && <a className="src" href={r.source_url} target="_blank" rel="noopener nofollow">{r.source_title || new URL(r.source_url).host}<Icon name="ext" /></a>}
+                {r.source_url && <a className="src" href={r.source_url} target="_blank" rel="noopener nofollow"><span>{sourceLabel(r.source_title, r.source_url)}</span><Icon name="ext" /></a>}
               </div>
               <span className="w"><Ago at={r.at} />{r.tx_hash ? <><br /><a href={explorerTx(r.tx_hash)} target="_blank" rel="noopener">bet tx</a></> : null}</span>
             </div>

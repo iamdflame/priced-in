@@ -35,10 +35,10 @@
 .ptray-fine { margin-top: 8px; font-size: 12.5px; line-height: 1.4; color: var(--ink3); }
 
 /* A claim's card: where it came from, when it settles, and what stands in for Yes and No when it's closed */
-a.fromnews { position: relative; z-index: 2; display: block; font-size: 12.5px; line-height: 1.45; color: var(--ink3); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+a.fromnews { position: relative; z-index: 2; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 12.5px; line-height: 1.45; color: var(--ink3); overflow: hidden; text-wrap: pretty; }
 a.fromnews .fn-h { color: var(--ink2); }
 a.fromnews:hover .fn-h { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
-a.fromnews.lead { white-space: normal; font-size: 14px; line-height: 1.45; text-wrap: pretty; }
+a.fromnews.lead { display: block; font-size: 14px; line-height: 1.45; text-wrap: pretty; }
 /* a 44 px target on an 18 px line, the padding taken back by the margins */
 a.fromnews { padding-block: 13px; margin-block: -13px; }
 .card a.fromnews { margin-top: -17px; }

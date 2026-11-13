@@ -154,8 +154,11 @@
   .you { padding: 14px; border-radius: var(--r-lg); }
   .tlead .fhd { margin-bottom: 0; }
   .tlead .picks { margin-top: 4px; padding-top: 0; }
-  /* the phone keeps its compact card: Yes and No first, then what they mean */
+  /* the phone keeps its compact card: Yes and No right under the question, then where it came from and what they mean */
+  .tlead a.fromnews.lead { order: 1; margin-top: 10px; }
   .tlead .yesif { order: 1; margin: 12px 0 0; padding: 10px 12px; font-size: 13.5px; }
+  /* someone who hasn't picked yet gets the claim, not the AI traders' record: that is the Leaderboard tab */
+  :root:not([data-picker='1']) & .today-top > .you { display: none; }
   .tlead .settles, .tlead .payline { order: 2; }
   .wikihd { margin-top: 32px; padding-top: 22px; }
 }
@@ -163,11 +166,11 @@
 /* The grid shows about three rows, then a button expands the rest in place, so the footer is close */
 .grid.clamped > :nth-child(n+13) { display: none; }
 .seeall { display: flex; justify-content: center; margin-top: 18px; }
-.grid.clamped:not(:has(> :nth-child(13))) + .seeall { display: none; }
+.grid.clamped:not(:has(> :nth-child(13))) ~ .seeall { display: none; }
 
 @media (max-width: 1240px) {
   .grid.clamped > :nth-child(n+10) { display: none; }
-  .grid.clamped:has(> :nth-child(10)) + .seeall { display: flex; }
+  .grid.clamped:has(> :nth-child(10)) ~ .seeall { display: flex; }
   .intro { flex-direction: column; align-items: flex-start; gap: 12px; }
   .introside { align-items: flex-start; }
   .hero { grid-template-columns: 1fr; }
@@ -176,7 +179,7 @@
 @media (max-width: 1000px) {
   .proof .pub { margin-left: 0; }
   .grid.clamped > :nth-child(n+7) { display: none; }
-  .grid.clamped:has(> :nth-child(7)) + .seeall { display: flex; }
+  .grid.clamped:has(> :nth-child(7)) ~ .seeall { display: flex; }
 }
 @media (max-width: 1100px) {
   .fside { grid-template-columns: 150px; }
@@ -186,7 +189,7 @@
 /* Phone: the lead and its Yes/No on the first screen; the numbers just below */
 @media (max-width: 760px) {
   .grid.clamped > :nth-child(n+5) { display: none; }
-  .grid.clamped:has(> :nth-child(5)) + .seeall { display: flex; }
+  .grid.clamped:has(> :nth-child(5)) ~ .seeall { display: flex; }
   .proof .pub { margin-left: 0; }
   .proof .pub a { min-height: 44px; }
   .intro { padding: 12px 0 10px; gap: 8px; }
@@ -221,7 +224,7 @@
 .home .sec { margin: 12px 0 0; flex-wrap: wrap; align-items: center; }
 .home .sec h2 { font-size: 22px; }
 .home .sec .tabs { padding: 0; }
-.home .sec .tab { height: 36px; padding: 0 12px; font-size: 14px; }
+.home .sec .tab { height: 44px; padding: 0 14px; font-size: 14px; }
 @media (max-width: 760px) {
   .home { display: flex; flex-direction: column; }
   .home > .intro { order: 1; }
@@ -245,38 +248,89 @@
 /* the "You called it" stamp lands (a keyframe can't sit inside the route's scope block) */
 @keyframes pi-land { from { transform: scale(.92); opacity: 0; } }
 
-/* The correction on the first screen: Wikipedia's line struck, ours beside it, and who ruled */
-.home .fix { margin: 2px 0 12px; padding: 14px 16px 12px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--card-shadow); }
-.home .fix-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 28px; }
+/* The correction on the first screen: the figure Wikipedia gives, struck; the figure this page gives now; who ruled */
+.home .fix { margin: 2px 0 12px; padding: 14px 18px 12px; border-radius: var(--r-lg); background: var(--surface); box-shadow: var(--card-shadow); }
+.home .fix-top { display: flex; align-items: center; justify-content: space-between; gap: 12px 40px; }
+.home .fix-what { min-width: 0; }
+.home .fix h2 { font: 600 13px/1.3 var(--text); color: var(--ink3); }
+.home .fix-said { margin-top: 4px; max-width: 62ch; font: 400 15.5px/1.45 var(--quote); font-variation-settings: 'opsz' 18; color: var(--ink2); text-wrap: pretty; }
+.home .fix-said span { font: 500 13px/1.3 var(--text); color: var(--ink3); }
+.home .fix-figs { display: flex; align-items: flex-end; gap: 18px; flex: none; }
+.home .fix-figs > .ic { width: 22px; height: 22px; margin-bottom: 9px; color: var(--ink3); flex: none; }
+.home .fix-lab { display: block; margin-bottom: 2px; font: 500 12.5px/1.3 var(--text); color: var(--ink3); }
+.home .fix-figs del, .home .fix-figs ins { display: block; font: 700 34px/1.1 var(--disp); letter-spacing: -.03em; white-space: nowrap; }
+.home .fix-figs del { color: var(--ink3); text-decoration-color: var(--no); text-decoration-thickness: 3px; }
+.home .fix-figs ins { color: var(--ink); text-decoration: none; }
+.home .fix-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 28px; margin-top: 8px; }
 .home .fix-pair p { font: 400 15.5px/1.45 var(--quote); font-variation-settings: 'opsz' 18; color: var(--ink); text-wrap: pretty; }
-.home .fix-lab { display: block; margin-bottom: 3px; font: 500 12.5px/1.3 var(--text); color: var(--ink3); }
-.home .fix-was del { color: var(--ink2); text-decoration-color: var(--no); text-decoration-thickness: 1.5px; }
-.home .fix-now ins { text-decoration: none; background: var(--yes-bg); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 1px 3px; margin: 0 -3px; border-radius: 4px; }
-.home .fix-proof { display: flex; align-items: flex-start; gap: 8px; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
+.home .fix-pair del { color: var(--ink2); text-decoration-color: var(--no); text-decoration-thickness: 1.5px; }
+.home .fix-pair ins { text-decoration: none; background: var(--yes-bg); box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 1px 3px; margin: 0 -3px; border-radius: 4px; }
+.home .fix-proof { display: flex; align-items: flex-start; gap: 8px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--line); font-size: 13.5px; line-height: 1.45; color: var(--ink2); }
 .home .fix-proof .ic { width: 16px; height: 16px; flex: none; margin-top: 2px; color: var(--no); }
 .home .fix-proof b { font-weight: 600; color: var(--ink); }
+.home .fix-brief { display: none; }
 .home .fix-more { margin-left: auto; flex: none; white-space: nowrap; font-weight: 500; }
-@media (max-width: 760px) {
-  .home .fix-pair { grid-template-columns: 1fr; }
-  .home .fix-proof { flex-wrap: wrap; }
-  .home .fix-more { margin-left: 24px; min-height: 32px; display: inline-flex; align-items: center; }
+@media (max-width: 1000px) {
+  .home .fix-figs del, .home .fix-figs ins { font-size: 28px; }
 }
-.home .fix-short { display: none; }
-/* on a phone the correction is the two questions, and the three steps give way to it, so the day's Yes and No stay on the first screen */
+/* on a phone: the label, the two figures, the sentence in two lines, and the proof in one; the three steps give way to it, so the day's Yes and No stay on the first screen */
 @media (max-width: 760px) {
-  .home > section.fix.fix, .home.has-today > section.fix.fix.fix { order: 1; margin: 8px 0 0; padding: 9px 12px 6px; }
-  .home .fix-short { display: grid; gap: 4px; }
-  .home .fix-short + .fix-long { display: none; }
-  .home .fix-pair p { font-size: 14.5px; line-height: 1.35; }
-  .home .fix-lab { margin-bottom: 1px; font-size: 12px; }
-  .home .fix-now ins { margin: 0; padding: 0 3px; }
-  .home .fix-proof { margin-top: 6px; padding-top: 4px; align-items: center; flex-wrap: nowrap; }
-  .home .fix-proof .fix-detail { display: none; }
-  .home .fix-more { margin-left: auto; min-height: 32px; }
+  .home > section.fix.fix, .home.has-today > section.fix.fix.fix { order: 1; margin: 8px 0 0; padding: 10px 12px 4px; }
+  .home .fix-top { flex-direction: column; align-items: stretch; gap: 6px; }
+  .home .fix-what { display: contents; }
+  .home .fix h2 { order: 0; font-size: 12.5px; }
+  .home .fix-figs { order: 1; gap: 10px; }
+  .home .fix-figs del, .home .fix-figs ins { font-size: 24px; }
+  .home .fix-figs > .ic { width: 18px; height: 18px; margin-bottom: 5px; }
+  .home .fix-lab { font-size: 12px; }
+  .home .fix-said { order: 2; margin-top: 0; font-size: 14px; line-height: 1.4; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .home .fix-pair { grid-template-columns: 1fr; }
+  .home .fix-pair del, .home .fix-pair ins { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden; }
+  .home .fix-proof { margin-top: 8px; padding-top: 2px; align-items: center; gap: 0 8px; font-size: 13.5px; }
+  .home .fix-proof .ic { margin-top: 0; }
+  .home .fix-long { display: none; }
+  .home .fix-brief { display: inline; }
+  .home .fix-brief a { display: inline-flex; align-items: center; min-height: 40px; }
+  .home .fix-brief a b { color: inherit; }
+  .home .fix-more { display: none; }
   .home:has(> .fix) .steps { display: none; }
 }
-/* a short phone: the correction drops its two labels and the day's intro line, so Yes and No clear the bottom bar */
+/* a short phone: the sentence gives way too, so Yes and No clear the bottom bar */
 @media (max-width: 760px) and (max-height: 780px) {
-  .home:has(> .fix) .fix-lab { display: none; }
+  .home:has(> .fix) .fix-said { display: none; }
   .home:has(> .fix) .today-hd p { display: none; }
+}
+
+/* Today's cards on a wide screen: two to a row, the object at the side, so a headline and its quote have room to be read */
+@media (min-width: 761px) {
+  .home .tgrid, .home .tgrid[data-n] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .home .tgrid .ncard { display: grid; grid-template-columns: 150px minmax(0, 1fr); }
+  .home .tgrid .ncard .art { height: auto; min-height: 100%; }
+  .home .tgrid .ncard .cbody { padding: 14px 18px 12px 8px; }
+  .home .tgrid .ncard .q { font-size: 18px; line-height: 1.24; min-height: 0; }
+  .home .tgrid .ncard a.fromnews { font-size: 13.5px; }
+}
+/* On a phone the day is its lead and three more claims; the rest wait behind one button */
+.home .tfold-btn { display: none; }
+@media (max-width: 760px) {
+  .home .tfold:not([data-open]) > .tfold-in { display: none; }
+  .home .tfold-btn { display: flex; width: 100%; margin-top: 12px; }
+  .home .today:not(:has(.tfold[data-open])) .tgrid > :nth-child(n + 4) { display: none; }
+}
+/* Facts nobody has bet on: a list of titles, not a wall of the same card */
+.home .quiet { margin-top: 22px; }
+.home .quiet-hd { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 12px; }
+.home .quiet-hd h3 { font: 600 17px/1.3 var(--disp); letter-spacing: -.01em; }
+.home .quiet-hd p { font-size: 13.5px; color: var(--ink3); }
+.home .qlist { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 40px; margin-top: 6px; }
+.home .qlist li { display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--line); min-width: 0; }
+.home .qlist .ti { flex: none; }
+.home .ql-q { flex: 1; min-width: 0; padding: 14px 0; font: 500 15px/1.35 var(--text); color: var(--ink); text-wrap: pretty; }
+.home .ql-q:hover { color: var(--brand-text); }
+.home .ql-p { flex: none; font-size: 13px; color: var(--ink3); }
+.home .ql-p b { font: 600 15px var(--disp); color: var(--ink2); font-feature-settings: 'tnum'; }
+.home .grid.clamped ~ .seeall[data-more] { display: flex !important; }
+@media (max-width: 760px) {
+  .home .qlist { grid-template-columns: minmax(0, 1fr); }
+  .home .ql-q { font-size: 14.5px; }
 }

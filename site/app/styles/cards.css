@@ -19,8 +19,8 @@
 .bet small { font-size: 12px; line-height: 1.25; opacity: .92; }
 .bet.yes { background: var(--yes-bg); color: var(--yes); }
 .bet.no { background: var(--no-bg); color: var(--no); }
-.bet.yes:hover, .bet.yes[aria-pressed='true'] { background: var(--yes-fill); color: var(--yes-ink); }
-.bet.no:hover, .bet.no[aria-pressed='true'] { background: var(--no-fill); color: var(--no-ink); }
+.bet.yes:hover, .bet.yes:active, .bet.yes[aria-pressed='true'] { background: var(--yes-fill); color: var(--yes-ink); }
+.bet.no:hover, .bet.no:active, .bet.no[aria-pressed='true'] { background: var(--no-fill); color: var(--no-ink); }
 .bet[aria-disabled='true'] { opacity: .5; pointer-events: none; }
 
 /* Card */

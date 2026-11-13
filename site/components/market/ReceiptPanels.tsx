@@ -1,6 +1,7 @@
 "use client";
 // The receipt's right side: the rewritten sentence, verified in this browser against the model's key on
 // the market, and an AI trader's reply. Each says honestly when nothing has come.
+import { sourceLabel } from "@/lib/tidy";
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "../Icon";
 import { useStore } from "@/lib/client/useStore";
@@ -87,7 +88,7 @@ export function ReplyPanel({ bet }: { bet: DoubtState }) {
       <div className="ph"><h3>The {name}, an AI trader, replied</h3><span className={`ag big ${name}`}>{name[0]}</span></div>
       <p className="reason">{a.rationale}</p>
       <p className="held">It puts it at {Math.round(a.credence * 100)}% and {held ? `held off: ${(a.text || "").replace(/^no bet:\s*/i, "")}.` : `bet ${money(a.size_usd)} that it’s ${a.side === "yes" ? "true" : "false"}.`}</p>
-      {a.source_url && <a className="src" href={a.source_url} target="_blank" rel="noopener nofollow">{a.source_title || "Its source"}<Icon name="ext" /></a>}
+      {a.source_url && <a className="src" href={a.source_url} target="_blank" rel="noopener nofollow"><span>{sourceLabel(a.source_title, a.source_url)}</span><Icon name="ext" /></a>}
     </section>
   );
 }

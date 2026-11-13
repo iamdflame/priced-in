@@ -27,6 +27,8 @@ export function Nav({ news = false }: { news?: boolean }) {
   const items = navFor(news);
   const recorded = useSearchParams().get("recorded") === "1";
   const cta = recorded ? REPLAY_HREF : "/#facts";
+  // a fact's page has its own Yes and No: a second, vaguer bet button beside the wallet would only compete
+  const onFact = path.startsWith("/c/");
   return (
     <>
       {recorded && <ReplayBar />}
@@ -42,7 +44,7 @@ export function Nav({ news = false }: { news?: boolean }) {
           <div className="nav-actions">
             <ThemeToggle />
             <WalletButton />
-            <Link className="btn primary" href={cta}>Bet $1 free</Link>
+            {!onFact && <Link className="btn primary" href={cta}>Bet $1 free</Link>}
             <NavMenu news={news} />
           </div>
         </div>
@@ -52,7 +54,7 @@ export function Nav({ news = false }: { news?: boolean }) {
         <div className="r">
           <Link className="iconbtn" href="/#facts" aria-label="Search facts"><Icon name="search" /></Link>
           <WalletButton />
-          <Link className="btn primary" href={cta}>Free $1</Link>
+          {!onFact && <Link className="btn primary" href={cta}>Free $1</Link>}
         </div>
       </div>
       <MoneyLayer />

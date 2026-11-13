@@ -3,9 +3,11 @@
 // reads on its own ("Ruled false by 3 AI judges: Did weekly DEX volume average about $18.6B in mid-2025?"),
 // and one still open to objection says so. The strip never cuts one in half:
 // only whole items show (the row wraps out of sight), and every few seconds the oldest shown steps aside
-// for the next. It renders from the server's read and refreshes while the tab is visible. At 390 px and
+// for the next. It renders from the server's read and refreshes while the tab is visible. An encyclopedia
+// page (/p/…) has no strip: nothing moves beside an article being read. On a phone (760 px and
 // below (SMALL_PHONE, and .proofline in shell.css) the rulings give way to one still line of real counts.
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { TopicIcon } from "../Brand";
 import { filming } from "@/lib/client/film";
@@ -19,7 +21,7 @@ export interface StripFact { short: string; icon: string }
 const REFRESH_MS = 60_000;
 const SHOWN = 16;
 const ROTATE_MS = 5_000;
-const SMALL_PHONE = "(max-width: 390px)";
+const SMALL_PHONE = "(max-width: 760px)";
 const smallPhone = () => matchMedia(SMALL_PHONE).matches;
 
 /** Step the list round every few seconds, unless the visitor asked for less motion or is reading it. */
@@ -93,6 +95,8 @@ export function LiveStrip({ initial, facts, proof }: { initial: StripRuling[] | 
   const rot = useRotation(items);
   const tape = useRef<HTMLDivElement>(null);
   useWrappedInert(tape, rot.shown);
+  const reading = usePathname().startsWith("/p/");
+  if (reading) return null;
   return (
     <div className={`ticker ${proof ? "has-proof" : ""}`} aria-label="Latest rulings">
       <div className="wrap">

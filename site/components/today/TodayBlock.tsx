@@ -2,6 +2,7 @@
 // most, beside you against the AIs; the next few claims as cards; then what is settling next and what was
 // just decided. Every count is /api/today's; the AI traders' records are /api/leaderboard's.
 import { ClaimCard, ClaimLead } from "./Claim";
+import { Fold } from "./Fold";
 import { LineList } from "./Lists";
 import { YouPanel } from "./YouPanel";
 import { clockUtc, plural } from "@/lib/format";
@@ -47,10 +48,12 @@ export async function TodayBlock({ today, facts, history, now }: { today: Today;
         </div>
       )}
       {(a.next.length > 0 || a.decided.length > 0) && (
-        <div className="tlists">
-          <LineList id="t-next" title="Settling next" sub={`${plural(a.next.length, "claim")}, soonest first. Waiting ones show why.`} lines={a.next} now={now} />
-          <LineList id="t-done" title="Just decided" sub="Settled on-chain by three AI judges, from the named source’s own word." lines={a.decided} now={now} />
-        </div>
+        <Fold label={`See all ${plural(today.lines.length, "claim")}`}>
+          <div className="tlists">
+            <LineList id="t-next" title="Settling next" sub={`${plural(a.next.length, "claim")}, soonest first. Waiting ones show why.`} lines={a.next} now={now} />
+            <LineList id="t-done" title="Just decided" sub="Settled on-chain by three AI judges, from the named source’s own word." lines={a.decided} now={now} />
+          </div>
+        </Fold>
       )}
     </section>
   );

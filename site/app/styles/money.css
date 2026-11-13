@@ -252,7 +252,7 @@
   .m-qr .code { width: 188px; height: 188px; }
   .m-get .v { font-size: 28px; }
   .wbtn .bal { display: none; }
-  .wbtn { padding: 0 4px; height: 44px; background: none; box-shadow: none; }
+  .wbtn { padding: 0 4px; height: 44px; min-width: 44px; justify-content: center; background: none; box-shadow: none; }
   .wbtn.out { padding: 0 10px; background: var(--surface); box-shadow: inset 0 0 0 1px var(--line-strong); font-size: 14px; }
   .wbtn.out .lbl { display: none; }
   .wmenu { position: fixed; left: 8px; right: 8px; top: 60px; width: auto; }

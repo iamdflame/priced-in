@@ -7,7 +7,7 @@ import { Icon } from "./Icon";
 import { dayTimeUtc } from "@/lib/format";
 import type { Caught } from "@/lib/model";
 
-export function Explain({ label, children }: { label: string; children: ReactNode }) {
+export function Explain({ label, children, text }: { label: string; children: ReactNode; /** words on the control itself, in place of the "?" */ text?: string }) {
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top: number } | null>(null);
   const btn = useRef<HTMLButtonElement>(null);
@@ -47,8 +47,8 @@ export function Explain({ label, children }: { label: string; children: ReactNod
   }, [open, pos, id]);
   return (
     <>
-      <button ref={btn} type="button" className="whyest" aria-label={label} aria-expanded={open} aria-controls={id}
-        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>?</button>
+      <button ref={btn} type="button" className={text ? "whytext" : "whyest"} aria-label={text ? undefined : label} aria-expanded={open} aria-controls={id}
+        onClick={(e) => { e.preventDefault(); e.stopPropagation(); setOpen((o) => !o); }}>{text ?? "?"}</button>
       {open && pos && (
         <div id={id} role="dialog" aria-label={label} className="pop" style={{ left: pos.left, top: pos.top }}>
           <button type="button" className="iconbtn x" aria-label="Close" onClick={() => setOpen(false)}><Icon name="x" /></button>

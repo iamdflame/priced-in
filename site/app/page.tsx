@@ -48,7 +48,7 @@ export default async function Home() {
   return (
     <main id="main" className={`wrap home${today ? " has-today" : ""}`}>
       <Intro />
-      {fix && <Fix r={fix} ruledQ={byId.get(fix.claim_id)?.question} correctedQ={byId.get(fix.correction!.claim_id)?.question} />}
+      {fix && <Fix r={fix} />}
       <ProofBar p={proofOf(site)} news={!!today} />
       {off && <FreeBetsOff reason={off} />}
       {today && <TodayBlock today={today} facts={byId} history={site.history} now={site.asOf} />}

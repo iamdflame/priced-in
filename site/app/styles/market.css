@@ -136,6 +136,8 @@
 @media (max-width: 760px) {
   .judgesline.phone-only { display: flex; margin-top: 10px; }
   .ticket.dock .freecash-text { display: none; }
+  /* the docked ticket ends at the tab bar: its "?" keeps a 44 px tap box, moved up so none of it lies over a tab */
+  .ticket.dock .whyest { margin-top: -22px; margin-bottom: -4px; }
 }
 @media (max-width: 760px) {
   .how-row { flex-direction: column; }

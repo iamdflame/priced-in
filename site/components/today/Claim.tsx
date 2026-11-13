@@ -147,14 +147,14 @@ export function ClaimLead({ l, f, now, rules }: { l: TodayLine; f?: Fact; now: n
         <div className="fhd">
           <div>
             <h2 id="tlead-q"><Link href={`/c/${l.claim_id}`}>{l.question}</Link></h2>
-            <FromNews l={l} lead />
           </div>
           <div className="feature-dial phone"><Dial p={n.price} sizes="96px" /><p className="mini">chance it’s true</p></div>
         </div>
+        <FromNews l={l} lead />
         <YesIf l={l} yes={c.yes} />
         {open ? <PickButtons id={l.claim_id} question={l.question} quotes={f?.quotes ?? null} settlesBy={shortDate(l.settles.by)} size="lead" /> : <Closed l={l} />}
         <SettlesLine l={l} fine={c.fine} />
-        <p className="payline">Picks are free and win nothing. Right calls climb the <span className="nowrap">leaderboard.<Explain label="What is a pick?"><b>A pick is your call, free.</b> {rules} Three AI traders are on the same board. Back your pick with your free $1 or with USDC if you want something on it.</Explain></span></p>
+        <p className="payline">Picks are free and win nothing. Right calls climb the <span className="nowrap">leaderboard.<Explain label="What is a pick?" text="What counts"><b>A pick is your call, free.</b> {rules} Three AI traders are on the same board. Back your pick with your free $1 or with USDC if you want something on it.</Explain></span></p>
       </div>
       <div className="fside">
         <div className="feature-dial"><Dial p={n.price} sizes="150px" priority /><p className="mini">chance it’s true</p></div>

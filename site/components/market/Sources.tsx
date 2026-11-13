@@ -60,7 +60,7 @@ export function NewsSources({ f }: { f: Fact }) {
         ) : <p className="none">The report it came from isn’t on record.</p>}
         <div className="h settle-h"><Icon name="clock" />Who settles it, by when</div>
         <p className="big-v">{n.settles.source}, by {n.settles.by_words}</p>
-        {n.settles.source_url && <a className="src" href={n.settles.source_url} target="_blank" rel="noopener nofollow">{n.settles.source_url.replace(/^https?:\/\//, "").replace(/\/$/, "")}<Icon name="ext" /></a>}
+        {n.settles.source_url && <a className="src" href={n.settles.source_url} target="_blank" rel="noopener nofollow"><span>{n.settles.source_url.replace(/^https?:\/\//, "").replace(/\/$/, "")}</span><Icon name="ext" /></a>}
       </div>
     </div>
   );
