@@ -209,6 +209,10 @@ test("news: when the last line opened and the reserve room; it fails after 26 ho
   const unread = newsEntry({ enabled: true, lines, roomMicro: null, nowMs: now });
   assert.deepEqual([unread.ok, unread.reserve_room_usd], [true, null], "an unread room is said, not guessed");
   assert.match(unread.note, /could not be read/);
+  // the cap unread, the treasury's room known: the room is shown, and the entry says whose it is
+  const noCap = newsEntry({ enabled: true, lines, roomMicro: 2_400_000, capRead: false, nowMs: now });
+  assert.deepEqual([noCap.ok, noCap.reserve_room_usd, noCap.reserve_cap_read, ok.reserve_cap_read], [true, 2.4, false, true]);
+  assert.match(noCap.note, /reserve cap could not be read .* the room shown is the treasury's; the contract enforces the cap/);
   assert.equal(newsEntry({ enabled: true, lines: {}, roomMicro: 1, nowMs: now }).ok, false);
   assert.deepEqual(newsEntry({ enabled: false, lines: {}, roomMicro: null, nowMs: now }).ok, true);
   // the room: the smaller of the cap less what is reserved, and the treasury less the free bets and the floor

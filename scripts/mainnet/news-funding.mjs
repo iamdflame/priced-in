@@ -39,12 +39,14 @@ const LANE_TO = arg("--lane-budget", null);
 const DEPOSIT_ALL = process.argv.includes("--deposit-all");
 const M = dep.accounts.market, U = dep.accounts.usdc;
 const RPCS = ["https://free.rpc.fastnear.com", "https://near.drpc.org", "https://rpc.mainnet.near.org"];
+// the market's state is past 50 KB, and most public nodes refuse to list it; these two still do (reads only)
+const STATE_RPCS = ["https://rpc.shitzuapes.xyz", "https://rpc.intea.rs"];
 const landed = (r, what) => { if (r.status && typeof r.status === "object" && "Failure" in r.status) throw new Error(`${what} failed: ${JSON.stringify(r.status.Failure).slice(0, 200)}`); return r.transaction_outcome?.id || r.transaction?.hash; };
 const usd = (micro) => `$${(Number(micro) / 1e6).toFixed(2)}`;
 
-async function rpc(params) {
+async function rpc(params, urls = RPCS) {
   let last;
-  for (const url of RPCS) {
+  for (const url of urls) {
     try {
       const r = await fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params }), signal: AbortSignal.timeout(10_000) });
       const j = await r.json();
@@ -59,7 +61,7 @@ const view = async (account_id, method_name, args = {}) => JSON.parse(Buffer.fro
 const [acct, stats, res, raw, ownerUsdc, checker] = await Promise.all([
   rpc({ request_type: "view_account", finality: "final", account_id: M }),
   view(M, "stats"), view(M, "get_resolution"),
-  rpc({ request_type: "view_state", finality: "final", account_id: M, prefix_base64: Buffer.from("STATE").toString("base64") }),
+  rpc({ request_type: "view_state", finality: "final", account_id: M, prefix_base64: Buffer.from("STATE").toString("base64") }, [...STATE_RPCS, ...RPCS]),
   view(U, "ft_balance_of", { account_id: dep.root }), view(M, "get_balance", { trader: dep.keys.checker_account }),
 ]);
 const state = (raw.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");

@@ -174,9 +174,9 @@ export async function juryKeysRound(d) {
  * The `news` entry: when the last line opened, and whether the treasury can carry the next one.
  * Fails when no line opened for maxAgeH hours (the scout runs twice a day), or when the reserve room is
  * smaller than what the last line reserved.
- * @param {{ enabled: boolean, lines: object, roomMicro: number|null, nowMs: number, maxAgeH?: number }} a
+ * @param {{ enabled: boolean, lines: object, roomMicro: number|null, capRead?: boolean, nowMs: number, maxAgeH?: number }} a
  */
-export function newsEntry({ enabled, lines, roomMicro, nowMs, maxAgeH = 26 }) {
+export function newsEntry({ enabled, lines, roomMicro, capRead = true, nowMs, maxAgeH = 26 }) {
   if (!enabled) return { enabled: false, ok: true, note: "Today's claims are off (NEWS_ENABLED is not 1)." };
   const opened = Object.values(lines || {}).filter((l) => Number.isFinite(l?.opened_at)).sort((a, b) => b.opened_at - a.opened_at);
   const last = opened[0] ?? null;
@@ -189,11 +189,12 @@ export function newsEntry({ enabled, lines, roomMicro, nowMs, maxAgeH = 26 }) {
   if (stale) notes.push(last ? `No news line opened in ${Math.round(ageH)} hours (the scout runs twice a day).` : "No news line has opened yet.");
   if (short) notes.push(`The treasury can carry $${usd(roomMicro).toFixed(2)} more of reserves, less than the $${usd(needMicro).toFixed(2)} the last line reserved: the next line won't open until money is added (scripts/mainnet/news-funding.mjs).`);
   if (roomMicro === null || roomMicro === undefined) notes.push("The reserve room could not be read.");
+  else if (!capRead) notes.push("The reserve cap could not be read (the market's state is past what most public RPCs list), so the room shown is the treasury's; the contract enforces the cap.");
   return {
     enabled: true,
     last_opened_at: iso(last?.opened_at), last_claim_id: last?.claim_id ?? null, hours_since: ageH === null ? null : Math.round(ageH * 10) / 10,
     opened_today: opened.filter((l) => isoDay(l.opened_at) === isoDay(nowMs)).length,
-    reserve_room_usd: roomMicro === null || roomMicro === undefined ? null : usd(roomMicro), last_line_reserve_usd: usd(needMicro),
+    reserve_room_usd: roomMicro === null || roomMicro === undefined ? null : usd(roomMicro), reserve_cap_read: capRead, last_line_reserve_usd: usd(needMicro),
     ok, note: notes.join(" ") || null,
   };
 }
@@ -247,7 +248,7 @@ export async function chainSignals(d) {
     d.news.enabled ? quiet(() => d.lines()) : null,
   ]);
   return {
-    news: newsEntry({ enabled: d.news.enabled, lines: lines?.lines ?? {}, roomMicro: roomOf(capacity, d.news.floorMicro), nowMs: d.nowMs }),
+    news: newsEntry({ enabled: d.news.enabled, lines: lines?.lines ?? {}, roomMicro: roomOf(capacity, d.news.floorMicro), capRead: capacity?.capRead !== false, nowMs: d.nowMs }),
     checker: checkerEntry({ account: d.checkerId, balanceMicro: checkerBal, bondMicro: res?.challenge_bond_micro ?? null }),
     lane: laneEntry({ account: d.laneId, stats, acct: laneAcct, minNear: d.laneMinNear }),
   };

@@ -118,21 +118,47 @@ export const forgetCachedLines = () => { cached = { at: 0, value: null, pending:
 // ---------- the chain's money ----------
 
 /**
- * Treasury, reserved, the lane budget and the reserve cap. `stats` gives three; the cap lives only in the
- * market's STATE, read raw. Null when either read fails: the gate then opens nothing.
- * @param {{ call: (method: string, params: object, o?: object) => Promise<any>, viewFunction: Function }} rpc
+ * RPCs that still list a contract's state once it is past 50 KB. Most public nodes refuse then
+ * (TOO_LARGE_CONTRACT_STATE): the mainnet market crossed that line on 13 November 2026, and every node
+ * in our pool but one stopped serving the read.
  */
-export async function readCapacity(rpc, marketId) {
+export const STATE_RPCS = ["https://rpc.shitzuapes.xyz", "https://rpc.intea.rs"];
+
+/** The market's raw STATE entry, or null: the pool first, then each node that lists large state. */
+async function readState(rpc, marketId, { fetchImpl = globalThis.fetch, stateRpcs = STATE_RPCS, timeoutMs = 6000 } = {}) {
+  const params = { request_type: "view_state", finality: "final", account_id: marketId, prefix_base64: Buffer.from("STATE").toString("base64") };
+  const pick = (raw) => (raw?.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE") ?? null;
+  // the pool stops at the first node's refusal (a handler error is an answer, not an outage), so it is one try
+  try { const v = pick(await rpc.call("query", params, { timeoutMs })); if (v) return v; } catch { /* too large for that node, or no answer */ }
+  for (const url of stateRpcs) {
+    try {
+      const r = await fetchImpl(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "query", params }), signal: AbortSignal.timeout(timeoutMs) });
+      const v = pick((await r.json())?.result);
+      if (v) return v;
+    } catch { /* the next node */ }
+  }
+  return null;
+}
+
+/**
+ * Treasury, reserved, the lane budget and the reserve cap. `stats` gives three; the cap lives only in the
+ * market's STATE, read raw. When no node will list the state, capRead is false and the cap is taken as one
+ * the treasury can't reach, so the gate goes by the treasury alone: the contract enforces the cap itself
+ * (open_claim refuses with "subsidy cap reached", which the opener already takes as a line not opened).
+ * Null when `stats` can't be read or the state doesn't parse: the gate then opens nothing.
+ * @param {{ call: (method: string, params: object, o?: object) => Promise<any>, viewFunction: Function }} rpc
+ * @param {{ fetchImpl?: typeof fetch, stateRpcs?: string[], timeoutMs?: number }} [o]
+ */
+export async function readCapacity(rpc, marketId, o = {}) {
   try {
-    const [stats, raw, acct] = await Promise.all([
+    const [stats, v, acct] = await Promise.all([
       rpc.viewFunction(marketId, "stats", {}),
-      rpc.call("query", { request_type: "view_state", finality: "final", account_id: marketId, prefix_base64: Buffer.from("STATE").toString("base64") }, { timeoutMs: 8000 }),
+      readState(rpc, marketId, o),
       rpc.call("query", { request_type: "view_account", finality: "final", account_id: marketId }, { timeoutMs: 8000 }).catch(() => null),
     ]);
-    const v = (raw?.values || []).find((x) => Buffer.from(x.key, "base64").toString() === "STATE");
-    if (!v) return null;
-    const st = reserveFromState(Buffer.from(v.value, "base64"));
-    return { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), capMicro: st.capMicro, laneBudgetMicro: String(stats.lane_budget_micro), spareNear: acct ? spareNearOf(acct) : null };
+    const base = { treasuryMicro: String(stats.treasury_micro), reservedMicro: String(stats.reserved_micro), laneBudgetMicro: String(stats.lane_budget_micro), spareNear: acct ? spareNearOf(acct) : null };
+    if (v) return { ...base, capMicro: reserveFromState(Buffer.from(v.value, "base64")).capMicro, capRead: true };
+    return { ...base, capMicro: String(BigInt(stats.reserved_micro) + BigInt(stats.treasury_micro)), capRead: false };
   } catch { return null; }
 }
 
