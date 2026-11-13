@@ -21,12 +21,31 @@ export const RESERVE_ENDS = Date.parse("2026-11-15T00:00:00Z");
 
 /**
  * The Checker's bond balance in the market: until the 17 November sitting it must cover two bonds (one
- * sitting, and one to spare should a challenge fail and its bond wait for expiry), then one.
+ * sitting, and one to spare should a challenge fail and its bond wait for expiry), then one. A bond posted
+ * on the ruling in progress counts: it is in play, not missing. Without that the check failed for about
+ * twenty minutes at every sitting, with $2.95 in hand and one dollar of it on the table.
  */
-export function checkerBondState(balanceUsd, bondUsd, nowMs) {
+export function checkerBondState(balanceUsd, bondUsd, nowMs, posted = 0) {
   const need = (nowMs < TWO_BONDS_UNTIL ? 2 : 1) * bondUsd;
-  const state = balanceUsd < need ? "FAIL" : balanceUsd < need + bondUsd ? "WARN" : "PASS";
-  return { state, detail: `$${balanceUsd.toFixed(2)} for a $${bondUsd.toFixed(2)} bond; ${need / bondUsd} bond${need === bondUsd ? "" : "s"} needed${nowMs < TWO_BONDS_UNTIL ? " until 17 November 15:00 UTC" : ""}${state === "PASS" ? "" : ": fund it with scripts/mainnet/checker.mjs --bond <USD>"}` };
+  const have = balanceUsd + posted * bondUsd;
+  const state = have < need ? "FAIL" : have < need + bondUsd ? "WARN" : "PASS";
+  return { state, detail: `$${balanceUsd.toFixed(2)} for a $${bondUsd.toFixed(2)} bond${posted ? `, and ${posted} posted on the ruling in progress` : ""}; ${need / bondUsd} bond${need === bondUsd ? "" : "s"} needed${nowMs < TWO_BONDS_UNTIL ? " until 17 November 15:00 UTC" : ""}${state === "PASS" ? "" : ": fund it with scripts/mainnet/checker.mjs --bond <USD>"}` };
+}
+
+/** More than this share of a day's model calls coming back without an answer is an outage. */
+export const AI_FAIL_SHARE = 0.1;
+
+/**
+ * NEAR AI's refused or failed model calls today, from /health's checks.ai. The count alone grows with the
+ * number of open claims (48 of them make about 800 calls a day), so it is the share that FAILs: above a
+ * tenth of the day's calls. A smaller share is a WARN. Null when the API reports the calls as fine.
+ */
+export function aiState(ai) {
+  if (!ai || ai.ok !== false) return null;
+  const calls = Number(ai.calls) || 0, refusals = Number(ai.refusals) || 0;
+  const share = calls > 0 ? refusals / calls : 1;
+  const by = Object.entries(ai.by_status || {}).filter(([k]) => !/^2\d\d$/.test(k) && k !== "spend_cap").map(([k, n]) => `${n} ${/^\d+$/.test(k) ? `HTTP ${k}` : k}`).join(", ");
+  return { state: share > AI_FAIL_SHARE ? "FAIL" : "WARN", detail: `NEAR AI refused or failed ${refusals} of ${calls} model calls today, ${(share * 100).toFixed(1)}%${by ? ` (${by})` : ""}` };
 }
 
 /** The market's spare NEAR pays the storage of every new claim, position and rewrite. */
@@ -137,16 +156,20 @@ async function main() {
     const s = freeBetState(r.body, now);
     say(s.state, s.name, s.detail);
   });
+  let rulingNow = null;
   await check("API", async () => {
     const r = await get(`${API}/health`, { json: true });
-    // news has its own row below: a short treasury is a top-up, not a failure
-    const bad = Object.entries(r.body.checks || {}).filter(([k, v]) => v && v.ok === false && k !== "news" && k !== "jury_keys");
+    rulingNow = r.body.ruling_now ?? null;
+    // news, the judges' keys and the AI calls have their own rows below: each can be a WARN, not a failure
+    const bad = Object.entries(r.body.checks || {}).filter(([k, v]) => v && v.ok === false && k !== "news" && k !== "jury_keys" && k !== "ai");
     const why = bad.map(([k, v]) => (v.note ? `${k} (${String(v.note).slice(0, 140)})` : k));
     say(r.body.ok && !bad.length ? "PASS" : "FAIL", "the API is healthy", bad.length ? `failing: ${why.join("; ")}` : !r.body.ok ? `failures: ${(r.body.failures || []).join("; ").slice(0, 200)}` : `spend ${r.body.checks?.spend?.spent_usd ?? "?"} of ${r.body.checks?.spend?.cap_usd ?? "?"} today`);
     const news = newsState(r.body.checks?.news);
     if (news) say(news.state, "new fact lines keep opening", news.detail);
     const keys = juryKeysState(r.body.checks?.jury_keys);
     if (keys) say(keys.state, "the AI judges' keys match the market's", keys.detail);
+    const ai = aiState(r.body.checks?.ai);
+    if (ai) say(ai.state, "NEAR AI answers the model calls", ai.detail);
   });
   await check("keeper", async () => {
     const r = await get(`${API}/api/rulings`, { json: true });
@@ -175,7 +198,7 @@ async function main() {
   await check("Checker bond", async () => {
     const [bal, res] = await Promise.all([balanceUsd(CHECKER), view("get_resolution")]);
     bond = Number(res.challenge_bond_micro) / 1e6;
-    const s = checkerBondState(bal, bond, now);
+    const s = checkerBondState(bal, bond, now, rulingNow ? 1 : 0);
     say(s.state, "the Checker can post its bonds", s.detail);
   });
   for (const id of HOUSE) await warnCheck(`house agent ${id}`, async () => { const s = houseState(await balanceUsd(id)); say(s.state, `house agent ${id.split(".")[0]}'s USDC`, s.detail); });

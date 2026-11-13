@@ -1,7 +1,7 @@
 // The watchdog's thresholds (scripts/watchdog.mjs): a FAIL emails the founder, a WARN never does.
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { checkerBondState, freeBetState, houseState, juryKeysState, marketStorageState, newsState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
+import { aiState, checkerBondState, freeBetState, houseState, juryKeysState, marketStorageState, newsState, relayerState, sentinelState, RESERVE_ENDS, TWO_BONDS_UNTIL } from "../../../scripts/watchdog.mjs";
 
 const before = Date.parse("2026-11-12T10:00:00Z");
 const judging = Date.parse("2026-11-16T10:00:00Z");
@@ -22,6 +22,27 @@ test("watchdog: the Checker's bond balance must cover two bonds until 17 Novembe
   assert.equal(checkerBondState(0.99, 1, after).state, "FAIL");
   assert.equal(checkerBondState(2, 1, after).state, "PASS");
   assert.match(checkerBondState(1.5, 1, before).detail, /\$1\.50 for a \$1\.00 bond; 2 bonds needed until 17 November 15:00 UTC: fund it with scripts\/mainnet\/checker\.mjs/);
+});
+
+test("watchdog: a bond posted on the ruling in progress counts as covered", () => {
+  // every sitting on 13 November: $2.95 in hand, $1 of it posted, and the run failed twice
+  assert.equal(checkerBondState(1.95, 1, before).state, "FAIL", "with no ruling in progress, $1.95 is short of two bonds");
+  assert.equal(checkerBondState(1.95, 1, before, 1).state, "WARN");
+  assert.match(checkerBondState(1.95, 1, before, 1).detail, /\$1\.95 for a \$1\.00 bond, and 1 posted on the ruling in progress; 2 bonds needed/);
+  assert.equal(checkerBondState(0.95, 1, before, 1).state, "FAIL", "nothing to spare behind the posted bond");
+  assert.equal(checkerBondState(2, 1, before, 1).state, "PASS");
+});
+
+test("watchdog: failed AI calls FAIL by their share of the day's calls, not by their count", () => {
+  const ai = (refusals, calls, by_status) => ({ ok: false, calls, refusals, by_status });
+  const busy = aiState(ai(29, 819, { 200: 790, 429: 11, 502: 2, network: 16 }));
+  assert.equal(busy.state, "WARN", "13 November: 3.5% of 819 calls, the judges sat twice");
+  assert.equal(busy.detail, "NEAR AI refused or failed 29 of 819 model calls today, 3.5% (11 HTTP 429, 2 HTTP 502, 16 network)");
+  assert.equal(aiState(ai(82, 819)).state, "FAIL");
+  assert.equal(aiState(ai(21, 40)).state, "FAIL");
+  assert.equal(aiState(ai(5, 0)).state, "FAIL", "failures with no call counted can't be a small share");
+  assert.equal(aiState({ ok: true, calls: 819, refusals: 29 }), null);
+  assert.equal(aiState(null), null);
 });
 
 test("watchdog: the market's storage NEAR fails below 0.35 (it used to fail only below 0.1)", () => {

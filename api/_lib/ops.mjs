@@ -4,7 +4,8 @@
 // request path; each is a checks.<name> entry with an `ok` flag, never an entry in /health's
 // `failures` (that list turns /health into a 503, which a judge's own check reads as the site down).
 //
-//   ai         today's model calls and refusals, from spend.jsonl; ok false above 20 refusals
+//   ai         today's model calls and refusals, from spend.jsonl; ok false above 20 refusals that are
+//              also more than a tenth of the day's calls
 //   jury_keys  for each jury model, the signing key NEAR AI Cloud's attestation proves now against the
 //              key registered on the market (get_model); ok false on any mismatch. Checked once a day,
 //              and again from an hour before the Checker's sitting on sitting days (docs/RUNBOOK-jury-keys.md)
@@ -22,6 +23,7 @@ import { firstSitting } from "./keeper.mjs";
 export const JURY_KEYS_DOC = "snapshots/jury-keys.json";
 export const RUNBOOK = "docs/RUNBOOK-jury-keys.md";
 export const MAX_REFUSALS = 20;
+export const MAX_REFUSAL_SHARE = 0.1;
 const HOUR = 3600_000;
 const isoDay = (t) => new Date(t).toISOString().slice(0, 10);
 const dayStart = (t) => Date.parse(isoDay(t));
@@ -31,13 +33,19 @@ const hh = (h) => `${String(((h % 24) + 24) % 24).padStart(2, "0")}:00 UTC`;
 
 // ---------- ai ----------
 
-/** The `ai` entry from today's call counts (spend.mjs countCalls). */
-export function aiEntry(counts, { maxRefusals = MAX_REFUSALS } = {}) {
+/**
+ * The `ai` entry from today's call counts (spend.mjs countCalls). Not ok when more than 20 calls came back
+ * without an answer and they are also more than a tenth of the day's calls. The count alone grows with the
+ * number of open claims: on 13 November, 48 claims made 819 calls, and the 29 that failed (3.5%) tripped a
+ * rule written when a day had a few dozen calls.
+ */
+export function aiEntry(counts, { maxRefusals = MAX_REFUSALS, maxShare = MAX_REFUSAL_SHARE } = {}) {
   if (!counts) return null;
-  const ok = counts.refusals <= maxRefusals;
+  const share = counts.calls > 0 ? counts.refusals / counts.calls : 0;
+  const ok = counts.refusals <= maxRefusals || share <= maxShare;
   return {
-    day: counts.day, calls: counts.calls, refusals: counts.refusals, cap_refused: counts.cap_refused, by_status: counts.by_status, max_refusals: maxRefusals, ok,
-    note: ok ? null : `NEAR AI refused or failed ${counts.refusals} model calls today (UTC), more than ${maxRefusals}: the agents, the writer or the jury may be going quiet. by_status says which answers came back.`,
+    day: counts.day, calls: counts.calls, refusals: counts.refusals, refusal_share: Number(share.toFixed(4)), cap_refused: counts.cap_refused, by_status: counts.by_status, max_refusals: maxRefusals, max_share: maxShare, ok,
+    note: ok ? null : `NEAR AI refused or failed ${counts.refusals} of ${counts.calls} model calls today (UTC): more than ${maxRefusals}, and more than ${Math.round(maxShare * 100)}% of them. The agents, the writer or the jury may be going quiet. by_status says which answers came back.`,
   };
 }
 

@@ -87,12 +87,18 @@ test("the spend meter: refusals never use up the daily cap, every call is writte
 
 // ---------- ai ----------
 
-test("ai: calls and refusals today, ok until more than 20 refusals", () => {
-  const counts = (refusals) => ({ day: "2026-11-12", calls: 40, refusals, cap_refused: 0, by_status: { 200: 40 - refusals, 429: refusals } });
+test("ai: calls and refusals today, ok until more than 20 refusals that are over a tenth of the calls", () => {
+  const counts = (refusals, calls = 40) => ({ day: "2026-11-12", calls, refusals, cap_refused: 0, by_status: { 200: calls - refusals, 429: refusals } });
   assert.equal(aiEntry(counts(20)).ok, true);
   const bad = aiEntry(counts(21));
-  assert.deepEqual([bad.ok, bad.calls, bad.refusals, bad.max_refusals], [false, 40, 21, 20]);
-  assert.match(bad.note, /refused or failed 21 model calls today/);
+  assert.deepEqual([bad.ok, bad.calls, bad.refusals, bad.max_refusals, bad.max_share], [false, 40, 21, 20, 0.1]);
+  assert.match(bad.note, /refused or failed 21 of 40 model calls today/);
+  // 13 November 2026: 48 open claims, 819 calls, 29 without an answer. A busy day, not an outage.
+  const busy = aiEntry(counts(29, 819));
+  assert.deepEqual([busy.ok, busy.refusal_share, busy.note], [true, 0.0354, null]);
+  assert.equal(aiEntry(counts(82, 819)).ok, false, "just over a tenth of a busy day is an outage");
+  assert.equal(aiEntry(counts(81, 819)).ok, true);
+  assert.equal(aiEntry(counts(0, 0)).ok, true, "a day with no call yet is fine");
   assert.equal(aiEntry(null), null);
 });
 
