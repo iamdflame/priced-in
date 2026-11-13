@@ -111,6 +111,7 @@ Test counts from the same day: `npm run api:unit` 265 of 265 (52 s), `npm run si
 - `npm run judge` includes the hosted site (check 9); `npm run judge -- --offline` needs no network, and the checks that read a chain or the site say SKIP.
 - `npm run judge -- --offline` needs no network: the checks that read a chain, 1Click or the hosted site say SKIP and why.
 - `npm run judge -- --json` gives machine-readable output.
+- Every run also prints the known misses under its checks: the six hand-checked facts the judges ruled wrongly, each with its three verdicts, and the one misleading challenge the Sentinel would not have disputed.
 - `npm run judge:quick` skips the Rust rebuild and the unit suites (checks 3 and 8 say SKIP) and checks the hosted site: 25 seconds measured, check 11 included. `npm run judge:full` installs everything, then runs all 11 checks against the hosted site as JSON.
 - Rust is optional. With rustc 1.99.1 and the `wasm32-unknown-unknown` target installed, check 3 rebuilds the contracts, byte for byte, on Linux, macOS or Windows. Without them it says SKIP and gives the command that fixes it.
 - The judge only reads. It holds no key and sends no transaction.

@@ -176,7 +176,7 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 - A provisional outcome only opens a window; it does not settle (threat 1).
 
 **Residual.**
-- `open_and_buy` always calls `buy` with `min_shares_micro = 0`, and the web's one-tap doubt also sends 0 (`.apex/streams/webcore-result.md`, Known limits). Those trades accept any price.
+- `open_and_buy` always calls `buy` with `min_shares_micro = 0`, so a first bet that opens a market accepts any price. That is in the contract and stays. The site's free $1 only bets on facts that are already live, through `buy`, and it now sends a floor: nine tenths of the shares the page quoted (`laneFloor`, `site/lib/core/lane.ts`). A worse fill is refused and nothing is spent. Until 13 November it sent 0, and it still does for a fact whose liquidity figure the page couldn't read, where its quote is only approximate.
 - Trading continues while a claim is `Challenged` or `Escalated`. A relayer who holds a signed verdict, or anyone who reads the `verdict` event first, can trade before others react. The market maker's subsidy pays for that.
 
 ## 11. The owner names a swarm that isn't one
@@ -206,9 +206,9 @@ An operator is any account the owner listed with `set_operator` (the owner is al
 - The fee sits outside the LMSR. It goes to the treasury, never into a claim's pot, so the pot still covers its payout and the subsidy bound `b ln(1/p0)` is untouched. Checks "the buy's fee is booked to the treasury and its cost to the claim's pot", "the treasury rebuilds exactly from the events, fees included", and `books close` at every stage.
 
 **Residual.**
-- `open_and_buy` and the web's one-tap bet send `min_shares_micro = 0` (threat 10), so a fee raised while they are in flight applies to them in full, up to 3%.
+- `open_and_buy` sends `min_shares_micro = 0` (threat 10), so a fee raised while one is in flight applies to it in full, up to 3%. The site's free bet carries a floor a tenth under its quote, which is wider than the largest fee, so a raised fee can't push it past what the visitor was shown by more than that tenth.
 - The fee is the owner's income, and the owner sets it: fees reach the owner through `withdraw_treasury`.
-- **Fee-blind clients.** `services/api/src/credence.mjs` (the truth API and the MCP `bet`) quotes without the fee and sets `min_shares_micro` 1% under that quote. Measured at 100 bps on $0.10 to $5 orders, $1.45 and $3 of liquidity: the fill clears that floor by only 0.04% to 0.17%, so a small price move refuses the bet. From 150 bps every such bet is refused. It fails safe, as a refusal, and goes away once those clients quote with `fee_bps`. Agents (`services/ai/src/agents.js`) keep 2% and are fine at 100 bps.
+- **Fee-blind clients, closed.** `services/api/src/credence.mjs` (the truth API and the MCP `bet`) used to quote without the fee and set `min_shares_micro` 1% under that quote, which left a fill only 0.04% to 0.17% above its floor at 100 bps. It now takes the claim's `fee_bps` out of the amount first, as the contract's `fill_buy` does, and sets the floor 1% under that. Agents (`services/ai/src/agents.js`) keep 2%.
 
 ## 13. Hostile sources and readers' reports
 

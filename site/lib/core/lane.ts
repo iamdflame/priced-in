@@ -157,6 +157,15 @@ export function outcomeValue<T = any>(o: TxOutcome): T | null {
 
 // ---------- the lane ----------
 
+/**
+ * The fewest shares a free bet accepts: nine tenths of the shares the page just quoted. The page's quote
+ * carries no fee, and the fee is 3% at most, so the tenth covers the fee and a price that moved a little
+ * since the page read it. A worse fill is refused by the chain ("slippage"), nothing is spent, and the
+ * visitor is asked to try again at the new price. It used to send 0, which accepted any price.
+ */
+export const LANE_FLOOR_BPS = 9000n;
+export const laneFloor = (quotedSharesMicro: bigint): bigint => (quotedSharesMicro > 0n ? (quotedSharesMicro * LANE_FLOOR_BPS) / 10_000n : 0n);
+
 /** What the contract returns from buy, sell and open_and_buy. */
 export interface Trade {
   claim_id: number;
@@ -405,6 +414,7 @@ export class Lane {
 
   // ---------- the calls ----------
 
+  /** minSharesMicro is the floor: fewer shares and the chain refuses the bet, and nothing is spent (laneFloor). */
   buy(claimId: number, side: "yes" | "no", amountMicro: bigint, minSharesMicro = 0n) {
     return this.call<Trade>("buy", { claim_id: claimId, side, amount_micro: amountMicro.toString(), min_shares_micro: minSharesMicro.toString() });
   }

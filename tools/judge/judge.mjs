@@ -16,6 +16,7 @@ import { spawnSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { knownMisses, missLines } from "./misses.mjs";
 
 const argv = process.argv.slice(2);
 const OFFLINE = argv.includes("--offline"), JSON_OUT = argv.includes("--json"), QUICK = argv.includes("--quick"), NO_BUILD = QUICK || argv.includes("--no-build");
@@ -82,7 +83,12 @@ for (const [id, name, fn, see] of CHECKS) {
 const count = (st) => results.filter((r) => r.status === st).length;
 const secs = (Date.now() - t0) / 1000;
 const summary = { pass: count("PASS"), fail: count("FAIL"), skip: count("SKIP"), seconds: Number(secs.toFixed(1)), offline: OFFLINE, node: process.versions.node, platform: process.platform, deployment: dep.accounts.market, mainnet: mainnet?.dep.accounts.market ?? null, commit: (spawnSync("git", ["rev-parse", "--short", "HEAD"], { cwd: REPO, encoding: "utf8" }).stdout || "").trim() || null };
-if (JSON_OUT) console.log(JSON.stringify({ checks: results, summary }, null, 1));
+// what the judges and the Sentinel are known to get wrong, with every report: a run that only says PASS
+// tells half of it. Recomputed from the committed test runs; never a check, so it can't pass or fail.
+let misses = null;
+try { misses = knownMisses(REPO); } catch (e) { if (!JSON_OUT) console.log(`\nKnown misses: not read (${String(e.message).split("\n")[0].slice(0, 120)})`); }
+if (misses && !JSON_OUT) console.log(`\nKnown misses, measured before launch (deployments/jury-bench.json, deployments/sentinel-test.json; each one explained at https://isitpriced.com/accuracy):\n${missLines(misses).join("\n")}`);
+if (JSON_OUT) console.log(JSON.stringify({ checks: results, known_misses: misses, summary }, null, 1));
 else console.log(`\n${results.length} checks: ${summary.pass} PASS, ${summary.fail} FAIL, ${summary.skip} SKIP in ${Math.floor(Math.round(secs) / 60)}m${String(Math.round(secs) % 60).padStart(2, "0")}s${OFFLINE ? " (offline)" : ""} · testnet market ${dep.accounts.market}${mainnet ? ` · mainnet market ${mainnet.dep.accounts.market}` : ""} · commit ${summary.commit}`);
 // the exit code is set first: the unref'd timer below only cuts short sockets a check left open,
 // and when nothing holds the loop Node exits before it fires, which used to make every run exit 0

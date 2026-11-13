@@ -47,10 +47,20 @@ Outside users: none confirmed by 13 November. Every mainnet bet so far is ours: 
 
 ## 5. How often the judges are wrong
 
+- `npm run judge` prints the known misses under its checks on every run, recomputed from the committed test runs (`tools/judge/misses.mjs`): each wrong ruling by its id with the three verdicts, and the one misleading challenge the Sentinel would not have disputed.
 - On 232 facts checked by hand, the judges ruled on 142 and were right on 136. They declined 90; a declined challenge refunds the bond. The six wrong rulings are listed at https://isitpriced.com/accuracy.
 - Accusations and "rule this way" orders fooled them 0 times in 10. A made-up receipt fooled them 9 times in 10, so receipts are now fetched from the source before the judges read them, and the Sentinel disputes a challenge whose receipt doesn't match (52 of 53 lies disputed, 0 of 21 honest challenges).
 
-## 6. The services
+## 6. What is fixed before the first bet, and what is not
+
+- **The question is fixed.** A fact's text is written to the market when it opens (`open_claim`), and no method edits it: a corrected line is a new claim. A news claim's text carries its deadline and what counts. Claim 60 reads, on chain: "By 20 November 2026, Samsung confirms that it has agreed to acquire Modine Manufacturing. Reports citing unnamed sources don't count." Read any claim with `get_claim` on `market.isitpriced.near`.
+- **The judges' instructions are fixed.** The prompt is a constant in the contract's code (`JURY_PROMPT`), and the contract itself writes the bytes each judge answers: the market, the challenge, the claim and the evidence (`canonical_request`). Whoever relays a verdict supplies only the judge's answer and signature. The contract hashes its own request, and refuses a signature that isn't the registered key's over that hash and the answer (`submit_verdict`).
+- **The sources a judge may rely on are not fixed on chain.** The challenger's evidence names its source. Our services fetch it and check the quote before any judge reads it (THREAT_MODEL.md, threat 2), and that check runs on our servers, not in the contract.
+- **A relayer can ask a model more than once** and submit the answer it likes. Each model rules once on chain and the temperature is 0, but the contract can't see answers that were thrown away (threat 1).
+- **Trading stays open while a claim is being judged**, so whoever sees a verdict first can bet on it (threat 10).
+- All of this holds while the code stays the same, and the owner can replace the code (section 1).
+
+## 7. The services
 
 - The API and the AI layer hold no user money. They hold keys: the lane admin key (adds free-bet keys and pays their gas), the planner key, operator keys (anchor rewrites, bill house traders' inference), the Checker's and the Sentinel's keys, and the x402 relayer key. Their limits are in [THREAT_MODEL.md](THREAT_MODEL.md), threats 4 and 6.
 - The keeper holds rulings to a schedule (`api/_lib/keeper.mjs`). It decides when a challenge is filed, not what the judges say.

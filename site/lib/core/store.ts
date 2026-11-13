@@ -12,7 +12,7 @@
 import type { Api, ApiFailure, Claim, LiveStatus, MarketEvent, Notice, PlannedSentence, PostInfo, Rationale, Rewrite, DiffOp, Provenance } from "./api";
 import type { EventStream, PollingEventStream } from "./api";
 import type { Config } from "./config";
-import { laneFailure, type Lane, type LaneFailureReason, type LaneState, type Trade } from "./lane";
+import { laneFailure, laneFloor, type Lane, type LaneFailureReason, type LaneState, type Trade } from "./lane";
 import { costToMove, impliedBMicro, marketFromPrice, marketFromReceipt, quoteBuy, type BuyQuote, type Market, type Side } from "./lmsr";
 import type { Route } from "./router";
 import { NearRpc, eventsInOutcome } from "./rpc";
@@ -576,7 +576,9 @@ export function createStore(deps: StoreDeps) {
     const cur = find(key)!;
     const r = cur.status === "unopened" && cur.receipt && cur.claimId === null
       ? await lane.openAndBuy(cur.receipt.args, side, amountMicro)
-      : await lane.buy(cur.claimId!, side, amountMicro);
+      // the floor needs a quote made with the claim's own liquidity: a quote from the default one can be
+      // off by more than the floor allows, and would refuse an honest bet, so that case keeps no floor
+      : await lane.buy(cur.claimId!, side, amountMicro, cur.bMicro !== null ? laneFloor(quote.sharesMicro) : 0n);
     if (!r.ok) {
       rollback();
       dispatch({ type: "fail", reason: r.failure.reason, message: r.failure.message, retryable: r.failure.retryable, readOnly: r.failure.readOnly, at: now() });
