@@ -95,7 +95,7 @@ A NEP-141 token with 6 decimals. `faucet()` gives anyone 10 tUSDC. `register(acc
 | `src/jury.js` | For a challenge: attest, read `canonical_request` from the contract, send those bytes to each model, verify the signature locally, then call `submit_verdict`. |
 | `src/mount.js` | Attaches all of the above to the API and adds the routes in [API.md](API.md). State lives in `DATA_DIR` as append-only journals. |
 
-**Not live yet:** no `NEARAI_API_KEY` exists. Without it the writer makes template rewrites only, the planner says `unavailable`, and the agents and the jury are off. See the real `GET /health` output in [API.md](API.md). No real model has signed a verdict or a rewrite that reached the chain.
+**Live on mainnet** (13 November 2026): the jury has made 12 rulings with 36 signed verdicts, each checked by the contract; the writer has signed and anchored 16 rewrites on the Tether page; the planner runs on DeepSeek-V4.1-Flash-1017; the three house traders bet real USDC. Without a `NEARAI_API_KEY` (a local run), the writer makes template rewrites only, the planner says `unavailable`, and the agents and the jury are off. What you must trust: [TRUST.md](TRUST.md).
 
 ## The site (`site/`)
 
@@ -179,7 +179,7 @@ Off unless the API project has `NEWS_ENABLED=1`; off, none of it runs and no rou
 | services/api and services/ai | Hosted on Vercel functions (`api/`, the repo root's Vercel project, API only) at `https://pricedin-fawn.vercel.app`, on mainnet; `https://isitpriced.com` forwards the API paths to it. Locally: `npm run api` or `npm run ai`. |
 | The API's state | `api/_lib/store.mjs`, one contract in three stores: documents changed by compare-and-swap (the journal index, locks, daily limits, the lines, snapshots) and immutable journal chunks. **Postgres on Supabase** (`STATE_STORE=postgres`, `SUPABASE_DB_URL` through the transaction pooler; schema `pricedin`, tables `docs` and `chunks`, with `docs_json` to read in SQL), else the **Vercel Blob store**, which stays as the fallback; the local disk for local runs (`STATE_DIR`). `scripts/vercel/pg-migrate.mjs` copies Blob into Postgres and checks every byte; the rules for a switch under load are in `api/_lib/store-sync.mjs`. `/health` names the store in `checks.store.kind`. |
 | signer | A child process of services/ai (`signer.js` forks itself). |
-| Models | NEAR AI Cloud, in TEEs. The three jury models' attestations were verified with `npm run ai:attest` (`services/ai/attestations/`). Completions: not live yet, no key. |
+| Models | NEAR AI Cloud, in TEEs. The three jury models' attestations were verified with `npm run ai:attest` (`services/ai/attestations/`). Live on mainnet: verdicts, rewrites and planner receipts are signed in the TEE (`GET /health`, `checks.ai` and `checks.jury_keys`). |
 | site | `https://isitpriced.com`, its own Vercel project (`site/`). Locally: `npm run site:dev`. |
 | judge | Your machine, `npm run judge`. It holds no key and sends nothing. |
 | MCP server | Your machine, `npx -y ./tools/mcp`. |
