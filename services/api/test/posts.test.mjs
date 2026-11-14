@@ -8,6 +8,7 @@ import { parsePostLink, parseOembed, fetchPost, threadOf, pricedText, decodeEnti
 import { receiptMessage, SYSTEM_PROMPT, PEOPLE_REASON, looksLikeInstruction, parsePlannerReply } from "../src/planner.mjs";
 import { ALL_OPINION } from "../src/app.mjs";
 import { loadConfig } from "../src/config.mjs";
+import { postPlanStore, planDoc } from "../../../api/_lib/post-plans.mjs";
 
 const ch = (n) => String.fromCharCode(n);
 const SNOW = "1853091231331582413"; // a snowflake id: November 2024
@@ -487,4 +488,54 @@ test("config: post limits and the oEmbed endpoint come from env, with safe defau
   assert.deepEqual([o.perIpPerDay, o.perDay, o.recheckMs, o.selfHosts], [5, 50, 60000, ["a.example", "b.example"]]);
   assert.ok(loadConfig({ POST_OEMBED_URL: "ftp://x" }).errors.some((e) => /POST_OEMBED_URL/.test(e)));
   assert.ok(loadConfig({ POST_OEMBED_URL: "nope" }).errors.some((e) => /POST_OEMBED_URL/.test(e)));
+});
+
+// ---------- a post's plan outlives the instance that made it ----------
+
+test("GET /post: an unpriced answer is marked not to be cached, the next request prices it, and the stored plan serves a new instance with no model call", async (t) => {
+  const seed = Buffer.alloc(32, 9);
+  let calls = 0, fail = true;
+  const fakeFetch = async (url, init) => {
+    if (!String(url).startsWith("https://cloud-api.near.ai/v1")) return fetch(url, init);
+    calls++;
+    if (fail) return new Response("busy", { status: 503 });
+    const sentences = JSON.parse(JSON.parse(init.body).messages[1].content).sentences;
+    const content = JSON.stringify({ labels: sentences.map((_, i) => ({ i, label: i === 0 ? "document" : "unfalsifiable", p: 0.75 })) });
+    return new Response(JSON.stringify({ choices: [{ message: { role: "assistant", content } }] }), { status: 200, headers: { "content-type": "application/json" } });
+  };
+  const docs = new Map();
+  const state = { getDoc: async (n) => (docs.has(n) ? { value: docs.get(n) } : null), putDoc: async (n, v) => { if (docs.has(n)) throw new Error("exists"); docs.set(n, v); } };
+  const posts = { 80: { json: oembedJson({ id: "80", body: "The hackathon is live through November 14 with $250K in prizes.<br>Here are a few ideas." }) } };
+  const env = { NEARAI_API_KEY: "test-key", PLANNER_MODEL: "test-model", PLANNER_PRIVATE_KEY: seed.toString("hex") };
+  const { api } = await setup(t, posts, env, { fetchImpl: fakeFetch, postPlans: postPlanStore(state) });
+
+  const down = await api.req("GET", "/post/80");
+  assert.deepEqual([down.status, down.json.planner, down.headers.get("x-no-store")], [200, "unavailable", "1"]);
+  assert.equal(docs.size, 0, "a failure is never stored");
+
+  fail = false;
+  const up = await api.req("GET", "/post/80");
+  assert.deepEqual([up.json.planner, up.headers.get("x-no-store"), up.json.sentences[0].status, up.json.sentences[0].p0_ppm], ["ok", null, "priced", 750000]);
+  assert.deepEqual([docs.size, [...docs.keys()][0]?.startsWith("post-plans/")], [1, true]);
+  const n = calls;
+
+  // a second instance: empty memory, the same store, and the model down again
+  fail = true;
+  const { api: second } = await setup(t, posts, env, { fetchImpl: fakeFetch, postPlans: postPlanStore(state) });
+  const again = await second.req("GET", "/post/80");
+  assert.deepEqual([again.json.planner, again.json.sentences[0].status, again.json.sentences[0].p0_ppm, calls], ["ok", "priced", 750000, n]);
+});
+
+test("postPlanStore: nothing stored reads as null, a plan is written once, and a store that is down says so", async () => {
+  const docs = new Map();
+  const state = { getDoc: async (n) => (docs.has(n) ? { value: docs.get(n) } : null), putDoc: async (n, v) => { if (docs.has(n)) throw new Error("exists"); docs.set(n, v); } };
+  const s = postPlanStore(state, { now: () => 5 });
+  assert.equal(await s.get("k"), null);
+  await s.put("k", [{ label: "data", p0_ppm: 600000 }]);
+  await s.put("k", [{ label: "data", p0_ppm: 100000 }]);
+  assert.deepEqual(await s.get("k"), [{ label: "data", p0_ppm: 600000 }], "the first copy stays");
+  assert.deepEqual(docs.get(planDoc("k")), { labels: [{ label: "data", p0_ppm: 600000 }], at: 5 });
+  assert.match(planDoc("k"), /^post-plans\/[0-9a-f]{64}\.json$/);
+  const broken = postPlanStore({ getDoc: async () => null, putDoc: async () => { throw new Error("the store is down"); } });
+  await assert.rejects(() => broken.put("k", []), /the store is down/);
 });

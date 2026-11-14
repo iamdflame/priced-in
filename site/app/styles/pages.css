@@ -341,6 +341,9 @@
 .postc .au small { display: block; font-size: 13px; color: var(--ink3); }
 .postc .tx { font-size: 19px; line-height: 1.5; color: var(--ink); white-space: pre-wrap; overflow-wrap: anywhere; }
 .postc .more { display: inline-flex; align-items: center; gap: 6px; align-self: flex-start; min-height: 44px; font: 600 15px var(--disp); color: var(--brand-text); }
+/* a long post shows its first lines, so the priced lines under it start on the first screen */
+.postc .tx.clamp { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 5; line-clamp: 5; overflow: hidden; }
+.postc button.more { background: none; border: 0; padding: 0; cursor: pointer; }
 .plines { display: flex; flex-direction: column; }
 .pline { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 18px; padding: 16px 18px; border-top: 1px solid var(--line); align-items: start; }
 .pline:first-child { border-top: 0; }

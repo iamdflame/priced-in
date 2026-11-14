@@ -18,6 +18,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadAiConfig } from "../../services/ai/src/config.js";
 import { createApp } from "../../services/api/src/app.mjs";
+import { postPlanStore } from "./post-plans.mjs";
 import { extractMarketEvents } from "../../services/api/src/events.mjs";
 import { RewriteStore } from "../../services/api/src/rewrites.mjs";
 import { mountAi } from "../../services/ai/src/mount.js";
@@ -105,7 +106,7 @@ function build({ agents = true } = {}) {
   const p = prepare();
   const { api, ai } = loadAiConfig(p.env);
   const meter = storeMeter({ state: p.state, journals: p.journals, limit: api.credence.freePerIpPerDay, log });
-  const app = createApp(api, { log, meter });
+  const app = createApp(api, { log, meter, postPlans: postPlanStore(p.state) });
   const evidence = new Map();
   for (const list of app.rewrites.byKey.values()) for (const r of list) evidence.set(r.id, r);
   // every claims read in this app comes from the snapshot (one get_claims, raced across the RPCs)

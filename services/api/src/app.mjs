@@ -168,9 +168,9 @@ export function createApp(config, deps = {}) {
   /**
    * @param {{ text: string, page?: string }} body
    * @param {string} ip
-   * @param {{ planCache?: TtlCache, limit?: boolean, about?: object }} [opts] the post route brings its own cache, limits and context (its author and date)
+   * @param {{ planCache?: TtlCache, limit?: boolean, about?: object, planStore?: { get(key: string): Promise<any[]|null>, put(key: string, labels: any[]): Promise<void> } | null }} [opts] the post route brings its own cache, limits and context (its author and date), and a store where a post's plan is kept for every instance
    */
-  async function paste(body, ip, { planCache = plannerCache, limit = true, about = {} } = {}) {
+  async function paste(body, ip, { planCache = plannerCache, limit = true, about = {}, planStore = null } = {}) {
     if (!body || typeof body.text !== "string") throw new ApiError(400, "bad_request", 'Send JSON {"text": "..."}');
     if (!body.text.trim()) throw new ApiError(400, "empty_text", "Paste some text first.");
     if (body.text.length > config.paste.maxInputChars) throw new ApiError(413, "text_too_long", `Paste at most ${config.paste.maxInputChars} characters.`);
@@ -199,7 +199,15 @@ export function createApp(config, deps = {}) {
       const context = plannerContext({ nowMs: now(), ...about });
       // the prompt's version and the author are in the key: an estimate made under an older prompt is never served again
       const key = [PLANNER_VERSION, page, context.author?.handle ?? "", context.posted_on ?? "", ...texts].join("\n");
-      labels = await planCache.get(key, () => labelSentences(pc, texts, deps.fetchImpl, context));
+      labels = await planCache.get(key, async () => {
+        // a plan any instance has made is read from the store: the model reads each post once, and a
+        // slow model can't unprice a post it has already priced
+        const saved = planStore ? await planStore.get(key).catch(() => null) : null;
+        if (Array.isArray(saved) && saved.length <= texts.length) return saved;
+        const fresh = await labelSentences(pc, texts, deps.fetchImpl, context);
+        if (planStore) await planStore.put(key, fresh).catch((e) => log(`post plan not stored: ${e.message}`));
+        return fresh;
+      });
     } catch (e) {
       if (limit) pasteIp.release(ip);
       log(`planner unavailable: ${e.message}`);
@@ -271,7 +279,7 @@ export function createApp(config, deps = {}) {
     if (!text) return { status: 200, body: noText };
     let r;
     try {
-      r = await paste({ text, page }, ip, { planCache: postPlans, limit: false, about: { source: "a post on X", author: { name: p.authorName, handle: p.handle, bio: p.authorBio ?? null }, postedAt: p.postedAt } });
+      r = await paste({ text, page }, ip, { planCache: postPlans, planStore: deps.postPlans ?? null, limit: false, about: { source: "a post on X", author: { name: p.authorName, handle: p.handle, bio: p.authorBio ?? null }, postedAt: p.postedAt } });
     } catch (e) {
       if (e instanceof ApiError && e.code === "no_sentences") return { status: 200, body: noText };
       throw e;
@@ -528,7 +536,9 @@ export function createApp(config, deps = {}) {
       let link = path === "/post" ? url.searchParams.get("url") ?? url.searchParams.get("id") : url.pathname.slice("/post/".length);
       try { link = decodeURIComponent(link ?? ""); } catch { /* keep as is: the parser rejects it */ }
       const r = await post(link, ip);
-      return send(res, r.status, r.body);
+      // an answer without prices (the planner didn't answer in time) must not be kept by a cache in front
+      // of this server: the next request asks again
+      return send(res, r.status, r.body, r.body?.planner === "unavailable" ? { "x-no-store": "1" } : {});
     }
     if (path === "/paste") {
       if (req.method !== "POST") throw new ApiError(405, "method_not_allowed", "Use POST.");

@@ -139,7 +139,8 @@ export default async function handler(req, res) {
   res.writeHead = (code, ...rest) => {
     status = code;
     const h = rest.find((x) => x && typeof x === "object") || {};
-    if (cache && code === 200) h["cache-control"] = cache;
+    // the handler marks an answer that must not be cached (a post the planner hasn't priced yet)
+    if (cache && code === 200 && !h["x-no-store"]) h["cache-control"] = cache;
     return writeHead(code, h);
   };
   const chunks = [];
