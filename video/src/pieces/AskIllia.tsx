@@ -33,7 +33,7 @@ const HISTORY: Seg[] = [
 /** The dial in the light theme, as the site draws it (site/app/styles/instruments.css, light block): the ceramic
  * render, the kit's needle geometry in --needle with a contact shadow, the aluminium hub, an ink read-out. */
 const NEEDLE = 'oklch(.57 .14 216)';
-const LightDial: React.FC<{size: number; p: number; from: number; to: number; roll: number; ring: number}> = ({size, p, from, to, roll, ring}) => {
+export const LightDial: React.FC<{size: number; p: number; from: number; to: number; roll: number; ring: number}> = ({size, p, from, to, roll, ring}) => {
   const u = size / 100;
   return (
     <div
@@ -113,7 +113,7 @@ const LightDial: React.FC<{size: number; p: number; from: number; to: number; ro
   );
 };
 
-const fade = (k: number, dy = 24): React.CSSProperties => ({opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * dy}px)`});
+export const fade = (k: number, dy = 24): React.CSSProperties => ({opacity: Math.min(1, k * 1.4), transform: `translateY(${(1 - k) * dy}px)`});
 
 /** One quoted Wikipedia sentence (Amstelvar, quotes only), its date marked in the "Wikipedia may be wrong" amber. */
 const Quote: React.FC<{segs: Seg[]; mark: number; dim: number}> = ({segs, mark, dim}) => (
@@ -161,7 +161,7 @@ const Where: React.FC<{children: React.ReactNode}> = ({children}) => (
 );
 
 /** The live dot: a cyan ping (2.2 s), the one decorative cyan the kit allows besides the needle. */
-const LiveDot: React.FC<{t: number}> = ({t}) => {
+export const LiveDot: React.FC<{t: number}> = ({t}) => {
   const k = (t % 2.2) / 2.2;
   return (
     <span style={{position: 'relative', width: 16, height: 16, flex: 'none'}}>
