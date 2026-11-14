@@ -78,8 +78,8 @@ test("/trust: the live hash matches the build, and what you must trust is on the
   const first = await page.locator(".trusted li").first().boundingBox();
   expect(first?.y, "the list must sit in the page, not off-screen").toBeGreaterThan(100);
   await expect(page.locator(".proofc")).toHaveCount(3);
-  await page.getByText("Upgrade the code").click();
-  await expect(page.getByText("Locking the contract removes this power")).toBeVisible();
+  await page.getByText("Change the code", { exact: true }).click();
+  await expect(page.getByText("Nobody can deploy different code to it")).toBeVisible();
 });
 
 test("/agents: the leaderboard and the filter", async ({ page }) => {

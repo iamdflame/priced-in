@@ -1,6 +1,6 @@
 # Priced In
 
-[![judge: 11 checks on a clean Linux machine, every push](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml/badge.svg)](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml)
+[![judge: 12 checks on a clean Linux machine, every push](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml/badge.svg)](https://github.com/iamdflame/priced-in/actions/workflows/judge.yml)
 
 **Is it true? Bet on it.** Priced In is an encyclopedia whose words follow a price, live on NEAR mainnet.
 
@@ -15,8 +15,9 @@ Every checkable sentence works the same way: a Yes/No market with real USDC behi
   ![Wikipedia's Tether article with the userscript: the $72.6 billion line struck, the $122.84 billion line beside it, and a link to the ruling](tools/userscript/tether-on-wikipedia.png)
 
 - **Live on NEAR mainnet:** https://isitpriced.com
-- **Check it yourself, no secrets:** `npm run judge` runs 11 checks (below). GitHub Actions runs the same 11 on a clean Ubuntu machine with Node 22 for every push to main (`.github/workflows/judge.yml`); its first run passed all 11 in 101.5 s, with the JSON report kept as an artifact: https://github.com/iamdflame/priced-in/actions/runs/42652794818.
+- **Check it yourself, no secrets:** `npm run judge` runs 12 checks (below). GitHub Actions runs the same 12 on a clean Ubuntu machine with Node 22 for every push to main (`.github/workflows/judge.yml`); its first run, when there were 11, passed all 11 in 101.5 s, with the JSON report kept as an artifact: https://github.com/iamdflame/priced-in/actions/runs/42652794818.
 - **Every mainnet ruling, re-verified from the chain:** check 11 reads each ruling's three signed verdicts from their mainnet transactions and checks every signature against the key the market holds. `npm run judge:quick` does it in about 25 seconds (measured 9 November 2026).
+- **The market's code is locked.** On 14 November 2026 the last access key on `market.isitpriced.near` was deleted ([transaction 3fU4Lc…](https://nearblocks.io/txns/3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp)). No key can replace its code or sign as it, and check 12 reads that from the chain on every run. This locks the code, not the owner: `isitpriced.near` can still pause, set the limits and the fee (3% at most), change the judges' keys, rule on an escalated claim and withdraw the treasury's own money ([docs/TRUST.md](docs/TRUST.md), section 1).
 - **Any post on X, priced:** change `x.com` to `isitpriced.com` in a post's link. Example: https://isitpriced.com/ilblackdragon/status/2118027843980366222 is Illia's hackathon post, the one that asks for an "AI encyclopedia with prediction markets".
 
 ## Illia's post, mapped
@@ -105,14 +106,16 @@ Measured on 9 November 2026 (Windows 11, Node 24.19.0, commit f83eddc):
 | `npm run judge` | 1m59s to 2m13s | `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` |
 | `npm run judge:full` (both installs, then the judge as JSON) | 4m25s | `"pass":9,"fail":1,"skip":1`: a DNS failure on this machine failed check 9 and skipped check 10; the rerun above passed all 11 |
 
-Test counts from the same day: `npm run api:unit` 265 of 265 (52 s), `npm run site:test` 319 of 319 in 33 files (13 s), `npm run judge:test` 30 of 30 (1 s), `npm run ai:unit` 213 of 213 (inside check 8). The contract's lifecycle test on testnet, `npm run test:lifecycle`, was not rerun: it deploys fresh contracts and needs a funded testnet account (`FUNDER_ID`, `FUNDER_KEY`, about 14 NEAR). Its last recorded full run had 238 checks (`docs/SPEC.md`).
+On 14 November 2026, the day the market was locked and check 12 was added, `npm run judge:quick` printed `12 checks: 10 PASS, 0 FAIL, 2 SKIP in 0m28s` and `npm run judge` printed `12 checks: 12 PASS, 0 FAIL, 0 SKIP in 2m31s`. That day `npm run api:unit` passed 279 of 279, `npm run site:test` 360 of 360 in 39 files and `npm run judge:test` 40 of 40.
+
+Test counts from 9 November: `npm run api:unit` 265 of 265 (52 s), `npm run site:test` 319 of 319 in 33 files (13 s), `npm run judge:test` 30 of 30 (1 s), `npm run ai:unit` 213 of 213 (inside check 8). The contract's lifecycle test on testnet, `npm run test:lifecycle`, was not rerun: it deploys fresh contracts and needs a funded testnet account (`FUNDER_ID`, `FUNDER_KEY`, about 14 NEAR). Its last recorded full run had 238 checks (`docs/SPEC.md`).
 
 - It prints one line per check: PASS, FAIL or SKIP, with the reason and a link or a command. Then it prints a summary, and exits 1 if any check fails.
 - `npm run judge` includes the hosted site (check 9); `npm run judge -- --offline` needs no network, and the checks that read a chain or the site say SKIP.
 - `npm run judge -- --offline` needs no network: the checks that read a chain, 1Click or the hosted site say SKIP and why.
 - `npm run judge -- --json` gives machine-readable output.
 - Every run also prints the known misses under its checks: the six hand-checked facts the judges ruled wrongly, each with its three verdicts, and the one misleading challenge the Sentinel would not have disputed.
-- `npm run judge:quick` skips the Rust rebuild and the unit suites (checks 3 and 8 say SKIP) and checks the hosted site: 25 seconds measured, check 11 included. `npm run judge:full` installs everything, then runs all 11 checks against the hosted site as JSON.
+- `npm run judge:quick` skips the Rust rebuild and the unit suites (checks 3 and 8 say SKIP) and checks the hosted site: 25 seconds measured, check 11 included. `npm run judge:full` installs everything, then runs all 12 checks against the hosted site as JSON.
 - Rust is optional. With rustc 1.99.1 and the `wasm32-unknown-unknown` target installed, check 3 rebuilds the contracts, byte for byte, on Linux, macOS or Windows. Without them it says SKIP and gives the command that fixes it.
 - The judge only reads. It holds no key and sends no transaction.
 
@@ -131,8 +134,9 @@ Each step below is one line of `npm run judge`, in the same order. VERIFY.md doe
 9. **The hosted site.** Run `npm run judge` (it includes the site). You should see `PASS 9. hosted demo: ...: /health 200, 22 priced sentences on the Tether page (the count grows), a "message" event on the SSE stream`. `/health` fails when no trade, rewrite or agent answer has happened in a day.
 10. **The jury's models are attested, and mainnet holds their keys.** You should see `PASS 10. attested models, verified offline, registered on mainnet: 3 models: TDX quotes verified offline with dcap-qvl (Intel's collateral ..., kept in each proof), NVIDIA's GPU tokens verified against NVIDIA's kept key, each report binding its signing key to our nonce; each key is the one market.isitpriced.near holds`. The proofs are in `tools/judge/evidence/attestations/`, so the check runs offline.
 11. **Mainnet's books close and every ruling settled, signed by the attested models.** You should see `PASS 11. mainnet books and rulings: market.isitpriced.near at block ...: books close to the micro-USDC, USDC 81.607427 held = treasury ... (49 claims; 9 balances read from the contract's storage); 17208628… is USDC with 6 decimals; 8 of 8 challenges settled ...; 24 verdicts by 3 models ...: each request hash = sha256(canonical_request), each response and signature taken from its submit_verdict transaction, sha256(response) = response_hash, ed25519 verifies against get_model's key, and the rules read the recorded verdict ...; rewrite: rewrite tether:25:v1 ...: anchor_rewrite event on mainnet in ALdDyEDx...` (the numbers grow). Every read is pinned to one block, so live trades can't split the books. `tools/judge/evidence/mainnet-rulings.json` keeps only the transaction hashes and their bytes, so `--offline` still checks the hashes and signatures; everything else is read from mainnet. `node tools/judge/snapshot-mainnet-rulings.mjs` remakes it.
+12. **The mainnet market's code is locked.** You should see `PASS 12. mainnet market locked: no key can change the code: market.isitpriced.near has no access key at block ...: nobody can sign as it, so no key can replace its code (FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC, the code check 3 rebuilds) or send its USDC out; its source makes 2 promises, all function calls, so the code deploys nothing and adds no key. This locks the code, not the owner: isitpriced.near can still pause, set the limits and the fee (3% at most), change the judges' keys, rule on an escalated claim, and withdraw the treasury's own money`. The last key was deleted on 14 November 2026 in [3fU4Lc…](https://nearblocks.io/txns/3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp) (`deployments/mainnet-lock.json`, written by `scripts/mainnet/lock-market.mjs`). The contract has no upgrade method, so a later version would be a new contract at a new address. The check fails if the account ever holds a key again, or if its code is not the recorded build.
 
-The last full run against the hosted site printed `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` at commit f83eddc, on 9 November 2026. Check 11 then read 8 of 8 challenges settled and 24 verdicts by 3 models, all verified, with no dispute on any of them.
+The last full run against the hosted site printed `12 checks: 12 PASS, 0 FAIL, 0 SKIP in 2m31s` on 14 November 2026. Check 11 then read 14 of 14 challenges settled and 40 verdicts by 3 models, all verified, with no dispute on any of them. On 9 November, with 11 checks, it printed `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` at commit f83eddc.
 
 ## What is real and what is demo
 

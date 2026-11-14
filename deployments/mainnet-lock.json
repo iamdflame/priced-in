@@ -1,0 +1,15 @@
+{
+ "note": "The mainnet market's access keys were deleted: no key can replace its code or sign as the account. Public values only.",
+ "account": "market.isitpriced.near",
+ "code_hash": "FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC",
+ "owner": "isitpriced.near",
+ "locked_at": "2026-11-14T22:30:25.649Z",
+ "keys_left": 0,
+ "deletions": [
+  {
+   "deleted_key": "ed25519:731XBb7GjUNPfvwJbJEE8M1VKxvYwhg5G4RahS21o2Cr",
+   "tx": "3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp",
+   "link": "https://nearblocks.io/txns/3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp"
+  }
+ ]
+}

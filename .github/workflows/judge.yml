@@ -1,4 +1,4 @@
-# The judge on a clean machine for every push to main: the same 11 checks anyone can run locally
+# The judge on a clean machine for every push to main: the same 12 checks anyone can run locally
 # (AGENTS.md), against NEAR mainnet, the persistent testnet market and the live site, with Rust 1.99.1
 # so check 3 rebuilds the contracts byte for byte. It holds no key and signs nothing. The JSON report
 # is kept as an artifact and shown on the run's summary page. The run fails only if a check FAILs;
@@ -35,7 +35,7 @@ jobs:
         run: |
           npm ci
           npm --prefix site ci
-      - name: Judge, 11 checks
+      - name: Judge, 12 checks
         run: node tools/judge/judge.mjs --site=https://isitpriced.com --json > judge.json
       - name: Report
         if: always()

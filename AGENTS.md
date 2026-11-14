@@ -3,19 +3,19 @@
 Priced In is a prediction market for facts: each checkable sentence of an encyclopedia page is a Yes/No market in real USDC, three attested AI models rule on challenges on-chain, and the corrected line opens as a new market.
 Live at https://isitpriced.com on NEAR mainnet. Contract `market.isitpriced.near` (code hash `FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC`), native USDC `17208628f84f5d6ad33f0da3bbbeb27ffcb398eac501a31bd6ad2011e36133a1`.
 
-Facts only. Every number below comes from a command run or a file read on 9 November 2026 at commit f83eddc, on Windows 11, Node 24.19.0.
+Facts only. Every number below comes from a command run or a file read on 9 November 2026 at commit f83eddc, on Windows 11, Node 24.19.0. Lines dated 14 November 2026 were run that day, when the mainnet market was locked and check 12 was added.
 
 ## Verify in about a minute
 
 ```
 npm ci                  # 9 to 27 s measured; Node 22.18 or later
-npm run judge:quick     # 25 s to about 1 minute measured, by network: 11 checks, no Rust, no unit suites, the hosted site included
+npm run judge:quick     # 25 s to about 1 minute measured, by network: 12 checks, no Rust, no unit suites, the hosted site included
 ```
 
-Expected last line (measured, 9 November 2026):
+Expected last line (measured, 14 November 2026):
 
 ```
-11 checks: 9 PASS, 0 FAIL, 2 SKIP in 0m25s · testnet market market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet · mainnet market market.isitpriced.near · commit f83eddc
+12 checks: 10 PASS, 0 FAIL, 2 SKIP in 0m28s · testnet market market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet · mainnet market market.isitpriced.near · commit 1ba00d0
 ```
 
 The two SKIPs in quick mode are by design: check 3 (`--quick` implies `--no-build`, so the contracts are not rebuilt) and check 8 (`--quick` does not run the unit suites). Check 11, the mainnet rulings, runs in quick mode. An RPC that times out makes a chain check SKIP with its reason, never PASS (one of three quick runs here hit `UND_ERR_CONNECT_TIMEOUT` on check 11 and took 1m15s); run it again.
@@ -23,19 +23,19 @@ The two SKIPs in quick mode are by design: check 3 (`--quick` implies `--no-buil
 Then everything:
 
 ```
-npm run judge:full      # npm ci, the site's npm ci, then all 11 checks against https://isitpriced.com, as JSON
+npm run judge:full      # npm ci, the site's npm ci, then all 12 checks against https://isitpriced.com, as JSON
 ```
 
 - Duration: 4m25s for the whole command on this machine, of which the judge took 2m58s and the two installs the rest. The judge alone (`npm run judge`, which includes the site) took 1m59s on a second run.
 - Needs: network (testnet and mainnet RPC, the 1Click API, isitpriced.com, crates.io for the build) and, for check 3, rustc 1.99.1 with the `wasm32-unknown-unknown` target (`rustup toolchain install 1.99.1 --target wasm32-unknown-unknown`). Without Rust, check 3 says SKIP with the fix; nothing else needs it.
-- Expected: 11 PASS, 0 FAIL, 0 SKIP. Measured on Windows: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s` (the judge alone). The first `judge:full` run hit a DNS failure on this machine (check 9 FAIL "fetch failed", check 10 SKIP "ENOTFOUND"); every other check passed, check 3 included, and the rerun passed all 11.
-- On a clean machine: GitHub Actions runs all 11 checks on Ubuntu with Node 22 for every push to main (`.github/workflows/judge.yml`, report on each run's summary page and as the `judge-report` artifact). Measured 9 November 2026: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 101.5 s` ([run 42652794818](https://github.com/iamdflame/priced-in/actions/runs/42652794818)).
+- Expected: 12 PASS, 0 FAIL, 0 SKIP. Measured on Windows on 14 November 2026: `12 checks: 12 PASS, 0 FAIL, 0 SKIP in 2m31s` (the judge alone). On 9 November, with 11 checks: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s`. That day the first `judge:full` run hit a DNS failure on this machine (check 9 FAIL "fetch failed", check 10 SKIP "ENOTFOUND"); every other check passed, check 3 included, and the rerun passed all 11.
+- On a clean machine: GitHub Actions runs all 12 checks on Ubuntu with Node 22 for every push to main (`.github/workflows/judge.yml`, report on each run's summary page and as the `judge-report` artifact). Measured 9 November 2026, with 11 checks: `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 101.5 s` ([run 42652794818](https://github.com/iamdflame/priced-in/actions/runs/42652794818)).
 - Check 3 per platform: clean `ubuntu-latest`, `macos-latest` and `windows-latest` runners rebuild both deployed hashes byte for byte with `node tools/judge/repro.mjs` (`.github/workflows/repro.yml`, branch `ci/repro`): [run 42542226417](https://github.com/iamdflame/priced-in/actions/runs/42542226417) and [run 42542566537](https://github.com/iamdflame/priced-in/actions/runs/42542566537), all three jobs green in both.
 - `npm run judge -- --offline` needs no network: checks that read a chain, 1Click or the site say SKIP; check 11 still verifies the recorded verdict bytes and signatures.
 - Exit code 1 if any check FAILs. `--json` prints `{checks, known_misses, summary}`.
 - Under the checks, every run prints the known misses, recomputed from `deployments/jury-bench.json` and `deployments/sentinel-test.json` (`tools/judge/misses.mjs`): the judges were wrong on 6 of the 142 hand-checked facts they ruled on, each named with its three verdicts, and the Sentinel would not have disputed 1 of 53 misleading challenges. These are not checks and can't pass or fail.
 
-## The 11 checks
+## The 12 checks
 
 Code: `tools/judge/judge.mjs` and `tools/judge/checks/*.mjs`. "Chain" is what the check reads.
 
@@ -52,8 +52,9 @@ Code: `tools/judge/judge.mjs` and `tools/judge/checks/*.mjs`. "Chain" is what th
 | 9 | The hosted site: `/health` 200, priced sentences on the Tether page, an event on the SSE stream | network | none directly (the site serves mainnet) |
 | 10 | Each jury model's TDX and GPU attestation verifies offline, and its key is the one the mainnet market holds (`get_model`) | `npm ci`, network for `get_model` | mainnet |
 | 11 | Mainnet's books close, and every challenge's three verdicts verify from the chain: request hash = sha256(`canonical_request`), response and signature from the `submit_verdict` transaction, ed25519 against `get_model`'s key; each settled outcome is the one the verdicts and disputes give; one mainnet rewrite verifies | network | mainnet |
+| 12 | The mainnet market is locked: at one final block its account has no access key and its code is the recorded build, so no key can replace the code or sign as the market; its source makes only function-call promises, so the code deploys nothing and adds no key. This locks the code, not the owner | network | mainnet |
 
-The open swarm (`contracts/swarm`) is testnet only. Check 11 on 9 November: 8 of 8 challenges settled, 24 verdicts by 3 models, all verified.
+The open swarm (`contracts/swarm`) is testnet only. Check 11 on 9 November: 8 of 8 challenges settled, 24 verdicts by 3 models, all verified. On 14 November: 14 of 14 settled, 40 verdicts, all verified.
 
 ## Claims and how to check each
 
@@ -66,6 +67,7 @@ The open swarm (`contracts/swarm`) is testnet only. Check 11 on 9 November: 8 of
 | Anyone can object within 10 minutes | `get_resolution` on `market.isitpriced.near` (`dispute_tiers` [50000000, 600]); `dispute` in `contracts/market/src/lib.rs` | no objection yet on mainnet (`disputes: []` on all 8); the flip, window and council path runs in the testnet lifecycle test | 11 reads disputes into each outcome; 2 (bond split) |
 | Your first $1 is free, no wallet | https://isitpriced.com/api/lane/status | first free bet `8ZyUb7UFj2ZknBpKrYHcuy1vhEBgGXDYpLdkgk4Z7Nnw`; `lane.isitpriced.near` | none directly |
 | The contracts rebuild byte-identical | `node tools/judge/repro.mjs` (rustc 1.99.1) | CI runs 42542226417 and 42542566537 | 3 |
+| The market's code is locked: no key can replace it | `npm run judge:quick`, or `view_access_key_list` on `market.isitpriced.near` (no keys) | the last key deleted on 14 November 2026 in `3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp`; `deployments/mainnet-lock.json`. The owner keeps its owner methods (`docs/TRUST.md`, section 1) | 12 |
 | 16 of 232 Wikipedia data sentences stale or wrong | `npm run corpus:check` | `corpus/ERRORS.json`, `corpus/pages/*.json` | 7 |
 | Asking an AI: web search found 7 of 10, no-web models repeated 47 of 90 | read the files | `deployments/ask-an-ai-web.json`, `deployments/ask-an-ai.json` | none |
 | Change `x.com` to `isitpriced.com` | https://isitpriced.com/ilblackdragon/status/2118027843980366222 (200) | none (read-only page) | none |
@@ -87,6 +89,7 @@ The judge holds no key, signs nothing and sends no transaction: it reads RPC vie
 - `tools/judge/evidence/rewrite.json` and `rewrite-mainnet.json`: one signed rewrite each, testnet (check 5) and mainnet (check 11).
 - `tools/judge/evidence/attestations/*.json`: the three jury models' attestation proofs with Intel's and NVIDIA's collateral (check 10).
 - `deployments/mainnet.json`: every mainnet account, code hash, model key and funding transaction. No key.
+- `deployments/mainnet-lock.json`: the transaction that deleted the market account's last access key on 14 November 2026. Check 12 reads the key list from mainnet, not from this file.
 - `corpus/ERRORS.json`: the 10 caught Wikipedia sentences, each with its `oldid=` revision and receipts.
 - `deployments/ask-an-ai.json`, `deployments/ask-an-ai-web.json`: the "can't I just ask an AI?" measurement of 2026-11-06.
 
@@ -118,6 +121,8 @@ The judge holds no key, signs nothing and sends no transaction: it reads RPC vie
 | `npm run judge:test` | 30 of 30 pass, 1 s |
 | `npm run ai:unit` (inside check 8) | 213 of 213 pass |
 | `npm run test:lifecycle` (contract, testnet) | not rerun: needs `FUNDER_ID`/`FUNDER_KEY` (about 14 NEAR); 238 checks in its last recorded run (`docs/SPEC.md`) |
+
+On 14 November 2026: `npm run api:unit` 279 of 279, `npm run site:test` 360 of 360 in 39 files, `npm run judge:test` 40 of 40.
 
 `npm audit --omit=dev`: the root has 0 advisories; the site has 5 high, all inside the Meteor Wallet connector's tree (`@meteorwallet/sdk` with `query-string`, `decode-uri-component` and `nanoid`), denial-of-service bugs in input parsing and ID generation. npm's only fix is downgrading the connector to 9.3.0, a major version back, so the tested connector stays.
 

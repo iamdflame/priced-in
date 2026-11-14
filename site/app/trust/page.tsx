@@ -2,8 +2,8 @@
 // NEAR beside the hash of the public reproducible build; the command that rebuilds it; what the house
 // can do, and what this code stops it doing, in plain words with details one tap away; every key and
 // the methods NEAR says it may call; the AI judges' attestation proofs; and what you still have to
-// trust. The "can't" list is a property of this code, and the page says so: a full-access key can
-// replace the code, which is why the hash is the first thing here.
+// trust. The "can't" list is a property of this code, and since 14 November 2026 the market account
+// has no access key, so no key can replace that code: the key list is read live and shown here.
 import "../styles/pages.css";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -18,23 +18,25 @@ import { proof, type Proof } from "@/lib/server/proof";
 export const revalidate = 300;
 export const metadata: Metadata = {
   title: "Trust: what we can and can’t do with your money",
-  description: "The market’s code hash read live from NEAR next to the public reproducible build, every key and what it may do, the AI judges’ attestation proofs, and the ten checks anyone can run.",
+  description: "The market’s code hash read live from NEAR next to the public reproducible build, every key and what it may do, the AI judges’ attestation proofs, and the 12 checks anyone can run.",
 };
 
-/** The commit the ten checks last passed at, all ten, against the hosted site (README). */
-const JUDGE_RUN_AT = "56f0c6f";
+/** The day all 12 checks last passed against the hosted site (README). */
+const JUDGE_RUN_ON = "14 November 2026";
+/** The transaction that deleted the market account's last access key (deployments/mainnet-lock.json). */
+const LOCK_TX = "3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp";
 
 const CAN: [string, ReactNode][] = [
   ["Pause the market", <>While paused no USDC leaves, so you can’t withdraw until it lifts. That binds the owner too: nothing settles and the treasury can’t be drawn either. <code>pause</code>, <code>unpause</code>.</>],
   ["Withdraw the treasury", <>Fees and the house’s own money reach the owner through <code>withdraw_treasury</code>. The treasury is a separate bucket from traders’ balances and from what winners are owed. The books on the <Link className="link" href="/stats#books">numbers page</Link> show each one.</>],
   ["Set the fee, up to 3%", <>Every bet pays a taker fee to the treasury: 1% today. The contract refuses anything above 300 basis points, and every change is a public <code>fee</code> event.</>],
   ["Change the bond and dispute rules", <>The owner sets the bond, the free-bet budget and the dispute table with <code>set_limits</code> and <code>set_resolution</code>. Each change is a public transaction from the owner’s account.</>],
-  ["Upgrade the code", <>One full-access key can replace the market’s code; that is how it moved to v3. Any change moves the code hash above. Locking the contract removes this power for good, including the power to fix a bug. It hasn’t been done.</>],
   ["Register an AI judge’s key", <>The contract checks every verdict against the key registered for that model, and the owner registers that key with <code>register_model</code>. It takes the owner’s word that the key belongs to an attested chip, so a wrong registration could sign wrong verdicts. The proofs below let you compare the keys yourself.</>],
   ["Decide a fact disputed three times", <>A fact disputed three times is decided by the council, which can also void it. Today the council is the owner’s one key. A multisig is the plan; it isn’t built.</>],
 ];
 
 const CANT: [string, ReactNode][] = [
+  ["Change the code", <>The contract has no upgrade method, and its account has no access key: the last one was deleted on 14 November 2026 (<a className="link" href={explorerTx(LOCK_TX)} target="_blank" rel="noopener">the transaction</a>). Nobody can deploy different code to it or sign as it, us included. It also means a bug can’t be fixed at this address: a new version would be a new contract.</>],
   ["Spend your balance", <>Your USDC sits under your own account or key. No owner or operator method bets it or withdraws it for you. A free $1 is tied to the key made in your browser.</>],
   ["Change a settled outcome", <>A settled fact keeps its outcome and evidence. If the fact changes later, it reopens as a new market with its own pot; the old one stands.</>],
   ["Count a verdict without a valid signature", <>The contract rebuilds the signed text and checks the signature against the model’s registered key. A verdict that fails is refused. You can run the same check on <Link className="link" href="/rulings#judges">Results</Link>.</>],
@@ -53,10 +55,12 @@ const CHECKS: [string, string][] = [
   ["The unit suites", "AI, API and web suites, all passing, no network"],
   ["The hosted site", "health, the priced page and the live event stream"],
   ["The judges are attested, mainnet holds their keys", "TDX quotes and GPU tokens verified offline; each key is the one the market holds"],
+  ["Mainnet’s books close and every ruling verifies", "each verdict’s signature is read from its own transaction and checked against the key the market holds"],
+  ["The market’s code is locked", "its account has no access key, so no key can replace the code or sign as the market"],
 ];
 
 const TRUSTED: [string, string][] = [
-  ["One key can upgrade the market.", "Everything under “what this code stops” holds only while this code runs. An upgrade shows as a new hash at the top of this page, but it would already be live when you saw it."],
+  ["The code is locked; the owner’s powers are not.", "No key can replace the code. The owner can still do everything under “what we can do”: pause, withdraw the treasury, set the fee up to 3%, change the bond and dispute rules, register the judges’ keys and decide a fact disputed three times."],
   ["The owner registers the judges’ keys.", "The contract doesn’t check attestations itself. The proofs above let you compare, after the fact."],
   ["All three judges run on one provider, NEAR AI Cloud.", "You trust its secure chips and its signing. We don’t yet allowlist the measured workload or verify its gateway’s report."],
   ["The council is one key.", "It acts only on a fact disputed three times."],
@@ -116,7 +120,7 @@ export default async function TrustPage() {
       <PageHero
         kick="Trust · check it yourself"
         title="Nobody can change the rules quietly. Not even us."
-        lede={<>The market is a public contract on NEAR, and its code rebuilds <b>byte for byte</b> from the source. If anyone changes it, the code hash changes where everyone can see<span className="long">. Here is what we can do, what this code stops us doing, and how to check each line</span>.</>}
+        lede={<>The market is a public contract on NEAR. Its code rebuilds <b>byte for byte</b> from the source, and its account has <b>no key</b>, so nobody can replace it<span className="long">. Here is what we can still do, what this code stops us doing, and how to check each line</span>.</>}
         side={
           <div className="seal">
             <span className="k">Code running on {MARKET_ID}, read live</span>
@@ -130,17 +134,18 @@ export default async function TrustPage() {
         }
       />
 
-      <SHead id="rebuild" title="Rebuild it yourself" sub={`One command rebuilds the contract from source and prints its hash. A second runs all ten checks against the live deployments, and sends nothing. All ten last passed at commit ${JUDGE_RUN_AT}.`} />
+      <SHead id="rebuild" title="Rebuild it yourself" sub={`One command rebuilds the contract from source and prints its hash. A second runs all 12 checks against the live deployments, and sends nothing. All 12 last passed on ${JUDGE_RUN_ON}.`} />
       <div className="panel rebuild">
         <Code label="Rebuild the market" copy="node tools/judge/repro.mjs">{`git clone ${REPO_URL}\ncd priced-in && node tools/judge/repro.mjs\n# market ${code.code_hash}`}</Code>
-        <Code label="Run every check" copy="npm run judge">{"npm run judge\n# 10 checks: 10 PASS, 0 FAIL, 0 SKIP"}</Code>
+        <Code label="Run every check" copy="npm run judge">{"npm run judge\n# 12 checks: 12 PASS, 0 FAIL, 0 SKIP"}</Code>
         <p className="fine">
           {deployment.code.toolchain} · wasm sha256 <span className="hashv">{shortHash(code.sha256, 10, 8)}</span> · {Math.round(code.size / 1024)} KB
           {deployment.upgrades.map((u) => <span key={u.tx}> · <a className="link" href={explorerTx(u.tx)} target="_blank" rel="noopener">upgraded {u.at.slice(0, 10)}</a></span>)}
+          <span> · <a className="link" href={explorerTx(LOCK_TX)} target="_blank" rel="noopener">locked 2026-11-14</a></span>
         </p>
       </div>
       <div className="panel chartc tenchecks">
-        <h3>The ten checks</h3>
+        <h3>The 12 checks</h3>
         <ol className="checks10">
           {CHECKS.map(([title, detail], i) => <li key={title}><Icon name="check" /><span><b>{i + 1}. {title}.</b> {detail.charAt(0).toUpperCase()}{detail.slice(1)}.</span></li>)}
         </ol>
@@ -155,7 +160,7 @@ export default async function TrustPage() {
         <section className="panel cc cant" aria-labelledby="cant-h">
           <h3 id="cant-h"><Icon name="shield" />What this code stops us doing</h3>
           {CANT.map(([title, detail]) => <details key={title}><summary>{title}</summary><p>{detail}</p></details>)}
-          <p className="fine ccnote">These are rules of the contract, so they hold while this code runs. Upgrading it could change them, which is why the hash comes first on this page.</p>
+          <p className="fine ccnote">These are rules of the contract, and no key can replace the contract’s code. The hash at the top of this page is read live, so you can check that it hasn’t changed.</p>
         </section>
       </div>
 

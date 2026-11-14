@@ -1,6 +1,6 @@
 # What you must trust today
 
-Short and plain: what is live on NEAR mainnet, who can change it, and how to check each point yourself. Read on 13 November 2026.
+Short and plain: what is live on NEAR mainnet, who can change it, and how to check each point yourself. Read on 14 November 2026.
 
 ## What is live
 
@@ -9,7 +9,8 @@ Short and plain: what is live on NEAR mainnet, who can change it, and how to che
 | Hosted site | Live at https://isitpriced.com | `/health` (`network: mainnet`) |
 | Market | `market.isitpriced.near`, real USDC (`17208628…6133a1`, 6 decimals). The books close to the micro-USDC. | `npm run judge`, check 11 |
 | Code | The deployed code hash is the reproducible build's, rebuilt byte for byte on Ubuntu, macOS and Windows. | `node tools/judge/repro.mjs`, check 3 |
-| Jury | Three models on NEAR AI Cloud (DeepSeek-V4.1-Flash-1017, Qwen3.8-27B, glm-5.3-flash). 12 rulings, all settled: 11 false, 1 true; 36 signed verdicts, each checked by the contract against the model's registered key. No ruling has been disputed. | https://isitpriced.com/api/rulings, check 11 |
+| Lock | `market.isitpriced.near` has had no access key since 14 November 2026: no key can replace its code or sign as it. The owner keeps its owner methods (section 1). | `npm run judge`, check 12 |
+| Jury | Three models on NEAR AI Cloud (DeepSeek-V4.1-Flash-1017, Qwen3.8-27B, glm-5.3-flash). 14 rulings, all settled: 12 false, 2 true; 40 signed verdicts (two rulings settled on two of the three), each checked by the contract against the model's registered key. No ruling has been disputed. | https://isitpriced.com/api/rulings, check 11 |
 | Rewrites | Signed inside NEAR AI Cloud's TEE and anchored on mainnet: 16 signed and 16 anchored on the Tether page. | https://isitpriced.com/api/pages/tether (`totals`), check 11 |
 | Planner | A live model (DeepSeek-V4.1-Flash-1017) signs the receipt that opens each market. | `/health`, `checks.planner` |
 | AI traders | Three house traders (`h-archivist`, `h-skeptic`, `h-quant`.isitpriced.near) bet real USDC from accounts we funded. They are ours, not users. | `/api/agents` |
@@ -20,12 +21,14 @@ Short and plain: what is live on NEAR mainnet, who can change it, and how to che
 
 Outside users: none confirmed by 13 November. Every mainnet bet so far is ours: the house traders, our Checker and our own tests of the free $1.
 
-## 1. The owner can replace the market's code
+## 1. The market's code is locked; the owner's powers are not
 
-- `market.isitpriced.near` has one key, a full-access key that the owner `isitpriced.near` also holds (`view_access_key_list`, read on 13 November). That key can deploy different code to the market. It is how the market has been upgraded in place, with the same state layout; each upgrade is recorded under `upgrades` in `deployments/mainnet.json`.
-- The market is **not locked**. `scripts/deploy.mjs mainnet --lock` would remove the key, but a locked contract can never be fixed. The better shape is upgrades through a delay that anyone can watch. It is not built.
-- How to see whether the code changed: compare the code hash on chain with the reproducible build (check 3).
-- Through owner methods, the owner can also pause the market (while paused no USDC leaves and nothing settles), set the bond, lane budget and dispute table, set the taker fee up to 3%, set the planner key, propose house agents (an account is only chargeable after it accepts with its own key), and register model keys (section 2).
+- `market.isitpriced.near` has no access key. Its last one, a full-access key the owner `isitpriced.near` also held, was deleted on 14 November 2026 in transaction [3fU4Lc…](https://nearblocks.io/txns/3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp) (`deployments/mainnet-lock.json`). Nobody can sign as the market, so nobody can deploy different code to it, or send its USDC out through the USDC contract. The contract has no upgrade method, and its source makes only function-call promises, so the code can't replace itself or add a key. Judge check 12 reads the key list and the code hash from mainnet on every run. Before the lock, that key was how the market had been upgraded in place, with the same state layout; each upgrade is recorded under `upgrades` in `deployments/mainnet.json`.
+- What the lock costs: a bug in this contract can never be fixed at this address, and nothing can be added to it. A later version would be a new contract at a new address; this one keeps its claims and its money. The NEAR the account holds for storage stays there, because the contract never sends NEAR.
+- **The lock binds the code, not the owner.** The owner signs from its own account, `isitpriced.near`, and keeps every owner method below.
+- How to check it yourself: `view_access_key_list` on `market.isitpriced.near` returns no keys, and the code hash on chain is the reproducible build's (checks 12 and 3; VERIFY.md, step 12).
+- Through owner methods, the owner can still pause the market (while paused no USDC leaves and nothing settles), set the bond, lane budget and dispute table, set the taker fee up to 3%, set the planner key, propose house agents (an account is only chargeable after it accepts with its own key), and register model keys (section 2).
+- The owner can also withdraw the treasury (`withdraw_treasury`: fees and the house's own money, never a bettor's balance, a claim's reserve, a bond or a bounty), and decides a claim disputed three times (section 3).
 
 ## 2. The owner registers the judges' keys
 
@@ -37,7 +40,7 @@ Outside users: none confirmed by 13 November. Every mainnet bet so far is ours: 
 
 - Anyone can object to a provisional ruling by posting twice the bond; that flips the proposed outcome and restarts the window. The third objection escalates the claim, and `council_settle` calls `assert_owner`: the owner decides it or voids it (every bond back, the claim reopens).
 - No mainnet ruling has been disputed yet, so this has never been used.
-- The plan is to take the owner out of this path: a third objection would void the challenge and leave the sentence marked unsettled. Voiding refunds every bond, so it needs a cost to object that doesn't go to the owner. It is not built.
+- The plan is to take the owner out of this path: a third objection would void the challenge and leave the sentence marked unsettled. Voiding refunds every bond, so it needs a cost to object that doesn't go to the owner. It is not built, and since the lock it can't be added to this contract: it would take a new one.
 
 ## 4. One TEE provider
 
@@ -58,7 +61,7 @@ Outside users: none confirmed by 13 November. Every mainnet bet so far is ours: 
 - **The sources a judge may rely on are not fixed on chain.** The challenger's evidence names its source. Our services fetch it and check the quote before any judge reads it (THREAT_MODEL.md, threat 2), and that check runs on our servers, not in the contract.
 - **A relayer can ask a model more than once** and submit the answer it likes. Each model rules once on chain and the temperature is 0, but the contract can't see answers that were thrown away (threat 1).
 - **Trading stays open while a claim is being judged**, so whoever sees a verdict first can bet on it (threat 10).
-- All of this holds while the code stays the same, and the owner can replace the code (section 1).
+- All of this is in the contract's code, and no key can replace that code (section 1, check 12). What the owner can still do is listed there.
 
 ## 7. The services
 

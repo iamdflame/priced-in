@@ -2,9 +2,9 @@
 
 `npm run judge` does all of this in one go. This page does the same steps without the judge, so you don't have to trust it. Each step gives a command and the output to expect. It needs only `curl` and Node 22.18 or later; Rust is needed for step 3. Nothing here sends a transaction or needs a key.
 
-Measured on 9 November 2026 (Windows 11, Node 24.19.0, commit f83eddc): `npm run judge:quick` printed `11 checks: 9 PASS, 0 FAIL, 2 SKIP in 0m25s` (checks 3 and 8 SKIP by design in quick mode), and `npm run judge -- --site=https://isitpriced.com` printed `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s`.
+Measured on 9 November 2026 (Windows 11, Node 24.19.0, commit f83eddc): `npm run judge:quick` printed `11 checks: 9 PASS, 0 FAIL, 2 SKIP in 0m25s` (checks 3 and 8 SKIP by design in quick mode), and `npm run judge -- --site=https://isitpriced.com` printed `11 checks: 11 PASS, 0 FAIL, 0 SKIP in 1m59s`. On 14 November 2026, with check 12 added, `npm run judge:quick` printed `12 checks: 10 PASS, 0 FAIL, 2 SKIP in 0m28s` and `npm run judge` printed `12 checks: 12 PASS, 0 FAIL, 0 SKIP in 2m31s`.
 
-Steps 1 to 9 use the persistent testnet deployment; steps 10 and 11 read the real-money market on mainnet. The testnet deployment's public values are in `deployments/testnet.json`. In the commands below:
+Steps 1 to 9 use the persistent testnet deployment; steps 10, 11 and 12 read the real-money market on mainnet. The testnet deployment's public values are in `deployments/testnet.json`. In the commands below:
 
 ```
 M=market.pimw3dxfzp.basalt-lane-mw2skhdc.testnet
@@ -189,3 +189,21 @@ console.log(ok+" of "+ev.verdicts.length+" signatures verify; challenge 0, "+v0.
 - Open https://nearblocks.io/txns/6HWB2Esndp73tCtrzvCD99kfBEwnrmR6YTdtfUZUa2dz: a `submit_verdict` call to `market.isitpriced.near` whose `response` and `signature_hex` are the file's.
 
 The file is only a pointer. Check 11 (`npm run judge:quick`, 25 s) goes further from the chain itself: it reads every challenge from 0 to `stats.challenges - 1`, takes each response and signature from its transaction, hashes `canonical_request` (the market's own rebuild of the request) against the stored `request_hash`, verifies ed25519 against `get_model`'s key, and checks each settled outcome against the verdicts and disputes. On 9 November 2026: 8 of 8 settled, 24 verdicts by 3 models, all verified, no disputes.
+
+## 12. The mainnet market's code is locked (30 s)
+
+On NEAR an account's code changes in two ways only: a deploy signed with one of the account's own keys, or the contract deploying over itself. Read the market's keys and its code hash, then search its source:
+
+```
+curl -s https://free.rpc.fastnear.com -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_access_key_list","finality":"final","account_id":"market.isitpriced.near"}}'
+curl -s https://free.rpc.fastnear.com -H 'content-type: application/json' -d '{"jsonrpc":"2.0","id":1,"method":"query","params":{"request_type":"view_account","finality":"final","account_id":"market.isitpriced.near"}}'
+grep -rnE "\.(deploy_contract|add_full_access_key|add_access_key|delete_key|delete_account|transfer|stake|create_account)\(" contracts/market/src crates/lmsr/src crates/rules/src
+```
+
+**Expect** (14 November 2026):
+- The first call: `"keys":[]`. With no key, nobody can sign as the market.
+- The second: `"code_hash":"FQJXhaVJGwC37dekdneGvEoR9mzJUMkpp4sRjR3WtueC"`, the build step 3 rebuilds.
+- The `grep` prints nothing: the market's source never deploys code, adds or deletes a key, sends NEAR or deletes the account. Its only promises are function calls, to USDC and to itself.
+- The last key was deleted in https://nearblocks.io/txns/3fU4LcMrV3V7j5bKqpZJmAwwMVcNfakfqcfnLxYVKjpp: a `DeleteKey` action on `market.isitpriced.near` (`deployments/mainnet-lock.json`).
+
+This locks the code, not the owner. `isitpriced.near` keeps every owner method: pause, the limits, the fee (3% at most), the judges' keys, an escalated claim, and the treasury's own money (`docs/TRUST.md`, section 1). Check 12 (`npm run judge:quick`) reads the keys and the code hash at one final block and scans the source the same way.

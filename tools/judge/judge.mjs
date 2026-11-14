@@ -37,6 +37,7 @@ const { checkRepro, checkBooks, checkRewrite, reproBuild } = await import("./che
 const { checkOneClick, checkCorpus, checkSuites, checkSite } = await import("./checks/offchain.mjs");
 const { checkAttestations } = await import("./checks/attestation.mjs");
 const { checkMainnet } = await import("./checks/mainnet.mjs");
+const { checkLock } = await import("./checks/lock.mjs");
 const { Rpc, MAINNET_RPCS, crashAsSkip } = await import("./lib/near.mjs");
 
 const dep = JSON.parse(fs.readFileSync(path.join(REPO, "deployments/testnet.json"), "utf8"));
@@ -63,6 +64,7 @@ const CHECKS = [
   [9, "hosted demo", !SITE ? async () => ({ status: "SKIP", detail: "SITE_URL is not set; the hosted demo is https://isitpriced.com", see: "SITE_URL=https://isitpriced.com npm run judge" }) : OFFLINE ? offlineSkip("the hosted demo") : () => checkSite(SITE)],
   [10, "attested models, verified offline, registered on mainnet", () => checkAttestations(REPO, { mainnet, offline: OFFLINE })],
   [11, "mainnet books and rulings", () => checkMainnet(REPO, mainnet, { offline: OFFLINE, site: SITE || "https://isitpriced.com" }), "node tools/judge/snapshot-mainnet-rulings.mjs (remakes the evidence)"],
+  [12, "mainnet market locked: no key can change the code", () => checkLock(REPO, mainnet, { offline: OFFLINE })],
 ];
 
 const results = [];
