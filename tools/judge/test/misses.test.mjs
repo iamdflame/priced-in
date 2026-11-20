@@ -28,7 +28,7 @@ test("misses: two printed lines, each starting MISS, with every id in them", () 
   const lines = missLines(knownMisses(REPO));
   assert.equal(lines.length, 2);
   assert.ok(lines.every((l) => l.startsWith("MISS ")));
-  assert.match(lines[0], /ruled on 142 of 232 hand-checked facts and declined 90; of the 142 they were wrong on 6: /);
+  assert.match(lines[0], /ruled on 142 of 232 checked facts and declined 90; of the 142 they were wrong on 6: /);
   assert.match(lines[0], /ethereum-0131 \(false, ruled TRUE: Qwen3\.8-27B TRUE, DeepSeek-V4\.1-Flash TRUE, glm-5\.3-flash TRUE\)/);
   assert.match(lines[1], /^MISS of 53 challenges against true lines with forged or misleading evidence, the Sentinel would dispute 52 and not 1: prediction-market-0067 \(a real quote with a lie around it: the judges asked whether the source supports it answered NO, NO, YES; a jury that ran anyway ruled it FALSE\)$/);
   assert.deepEqual(missLines({ bench: { facts: 3, ruled: 2, right: 2, declined: 1, wrong: [] }, attacks: { cases: 4, disputed: 4, undisputed: [] } }).map((l) => l.slice(-6)), [": none", ": none"]);

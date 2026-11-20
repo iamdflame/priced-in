@@ -33,7 +33,7 @@ npm run judge:full      # npm ci, the site's npm ci, then all 12 checks against 
 - Check 3 per platform: clean `ubuntu-latest`, `macos-latest` and `windows-latest` runners rebuild both deployed hashes byte for byte with `node tools/judge/repro.mjs` (`.github/workflows/repro.yml`, branch `ci/repro`): [run 42542226417](https://github.com/iamdflame/priced-in/actions/runs/42542226417) and [run 42542566537](https://github.com/iamdflame/priced-in/actions/runs/42542566537), all three jobs green in both.
 - `npm run judge -- --offline` needs no network: checks that read a chain, 1Click or the site say SKIP; check 11 still verifies the recorded verdict bytes and signatures.
 - Exit code 1 if any check FAILs. `--json` prints `{checks, known_misses, summary}`.
-- Under the checks, every run prints the known misses, recomputed from `deployments/jury-bench.json` and `deployments/sentinel-test.json` (`tools/judge/misses.mjs`): the judges were wrong on 6 of the 142 hand-checked facts they ruled on, each named with its three verdicts, and the Sentinel would not have disputed 1 of 53 misleading challenges. These are not checks and can't pass or fail.
+- Under the checks, every run prints the known misses, recomputed from `deployments/jury-bench.json` and `deployments/sentinel-test.json` (`tools/judge/misses.mjs`): the judges were wrong on 6 of the 142 facts they ruled on (the 232 facts were checked against primary sources beforehand by an AI annotator, not by a person: `corpus/METHOD.md`), each named with its three verdicts, and the Sentinel would not have disputed 1 of 53 misleading challenges. These are not checks and can't pass or fail.
 
 ## The 12 checks
 

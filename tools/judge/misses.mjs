@@ -1,7 +1,7 @@
 // The judges' known misses, recomputed from the committed test runs and printed with every judge report.
 // A report that only says PASS hides what the system gets wrong; these lines are the other half. They are
 // facts about the AI judges and the Sentinel, measured before launch, never a check that can pass or fail:
-//   deployments/jury-bench.json     232 hand-checked facts, each put to the three judges with its sources
+//   deployments/jury-bench.json     232 facts checked against primary sources, each put to the three judges with its sources
 //   deployments/sentinel-test.json  challenges against true lines with forged or misleading evidence
 // The same rulings are listed, with why each happened, at https://isitpriced.com/accuracy.
 import fs from "node:fs";
@@ -34,7 +34,7 @@ export function missLines(m) {
   const w = m.bench.wrong.map((x) => `${x.id} (${x.right_answer.toLowerCase()}, ruled ${x.panel}: ${Object.entries(x.jurors).map(([j, v]) => `${j} ${v}`).join(", ")})`);
   const u = m.attacks.undisputed.map((x) => `${x.id} (${SET_WORDS[x.set] || x.set}${x.support.length ? `: the judges asked whether the source supports it answered ${x.support.join(", ")}` : ""}; a jury that ran anyway ruled it ${x.panel})`);
   return [
-    `MISS the judges ruled on ${m.bench.ruled} of ${m.bench.facts} hand-checked facts and declined ${m.bench.declined}; of the ${m.bench.ruled} they were wrong on ${m.bench.wrong.length}: ${w.join("; ") || "none"}`,
+    `MISS the judges ruled on ${m.bench.ruled} of ${m.bench.facts} checked facts and declined ${m.bench.declined}; of the ${m.bench.ruled} they were wrong on ${m.bench.wrong.length}: ${w.join("; ") || "none"}`,
     `MISS of ${m.attacks.cases} challenges against true lines with forged or misleading evidence, the Sentinel would dispute ${m.attacks.disputed} and not ${m.attacks.undisputed.length}: ${u.join("; ") || "none"}`,
   ];
 }

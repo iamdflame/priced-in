@@ -51,7 +51,7 @@ Outside users: none confirmed by 13 November. Every mainnet bet so far is ours: 
 ## 5. How often the judges are wrong
 
 - `npm run judge` prints the known misses under its checks on every run, recomputed from the committed test runs (`tools/judge/misses.mjs`): each wrong ruling by its id with the three verdicts, and the one misleading challenge the Sentinel would not have disputed.
-- On 232 facts checked by hand, the judges ruled on 142 and were right on 136. They declined 90; a declined challenge refunds the bond. The six wrong rulings are listed at https://isitpriced.com/accuracy.
+- On 232 facts checked against primary sources by an AI annotator (`corpus/METHOD.md`), the judges ruled on 142 and were right on 136. They declined 90; a declined challenge refunds the bond. The six wrong rulings are listed at https://isitpriced.com/accuracy.
 - Accusations and "rule this way" orders fooled them 0 times in 10. A made-up receipt fooled them 9 times in 10, so receipts are now fetched from the source before the judges read them, and the Sentinel disputes a challenge whose receipt doesn't match (52 of 53 lies disputed, 0 of 21 honest challenges).
 
 ## 6. What is fixed before the first bet, and what is not
